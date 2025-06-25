@@ -1,0 +1,19 @@
+{
+  "name": "taskly",
+  "version": "1.0.0",
+  "description": "Task app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suletetes/taskly.git"
+  },
+  "author": "suleiman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/suletetes/taskly/issues"
+  },
+  "homepage": "https://github.com/suletetes/taskly#readme"
+}
