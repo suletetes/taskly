@@ -1,10 +1,336 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="index, follow">
+    <link rel="shortcut icon" type="image/x-icon" href="../../public/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Edit Task</title>
 </head>
-<body>
+<body data-clean-url="true">
 
+<!-- Preloader -->
+<div id="page-loading-blocs-notifaction" class="page-preloader"></div>
+<!-- Preloader END -->
+
+<!-- Main container -->
+<div class="page-container">
+
+    <header>
+        <!-- bloc-0 -->
+        <div class="bloc l-bloc none" id="bloc-0">
+            <div class="container bloc-sm bloc-no-padding-lg">
+                <div class="row">
+                    <div class="col">
+                        <nav class="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
+                            <div class="container-fluid">
+                                <a class="navbar-brand link-style ltc-2869" href="../..">Taskly</a>
+                                <button id="nav-toggle" type="button"
+                                        class="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0"
+                                        aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse"
+                                        data-bs-target=".navbar-25309">
+                                    <span class="navbar-toggler-icon"><svg height="32" viewBox="0 0 32 32" width="32"><path
+                                            class="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path></svg></span>
+                                </button>
+                                <div class="collapse navbar-collapse navbar-35179 navbar-25309">
+                                    <ul class="site-navigation nav navbar-nav none ms-auto">
+                                        <li class="nav-item">
+                                            <a href="../.." class="nav-link  ltc-2869">Home</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../../about" class="a-btn nav-link ltc-2869">About</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../.." class="nav-link a-btn ltc-2869">Signup</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../../login" class="nav-link a-btn ltc-2869">Login</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- bloc-0 END -->
+    </header>
+
+    <!-- bloc-edit-task -->
+    <div class="bloc none l-bloc mt-3" id="bloc-edit-task">
+        <div class="container bloc-lg-lg">
+            <div class="row">
+                <div class="col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
+                    <form id="edit-task-form" autocomplete="off" novalidate>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h2 class="mb-4 text-lg-center">
+                                    <i class="fa fa-edit me-2"></i>Edit Task
+                                </h2>
+                            </div>
+                            <div class="text-lg-start col-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label" for="task-title">
+                                        <h4><i class="fa fa-heading me-1"></i> Task Title <span
+                                                class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="text" class="form-control" id="task-title" name="title"
+                                           placeholder="e.g. Finalize design proposal" required autofocus>
+                                    <div class="invalid-feedback" id="title-error">Task Title is required.</div>
+                                </div>
+                            </div>
+                            <div class="text-lg-start col-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label" for="task-desc">
+                                        <h4><i class="fa fa-align-left me-1"></i>Description</h4>
+                                    </label>
+                                    <textarea class="form-control" id="task-desc" name="description" rows="3"
+                                              placeholder="Details or notes about this task"></textarea>
+                                </div>
+                            </div>
+                            <!-- Due Date (required) -->
+                            <div class="text-lg-start col-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fs-5" for="due-date">
+                                        <h4><i class="fa fa-calendar-alt me-1"></i>Due Date <span
+                                                class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="date" class="form-control" id="due-date" name="dueDate" required>
+                                    <div class="invalid-feedback" id="due-date-error" style="display:none;">Due Date is
+                                        required.
+                                    </div>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm me-1"
+                                                onclick="quickDate('today')">Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm me-1"
+                                                onclick="quickDate('tomorrow')">Tomorrow
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                onclick="quickDate('nextweek')">Next Week
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Priority (required) -->
+                            <div class="text-lg-start col-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fs-5">
+                                        <h4><i class="fa fa-bolt me-1"></i>Priority <span class="text-danger">*</span>
+                                        </h4>
+                                    </label>
+                                    <div class="btn-group w-100" role="group" aria-label="Priority">
+                                        <input type="radio" class="btn-check" name="priority" id="priority-low"
+                                               value="low" required>
+                                        <label class="btn btn-outline-primary" for="priority-low">
+                                            <i class="fa fa-circle text-primary me-1"></i>Low
+                                        </label>
+                                        <input type="radio" class="btn-check" name="priority" id="priority-medium"
+                                               value="medium" required>
+                                        <label class="btn btn-outline-warning" for="priority-medium">
+                                            <i class="fa fa-circle text-warning me-1"></i>Medium
+                                        </label>
+                                        <input type="radio" class="btn-check" name="priority" id="priority-high"
+                                               value="high" required>
+                                        <label class="btn btn-outline-danger" for="priority-high">
+                                            <i class="fa fa-circle text-danger me-1"></i>High
+                                        </label>
+                                    </div>
+                                    <div class="invalid-feedback d-block" id="priority-error" style="display:none;">
+                                        Priority is required.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-lg-start col-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fs-5">
+                                        <i class="fa fa-tags me-1"></i>Tags
+                                    </label>
+                                    <div class="mb-2" id="tag-list">
+                                        <span class="badge bg-secondary me-1 tag-item">Work <button type="button"
+                                                                                                    class="btn-close btn-close-white btn-sm ms-1 remove-tag"
+                                                                                                    aria-label="Remove"></button></span>
+                                        <span class="badge bg-secondary me-1 tag-item">Design <button type="button"
+                                                                                                      class="btn-close btn-close-white btn-sm ms-1 remove-tag"
+                                                                                                      aria-label="Remove"></button></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="tag-input" placeholder="+ Add">
+                                    <small class="form-text text-muted">Press Enter to add tag. Click × to
+                                        remove.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="bloc-button btn btn-wire w-100" type="submit">
+                                <i class="fa fa-save me-1"></i>Save Changes
+                            </button>
+                            <button class="bloc-button btn btn-outline-secondary w-100" type="button"
+                                    onclick="window.history.back()">
+                                <i class="fa fa-times me-1"></i>Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- bloc-edit-task END -->
+
+    <!-- ScrollToTop Button -->
+    <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
+            onclick="scrollToTarget('1',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
+            <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
+        </svg>
+    </button>
+    <!-- ScrollToTop Button END-->
+
+    <footer>
+        <!-- bloc-15 -->
+        <div class="bloc l-bloc none" id="bloc-15">
+            <div class="container bloc-lg bloc-sm-lg">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-lg-12">
+                        <p class="text-lg-center">
+                            Copyright @ 2025 Taskify
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- bloc-15 END -->
+    </footer>
+</div>
+<!-- Main container END -->
+
+<!-- Additional JS -->
+<script src="../../public/js/all.js?6535"></script>
+<script>
+    // Hide priority error when a radio is selected
+    document.querySelectorAll('input[name="priority"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            document.getElementById('priority-error').style.display = 'none';
+        });
+    });
+
+    function quickDate(option) {
+        const input = document.getElementById('due-date');
+        const today = new Date();
+        if (option === 'today') {
+            input.valueAsDate = today;
+        } else if (option === 'tomorrow') {
+            const tmr = new Date(today);
+            tmr.setDate(today.getDate() + 1);
+            input.valueAsDate = tmr;
+        } else if (option === 'nextweek') {
+            const nw = new Date(today);
+            nw.setDate(today.getDate() + 7);
+            input.valueAsDate = nw;
+        }
+    }
+
+    document.getElementById('edit-task-form').addEventListener('submit', function (e) {
+        let valid = true;
+
+        // Title validation
+        const title = document.getElementById('task-title');
+        const titleError = document.getElementById('title-error');
+        if (!title.value.trim()) {
+            title.classList.add('is-invalid');
+            titleError.style.display = 'block';
+            title.focus();
+            valid = false;
+        } else {
+            title.classList.remove('is-invalid');
+            titleError.style.display = 'none';
+        }
+
+        // Due date validation
+        const dueDate = document.getElementById('due-date');
+        const dueDateError = document.getElementById('due-date-error');
+        if (!dueDate.value) {
+            dueDate.classList.add('is-invalid');
+            dueDateError.style.display = 'block';
+            if (valid) dueDate.focus();
+            valid = false;
+        } else {
+            dueDate.classList.remove('is-invalid');
+            dueDateError.style.display = 'none';
+        }
+
+        // Priority validation
+        const priorityError = document.getElementById('priority-error');
+        const priorityChecked = document.querySelector('input[name="priority"]:checked');
+        if (!priorityChecked) {
+            priorityError.style.display = 'block';
+            if (valid) document.getElementById('priority-low').focus();
+            valid = false;
+        } else {
+            priorityError.style.display = 'none';
+        }
+
+        if (!valid) e.preventDefault();
+    });
+    document.getElementById('task-title').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('edit-task-form').requestSubmit();
+        }
+    });
+
+    // Editable tags
+    const tagInput = document.getElementById('tag-input');
+    const tagList = document.getElementById('tag-list');
+
+    function createTagElement(text) {
+        const tag = document.createElement('span');
+        tag.className = 'badge bg-secondary me-1 tag-item';
+        tag.textContent = text;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-close btn-close-white btn-sm ms-1 remove-tag';
+        btn.setAttribute('aria-label', 'Remove');
+        btn.onclick = function () {
+            tag.remove();
+        };
+        tag.appendChild(document.createTextNode(' '));
+        tag.appendChild(btn);
+        return tag;
+    }
+
+    // Make initial tags removable
+    document.querySelectorAll('#tag-list .tag-item').forEach(function (tag) {
+        if (!tag.querySelector('.remove-tag')) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-close btn-close-white btn-sm ms-1 remove-tag';
+            btn.setAttribute('aria-label', 'Remove');
+            btn.onclick = function () {
+                tag.remove();
+            };
+            tag.appendChild(document.createTextNode(' '));
+            tag.appendChild(btn);
+        }
+    });
+    tagInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && tagInput.value.trim()) {
+            e.preventDefault();
+            const tag = createTagElement(tagInput.value.trim());
+            tagList.appendChild(tag);
+            tagInput.value = '';
+        }
+    });
+    tagList.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-tag')) {
+            e.target.closest('.tag-item').remove();
+        }
+    });
+</script>
+<!-- Additional JS END -->
 </body>
 </html>
