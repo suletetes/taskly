@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/suletetes/taskly/issues"
   },
-  "homepage": "https://github.com/suletetes/taskly#readme"
+  "homepage": "https://github.com/suletetes/taskly#readme",
+  "dependencies": {
+    "ejs": "",
+    "express": "",
+    "mongoose": "",
+    "method-override": "",
+    "express-session": "",
+    "passport": "",
+    "sanitize-html": ""
+  }
 }
