@@ -5,18 +5,157 @@
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-	<meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow">
     <link rel="shortcut icon" type="image/x-icon" href="../../public/img/favicon.ico">
 
-	<link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
 
-    <title>users</title>
+    <title>Users</title>
+
+    <style>
+        .user-card-img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 3px solid #e0e0e0;
+            margin-bottom: 1rem;
+            background: #fafafa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s;
+        }
 
 
+        .user-card-img:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+        }
 
-<!-- Analytics -->
+        .user-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            padding: 2rem 1rem 1.5rem 1rem;
+            margin-bottom: 2rem;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-<!-- Analytics END -->
+        .user-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .user-card h5 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 1.2rem;
+        }
+
+        .btn-view-profile {
+            background: #fff;
+            border: 1.5px solid #bbb;
+            color: #333;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s, border 0.15s;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+        }
+
+        .btn-view-profile:hover, .btn-view-profile:focus {
+            background: #f5f5f5;
+            color: #222;
+            border-color: #888;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 2rem;
+        }
+
+        .pagination .page-item {
+            display: inline-block;
+        }
+
+        .pagination .page-link {
+            background: #fff;
+            color: #555;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px !important;
+            font-weight: 500;
+            min-width: 44px;
+            min-height: 44px;
+            margin: 0 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: background 0.15s, color 0.15s, border 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .pagination .page-link:focus {
+            border-color: #888;
+            box-shadow: 0 0 0 2px #e0e0e0;
+        }
+
+        .pagination .page-link:hover {
+            background: #f3f4f6;
+            color: #222;
+            border-color: #888;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #e0e0e0;
+            color: #222;
+            border-color: #888;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #bbb;
+            background: #fafafa;
+            border-color: #eee;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .rigid-pagination .page-link {
+            border-radius: 0 !important;
+            border: 1.5px solid #bbb;
+            color: #333;
+            font-weight: 500;
+            min-width: 44px;
+            min-height: 44px;
+            margin: 0 2px;
+            background: #fff;
+            transition: background 0.15s, color 0.15s, border 0.15s;
+        }
+
+        .rigid-pagination .page-item.active .page-link,
+        .rigid-pagination .page-link:focus,
+        .rigid-pagination .page-link:hover {
+            background: #f5f5f5;
+            color: #222;
+            border-color: #888;
+        }
+
+        @media (max-width: 576px) {
+            .user-card-img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .user-card {
+                padding: 1.2rem 0.5rem 1rem 0.5rem;
+            }
+        }
+    </style>
+
+    <!-- Analytics -->
+
+    <!-- Analytics END -->
 
 </head>
 <body data-clean-url="true">
@@ -29,261 +168,191 @@
 <!-- Main container -->
 <div class="page-container">
 
-<header>
+    <header>
 
-<!-- bloc-0 -->
-<div class="bloc l-bloc none" id="bloc-0">
-	<div class="container bloc-sm bloc-no-padding-lg">
-		<div class="row">
-			<div class="col">
-				<nav class="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
-					<div class="container-fluid">
-						<a class="navbar-brand link-style ltc-2869" href="../..">Taskly</a>
-						<button id="nav-toggle" type="button" class="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0" aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse" data-bs-target=".navbar-25309">
-							<span class="navbar-toggler-icon"><svg height="32" viewBox="0 0 32 32" width="32"><path class="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path></svg></span>
-						</button>
-						<div class="collapse navbar-collapse navbar-35179 navbar-25309">
-								<ul class="site-navigation nav navbar-nav none ms-auto">
-									<li class="nav-item">
-										<a href="../.." class="nav-link  ltc-2869">Home</a>
-									</li>
-									<li class="nav-item">
-										<a href="../about" class="a-btn nav-link ltc-2869">About</a>
-									</li>
-									<li class="nav-item">
-										<a href="../.." class="nav-link a-btn ltc-2869">Signup</a>
-									</li>
-									<li class="nav-item">
-										<a href="../login" class="nav-link a-btn ltc-2869">Login</a>
-									</li>
-								</ul>
-							</div>
-					</div>
-				</nav>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-0 END -->
-
-</header>
-<!-- bloc-12 -->
-<div class="bloc l-bloc" id="bloc-12">
-	<div class="container bloc-lg bloc-md-lg">
-		<div class="row">
-			<div class="col text-center">
-				<h3 class="mg-md">
-					See All The Users<br>
-				</h3>
-			</div>
-		</div>
-		<div class="row voffset">
-			<div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div><div class="col-lg-3 col-md-6 text-center">
-				<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-				<h3 class="text-lg-center mb-lg-1 mt-lg-1">
-					Username
-				</h3>
-				<h5 class="text-lg-center">
-					&nbsp;Tasks Completed: 62&nbsp;
-				</h5>
-			</div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
+        <!-- bloc-0 -->
+        <div class="bloc l-bloc none" id="bloc-0">
+            <div class="container bloc-sm bloc-no-padding-lg">
+                <div class="row">
+                    <div class="col">
+                        <nav class="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
+                            <div class="container-fluid">
+                                <a class="navbar-brand link-style ltc-2869" href="../..">Taskly</a>
+                                <button id="nav-toggle" type="button"
+                                        class="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0"
+                                        aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse"
+                                        data-bs-target=".navbar-25309">
+                                    <span class="navbar-toggler-icon"><svg height="32" viewBox="0 0 32 32" width="32"><path
+                                            class="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path></svg></span>
+                                </button>
+                                <div class="collapse navbar-collapse navbar-35179 navbar-25309">
+                                    <ul class="site-navigation nav navbar-nav none ms-auto">
+                                        <li class="nav-item">
+                                            <a href="../.." class="nav-link  ltc-2869">Home</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../about" class="a-btn nav-link ltc-2869">About</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../.." class="nav-link a-btn ltc-2869">Signup</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../login" class="nav-link a-btn ltc-2869">Login</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
-            </div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
-            </div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
-            </div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
-            </div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
-            </div>
-            <div class="col-lg-3 col-md-6 text-center">
-                <picture>
-                    <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
-                            data-srcset="../../public/img/placeholder-user.webp">
-                    <img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png"
-                         class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267"
-                         height="267"></picture>
-                <h3 class="text-lg-center mb-lg-1 mt-lg-1">
-                    Username
-                </h3>
-                <h5 class="text-lg-center">
-                    &nbsp;Tasks Completed: 62&nbsp;
-                </h5>
-            </div>
+        </div>
+        <!-- bloc-0 END -->
 
-		</div>
-	</div>
-</div>
-<!-- bloc-12 END -->
+    </header>
+    <!-- bloc-12 -->
+    <div class="bloc l-bloc" id="bloc-12">
+        <div class="container bloc-lg bloc-md-lg">
+            <div class="row">
+                <div class="col text-center">
+                    <h3 class="mg-md">
+                         All Users<br>
+                    </h3>
+                </div>
+            </div>
+            <div class="row voffset" id="users-list">
+                <!-- User cards will be rendered here by JS -->
+            </div>
+            <nav aria-label="User pagination" class="d-flex justify-content-center mt-4">
+                <ul class="pagination" id="pagination">
+                    <!-- Pagination buttons will be rendered here by JS -->
+                </ul>
+            </nav>
+        </div>
+    </div>
 
-<!-- ScrollToTop Button -->
-<button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop" onclick="scrollToTarget('1',this)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32"><path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/></svg></button>
-<!-- ScrollToTop Button END-->
+    <!-- bloc-12 END -->
+
+    <!-- ScrollToTop Button -->
+    <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
+            onclick="scrollToTarget('1',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
+            <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
+        </svg>
+    </button>
+    <!-- ScrollToTop Button END-->
 
 
-<footer>
+    <footer>
 
-<!-- bloc-15 -->
-<div class="bloc l-bloc none" id="bloc-15">
-	<div class="container bloc-lg bloc-sm-lg">
-		<div class="row">
-			<div class="col-md-3 col-sm-6 col-lg-12">
-				<p class="text-lg-center">
-					Copyright @ 2025 Taskify
-				</p>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-15 END -->
+        <!-- bloc-15 -->
+        <div class="bloc l-bloc none" id="bloc-15">
+            <div class="container bloc-lg bloc-sm-lg">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-lg-12">
+                        <p class="text-lg-center">
+                            Copyright @ 2025 Taskify
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- bloc-15 END -->
 
-</footer>
+    </footer>
 </div>
 <!-- Main container END -->
 
 
-
 <!-- Additional JS -->
 <script src="../../public/js/all.js?6535"></script><!-- Additional JS END -->
+<script>
+    // Example user data (replace with real data from backend)
+    const users = [
+        {username: "alice", tasks: 62, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "bob", tasks: 48, avatar: "../../public/img/avatars/avatar2.png"},
+        {username: "carol", tasks: 75, avatar: "../../public/img/avatars/avatar3.png"},
+        {username: "dave", tasks: 30, avatar: "../../public/img/avatars/avatar4.png"},
+        {username: "eve", tasks: 90, avatar: "../../public/img/avatars/avatar5.png"},
+        {username: "frank", tasks: 12, avatar: "../../public/img/avatars/avatar6.png"},
+        {username: "grace", tasks: 55, avatar: "../../public/img/avatars/avatar7.png"},
+        {username: "heidi", tasks: 41, avatar: "../../public/img/avatars/avatar8.png"},
+        {username: "ivan", tasks: 23, avatar: "../../public/img/avatars/avatar9.png"},
+        {username: "judy", tasks: 67, avatar: "../../public/img/avatars/avatar10.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+        {username: "mallory", tasks: 38, avatar: "../../public/img/avatars/avatar1.png"},
+    ];
+
+    const usersPerPage = 12;
+    let currentPage = 1;
+
+    function renderUsers(page) {
+        const start = (page - 1) * usersPerPage;
+        const end = start + usersPerPage;
+        const usersToShow = users.slice(start, end);
+
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = usersToShow.map(user => `
+        <div class="col-lg-3 col-md-6 text-center">
+            <div class="user-card">
+                <img src="${user.avatar}" alt="${user.username}" class="user-card-img" loading="lazy">
+                <h3 class="text-lg-center mb-lg-1 mt-lg-1">${user.username}</h3>
+                <h5 class="text-lg-center">Tasks Completed: ${user.tasks}</h5>
+                <a href="/user/${user.username}" class="btn btn-view-profile mt-2">View Profile</a>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(users.length / usersPerPage);
+        const pagination = document.getElementById('pagination');
+        let html = '';
+
+        html += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}">
+            <button class="page-link" aria-label="Previous" ${currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''} onclick="gotoPage(${currentPage - 1})">&laquo;</button>
+        </li>`;
+
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="page-item${i === currentPage ? ' active' : ''}">
+                <button class="page-link" onclick="gotoPage(${i})">${i}</button>
+            </li>`;
+        }
+
+        html += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}">
+            <button class="page-link" aria-label="Next" ${currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : ''} onclick="gotoPage(${currentPage + 1})">&raquo;</button>
+        </li>`;
+
+        pagination.innerHTML = html;
+    }
+
+    function gotoPage(page) {
+        const totalPages = Math.ceil(users.length / usersPerPage);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderUsers(currentPage);
+        renderPagination();
+        window.scrollTo({top: document.getElementById('users-list').offsetTop - 80, behavior: 'smooth'});
+    }
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', function () {
+        renderUsers(currentPage);
+        renderPagination();
+    });
+</script>
 
 
 </body>
