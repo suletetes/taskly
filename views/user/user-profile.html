@@ -5,19 +5,29 @@
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-	<meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow">
     <link rel="shortcut icon" type="image/x-icon" href="../../public/img/favicon.ico">
-    
-	<link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
-	
-    <title>User profile</title>
 
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
 
-    
-<!-- Analytics -->
- 
-<!-- Analytics END -->
-    
+    <title>User Profile</title>
+    <style>
+        .profile-photo-space {
+            margin-right: 4.5rem; /* Adjust as needed */
+        }
+
+        @media (max-width: 576px) {
+            .profile-photo-space {
+                margin-right: 0;
+                margin-bottom: 1.5rem;
+            }
+        }
+    </style>
+
+    <!-- Analytics -->
+
+    <!-- Analytics END -->
+
 </head>
 <body data-clean-url="true">
 
@@ -28,167 +38,404 @@
 
 <!-- Main container -->
 <div class="page-container">
-    
-<header>
 
-<!-- bloc-0 -->
-<div class="bloc l-bloc none" id="bloc-0">
-	<div class="container bloc-sm bloc-no-padding-lg">
-		<div class="row">
-			<div class="col">
-				<nav class="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
-					<div class="container-fluid">
-						<a class="navbar-brand link-style ltc-2869" href="../..">Taskly</a>
-						<button id="nav-toggle" type="button" class="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0" aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse" data-bs-target=".navbar-25309">
-							<span class="navbar-toggler-icon"><svg height="32" viewBox="0 0 32 32" width="32"><path class="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path></svg></span>
-						</button>
-						<div class="collapse navbar-collapse navbar-35179 navbar-25309">
-								<ul class="site-navigation nav navbar-nav none ms-auto">
-									<li class="nav-item">
-										<a href="../.." class="nav-link  ltc-2869">Home</a>
-									</li>
-									<li class="nav-item">
-										<a href="../about" class="a-btn nav-link ltc-2869">About</a>
-									</li>
-									<li class="nav-item">
-										<a href="../.." class="nav-link a-btn ltc-2869">Signup</a>
-									</li>
-									<li class="nav-item">
-										<a href="../login" class="nav-link a-btn ltc-2869">Login</a>
-									</li>
-								</ul>
-							</div>
-					</div>
-				</nav>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-0 END -->
+    <header>
 
-</header>
-<!-- bloc-9 -->
-<div class="bloc l-bloc none" id="bloc-9">
-	<div class="container bloc-lg bloc-no-padding-lg">
-		<div class="row">
-			<div class="text-start col-lg-12">
-				<div class="row">
-					<div class="col-12 col-lg-6">
-<!--						<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../../public/img/placeholder-user.png" class="img-fluid rounded-circle mx-auto d-block lazyload" alt="placeholder user" width="500" height="500"></picture>-->
-						<picture><source type="image/webp" srcset="../../public/img/lazyload-ph.png" data-srcset="../../public/img/placeholder-user.webp"><img src="../../public/img/lazyload-ph.png" data-src="../img/placeholder-user.png" class="img-fluid mx-auto d-block img-rd-lg lazyload" alt="placeholder user" width="267" height="267"></picture>
-					</div>
-					<div class="col align-self-center text-lg-center offset-1 mt-2 text-sm-center offset-sm-0">
-						<h4 class="mb-4 mb-lg-1">
-							Fullname Jane Doe
-						</h4>
-						<h4 class="mb-4 mb-lg-1">
-							Username: JaneDoe<br>
-						</h4>
-						<h4 class="mb-4 mb-lg-1">
-							Member Since: Mar 2025
-						</h4><a href="../.." class="btn mt-lg-5 btn-lg btn-wire float-lg-none btn-style">Edit Profile</a>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col">
-						<div class="divider-h">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-9 END -->
+        <!-- bloc-0 -->
+        <div class="bloc l-bloc none" id="bloc-0">
+            <div class="container bloc-sm bloc-no-padding-lg">
+                <div class="row">
+                    <div class="col">
+                        <nav class="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
+                            <div class="container-fluid">
+                                <a class="navbar-brand link-style ltc-2869" href="../..">Taskly</a>
+                                <button id="nav-toggle" type="button"
+                                        class="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0"
+                                        aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse"
+                                        data-bs-target=".navbar-25309">
+                                    <span class="navbar-toggler-icon"><svg height="32" viewBox="0 0 32 32" width="32"><path
+                                            class="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path></svg></span>
+                                </button>
+                                <div class="collapse navbar-collapse navbar-35179 navbar-25309">
+                                    <ul class="site-navigation nav navbar-nav none ms-auto">
+                                        <li class="nav-item">
+                                            <a href="../.." class="nav-link  ltc-2869">Home</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../about" class="a-btn nav-link ltc-2869">About</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../.." class="nav-link a-btn ltc-2869">Signup</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../login" class="nav-link a-btn ltc-2869">Login</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- bloc-0 END -->
 
-<!-- bloc-10 -->
-<div class="bloc l-bloc" id="bloc-10">
-	<div class="container bloc-lg bloc-md-lg">
-		<div class="row">
-			<div class="text-start col-lg-12">
-				<h2 class="mb-4 mb-lg-4 float-lg-none text-lg-center">
-					<span class="et-icon-linegraph"></span>&nbsp;Productivity Stats
-				</h2>
-			</div>
-			<div class="col offset-lg-1">
-				<div class="row align-items-center">
-					<div class="col-lg-6">
-						<h3 class="mb-4 mb-lg-0 h3-style">
-							<span class="ion ion-checkmark-round icon-md"></span>&nbsp;Tasks Completed: 42<br>
-						</h3>
-						<h3 class="mb-4 mb-lg-0">
-							<span class="fa fa-star"></span>&nbsp;Streak: &nbsp; &nbsp;4 days<br>
-						</h3>
-					</div>
-					<div class="text-lg-start col-lg-6">
-						<h3 class="mb-4 mb-lg-0">
-							<span class="fa fa-star"></span>&nbsp;Ongoing Tasks: 6<br>
-						</h3>
-						<h3 class="mb-4 mb-lg-0">
-							<span class="fa fa-star"></span>&nbsp;Average Completion Time : 6<br>
-						</h3>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col">
-				<div class="divider-h">
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-10 END -->
+    </header>
+    <div class="bloc l-bloc py-5 bg-light" id="bloc-9">
+        <div class="container bloc-lg bloc-no-padding-lg">
+            <!-- User Profile -->
+            <div class="d-flex align-items-center flex-wrap mb-5">
+                <div class="me-4 mb-3 mb-md-0">
+                    <picture>
+                        <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
+                                data-srcset="../../public/img/placeholder-user.webp">
+                        <img src="../../public/img/lazyload-ph.png" data-src="../../public/img/placeholder-user.png"
+                             class="img-fluid rounded-circle shadow lazyload" alt="User avatar" width="180" height="180"
+                             style="object-fit:cover;">
+                    </picture>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-2">Jane Doe</h2>
+                    <p class="text-muted mb-1"><i class="fa fa-user me-1"></i>Username: <span class="fw-semibold">JaneDoe</span>
+                    </p>
+                    <p class="text-muted mb-3"><i class="fa fa-calendar me-1"></i>Member Since: <span
+                            class="fw-semibold">Mar 2025</span></p>
+                    <a href="../.." class="btn btn-secondary btn-lg px-4 mt-2 me-2"><i class="fa fa-edit me-2"></i>Edit
+                        Profile</a>
+                    <button class="btn btn-danger btn-lg px-4 mt-2">Delete Account</button>
+                </div>
+            </div>
+            <hr class="my-5">
 
-<!-- bloc-11 -->
-<div class="bloc l-bloc" id="bloc-11">
-	<div class="container bloc-lg bloc-no-padding-lg">
-		<div class="row">
-			<div class="text-start col-lg-12">
-				<h2 class="mb-4 mb-lg-4 float-lg-none text-lg-center">
-					<span class="et-icon-linegraph"></span>Account Settings<br>
-				</h2>
-			</div>
-			<div class="col text-start text-lg-center order-lg-0">
-				<a href="../.." class="btn w-100 btn-button-style btn-lg btn-wire">Change Password</a>
-			</div>
-			<div class="col text-start text-lg-center">
-				<a href="../.." class="btn w-100 btn-button-style btn-lg btn-wire">Delete Account</a>
-			</div>
-			<div class="text-start offset-lg-0 text-lg-start col-lg-12 mt-lg-2 mb-lg-2">
-				<a href="../.." class="btn w-100 btn-button-style btn-lg btn-wire mb-lg-5 mt-lg-3">LogOut</a>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-11 END -->
+            <!-- Productivity & Tasks Section -->
+            <div class="row g-4 justify-content-center">
+                <!-- Productivity Stats -->
+                <div class="col-12 col-lg-4">
+                    <div class="card shadow-sm border-0 glass-card mb-4">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-4 text-primary"><i class="fa fa-chart-line me-2"></i>Productivity
+                                Stats</h5>
+                            <div class="row text-center">
+                                <div class="col-6 mb-3">
+                                    <span class="ion ion-checkmark-round icon-md text-success mb-1 d-block"></span>
+                                    <div class="fw-semibold">Completed</div>
+                                    <div class="fs-4 fw-bold">42</div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <span class="fa fa-bolt icon-md text-warning mb-1 d-block"></span>
+                                    <div class="fw-semibold">Streak</div>
+                                    <div class="fs-4 fw-bold">4 <span class="fs-6 fw-normal">days</span></div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <span class="fa fa-times-circle icon-md text-danger mb-1 d-block"></span>
+                                    <div class="fw-semibold">Failed</div>
+                                    <div class="fs-4 fw-bold">3</div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <span class="fa fa-percent icon-md text-primary mb-1 d-block"></span>
+                                    <div class="fw-semibold">Completion Rate</div>
+                                    <div class="fs-4 fw-bold">87%</div>
+                                </div>
+                                <div class="col-6">
+                                    <span class="fa fa-tasks icon-md text-info mb-1 d-block"></span>
+                                    <div class="fw-semibold">Ongoing</div>
+                                    <div class="fs-4 fw-bold">6</div>
+                                </div>
+                                <div class="col-6">
+                                    <span class="fa fa-clock icon-md text-secondary mb-1 d-block"></span>
+                                    <div class="fw-semibold">Avg. Time</div>
+                                    <div class="fs-4 fw-bold">6 <span class="fs-6 fw-normal">hrs</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Task Card -->
+                <div class="col-12 col-lg-8">
+                    <div class="d-flex flex-column gap-4">
+                        <!-- Task Card 1 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-primary">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-primary me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold" id="preview-title-1">Finalize design
+                                            proposal</h4>
+                                        <small class="text-muted" id="preview-due-1"><i
+                                                class="fa fa-calendar-alt me-1"></i>Due: 2025-06-30</small>
+                                    </div>
+                                    <span class="badge bg-danger ms-auto align-self-start px-3 py-2 fs-6"
+                                          id="preview-priority-1">
+                                <i class="fa fa-bolt me-1"></i> High
+                            </span>
+                                </div>
+                                <p class="card-text text-muted mb-3" id="preview-desc-1">
+                                    Details or notes about this task.
+                                </p>
+                                <div class="mb-3" id="preview-tags-1">
+                                    <span class="badge bg-secondary me-1">Work</span>
+                                    <span class="badge bg-secondary me-1">Design</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i
+                                            class="fa fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i
+                                            class="fa fa-trash me-1"></i>Delete
+                                    </button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i
+                                            class="fa fa-check me-1"></i>Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task Card 2 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-success">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-success me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Update project documentation</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-07-02</small>
+                                    </div>
+                                    <span class="badge bg-success ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-check me-1"></i> Medium
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Add new API endpoints and update diagrams.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Docs</span>
+                                    <span class="badge bg-secondary me-1">API</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i
+                                            class="fa fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i
+                                            class="fa fa-trash me-1"></i>Delete
+                                    </button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i
+                                            class="fa fa-check me-1"></i>Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task Card 3 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-warning">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-warning me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Team meeting</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-07-03</small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-users me-1"></i> Low
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Weekly sync with the team.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Meeting</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i
+                                            class="fa fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i
+                                            class="fa fa-trash me-1"></i>Delete
+                                    </button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i
+                                            class="fa fa-check me-1"></i>Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task Card 4 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-info">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-info me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Client feedback review</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-07-04</small>
+                                    </div>
+                                    <span class="badge bg-info text-dark ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-comment me-1"></i> Medium
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Go through the latest feedback and plan next steps.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Client</span>
+                                    <span class="badge bg-secondary me-1">Feedback</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i
+                                            class="fa fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i
+                                            class="fa fa-trash me-1"></i>Delete
+                                    </button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i
+                                            class="fa fa-check me-1"></i>Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task Card 5 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-secondary">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-secondary me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Backup database</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-07-05</small>
+                                    </div>
+                                    <span class="badge bg-secondary ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-database me-1"></i> Low
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Schedule and verify backup integrity.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Maintenance</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i
+                                            class="fa fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i
+                                            class="fa fa-trash me-1"></i>Delete
+                                    </button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i
+                                            class="fa fa-check me-1"></i>Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- View More Button -->
+                        <div class="d-flex justify-content-center mt-2">
+                            <a href="../task/task.html" class="btn btn-secondary btn-lg rounded-pill px-5 shadow-sm">
+                                <i class="fa fa-list me-2"></i>View More Tasks
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Productivity & Tasks -->
+        </div>
+    </div>
 
-<!-- ScrollToTop Button -->
-<button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop" onclick="scrollToTarget('1',this)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32"><path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/></svg></button>
-<!-- ScrollToTop Button END-->
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 1.25rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border: none;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+        }
+
+        .badge {
+            font-size: 1rem;
+            border-radius: 1rem;
+        }
+
+        .btn-sm {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary, .btn-outline-danger, .btn-success {
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-outline-primary:hover, .btn-outline-danger:hover, .btn-success:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            opacity: 0.92;
+        }
+
+        .btn-outline-primary {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: #fff;
+        }
+
+        .btn-outline-primary:hover {
+            background: #0d6efd;
+            color: #fff;
+        }
+
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+            background: #fff;
+        }
+
+        .btn-outline-danger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #198754;
+            border-color: #198754;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #157347;
+            color: #fff;
+        }
+
+        .rounded-pill {
+            border-radius: 2rem !important;
+        }
+    </style>
+    <!-- ScrollToTop Button -->
+    <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
+            onclick="scrollToTarget('1',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
+            <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
+        </svg>
+    </button>
+    <!-- ScrollToTop Button END-->
 
 
-<footer>
+    <footer>
 
-<!-- bloc-15 -->
-<div class="bloc l-bloc none" id="bloc-15">
-	<div class="container bloc-lg bloc-sm-lg">
-		<div class="row">
-			<div class="col-md-3 col-sm-6 col-lg-12">
-				<p class="text-lg-center">
-					Copyright @ 2025 Taskify
-				</p>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- bloc-15 END -->
+        <!-- bloc-15 -->
+        <div class="bloc l-bloc none" id="bloc-15">
+            <div class="container bloc-lg bloc-sm-lg">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-lg-12">
+                        <p class="text-lg-center">
+                            Copyright @ 2025 Taskify
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- bloc-15 END -->
 
-</footer>
+    </footer>
 </div>
 <!-- Main container END -->
-    
 
 
 <!-- Additional JS -->
