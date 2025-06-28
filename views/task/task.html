@@ -1,10 +1,277 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Tasks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="shortcut icon" type="image/x-icon" href="../../public/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background: #f6f7fb;
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            border: none;
+            transition: box-shadow 0.18s, transform 0.18s;
+        }
+        .glass-card:hover {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .card-title { font-size: 1.25rem; }
+        .badge { font-size: 1rem; border-radius: 1rem; }
+        .btn-sm { font-size: 0.95rem; font-weight: 500; }
+        .btn-outline-primary, .btn-outline-danger, .btn-success {
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .btn-outline-primary:hover, .btn-outline-danger:hover, .btn-success:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            opacity: 0.92;
+        }
+        .btn-outline-primary { border-color: #0d6efd; color: #0d6efd; background: #fff; }
+        .btn-outline-primary:hover, .btn-outline-primary:focus { background: #0d6efd; color: #fff; }
+        .btn-outline-danger { border-color: #dc3545; color: #dc3545; background: #fff; }
+        .btn-outline-danger:hover, .btn-outline-danger:focus { background: #dc3545; color: #fff; }
+        .btn-success { background: #198754; border-color: #198754; color: #fff; }
+        .btn-success:hover, .btn-success:focus { background: #157347; color: #fff; }
+        .rounded-pill { border-radius: 2rem !important; }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 2rem;
+        }
+        .pagination .page-item {
+            display: inline-block;
+        }
+        .pagination .page-link {
+            background: #fff;
+            color: #555;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px !important;
+            font-weight: 500;
+            min-width: 44px;
+            min-height: 44px;
+            margin: 0 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: background 0.15s, color 0.15s, border 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+        .pagination .page-link:focus {
+            border-color: #888;
+            box-shadow: 0 0 0 2px #e0e0e0;
+        }
+        .pagination .page-link:hover {
+            background: #f3f4f6;
+            color: #222;
+            border-color: #888;
+        }
+        .pagination .page-item.active .page-link {
+            background: #e0e0e0;
+            color: #222;
+            border-color: #888;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #bbb;
+            background: #fafafa;
+            border-color: #eee;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .floating-add-btn {
+            position: fixed;
+            right: 2rem;
+            bottom: 2.5rem;
+            z-index: 100;
+            background: #0d6efd;
+            color: #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: none;
+            transition: background 0.18s, box-shadow 0.18s;
+        }
+        .floating-add-btn:hover, .floating-add-btn:focus {
+            background: #0b5ed7;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            color: #fff;
+        }
+        @media (max-width: 991px) {
+            .col-lg-8 { max-width: 100%; flex: 0 0 100%; }
+        }
+        @media (max-width: 576px) {
+            .glass-card { border-radius: 1rem; }
+            .floating-add-btn { right: 1rem; bottom: 1.2rem; width: 48px; height: 48px; font-size: 1.5rem; }
+            .d-flex.align-items-center.flex-wrap.mb-5 { flex-direction: column; align-items: flex-start !important; }
+            .d-flex.align-items-center.flex-wrap.mb-5 img { width: 100px !important; height: 100px !important; }
+        }
+    </style>
 </head>
-<body>
+<body data-clean-url="true">
+<div class="page-container">
+    <header>
+        <div class="bloc l-bloc none" id="bloc-0">
+            <div class="container bloc-sm bloc-no-padding-lg">
+                <div class="row">
+                    <div class="col">
+                        <!-- Navbar code here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="bloc l-bloc py-5 bg-light" id="bloc-tasks">
+        <div class="container bloc-lg bloc-no-padding-lg">
+            <!-- User Info Section -->
+            <div class="d-flex justify-content-between  align-items-center flex-wrap mb-5">
+                <div class="order-1 order-md-1 me-4 mb-3 mb-md-0" style="margin-left: 100px;">
+                    <picture>
+                        <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
+                                data-srcset="../../public/img/placeholder-user.webp">
+                        <img src="../../public/img/lazyload-ph.png" data-src="../../public/img/placeholder-user.png"
+                             class="img-fluid rounded-circle shadow lazyload" alt="User avatar" width="180" height="180"
+                             style="object-fit:cover;">
+                    </picture>
+                </div>
+                <div class="order-2 order-md-2 ms-md-5 text-center  flex-grow-1">
+                    <h2 class="fw-bold mb-2">Jane Doe</h2>
+                    <p class="text-muted mb-1"><i class="fa fa-user me-1"></i>Username: <span class="fw-semibold">JaneDoe</span></p>
+                    <p class="text-muted mb-3"><i class="fa fa-calendar me-1"></i>Member Since: <span class="fw-semibold">Mar 2025</span></p>
+                    <button class="btn btn-primary btn-lg px-4 mt-2" aria-label="Add Task" title="Add Task">
+                        <i class="fa fa-plus me-2"></i>Add Task
+                    </button>
+                </div>
+            </div>
+            <hr class="my-5">
+            <!-- Task Cards and Pagination -->
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <div class="d-flex flex-column gap-4">
+                        <!-- Task Card 1 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-primary">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-primary me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Finalize design proposal</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-06-30</small>
+                                    </div>
+                                    <span class="badge bg-danger ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-bolt me-1"></i> High
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Complete the final design proposal and send it to the client for approval.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Work</span>
+                                    <span class="badge bg-secondary me-1">Design</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fa fa-edit me-1"></i>Edit</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="fa fa-trash me-1"></i>Delete</button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i class="fa fa-check me-1"></i>Done</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task Card 2 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-success">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-success me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Update project documentation</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-07-02</small>
+                                    </div>
+                                    <span class="badge bg-success ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-check me-1"></i> Medium
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Add new API endpoints and update diagrams.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Docs</span>
+                                    <span class="badge bg-secondary me-1">API</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fa fa-edit me-1"></i>Edit</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="fa fa-trash me-1"></i>Delete</button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i class="fa fa-check me-1"></i>Done</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task Card 3 -->
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-warning">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="fa fa-tasks fa-2x text-warning me-3"></span>
+                                    <div>
+                                        <h4 class="card-title mb-1 fw-bold">Team meeting</h4>
+                                        <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>Due: 2025-07-03</small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-users me-1"></i> Low
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted mb-3">
+                                    Weekly sync with the team.
+                                </p>
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary me-1">Meeting</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fa fa-edit me-1"></i>Edit</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="fa fa-trash me-1"></i>Delete</button>
+                                    <button class="btn btn-success btn-sm rounded-pill px-3"><i class="fa fa-check me-1"></i>Done</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pagination -->
+                        <nav class="d-flex justify-content-center mt-5" aria-label="Task pagination">
+                            <ul class="pagination pagination-lg">
+                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Floating Add Task Button -->
 
+<!--    <button class="floating-add-btn" aria-label="Add Task" title="Add Task">-->
+<!--        <i class="fa fa-plus"></i>-->
+<!--    </button>-->
+
+    <!-- ScrollToTop Button -->
+    <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
+            onclick="scrollToTarget('1',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
+            <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
+        </svg>
+    </button>
+    <!-- ScrollToTop Button END-->
+    <footer>
+        <!-- ...footer code... -->
+    </footer>
+</div>
+<script src="../../public/js/all.js?6535"></script>
 </body>
 </html>

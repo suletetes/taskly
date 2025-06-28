@@ -12,6 +12,80 @@
 
     <title>User Profile</title>
     <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 1.25rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border: none;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+        }
+
+        .badge {
+            font-size: 1rem;
+            border-radius: 1rem;
+        }
+
+        .btn-sm {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary, .btn-outline-danger, .btn-success {
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-outline-primary:hover, .btn-outline-danger:hover, .btn-success:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            opacity: 0.92;
+        }
+
+        .btn-outline-primary {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: #fff;
+        }
+
+        .btn-outline-primary:hover {
+            background: #0d6efd;
+            color: #fff;
+        }
+
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+            background: #fff;
+        }
+
+        .btn-outline-danger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #198754;
+            border-color: #198754;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #157347;
+            color: #fff;
+        }
+
+        .rounded-pill {
+            border-radius: 2rem !important;
+        }
+
         .profile-photo-space {
             margin-right: 4.5rem; /* Adjust as needed */
         }
@@ -84,8 +158,8 @@
     <div class="bloc l-bloc py-5 bg-light" id="bloc-9">
         <div class="container bloc-lg bloc-no-padding-lg">
             <!-- User Profile -->
-            <div class="d-flex align-items-center flex-wrap mb-5">
-                <div class="me-4 mb-3 mb-md-0">
+            <div class="d-flex align-items-center justify-content-center flex-wrap mb-5">
+                <div class="me-4 mb-3 mb-md-0 profile-photo-space">
                     <picture>
                         <source type="image/webp" srcset="../../public/img/lazyload-ph.png"
                                 data-srcset="../../public/img/placeholder-user.webp">
@@ -332,81 +406,6 @@
         </div>
     </div>
 
-    <style>
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(6px);
-            border-radius: 1.25rem;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(8px);
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            border: none;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-        }
-
-        .badge {
-            font-size: 1rem;
-            border-radius: 1rem;
-        }
-
-        .btn-sm {
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .btn-outline-primary, .btn-outline-danger, .btn-success {
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        }
-
-        .btn-outline-primary:hover, .btn-outline-danger:hover, .btn-success:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            opacity: 0.92;
-        }
-
-        .btn-outline-primary {
-            border-color: #0d6efd;
-            color: #0d6efd;
-            background: #fff;
-        }
-
-        .btn-outline-primary:hover {
-            background: #0d6efd;
-            color: #fff;
-        }
-
-        .btn-outline-danger {
-            border-color: #dc3545;
-            color: #dc3545;
-            background: #fff;
-        }
-
-        .btn-outline-danger:hover {
-            background: #dc3545;
-            color: #fff;
-        }
-
-        .btn-success {
-            background: #198754;
-            border-color: #198754;
-            color: #fff;
-        }
-
-        .btn-success:hover {
-            background: #157347;
-            color: #fff;
-        }
-
-        .rounded-pill {
-            border-radius: 2rem !important;
-        }
-    </style>
     <!-- ScrollToTop Button -->
     <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
             onclick="scrollToTarget('1',this)">
