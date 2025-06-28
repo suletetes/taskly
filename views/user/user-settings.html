@@ -7,86 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="index, follow">
     <link rel="shortcut icon" type="image/x-icon" href="../../public/img/favicon.ico">
-
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheet/custom.css">
     <link rel="stylesheet" type="text/css" href="../../public/stylesheet/all.css?9598">
 
     <title>UserSetting</title>
 
-    <style>
-        .signup-card {
-            background: #fff;
-            border-radius: 1.2rem;
-            box-shadow: 0 2px 24px 0 rgba(44, 62, 80, .08);
-            padding: 2.5rem 2.2rem;
-            margin-top: 2.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .avatar-preview {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .avatar-large {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #e9ecef;
-            object-fit: cover;
-            background: #f8f9fa;
-        }
-
-        .avatar-gallery {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .avatar-thumb {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            object-fit: cover;
-            cursor: pointer;
-            transition: border 0.2s;
-        }
-
-        .avatar-thumb.selected,
-        .avatar-thumb:hover {
-            border: 2px solid #6c757d;
-        }
-
-        .btn-wire {
-            border: 2px solid #6c757d !important;
-            background: transparent !important;
-            color: #6c757d !important;
-            transition: background 0.2s, color 0.2s, border 0.2s;
-        }
-
-        .btn-wire:hover, .btn-wire:focus {
-            background: #6c757d !important;
-            color: #fff !important;
-            border: 2px solid #6c757d !important;
-        }
-
-        .text-center {
-            text-align: center !important;
-        }
-
-        @media (max-width: 576px) {
-            .signup-card {
-                padding: 1.2rem 0.5rem;
-            }
-
-            .avatar-large {
-                width: 100px;
-                height: 100px;
-            }
-        }
-    </style>
 
     <!-- Analytics -->
 
@@ -211,6 +136,9 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-lg-12 mb-3 text-center ">
+                                    <h4 class="mb-3">Update Email</h4>
+                                </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label" for="email">New Email Address</label>
                                     <input id="email" class="form-control" name="email" type="email"
@@ -218,15 +146,18 @@
                                     <div class="invalid-feedback">A valid email is required.</div>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <label class="form-label" for="old_password">Old Password</label>
+                                    <label class="form-label" for="old_password">Enter Old Password</label>
                                     <input id="old_password" class="form-control" name="old_password"
                                            placeholder="Enter old password" type="password"
                                            autocomplete="current-password">
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-lg-12 mb-3 text-center">
+                                    <h4 class="mb-3">Update Password</h4>
+                                </div>
                                 <div class="col-lg-6 mb-3">
-                                    <label class="form-label" for="new_password">New Password</label>
+                                    <label class="form-label" for="new_password">Enter New Password</label>
                                     <input id="new_password" class="form-control" name="new_password"
                                            placeholder="Enter new password" type="password" autocomplete="new-password">
                                 </div>
@@ -288,7 +219,8 @@
 
 
 <!-- Additional JS -->
-<script src="../../public/js/all.js?6535"></script><!-- Additional JS END -->
+<script src="../../public/js/all.js?6535"></script>
+<!-- Additional JS END -->
 <script>
     // Avatar selection logic
     const thumbs = document.querySelectorAll('.avatar-thumb');
