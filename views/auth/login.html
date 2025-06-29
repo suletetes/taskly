@@ -64,30 +64,41 @@
         <div class="container bloc-xl-lg">
             <div class="row justify-content-center">
                 <div class="col-sm-10 col-md-8 col-lg-6">
-                    <div class="login-card">
-                        <h2 class="mb-4 text-center">Login to Taskly</h2>
+                    <div class="login-card bg-white shadow-lg rounded-4 p-4">
+                        <!-- Header -->
+                        <h2 class="mb-4 text-center fw-bold text-dark">Login to Taskly</h2>
+                        
+                        <!-- Login Form -->
                         <form id="login-form" action="custom-action-url" method="POST" novalidate>
+                            <!-- Username or Email -->
                             <div class="mb-3">
-                                <label class="form-label" for="username">Username or Email</label>
-                                <input id="username" class="form-control" required name="username"
-                                       placeholder="Enter Username or Email">
-                                <div class="invalid-feedback">Username or email is required.</div>
+                                <label class="form-label fw-semibold" for="username">Username or Email</label>
+                                <input id="username" class="form-control shadow-sm" required name="username"
+                                       placeholder="Enter your username or email" autocomplete="username">
+                                <div class="invalid-feedback">Please enter a valid username or email.</div>
                             </div>
+                            
+                            <!-- Password -->
                             <div class="mb-3">
-                                <label class="form-label" for="password">Password</label>
-                                <input id="password" class="form-control" required name="password"
-                                       placeholder="Enter Password" type="password">
+                                <label class="form-label fw-semibold" for="password">Password</label>
+                                <input id="password" class="form-control shadow-sm" required name="password"
+                                       placeholder="Enter your password" type="password" autocomplete="current-password">
                                 <div class="invalid-feedback">Password is required.</div>
-                                <p class="text-start ps-lg-2 mt-1 p-style text-link" style="font-size:0.97em;"
-                                   onclick="alert('Password reset not implemented yet.')">
-                                    Forgot Password?
+                                <p class="text-end mt-2">
+                                    <a href="#" class="text-primary fw-semibold text-decoration-underline" 
+                                       style="font-size: 0.9em;">Forgot Password?</a>
                                 </p>
                             </div>
-                            <button class="bloc-button btn btn-wire float-lg-none w-100 mt-2" type="submit">
+                            
+                            <!-- Submit Button -->
+                            <button class="btn btn-secondary w-100 rounded shadow-sm mt-3 fw-bold py-2" type="submit">
                                 Login
                             </button>
+                            
+                            <!-- Signup CTA -->
                             <p class="text-center mt-4 mb-0">
-                                <span>Signup if you don't have an account</span>
+                                <span class="text-muted">Don't have an account?</span>
+                                <a href="../signup" class="text-primary fw-semibold text-decoration-underline">Sign up here</a>
                             </p>
                         </form>
                     </div>
