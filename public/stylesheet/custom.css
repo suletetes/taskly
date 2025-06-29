@@ -2,11 +2,12 @@
    LOGIN PAGE STYLES
    ========================= */
 .login-card {
-    background: #fff;
-    border-radius: 1.25rem;
-    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.07);
-    padding: 2.5rem 2rem 2rem 2rem;
-    margin-top: 2.5rem;
+    max-width: 400px; /* Remove fixed sizes for flexibility */
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 576px) {
@@ -19,9 +20,11 @@
     font-weight: 500;
 }
 
+/* Input Focus Style */
 .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .15);
+    border-color: #0d6efd; /* Bootstrap Primary Color */
+    outline: none;
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
 }
 
 .is-invalid {
@@ -38,9 +41,19 @@
     display: block;
 }
 
+/* Submit Button */
+.btn {
+    transition: all 0.3s ease-in-out;
+}
+
 .btn {
     width: 100%;
     padding: .5rem 0;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-wire {
@@ -75,6 +88,12 @@
     text-align: center !important;
 }
 
+/* Forgot Password Link */
+.text-link:hover {
+    color: #0056b3; /* Darker blue for hover */
+    text-decoration: underline;
+}
+
 .text-link {
     color: #007bff;
     text-decoration: underline;
@@ -85,11 +104,12 @@
    SIGNUP PAGE STYLES
    ========================= */
 .signup-card {
-    background: #fff;
-    border-radius: 1.25rem;
-    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.07);
-    padding: 2.5rem 2rem 2rem 2rem;
-    margin-top: 2.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 576px) {
@@ -112,17 +132,19 @@
 }
 
 .avatar-thumb {
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
-    border: 2px solid transparent;
     cursor: pointer;
-    transition: border 0.2s;
+    transition: all 0.3s;
+}
+
+.avatar-thumb:hover {
+    transform: scale(1.1);
 }
 
 .avatar-thumb.selected {
-    border: 2px solid #007bff;
+    border: 2px solid #0d6efd; /* Bootstrap primary color */
 }
 
 .avatar-preview {
