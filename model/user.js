@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt"); // For password hashing
+const passportLocalMongoose = require("passport-local-mongoose");
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -10,48 +10,62 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, "Username is required"],
-        unique: true, // Ensure username is unique
+        unique: true,
         trim: true,
     },
     email: {
         type: String,
         required: [true, "Email is required"],
-        unique: true, // Ensure email is unique
-        match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"], // Regex for email validation
-    },
-    password: {
-        type: String,
-        required: [true, "Password is required"],
-        minlength: [6, "Password must be at least 6 characters long"],
+        unique: true,
+        match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     avatar: {
         type: String,
-        default: "../../public/img/avatars/avatar1.png", // Default avatar path
+        default: "../../public/img/avatars/avatar1.png",
     },
     created_at: {
         type: Date,
-        default: Date.now, // Automatically sets the creation date
+        default: Date.now,
     },
+    tasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Task", // Reference to the Task model
+        },
+    ],
 });
 
-// Pre-save hook for hashing the password before saving
+// Pre-save hook: validate uniqueness of username and email
 userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next(); // If password is not modified, skip
-
     try {
-        const salt = await bcrypt.genSalt(10); // Generate salt
-        this.password = await bcrypt.hash(this.password, salt); // Hash the password with salt
+        const existingUser = await mongoose.model("User").findOne({
+            $or: [{ username: this.username }, { email: this.email }],
+        });
+
+        if (existingUser) {
+            if (existingUser.username === this.username) {
+                throw new Error("The username is already taken.");
+            } else if (existingUser.email === this.email) {
+                throw new Error("The email is already in use.");
+            }
+        }
+
         next();
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 });
 
-// Method to compare entered password with hashed password
-userSchema.methods.comparePassword = async function (enteredPassword) {
-    return bcrypt.compare(enteredPassword, this.password);
-};
+// Add Passport-Local Mongoose plugin
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: "username",
+    findByUsername: async function (model, queryParameters) {
+        return model.findOne({
+            $or: [{ username: queryParameters.username }, { email: queryParameters.username }],
+        });
+    },
+});
 
-// Export the model
+// Export the User model
 const User = mongoose.model("User", userSchema);
 module.exports = User;
