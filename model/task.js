@@ -1,61 +1,65 @@
 const mongoose = require("mongoose");
 
-const taskSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: [true, "Title is required"],
-        trim: true,
+const taskSchema = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            required: [true, "Title is required"],
+            trim: true,
+        },
+        due: {
+            type: Date,
+            required: [true, "Due date is required"],
+        },
+        priority: {
+            type: String,
+            required: [true, "Priority is required"],
+            enum: ["Low", "Medium", "High"],
+        },
+        /*
+        priorityClass: {
+            type: String,
+            default: "secondary",
+        },
+        iconClass: {
+            type: String,
+            default: "primary",
+        },
+        */
+        description: {
+            type: String,
+            trim: true,
+        },
+        tags: {
+            type: [String],
+            default: [],
+        },
+        status: {
+            type: String,
+            default: "in-progress",
+            enum: ["in-progress", "failed", "completed"],
+        },
+        // Reference to the user who owns the task
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User", // Reference to the User model
+            required: true, // Ensure every task is linked to a user
+        },
     },
-    due: {
-        type: Date,
-        required: [true, "Due date is required"],
-    },
-    priority: {
-        type: String,
-        required: [true, "Priority is required"],
-        enum: ["Low", "Medium", "High"], // Priority levels
-    },
-    priorityClass: {
-        type: String,
-        default: "secondary", // Could map to classes like 'danger', 'warning', or 'success'
-    },
-    iconClass: {
-        type: String,
-        default: "primary", // Default Bootstrap icon class
-    },
-    description: {
-        type: String,
-        trim: true,
-    },
-    tags: {
-        type: [String], // Array of strings for task tags
-        default: [],
-    },
-    status: {
-        type: String,
-        default: "in-progress", // Default when the task is created
-        enum: ["in-progress", "failed", "completed"], // Valid statuses
-    },
-});
+    { timestamps: true }
+);
 
-// Pre-save hook for updating the status based on the due date
+// Pre-save hook to update priority class dynamically
 taskSchema.pre("save", function (next) {
-    const currentDate = new Date();
-    if (this.status !== "completed") {
-        if (currentDate > this.due) {
-            this.status = "failed";
-        } else {
-            this.status = "in-progress";
-        }
-    }
+    const priorityMapping = {
+        High: "danger",
+        Medium: "warning",
+        Low: "success",
+    };
+    this.priorityClass = priorityMapping[this.priority] || "secondary";
     next();
 });
 
-// Method to mark the task as "completed" when the user clicks "Done"
-taskSchema.methods.markAsCompleted = function () {
-    this.status = "completed";
-};
-
-// Export the model
+// Export the Task model
 const Task = mongoose.model("Task", taskSchema);
 module.exports = Task;
