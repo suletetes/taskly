@@ -68,6 +68,7 @@
     color: #fff !important;
     border: 2px solid #6c757d !important;
 }
+
 .mb-3 {
     margin-bottom: 1rem !important;
 }
@@ -713,4 +714,20 @@ a.btn.btn-view-profile {
     background: #6c757d;
     color: #fff;
     border: 2px solid #6c757d;
+}
+
+/* Flash Messages*/
+.flash-messages-container {
+    position: fixed;
+    top: 10%; /* Position it at the top of the page */
+    left: 50%; /* Center the container horizontally */
+    transform: translateX(-50%); /* Adjust to align center */
+    z-index: 1050; /* Ensure it appears above other content */
+    width: 100%; /* Full width for better visibility */
+    max-width: 600px; /* Optional: Limit the max width */
+    margin-top: 10px; /* Add some spacing from the top */
+}
+
+.alert {
+    margin-bottom: 10px; /* Add spacing between multiple alerts */
 }
