@@ -10,6 +10,12 @@ const taskSchema = new mongoose.Schema(
         due: {
             type: Date,
             required: [true, "Due date is required"],
+            validate: {
+                validator: function (value) {
+                    return value >= new Date(); // Ensure the due date is not in the past
+                },
+                message: "Due date cannot be in the past.",
+            },
         },
         priority: {
             type: String,
@@ -26,7 +32,7 @@ const taskSchema = new mongoose.Schema(
         },
         labels: {
             type: [String], // Array of labels for categorization
-            default: [], // Default to an empty array
+            default: [],
             validate: {
                 validator: function (labels) {
                     return Array.isArray(labels) && labels.every(label => typeof label === "string");
