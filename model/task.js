@@ -16,16 +16,6 @@ const taskSchema = new mongoose.Schema(
             required: [true, "Priority is required"],
             enum: ["Low", "Medium", "High"],
         },
-        /*
-        priorityClass: {
-            type: String,
-            default: "secondary",
-        },
-        iconClass: {
-            type: String,
-            default: "primary",
-        },
-        */
         description: {
             type: String,
             trim: true,
@@ -34,12 +24,21 @@ const taskSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        labels: {
+            type: [String], // Array of labels for categorization
+            default: [], // Default to an empty array
+            validate: {
+                validator: function (labels) {
+                    return Array.isArray(labels) && labels.every(label => typeof label === "string");
+                },
+                message: "Labels must be an array of strings.",
+            },
+        },
         status: {
             type: String,
-            default: "in-progress",
             enum: ["in-progress", "failed", "completed"],
+            default: "in-progress",
         },
-        // Reference to the user who owns the task
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User", // Reference to the User model
@@ -49,16 +48,27 @@ const taskSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Pre-save hook to update priority class dynamically
+// Pre-save hook to dynamically update the status based on the due date
 taskSchema.pre("save", function (next) {
-    const priorityMapping = {
-        High: "danger",
-        Medium: "warning",
-        Low: "success",
-    };
-    this.priorityClass = priorityMapping[this.priority] || "secondary";
+    const now = new Date(); // Get the current date
+
+    // Update the task status based on the due date, only if not completed
+    if (this.status !== "completed") {
+        if (this.due < now) {
+            this.status = "failed"; // Past due date
+        } else {
+            this.status = "in-progress"; // Before due date
+        }
+    }
+
     next();
 });
+
+// Method to manually mark a task as completed
+taskSchema.methods.completeTask = function () {
+    this.status = "completed";
+    return this.save(); // Save the updated document
+};
 
 // Export the Task model
 const Task = mongoose.model("Task", taskSchema);
