@@ -51,7 +51,7 @@ const taskSchema = new mongoose.Schema(
             required: true, // Ensure every task is linked to a user
         },
     },
-    { timestamps: true }
+    {timestamps: true}
 );
 
 // Pre-save hook to dynamically update the status based on the due date
