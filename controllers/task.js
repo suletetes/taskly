@@ -109,7 +109,19 @@ const taskController = {
                 return res.status(404).json({ error: "User not found." });
             }
 
-            res.status(200).json(user.tasks);
+            // Task count stats
+            const completed = await Task.countDocuments({ user: userId, status: "completed" });
+            const failed = await Task.countDocuments({ user: userId, status: "failed" });
+            const ongoing = await Task.countDocuments({ user: userId, status: "in-progress" });
+
+            res.status(200).json({
+                tasks: user.tasks,
+                stats: {
+                    completed,
+                    failed,
+                    ongoing,
+                },
+            });
         } catch (error) {
             console.error("Error fetching user tasks:", error);
             res.status(500).json({ error: "Internal server error." });

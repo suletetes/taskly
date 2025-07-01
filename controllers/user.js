@@ -28,7 +28,12 @@ const userController = {
     // Get all users
     getAllUsers: async (req, res) => {
         try {
-            const users = await User.find().populate("tasks", "title due priority"); // Populate task info
+            const users = await User.find().populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1, // Included task status
+            });
             res.status(200).json(users);
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -40,7 +45,12 @@ const userController = {
     getUserById: async (req, res) => {
         try {
             const { id } = req.params;
-            const user = await User.findById(id).populate("tasks", "title due priority"); // Populate task info
+            const user = await User.findById(id).populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1, // Included task status
+            });
 
             if (!user) {
                 return res.status(404).json({ error: "User not found." });
@@ -115,7 +125,20 @@ const userController = {
                 return res.status(404).json({ error: "User not found." });
             }
 
-            res.status(200).json({ tasks: user.tasks });
+            // Task statistics
+            const completedCount = await Task.countDocuments({ user: id, status: "completed" });
+            const failedCount = await Task.countDocuments({ user: id, status: "failed" });
+            const ongoingCount = await Task.countDocuments({ user: id, status: "in-progress" });
+
+            res.status(200).json({
+                message: "User tasks fetched successfully.",
+                tasks: user.tasks,
+                stats: {
+                    completed: completedCount,
+                    failed: failedCount,
+                    ongoing: ongoingCount,
+                },
+            });
         } catch (error) {
             console.error("Error fetching user tasks:", error);
             res.status(500).json({ error: "Internal server error." });
