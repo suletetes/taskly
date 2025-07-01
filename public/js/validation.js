@@ -232,8 +232,9 @@ if (thumbs.length && avatarLarge && avatarInput) {
         thumb.addEventListener('click', function () {
             thumbs.forEach(t => t.classList.remove('selected'));
             this.classList.add('selected');
-            avatarLarge.src = this.dataset.avatar;
-            avatarInput.value = this.dataset.avatar;
+            const avatarPath = this.dataset.avatar || this.getAttribute('data-src');
+            avatarLarge.src = avatarPath;
+            avatarInput.value = avatarPath;
         });
     });
 }
