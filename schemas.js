@@ -1,7 +1,7 @@
 const BaseJoi = require("joi");
 const sanitizeHtml = require("sanitize-html");
 
-// Extend Joi to add an escapeHTML rule
+// Extend Joi to include HTML sanitization for strings
 const extension = (joi) => ({
     type: "string",
     base: joi.string(),
@@ -30,8 +30,6 @@ const taskSchema = Joi.object({
         title: Joi.string().required().escapeHTML(),
         due: Joi.date().required(),
         priority: Joi.string().required().valid("Low", "Medium", "High"),
-        priorityClass: Joi.string().optional().escapeHTML(),
-        iconClass: Joi.string().optional().escapeHTML(),
         description: Joi.string().optional().escapeHTML(),
         tags: Joi.array().items(Joi.string().escapeHTML()).default([]),
         status: Joi.string().valid("in-progress", "failed", "completed").default("in-progress"),
@@ -44,7 +42,7 @@ const userSchema = Joi.object({
         fullname: Joi.string().required().escapeHTML(),
         username: Joi.string().required().escapeHTML(),
         email: Joi.string().required().email().escapeHTML(),
-        password: Joi.string().required().min(6),
+        password: Joi.string().required().min(6), // For registration only
         avatar: Joi.string().optional().uri().escapeHTML(),
     }).required(),
 });
