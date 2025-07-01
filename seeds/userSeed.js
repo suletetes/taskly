@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
-import Task from "../model/task";
-import User from "../model/user";
+import Task from "../model/task.js";
+import User from "../model/user.js";
 
 // MongoDB connection
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/taskly', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect('mongodb://127.0.0.1:27017/taskly'); // Removed deprecated options
         console.log('MongoDB connected successfully.');
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
@@ -16,65 +13,89 @@ const connectDB = async () => {
     }
 };
 
-// Seed data
-const taskData = [
-    {
-        title: "Finalize design proposal",
-        due: "2025-06-30",
-        priority: "High",
-        description: "Complete the final design proposal and send it to the client for approval.",
-        tags: ["Work", "Design"],
-        status: "in-progress"
-    },
-    {
-        title: "Update project documentation",
-        due: "2025-07-02",
-        priority: "Medium",
-        description: "Add new API endpoints and update diagrams.",
-        tags: ["Docs", "API"],
-        status: "in-progress"
-    },
-    {
-        title: "Team meeting",
-        due: "2025-07-03",
-        priority: "Low",
-        description: "Weekly sync with the team.",
-        tags: ["Meeting"],
-        status: "in-progress"
-    },
+// Random Data Generators
+const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
+const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Define labels for users
+const labels = ["Admin", "Manager", "Developer", "Tester", "Guest", "Contributor"];
+
+// Sample data arrays for random generation
+const sampleNames = ["Alice Doe", "Bob Smith", "Carol Johnson", "David Warner", "Eve Adams", "Frank Bell"];
+const sampleUsernames = ["alice", "bob", "carol", "david", "eve", "frank"];
+const sampleAvatars = [
+    "../../public/img/avatars/avatar-1.jpg",
+    "../../public/img/avatars/avatar-2.jpg",
+    "../../public/img/avatars/avatar-3.jpg",
 ];
 
-const userData = [
-    { fullname: "Alice Doe", username: "alice", email: "alice@example.com", avatar: "../../public/img/avatars/avatar-1.jpg" },
-    { fullname: "Bob Smith", username: "bob", email: "bob@example.com", avatar: "../../public/img/avatars/avatar-2.jpg" },
-    { fullname: "Carol Johnson", username: "carol", email: "carol@example.com", avatar: "../../public/img/avatars/avatar-3.jpg" },
-];
+// Generate random users
+const generateRandomUsers = (count) => {
+    const users = [];
+    for (let i = 0; i < count; i++) {
+        const name = getRandomItem(sampleNames) + ` ${i}`;
+        users.push({
+            fullname: name,
+            username: getRandomItem(sampleUsernames) + i,
+            email: `${getRandomItem(sampleUsernames)}${getRandomNumber(1, 1000)}@example.com`,
+            avatar: getRandomItem(sampleAvatars),
+            labels: Array.from(new Set(
+                Array(getRandomNumber(1, 3))
+                    .fill(null)
+                    .map(() => getRandomItem(labels))
+            )), // Assign 1-3 unique labels
+        });
+    }
+    return users;
+};
 
-// Function to seed the database
+// Generate random tasks
+const generateRandomTasks = (userIds, count) => {
+    const tasks = [];
+    for (let i = 0; i < count; i++) {
+        tasks.push({
+            title: `Task ${i + 1}`,
+            due: new Date(new Date().getTime() + getRandomNumber(1, 30) * 24 * 60 * 60 * 1000), // Due in 1-30 days
+            priority: getRandomItem(["Low", "Medium", "High"]),
+            description: "This is a random task description.",
+            tags: ["Work", "Urgent"], // Example tags
+            labels: getRandomItem(labels), // Assign random task label
+            status: getRandomItem(["completed", "in-progress", "failed"]),
+            user: getRandomItem(userIds), // Assign random user
+        });
+    }
+    return tasks;
+};
+
+// Seed database
 const seedDB = async () => {
     try {
         // Clear existing database data
         await Task.deleteMany({});
         await User.deleteMany({});
-        console.log('Existing collections cleared.');
+        console.log("Existing collections cleared.");
 
-        // Insert users and retrieve created users
-        const createdUsers = await User.insertMany(userData);
+        // Generate and insert users
+        const randomUsers = generateRandomUsers(25); // Generate 25 random users
+        const createdUsers = await User.insertMany(randomUsers);
         console.log(`${createdUsers.length} users created.`);
 
-        // Assign each task to a random user
-        const tasksWithUsers = taskData.map(task => ({
-            ...task,
-            user: createdUsers[Math.floor(Math.random() * createdUsers.length)]._id,
-        }));
-
-        // Insert tasks
-        const createdTasks = await Task.insertMany(tasksWithUsers);
+        // Generate and insert tasks
+        const userIds = createdUsers.map(user => user._id);
+        const randomTasks = generateRandomTasks(userIds, 60); // Generate 60 tasks for users
+        const createdTasks = await Task.insertMany(randomTasks);
         console.log(`${createdTasks.length} tasks created.`);
+
+        // Update users with task references
+        for (const task of createdTasks) {
+            await User.findByIdAndUpdate(task.user, { $push: { tasks: task._id } });
+        }
+
+        console.log("Database seeded successfully with users and tasks!");
     } catch (error) {
-        console.error('Error seeding database:', error);
+        console.error("Error seeding database:", error);
     } finally {
-        await mongoose.connection.close(); // Close the connection once done
+        mongoose.connection.close(); // Close the connection after seeding is complete
     }
 };
 
