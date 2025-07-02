@@ -11,7 +11,8 @@ const userController = {
             const newUser = new User({ fullname, username, email, avatar });
             const savedUser = await newUser.save();
 
-            res.status(201).json({ message: "User created successfully.", user: savedUser });
+            // Render users/index with the new user in an array
+            res.render("users/index", { users: [savedUser] });
         } catch (error) {
             console.error("Error creating user:", error);
 
@@ -32,9 +33,9 @@ const userController = {
                 title: 1,
                 due: 1,
                 priority: 1,
-                status: 1, // Included task status
+                status: 1,
             });
-            res.status(200).json(users);
+            res.render("users/index", { users });
         } catch (error) {
             console.error("Error fetching users:", error);
             res.status(500).json({ error: "Internal server error." });
@@ -49,14 +50,15 @@ const userController = {
                 title: 1,
                 due: 1,
                 priority: 1,
-                status: 1, // Included task status
+                status: 1,
             });
 
             if (!user) {
                 return res.status(404).json({ error: "User not found." });
             }
 
-            res.status(200).json(user);
+            // Render users/index with the single user in an array
+            res.render("users/index", { users: [user] });
         } catch (error) {
             console.error("Error fetching user:", error);
             res.status(500).json({ error: "Internal server error." });
@@ -76,7 +78,8 @@ const userController = {
                 return res.status(404).json({ error: "User not found." });
             }
 
-            res.status(200).json({ message: "User updated successfully.", user: updatedUser });
+            // Render users/index with the updated user in an array
+            res.render("users/index", { users: [updatedUser] });
         } catch (error) {
             console.error("Error updating user:", error);
 
@@ -107,7 +110,14 @@ const userController = {
             // Delete the user
             await User.findByIdAndDelete(id);
 
-            res.status(200).json({ message: "User and their tasks deleted successfully." });
+            // Render users/index with the remaining users
+            const users = await User.find().populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1,
+            });
+            res.render("users/index", { users });
         } catch (error) {
             console.error("Error deleting user:", error);
             res.status(500).json({ error: "Internal server error." });
@@ -125,20 +135,8 @@ const userController = {
                 return res.status(404).json({ error: "User not found." });
             }
 
-            // Task statistics
-            const completedCount = await Task.countDocuments({ user: id, status: "completed" });
-            const failedCount = await Task.countDocuments({ user: id, status: "failed" });
-            const ongoingCount = await Task.countDocuments({ user: id, status: "in-progress" });
-
-            res.status(200).json({
-                message: "User tasks fetched successfully.",
-                tasks: user.tasks,
-                stats: {
-                    completed: completedCount,
-                    failed: failedCount,
-                    ongoing: ongoingCount,
-                },
-            });
+            // Render users/index with the user's tasks as users
+            res.render("users/index", { users: user.tasks });
         } catch (error) {
             console.error("Error fetching user tasks:", error);
             res.status(500).json({ error: "Internal server error." });

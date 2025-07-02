@@ -22,6 +22,15 @@ const taskController = {
             user.tasks.push(savedTask._id);
             await user.save();
 
+            // Render users/index with all users after task creation
+            const users = await User.find().populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1,
+            });
+            res.render("users/index", { users });
+
             res.status(201).json({ message: "Task created successfully.", task: savedTask });
         } catch (error) {
             console.error("Error creating task:", error);
@@ -33,6 +42,16 @@ const taskController = {
     getAllTasks: async (req, res) => {
         try {
             const tasks = await Task.find().populate("user", "username email"); // Populate user info
+
+            // Render users/index with all users (since view expects users)
+            const users = await User.find().populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1,
+            });
+            res.render("users/index", { users });
+
             res.status(200).json(tasks);
         } catch (error) {
             console.error("Error fetching tasks:", error);
@@ -48,6 +67,16 @@ const taskController = {
             if (!task) {
                 return res.status(404).json({ error: "Task not found." });
             }
+
+            // Render users/index with the user owning the task
+            const user = await User.findById(task.user).populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1,
+            });
+            res.render("users/index", { users: [user] });
+
             res.status(200).json(task);
         } catch (error) {
             console.error("Error fetching task:", error);
@@ -66,6 +95,15 @@ const taskController = {
             if (!updatedTask) {
                 return res.status(404).json({ error: "Task not found." });
             }
+
+            // Render users/index with all users after task update
+            const users = await User.find().populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1,
+            });
+            res.render("users/index", { users });
 
             res.status(200).json({ message: "Task updated successfully.", task: updatedTask });
         } catch (error) {
@@ -91,6 +129,15 @@ const taskController = {
             // Delete the task
             await Task.findByIdAndDelete(id);
 
+            // Render users/index with all users after task deletion
+            const users = await User.find().populate("tasks", {
+                title: 1,
+                due: 1,
+                priority: 1,
+                status: 1,
+            });
+            res.render("users/index", { users });
+
             res.status(200).json({ message: "Task deleted successfully." });
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -113,6 +160,9 @@ const taskController = {
             const completed = await Task.countDocuments({ user: userId, status: "completed" });
             const failed = await Task.countDocuments({ user: userId, status: "failed" });
             const ongoing = await Task.countDocuments({ user: userId, status: "in-progress" });
+
+            // Render users/index with the user's tasks as users
+            res.render("users/index", { users: user.tasks });
 
             res.status(200).json({
                 tasks: user.tasks,
