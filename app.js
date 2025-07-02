@@ -25,9 +25,13 @@ db.once("open", () => {
 });
 
 // Middleware to parse incoming requests
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
+
+// Set EJS as the view engine
+app.set("view engine", "ejs");
+app.set("views", path.join(path.resolve(), "views")); // Optional if you follow default
 
 // Static files
 app.use(express.static(path.join(path.resolve(), "public")));
@@ -67,7 +71,7 @@ app.use("/tasks", taskRoutes);
 
 // Root route
 app.get("/", (req, res) => {
-    res.send("Welcome to Taskly!");
+    res.render("home", { message: "Welcome to Taskly!" }); // Render a home page with a message
 });
 
 // Error handling for unmatched routes
@@ -77,8 +81,8 @@ app.all("*", (req, res, next) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-    const {statusCode = 500, message = "Something went wrong!"} = err;
-    res.status(statusCode).json({error: message});
+    const { statusCode = 500, message = "Something went wrong!" } = err;
+    res.status(statusCode).render("error", { message }); // Render an error view
 });
 
 // Start server
