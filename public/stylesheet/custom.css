@@ -731,3 +731,45 @@ a.btn.btn-view-profile {
 .alert {
     margin-bottom: 10px; /* Add spacing between multiple alerts */
 }
+
+
+/*404*/
+ .body-class {
+     font-family: Arial, sans-serif;
+     text-align: center;
+     background-color: #f8f9fa;
+     color: #333;
+     margin: 0;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     height: 100vh;
+ }
+.error-container {
+    max-width: 600px;
+}
+.error-container h1 {
+    font-size: 6rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+.error-container h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+.error-container p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+.error-container a {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #007bff;
+    color: #fff;
+    padding: 0.8rem 1.2rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+.error-container a:hover {
+    background-color: #0056b3;
+}
