@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import session from "express-session";
 import flash from "connect-flash";
 import passport from "passport";
+import LocalStrategy from "passport-local";
 import methodOverride from "method-override";
+import mongoSanitize from "express-mongo-sanitize";
 import path from "path";
 import userRoutes from "./routes/user.js";
 import taskRoutes from "./routes/task.js";
@@ -26,15 +28,17 @@ db.once("open", () => {
 
 // Middleware to parse incoming requests
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(methodOverride("_method"));
+app.use(express.static(path.join(path.resolve(), "public")));
+app.use(
+    mongoSanitize({
+        replaceWith: "_",
+    })
+);
 
 // Set EJS as the view engine
 app.set("view engine", "ejs");
-app.set("views", path.join(path.resolve(), "views")); // Optional if you follow default
-
-// Static files
-app.use(express.static(path.join(path.resolve(), "public")));
+app.set("views", path.join(path.resolve(), "views"));
 
 // Session configuration
 const sessionConfig = {
@@ -53,7 +57,8 @@ app.use(flash());
 // Passport configuration
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(User.createStrategy());
+passport.use(new LocalStrategy(User.authenticate()));
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
