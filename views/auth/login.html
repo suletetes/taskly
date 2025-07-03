@@ -17,57 +17,16 @@
 <div id="page-loading-blocs-notifaction" class="page-preloader"></div>
 <!-- Preloader END -->
 
-<div class="page-container">
-    <header>
-        <!-- bloc-0 -->
-        <div class="bloc l-bloc none" id="bloc-0">
-            <div class="container bloc-sm bloc-no-padding-lg">
-                <div class="row">
-                    <div class="col">
-                        <nav class="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
-                            <div class="container-fluid">
-                                <a class="navbar-brand link-style ltc-2869" href="../..">Taskly</a>
-                                <button id="nav-toggle" type="button"
-                                        class="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0"
-                                        aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse"
-                                        data-bs-target=".navbar-25309">
-                                    <span class="navbar-toggler-icon"><svg height="32" viewBox="0 0 32 32" width="32"><path
-                                            class="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path></svg></span>
-                                </button>
-                                <div class="collapse navbar-collapse navbar-35179 navbar-25309">
-                                    <ul class="site-navigation nav navbar-nav none ms-auto">
-                                        <li class="nav-item">
-                                            <a href="../.." class="nav-link  ltc-2869">Home</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../about" class="a-btn nav-link ltc-2869">About</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../.." class="nav-link a-btn ltc-2869">Signup</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../login" class="nav-link a-btn ltc-2869">Login</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- bloc-0 END -->
-    </header>
-
+<div class="page-container" style="background-image: url('../../public/img/background/login.jpg'); background-size: cover; background-position: center; height: 100vh;">
     <!-- Login Box -->
-    <div class="bloc none l-bloc" id="bloc-8">
-        <div class="container bloc-xl-lg">
+    <div class="bloc-xl-lg h-100 d-flex align-items-center">
+        <div class="container">
             <div class="row justify-content-center">
-                <div class="col-sm-10 col-md-8 col-lg-6">
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6">
                     <div class="login-card bg-white shadow-lg rounded-4 p-4">
                         <!-- Header -->
                         <h2 class="mb-4 text-center fw-bold text-dark">Login to Taskly</h2>
-                        
+
                         <!-- Login Form -->
                         <form id="login-form" action="custom-action-url" method="POST" novalidate>
                             <!-- Username or Email -->
@@ -77,24 +36,31 @@
                                        placeholder="Enter your username or email" autocomplete="username">
                                 <div class="invalid-feedback">Please enter a valid username or email.</div>
                             </div>
-                            
+
                             <!-- Password -->
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label class="form-label fw-semibold" for="password">Password</label>
                                 <input id="password" class="form-control shadow-sm" required name="password"
-                                       placeholder="Enter your password" type="password" autocomplete="current-password">
+                                       placeholder="Enter your password" type="password"
+                                       autocomplete="current-password">
                                 <div class="invalid-feedback">Password is required.</div>
                                 <p class="text-end mt-2">
-                                    <a href="#" class="text-primary fw-semibold text-decoration-underline" 
+                                    <a href="#" class="text-primary fw-semibold text-decoration-underline"
                                        style="font-size: 0.9em;">Forgot Password?</a>
                                 </p>
                             </div>
-                            
-                            <!-- Submit Button -->
-                            <button class="btn btn-secondary w-100 rounded shadow-sm mt-3 fw-bold py-2" type="submit">
-                                Login
-                            </button>
-                            
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-3 d-md-flex justify-content-between align-items-center mt-4">
+                                <!-- Go Back Button -->
+                                <a href="/" class="btn btn-outline-secondary shadow-sm fw-bold py-2 px-4">Go Back</a>
+
+                                <!-- Submit Button -->
+                                <button class="btn btn-secondary rounded shadow-sm fw-bold py-2 px-4" type="submit">
+                                    Login
+                                </button>
+                            </div>
+
                             <!-- Signup CTA -->
                             <p class="text-center mt-4 mb-0">
                                 <span class="text-muted">Don't have an account?</span>
@@ -106,36 +72,20 @@
             </div>
         </div>
     </div>
-    <!-- Login Box END -->
-
-    <!-- ScrollToTop Button -->
-    <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
-            onclick="scrollToTarget('1',this)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
-            <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
-        </svg>
-    </button>
-    <!-- ScrollToTop Button END-->
-
-    <footer>
-        <!-- bloc-15 -->
-        <div class="bloc l-bloc none" id="bloc-15">
-            <div class="container bloc-lg bloc-sm-lg">
-                <div class="row">
-                    <div class="col-md-3 col-sm-6 col-lg-12">
-                        <p class="text-lg-center">
-                            Copyright @ 2025 Taskify
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- bloc-15 END -->
-    </footer>
 </div>
-<!-- Main container END -->
+
+<!-- ScrollToTop Button -->
+<button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
+        onclick="scrollToTarget('1',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
+        <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
+    </svg>
+</button>
+<!-- ScrollToTop Button END-->
+
+
 
 <script src="../../public/js/all.js?6535"></script>
-</body>
 <script src="../../public/js/validation.js"></script>
+</body>
 </html>
