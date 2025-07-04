@@ -18,17 +18,15 @@
 <div id="page-loading-blocs-notifaction" class="page-preloader"></div>
 <!-- Preloader END -->
 
-
 <div class="page-container">
-
     <header>
-        <!-- footer -->
-        <%- include("../includes/navbar") %>
-        <!-- footer END -->
+        <!-- Navbar (conditionally include) -->
+        <% if (!hideNavbar) { %>
+            <%- include("../includes/navbar") %>
+        <% } %>
     </header>
 
     <%- body %>
-
 </div>
 
 <!-- ScrollToTop Button -->
@@ -38,17 +36,16 @@
         <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
     </svg>
 </button>
-<!-- ScrollToTop Button END-->
+<!-- ScrollToTop Button END -->
 
-
-<!--flash-->
+<!-- Flash Notifications -->
 <%- include('../includes/flash') %>
-<!--flash END-->
+<!-- Flash END -->
 
-<!--footer-->
-<%- include("../includes/footer") %>
-<!--footer end-->
-
+<!-- Footer (conditionally include) -->
+<% if (!hideFooter) { %>
+    <%- include("../includes/footer") %>
+<% } %>
 
 <!-- Additional JS -->
 <script src="../../public/js/all.js"></script><!-- Additional JS END -->
