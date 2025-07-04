@@ -32,15 +32,20 @@ db.once("open", () => {
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(path.resolve(), "public")));
+/*
 app.use(
     mongoSanitize({
-        replaceWith: "_",
+        allowDots: true, // Optional: Allow dots in keys (safely)
+        replaceWith: '_', // Replace prohibited keys instead of removing them
     })
 );
+*/
+
 
 // Set EJS as the view engine
+app.engine('ejs', ejsMate); // Use ejs-mate for rendering EJS templates
 app.set("view engine", "ejs");
-app.set("views", path.join(path.resolve(), "views"));
+app.set('views', path.join(__dirname, 'views')); // Path to views folder
 
 // Session configuration
 const sessionConfig = {
@@ -78,19 +83,31 @@ app.use("/tasks", taskRoutes);
 
 // Root route
 app.get("/", (req, res) => {
-    res.render("home", {message: "Welcome to Taskly!"}); // Render a home page with a message
+    res.render("home/home", {
+        title: 'Home | Taskly',
+        hideNavbar: false,
+        hideFooter: false
+    })
+    // res.send("Welcome to Taskly!");
+    // res.render("home", {message: "Welcome to Taskly!"}); // Render a home page with a message
+    // res.render({message: "Welcome to Taskly!"}); // Render a home page with a message
 });
 
 // Error handling for unmatched routes
-app.all("*", (req, res, next) => {
+/*app.all("*", (req, res, next) => {
+    res.send("Welcome to Taskly!");
+    // next(new ExpressError("Page Not Found", 404));
     next(new ExpressError("Page Not Found", 404));
-});
+});*/
 
 // Global error handler
+/*
 app.use((err, req, res, next) => {
-    const {statusCode = 500, message = "Something went wrong!"} = err;
-    res.status(statusCode).render("error", {message}); // Render an error view
+    // const {statusCode = 500, message = "Something went wrong!"} = err;
+    // res.status(statusCode).render("error", {message}); // Render an error view
+    // res.render("new")
 });
+*/
 
 // Start server
 const PORT = 3000;
