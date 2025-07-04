@@ -1,7 +1,7 @@
 import { taskSchema, userSchema } from "./schemas.js"; // Import schemas
-import User from "../model/user.js";
-import Task from "../model/task.js";
-import ExpressError from "../utils/ExpressError.js"; // Custom error class
+import User from "./model/user.js";
+import Task from "./model/task.js";
+import ExpressError from "./utils/ExpressError.js"; // Custom error class
 
 // Middleware: Check if the user is authenticated (logged in)
 export const isLoggedIn = (req, res, next) => {
