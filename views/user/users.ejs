@@ -1,28 +1,56 @@
-<% layout('../layouts/boilerplate')%>
-<!-- All users -->
-<div class="bloc l-bloc" id="bloc-12">
-    <div class="container bloc-lg bloc-md-lg">
-        <div class="row">
-            <div class="col text-center">
-                <h3 class="mg-md">
-                    All Users<br>
-                </h3>
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <h2 class="text-center">All Users</h2>
+    <div class="row">
+        <% users.forEach(user => { %> <!-- Loop through users and render cards -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 text-center">
+                <img class="card-img-top" src="<%= user.avatar || '/img/default-avatar.png' %>" alt="<%= user.username %>" loading="lazy">
+                <div class="card-body">
+                    <h5 class="card-title mb-2"><%= user.username %></h5>
+                    <p class="card-text">Tasks Completed: <%= user.tasks ? user.tasks.length : 0 %></p>
+                    <a href="/users/<%= user._id %>" class="btn btn-primary">View Profile</a>
+                </div>
             </div>
         </div>
-        <div class="row voffset" id="users-list">
-            <!-- User cards will be rendered here by JS -->
-        </div>
-        <nav aria-label="User pagination" class="d-flex justify-content-center mt-4">
-            <ul class="pagination" id="pagination">
-                <!-- Pagination buttons will be rendered here by JS -->
-            </ul>
-        </nav>
+        <% }); %>
     </div>
+
+    <!-- Pagination -->
+    <nav aria-label="User Pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <!-- Previous button -->
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a
+                    class="page-link"
+                    href="/users/paginated?page=<%= currentPage - 1 %>"
+                    aria-disabled="<%= currentPage === 1 %>"
+                >
+                    &laquo;
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="/users/paginated?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+
+            <!-- Next button -->
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a
+                    class="page-link"
+                    href="/users/paginated?page=<%= currentPage + 1 %>"
+                    aria-disabled="<%= currentPage === totalPages %>"
+                >
+                    &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
-
-<!-- All users -->
-
-
 <!-- Additional JS -->
-<script src="../../public/js/UserPagination.js"></script>
+<!--<script src="/js/UserPagination.js"></script>-->
 <!-- Additional JS END -->
