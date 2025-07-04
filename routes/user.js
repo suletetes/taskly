@@ -6,17 +6,21 @@ const {
     updateUser,
     deleteUser,
     getUserTasks,
+    getPaginatedUsers, // Add the new controller
 } = require("../controllers/user");
 const { isLoggedIn, validateUser, isUserExists } = require("../middleware");
 
 const router = express.Router();
 
-// Define user-related routes
-router.post("/", validateUser, createUser); // Create a new user with validation
-router.get("/", isLoggedIn, getAllUsers); // Ensure user is logged in to fetch all users
-router.get("/:id", isLoggedIn, isUserExists, getUserById); // Ensure user exists before fetching by ID
-router.put("/:id", isLoggedIn, isUserExists, validateUser, updateUser); // Validate and ensure user exists before updating
-router.delete("/:id", isLoggedIn, isUserExists, deleteUser); // Ensure user exists before deletion
-router.get("/:id/tasks", isLoggedIn, isUserExists, getUserTasks); // Fetch user tasks ensuring the user exists
+// Add the paginated users route
+router.get("/paginated", isLoggedIn, getPaginatedUsers); // Ensure user is logged in to fetch paginated users
+
+// Other user-related routes
+router.post("/", validateUser, createUser);
+router.get("/", isLoggedIn, getAllUsers); // Fetch all users (if required elsewhere)
+router.get("/:id", isLoggedIn, isUserExists, getUserById);
+router.put("/:id", isLoggedIn, isUserExists, validateUser, updateUser);
+router.delete("/:id", isLoggedIn, isUserExists, deleteUser);
+router.get("/:id/tasks", isLoggedIn, isUserExists, getUserTasks);
 
 module.exports = router;

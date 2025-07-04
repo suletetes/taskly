@@ -141,3 +141,28 @@ module.exports.getUserTasks = async (req, res) => {
         res.status(500).json({ error: "Internal server error." });
     }
 };
+module.exports.getPaginatedUsers = async (req, res) => {
+    try {
+        const USERS_PER_PAGE = 12;
+        const { page = 1 } = req.query; // Get the current page from query params (default: 1)
+
+        // Fetch users with pagination
+        const users = await User.find() // Find all users
+            .skip((page - 1) * USERS_PER_PAGE) // Skip users for previous pages
+            .limit(USERS_PER_PAGE); // Limit to USERS_PER_PAGE
+        const totalUsers = await User.countDocuments(); // Count all users for pagination
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+
+        // Render the EJS view and pass data
+        res.render("users/index", {
+            users,
+            currentPage: Number(page),
+            totalPages,
+        });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
