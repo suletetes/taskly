@@ -27,7 +27,7 @@ module.exports.createTask = async (req, res) => {
             priority: 1,
             status: 1,
         });
-        res.render("users/index", { users });
+        res.render("task/add", { users });
 
         res.status(201).json({ message: "Task created successfully.", task: savedTask });
     } catch (error) {
@@ -37,6 +37,7 @@ module.exports.createTask = async (req, res) => {
 };
 
 // Get all tasks
+/*
 module.exports.getAllTasks = async (req, res) => {
     try {
         const tasks = await Task.find().populate("user", "username email"); // Populate user info
@@ -48,7 +49,7 @@ module.exports.getAllTasks = async (req, res) => {
             priority: 1,
             status: 1,
         });
-        res.render("users/index", { users });
+        // res.render("users/index", { users }); todo none
 
         res.status(200).json(tasks);
     } catch (error) {
@@ -56,8 +57,10 @@ module.exports.getAllTasks = async (req, res) => {
         res.status(500).json({ error: "Internal server error." });
     }
 };
+*/
 
 // Get a single task by ID
+/*
 module.exports.getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -73,7 +76,7 @@ module.exports.getTaskById = async (req, res) => {
             priority: 1,
             status: 1,
         });
-        res.render("users/index", { users: [user] });
+        res.render("user/list", { users: [user] });
 
         res.status(200).json(task);
     } catch (error) {
@@ -81,6 +84,7 @@ module.exports.getTaskById = async (req, res) => {
         res.status(500).json({ error: "Internal server error." });
     }
 };
+*/
 
 // Update a task by ID
 module.exports.updateTask = async (req, res) => {
@@ -101,7 +105,7 @@ module.exports.updateTask = async (req, res) => {
             priority: 1,
             status: 1,
         });
-        res.render("users/index", { users });
+        res.render("user/update", { users });
 
         res.status(200).json({ message: "Task updated successfully.", task: updatedTask });
     } catch (error) {
@@ -134,7 +138,7 @@ module.exports.deleteTask = async (req, res) => {
             priority: 1,
             status: 1,
         });
-        res.render("users/index", { users });
+        res.render("user/profile", { users });
 
         res.status(200).json({ message: "Task deleted successfully." });
     } catch (error) {
