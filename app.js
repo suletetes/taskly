@@ -1,16 +1,18 @@
-import express from "express";
-import mongoose from "mongoose";
-import session from "express-session";
-import flash from "connect-flash";
-import passport from "passport";
-import LocalStrategy from "passport-local";
-import methodOverride from "method-override";
-import mongoSanitize from "express-mongo-sanitize";
-import path from "path";
-import userRoutes from "./routes/user.js";
-import taskRoutes from "./routes/task.js";
-import ExpressError from "./utils/ExpressError.js";
-import User from "./model/user.js";
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
+const ejsMate = require('ejs-mate');
+const session = require('express-session');
+const flash = require('connect-flash');
+const ExpressError = require('./utils/ExpressError');
+const methodOverride = require('method-override');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const User = require('./model/user');
+const userRoutes = require('./routes/user');
+const taskRoutes = require('./routes/task');
 
 // Initialize Express app
 const app = express();
@@ -27,7 +29,7 @@ db.once("open", () => {
 });
 
 // Middleware to parse incoming requests
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(path.resolve(), "public")));
 app.use(
@@ -76,7 +78,7 @@ app.use("/tasks", taskRoutes);
 
 // Root route
 app.get("/", (req, res) => {
-    res.render("home", { message: "Welcome to Taskly!" }); // Render a home page with a message
+    res.render("home", {message: "Welcome to Taskly!"}); // Render a home page with a message
 });
 
 // Error handling for unmatched routes
@@ -86,8 +88,8 @@ app.all("*", (req, res, next) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-    const { statusCode = 500, message = "Something went wrong!" } = err;
-    res.status(statusCode).render("error", { message }); // Render an error view
+    const {statusCode = 500, message = "Something went wrong!"} = err;
+    res.status(statusCode).render("error", {message}); // Render an error view
 });
 
 // Start server
