@@ -227,12 +227,13 @@ setupFormValidation('edit-task-form');
 const thumbs = document.querySelectorAll('.avatar-thumb');
 const avatarLarge = document.getElementById('avatar-large');
 const avatarInput = document.getElementById('avatar-input');
+
 if (thumbs.length && avatarLarge && avatarInput) {
     thumbs.forEach(thumb => {
-        thumb.addEventListener('click', function () {
+        thumb.addEventListener('click', () => {
             thumbs.forEach(t => t.classList.remove('selected'));
-            this.classList.add('selected');
-            const avatarPath = this.dataset.avatar || this.getAttribute('data-src');
+            thumb.classList.add('selected');
+            const avatarPath = thumb.dataset.avatar || thumb.getAttribute('data-src');
             avatarLarge.src = avatarPath;
             avatarInput.value = avatarPath;
         });
