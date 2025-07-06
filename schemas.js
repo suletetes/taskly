@@ -43,7 +43,7 @@ const userSchema = Joi.object({
         username: Joi.string().required().escapeHTML(),
         email: Joi.string().required().email().escapeHTML(),
         password: Joi.string().required().min(6), // For registration only
-        avatar: Joi.string().optional().uri().escapeHTML(),
+        avatar: Joi.string().optional().uri().escapeHTML(), // Ensure avatar is a valid URI
     }).required(),
 });
 

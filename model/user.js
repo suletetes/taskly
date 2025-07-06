@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "../public/img/avatars/placeholder-user.png",
+        default: "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png", // Updated default avatar URL
     },
     created_at: {
         type: Date,
@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
     ],
 });
 
-// Pre-save hook: validate uniqueness of username and email
+// Pre-save hook for unique username/email check
 userSchema.pre("save", async function (next) {
     try {
         const existingUser = await mongoose.model("User").findOne({
@@ -66,6 +66,5 @@ userSchema.plugin(passportLocalMongoose, {
     },
 });
 
-// Export the User model
 const User = mongoose.model("User", userSchema);
 module.exports = User;
