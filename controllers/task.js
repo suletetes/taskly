@@ -1,307 +1,224 @@
 const Task = require("../model/task");
 const User = require("../model/user");
 
-// Create a new task
+// Render 'New Task' Form
+module.exports.renderNewTaskForm = async (req, res) => {
+    try {
+        const users = await User.find(); // Fetch all users for the dropdown
+        res.render("tasks/add", { users });
+    } catch (error) {
+        console.error("Error rendering task form:", error);
+        req.flash("error", "Could not load task creation form.");
+        res.redirect("/tasks");
+    }
+};
+
+// Create a New Task
 module.exports.createTask = async (req, res) => {
     try {
-        const {title, due, priority, description, tags, labels, userId} = req.body;
+        const { title, due, priority, description, tags, labels, userId } = req.body;
 
-        // Validate the user ID
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({error: "User not found."});
+            req.flash("error", "User not found.");
+            return res.redirect("/tasks/new");
         }
 
-        // Create the task
-        const newTask = new Task({title, due, priority, description, tags, labels, user: userId});
-        const savedTask = await newTask.save();
+        const newTask = new Task({ title, due, priority, description, tags, labels, user: userId });
+        await newTask.save();
 
-        // Associate the task with the user
-        user.tasks.push(savedTask._id);
+        user.tasks.push(newTask._id);
         await user.save();
 
-        // Render users/index with all users after task creation
-        const users = await User.find().populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
-        });
-        res.render("task/add", {users});
-
-        res.status(201).json({message: "Task created successfully.", task: savedTask});
+        req.flash("success", "Task created successfully!");
+        res.redirect("/tasks");
     } catch (error) {
         console.error("Error creating task:", error);
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Failed to create task.");
+        res.redirect("/tasks/new");
     }
 };
 
-// Get all tasks
-/*
+// Get All Tasks
 module.exports.getAllTasks = async (req, res) => {
     try {
-        const tasks = await Task.find().populate("user", "username email"); // Populate user info
-
-        // Render users/index with all users (since view expects users)
-        const users = await User.find().populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
-        });
-        // res.render("users/index", { users }); todo none
-
-        res.status(200).json(tasks);
+        const tasks = await Task.find().populate("user", "fullname username");
+        res.render("tasks/list", { tasks });
     } catch (error) {
         console.error("Error fetching tasks:", error);
-        res.status(500).json({ error: "Internal server error." });
+        req.flash("error", "Unable to fetch tasks.");
+        res.redirect("/");
     }
 };
-*/
 
-// Get a single task by ID
-/*
+// Get a Single Task by ID
 module.exports.getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
-        const task = await Task.findById(id).populate("user", "username email"); // Populate user info
+        const task = await Task.findById(id).populate("user", "fullname username email");
+
         if (!task) {
-            return res.status(404).json({ error: "Task not found." });
+            req.flash("error", "Task not found.");
+            return res.redirect("/tasks");
         }
 
-        // Render users/index with the user owning the task
-        const user = await User.findById(task.user).populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
-        });
-        res.render("user/list", { users: [user] });
-
-        res.status(200).json(task);
+        res.render("tasks/show", { task });
     } catch (error) {
         console.error("Error fetching task:", error);
-        res.status(500).json({ error: "Internal server error." });
+        req.flash("error", "Failed to retrieve task.");
+        res.redirect("/tasks");
     }
 };
-*/
 
-// Update a task by ID
+// Render Edit Task Form
+module.exports.renderEditTaskForm = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const task = await Task.findById(id); // Fetch task data for editing
+        const users = await User.find(); // Fetch all users for reassigning task
+
+        if (!task) {
+            req.flash("error", "Task not found.");
+            return res.redirect("/tasks");
+        }
+
+        res.render("tasks/update", { task, users });
+    } catch (error) {
+        console.error("Error loading edit task form:", error);
+        req.flash("error", "Failed to load task edit form.");
+        res.redirect("/tasks");
+    }
+};
+
+// Update a Task by ID
 module.exports.updateTask = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const updates = req.body;
 
-        // Find and update the task
-        const updatedTask = await Task.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedTask = await Task.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
         if (!updatedTask) {
-            return res.status(404).json({error: "Task not found."});
+            req.flash("error", "Task not found.");
+            return res.redirect("/tasks");
         }
 
-        // Render users/index with all users after task update
-        const users = await User.find().populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
-        });
-        res.render("user/update", {users});
-
-        res.status(200).json({message: "Task updated successfully.", task: updatedTask});
+        req.flash("success", "Task updated successfully!");
+        res.redirect(`/tasks/${id}`);
     } catch (error) {
         console.error("Error updating task:", error);
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Could not update task.");
+        res.redirect(`/tasks/${id}/edit`);
     }
 };
 
-// Delete a task by ID
+// Delete a Task by ID
 module.exports.deleteTask = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
 
-        // Find the task
         const task = await Task.findById(id);
         if (!task) {
-            return res.status(404).json({error: "Task not found."});
+            req.flash("error", "Task not found.");
+            return res.redirect("/tasks");
         }
 
-        // Remove the task from the associated user's tasks array
-        await User.findByIdAndUpdate(task.user, {$pull: {tasks: task._id}});
-
-        // Delete the task
+        await User.findByIdAndUpdate(task.user, { $pull: { tasks: task._id } });
         await Task.findByIdAndDelete(id);
 
-        // Render users/index with all users after task deletion
-        const users = await User.find().populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
-        });
-        res.render("user/profile", {users});
-
-        res.status(200).json({message: "Task deleted successfully."});
+        req.flash("success", "Task deleted successfully!");
+        res.redirect("/tasks");
     } catch (error) {
         console.error("Error deleting task:", error);
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Failed to delete task.");
+        res.redirect("/tasks");
     }
 };
 
-// Get tasks for a specific user
+// Get All Tasks of a Specific User
 module.exports.getTasksByUser = async (req, res) => {
     try {
-        const {userId} = req.params;
-
-        // Validate the user ID
+        const { userId } = req.params;
         const user = await User.findById(userId).populate("tasks");
+
         if (!user) {
-            return res.status(404).json({error: "User not found."});
+            req.flash("error", "User not found.");
+            return res.redirect("/tasks");
         }
 
-        // Task count stats
-        const completed = await Task.countDocuments({user: userId, status: "completed"});
-        const failed = await Task.countDocuments({user: userId, status: "failed"});
-        const ongoing = await Task.countDocuments({user: userId, status: "in-progress"});
-
-        // Render users/index with the user's tasks as users
-        res.render("users/index", {users: user.tasks});
-
-        res.status(200).json({
-            tasks: user.tasks,
-            stats: {
-                completed,
-                failed,
-                ongoing,
-            },
-        });
+        res.render("tasks/list", { tasks: user.tasks, user });
     } catch (error) {
-        console.error("Error fetching user tasks:", error);
-        res.status(500).json({error: "Internal server error."});
+        console.error("Error fetching user's tasks:", error);
+        req.flash("error", "Could not fetch tasks for the user.");
+        res.redirect("/tasks");
     }
 };
 
-/* productivity stats */
-
-// Fetch Completed Tasks Count
-const getCompletedTasksCount = async (userId) => {
-    return await Task.countDocuments({
-        user: userId,
-        status: "completed",
-    });
+// Calculate Productivity Stats (Reusable Functionality)
+const fetchTaskCounts = async (userId, status) => {
+    return await Task.countDocuments({ user: userId, status });
 };
 
-// Fetch Failed Tasks Count
-const getFailedTasksCount = async (userId) => {
-    return await Task.countDocuments({
-        user: userId,
-        status: "failed",
-    });
+const fetchCompletedTasksWithTime = async (userId) => {
+    return await Task.find({ user: userId, status: "completed" }, { createdAt: 1, updatedAt: 1 });
 };
 
-// Fetch Ongoing Tasks Count
-const getOngoingTasksCount = async (userId) => {
-    return await Task.countDocuments({
-        user: userId,
-        status: "in-progress",
-    });
-};
-
-// Fetch Completed Tasks for Time Calculations
-const getCompletedTasksWithTime = async (userId) => {
-    return await Task.find(
-        {user: userId, status: "completed"},
-        {updatedAt: 1, createdAt: 1}
-    );
-};
-
-// Calculate Average Time to Complete Tasks
 const calculateAverageCompletionTime = (completedTasks) => {
-    const totalTime = completedTasks.reduce((total, task) => {
-        const timeTaken = task.updatedAt - task.createdAt; // Difference in milliseconds
-        return total + timeTaken;
-    }, 0);
-
+    const totalDuration = completedTasks.reduce((acc, task) => acc + (task.updatedAt - task.createdAt), 0);
     return completedTasks.length > 0
-        ? (totalTime / completedTasks.length) / (1000 * 60 * 60) // Convert to hours
+        ? (totalDuration / completedTasks.length) / (60 * 60 * 1000) // Convert to hours
         : 0;
 };
 
-// Calculate Completion Rate
-const calculateCompletionRate = (completedTasksCount, failedTasksCount) => {
-    const totalTasks = completedTasksCount + failedTasksCount;
-    return totalTasks > 0
-        ? ((completedTasksCount / totalTasks) * 100).toFixed(2)
-        : 0;
+const calculateCompletionRate = (completed, failed) => {
+    const total = completed + failed;
+    return total > 0 ? ((completed / total) * 100).toFixed(2) : 0;
 };
 
-// Calculate Streak
-const calculateStreak = async (userId) => {
-    const completedTasks = await Task.find(
-        {user: userId, status: "completed"},
-        {updatedAt: 1}
-    ).sort({updatedAt: -1});
+const calculateCompletionStreak = async (userId) => {
+    const completedTasks = await Task.find({ user: userId, status: "completed" })
+        .sort({ updatedAt: -1 })
+        .distinct("updatedAt");
 
-    if (!completedTasks.length) return 0;
+    if (completedTasks.length === 0) return 0;
 
-    const completionDates = [...new Set(completedTasks.map(task => {
-        const date = new Date(task.updatedAt);
-        return date.toISOString().split("T")[0];
-    }))];
+    const dates = completedTasks
+        .map((time) => new Date(time).toISOString().split("T")[0])
+        .filter((day, i, arr) => !i || arr[i - 1] === day);
 
-    let streak = 1; // Start with 1 day
-    const today = new Date().toISOString().split("T")[0];
+    let streak = 1;
 
-    if (completionDates[0] !== today) return 0;
-
-    for (let i = 1; i < completionDates.length; i++) {
-        const prevDate = new Date(completionDates[i - 1]);
-        const currDate = new Date(completionDates[i]);
-
-        const diffInDays = (prevDate - currDate) / (1000 * 60 * 60 * 24); // Convert milliseconds to days
-        if (diffInDays === 1) {
-            streak++;
-        } else {
-            break; // Break the streak
-        }
+    for (let i = 1; i < dates.length; i++) {
+        if (new Date(dates[i - 1]) - new Date(dates[i]) === 86400000) streak++;
+        else break;
     }
 
     return streak;
 };
 
-// Calculate Productivity Stats
-const calculateProductivityStats = async (userId) => {
+// Consolidated Function to Calculate Productivity Stats
+module.exports.calculateProductivityStats = async (req, res) => {
     try {
-        const completedTasksCount = await getCompletedTasksCount(userId);
-        const failedTasksCount = await getFailedTasksCount(userId);
-        const ongoingTasksCount = await getOngoingTasksCount(userId);
-        const completedTasks = await getCompletedTasksWithTime(userId);
+        const { userId } = req.params;
 
-        const avgTime = calculateAverageCompletionTime(completedTasks);
-        const completionRate = calculateCompletionRate(completedTasksCount, failedTasksCount);
-        const streak = await calculateStreak(userId);
+        const completed = await fetchTaskCounts(userId, "completed");
+        const failed = await fetchTaskCounts(userId, "failed");
+        const inProgress = await fetchTaskCounts(userId, "in-progress");
+        const completedTasks = await fetchCompletedTasksWithTime(userId);
 
-        return {
-            completed: completedTasksCount,
-            failed: failedTasksCount,
-            ongoing: ongoingTasksCount,
-            completionRate: `${completionRate}%`,
+        const streak = await calculateCompletionStreak(userId);
+        const avgCompletionTime = calculateAverageCompletionTime(completedTasks);
+        const completionRate = calculateCompletionRate(completed, failed);
+
+        res.status(200).json({
+            completed,
+            failed,
+            inProgress,
             streak: `${streak} days`,
-            avgTime: `${avgTime.toFixed(2)} hrs`,
-        };
+            avgCompletionTime: `${avgCompletionTime.toFixed(2)} hours`,
+            completionRate: `${completionRate}%`,
+        });
     } catch (error) {
         console.error("Error calculating productivity stats:", error);
-        throw new Error("Could not calculate productivity stats");
+        res.status(500).json({ error: "Internal server error." });
     }
-};
-
-// Export all functions
-module.exports = {
-    getCompletedTasksCount,
-    getFailedTasksCount,
-    getOngoingTasksCount,
-    getCompletedTasksWithTime,
-    calculateAverageCompletionTime,
-    calculateCompletionRate,
-    calculateStreak,
-    calculateProductivityStats,
 };

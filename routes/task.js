@@ -1,31 +1,42 @@
 const express = require("express");
 const {
+    renderNewTaskForm,
     createTask,
     getAllTasks,
     getTaskById,
+    renderEditTaskForm,
     updateTask,
     deleteTask,
     getTasksByUser,
 } = require("../controllers/task");
-const {isLoggedIn, validateTask, isTaskExists, isTaskAuthor} = require("../middleware");
+
+const {
+    isLoggedIn,
+    validateTask,
+    isTaskExists,
+    isTaskAuthor,
+} = require("../middleware");
 
 const router = express.Router();
 
-// Define task-related routes
-/*
-router.post("/", isLoggedIn, validateTask, createTask); // Create a new task with validation
-router.get("/", isLoggedIn, getAllTasks); // Get all tasks
-router.get("/:id", isLoggedIn, isTaskExists, getTaskById); // Ensure task exists before fetching by ID
-router.put("/:id", isLoggedIn, isTaskExists, isTaskAuthor, validateTask, updateTask); // Validate and ensure task exists before updating
-router.delete("/:id", isLoggedIn, isTaskExists, isTaskAuthor, deleteTask); // Ensure task exists before deletion
-router.get("/user/:userId", isLoggedIn, getTasksByUser); // Fetch all tasks of a specific user
-*/
+// Task Index - View All Tasks
+router.get("/", isLoggedIn, getAllTasks);
 
-// Define task-related routes
-router.post("/", isLoggedIn, validateTask, createTask); // Create a new task with validation
-router.put("/:id", isLoggedIn, isTaskExists, isTaskAuthor, validateTask, updateTask); // Validate and ensure task exists before updating
-router.delete("/:id", isLoggedIn, isTaskExists, isTaskAuthor, deleteTask); // Ensure task exists before deletion
-router.get("/user/:userId", isLoggedIn, getTasksByUser); // Fetch all tasks of a specific user
-router.get("/:id", isLoggedIn, isTaskExists, getTaskById); // Ensure task exists before fetching by ID
+// New Task Form
+router.get("/new", isLoggedIn, renderNewTaskForm);
+router.post("/", isLoggedIn, validateTask, createTask);
+
+// View Task Details
+router.get("/:id", isLoggedIn, isTaskExists, getTaskById);
+
+// Edit Task Form
+router.get("/:id/edit", isLoggedIn, isTaskExists, isTaskAuthor, renderEditTaskForm);
+router.put("/:id", isLoggedIn, isTaskExists, isTaskAuthor, validateTask, updateTask);
+
+// Delete Task
+router.delete("/:id", isLoggedIn, isTaskExists, isTaskAuthor, deleteTask);
+
+// View Tasks of a Specific User
+router.get("/user/:userId", isLoggedIn, getTasksByUser);
 
 module.exports = router;
