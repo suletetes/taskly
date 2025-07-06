@@ -5,6 +5,19 @@
     <div class="container bloc-lg-lg">
         <div class="row">
             <div class="col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
+                
+                <!-- Flash messages -->
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                <% } %>
+                <% if (error) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                <% } %>
+
                 <form id="add-task-form" action="/tasks" method="POST" autocomplete="off" novalidate>
                     <!-- Title -->
                     <div class="row">
@@ -37,7 +50,7 @@
                                 <label class="form-label fs-5" for="due-date">
                                     <h4><i class="fa fa-calendar-alt me-1"></i>Due Date <span class="text-danger">*</span></h4>
                                 </label>
-                                <input type="date" class="form-control" id="due-date" name="dueDate" required>
+                                <input type="date" class="form-control" id="due-date" name="due" required>
                                 <div class="invalid-feedback">Due date is required.</div>
                                 <div class="mt-2">
                                     <button type="button" class="btn btn-outline-secondary btn-sm me-1" onclick="quickDate('today')">Today</button>
@@ -65,6 +78,23 @@
                                 <div class="invalid-feedback d-block">Priority is required.</div>
                             </div>
                         </div>
+
+                        <!-- Assign User -->
+                        <div class="text-lg-start col-12">
+                            <div class="form-group mb-3">
+                                <label class="form-label fs-5">
+                                    <h4><i class="fa fa-user me-1"></i>Assign Task to User <span class="text-danger">*</span></h4>
+                                </label>
+                                <select class="form-control" id="task-user" name="userId" required>
+                                    <option value="" disabled selected>-- Select a User --</option>
+                                    <% users.forEach((user) => { %>
+                                        <option value="<%= user._id %>"><%= user.fullname %> (<%= user.username %>)</option>
+                                    <% }); %>
+                                </select>
+                                <div class="invalid-feedback">Please assign the task to a user.</div>
+                            </div>
+                        </div>
+
                         <!-- Tags -->
                         <div class="text-lg-start col-12">
                             <div class="form-group mb-3">
@@ -72,8 +102,18 @@
                                     <i class="fa fa-tags me-1"></i>Tags
                                 </label>
                                 <div class="mb-2" id="tag-list"></div>
-                                <input type="text" class="form-control" id="tag-input" placeholder="+ Add">
+                                <input type="text" class="form-control" id="tag-input" name="tags" placeholder="+ Add">
                                 <small class="form-text text-muted">Press Enter to add tags. Click × to remove.</small>
+                            </div>
+                        </div>
+                        <!-- Labels (Optional) -->
+                        <div class="text-lg-start col-12">
+                            <div class="form-group mb-3">
+                                <label class="form-label fs-5">
+                                    <i class="fa fa-tags me-1"></i>Labels
+                                </label>
+                                <input type="text" class="form-control" name="labels" placeholder="Enter labels separated by commas">
+                                <small class="form-text text-muted">Optional: Use comma-separated values for labels.</small>
                             </div>
                         </div>
                     </div>
@@ -92,9 +132,8 @@
     </div>
 </div>
 
-<!--
+<!-- Backend Logic Integration for Tags -->
 <script>
-    // Add new tag logic
     const tagInput = document.getElementById('tag-input');
     const tagList = document.getElementById('tag-list');
     tagInput.addEventListener('keypress', function (e) {
@@ -114,7 +153,6 @@
         }
     });
 
-    // Quick date selection logic
     function quickDate(option) {
         const input = document.getElementById('due-date');
         const today = new Date();
@@ -128,4 +166,4 @@
             input.value = today.toISOString().split('T')[0];
         }
     }
-</script>-->
+</script>
