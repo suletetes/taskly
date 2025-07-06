@@ -83,7 +83,7 @@ app.use("/tasks", taskRoutes);
 
 // Root route
 app.get("/", (req, res) => {
-    res.render("home/home", {
+    res.render("task/list", {
         title: 'Home | Taskly',
         hideNavbar: false,
         hideFooter: false
