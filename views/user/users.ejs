@@ -6,10 +6,22 @@
         <% users.forEach(user => { %> <!-- Loop through users and render cards -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card h-100 text-center">
-                <img class="card-img-top" src="<%= user.avatar || '/img/default-avatar.png' %>" alt="<%= user.username %>" loading="lazy">
+                <!-- Display the user's avatar, defaulting to a placeholder if undefined -->
+                <img 
+                    class="card-img-top" 
+                    src="<%= user.avatar || 'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png' %>" 
+                    alt="<%= user.username %>'s Avatar" 
+                    loading="lazy">
+                <!-- Display user details -->
                 <div class="card-body">
-                    <h5 class="card-title mb-2"><%= user.username %></h5>
-                    <p class="card-text">Tasks Completed: <%= user.tasks ? user.tasks.length : 0 %></p>
+                    <h5 class="card-title mb-2">
+                        <%= user.fullname %> <!-- Display user's full name -->
+                    </h5>
+                    <p class="card-text">@<%= user.username %></p> <!-- Display username -->
+                    <p class="card-text">Tasks Completed: <%= user.tasks ? user.tasks.length : 0 %></p> <!-- Tasks count -->
+                    <p class="card-text text-muted">
+                        Joined: <%= new Date(user.created_at).toLocaleDateString() %> <!-- Format the creation date -->
+                    </p>
                     <a href="/users/<%= user._id %>" class="btn btn-primary">View Profile</a>
                 </div>
             </div>
@@ -51,6 +63,3 @@
         </ul>
     </nav>
 </div>
-<!-- Additional JS -->
-<!--<script src="/js/UserPagination.js"></script>-->
-<!-- Additional JS END -->
