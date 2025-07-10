@@ -7,10 +7,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="index, follow">
     <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/stylesheet/custom.css">
     <link rel="stylesheet" type="text/css" href="/stylesheet/all.css?9598">
+    <link rel="stylesheet" type="text/css" href="/stylesheet/custom.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .scrollToTop {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            border-radius: 50% !important;
+            width: 50px !important;
+            height: 50px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+            z-index: 2000 !important;
+        }
+        .scrollToTop svg {
+            fill: currentColor !important;
+        }
+    </style>
     <title><%= title || "Taskly App" %></title>
+
 
 </head>
 <body>
@@ -19,6 +40,7 @@
 <div id="page-loading-blocs-notifaction" class="page-preloader"></div>
 <!-- Preloader END -->
 
+
 <div class="page-container">
     <header>
         <!-- Navbar (conditionally include) -->
@@ -26,22 +48,22 @@
             <%- include("../includes/navbar") %>
         <% } %>
     </header>
+    <!-- Flash Notifications -->
+    <%- include('../includes/flash') %>
+    <!-- Flash END -->
 
     <%- body %>
 </div>
 
 <!-- ScrollToTop Button -->
 <button aria-label="Scroll to top button" class="bloc-button btn btn-d scrollToTop"
-        onclick="scrollToTarget('1',this)">
+        onclick="scrollToTarget('1', this)">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32">
         <path class="scroll-to-top-btn-icon" d="M30,22.656l-14-13-14,13"/>
     </svg>
 </button>
 <!-- ScrollToTop Button END -->
 
-<!-- Flash Notifications -->
-<%- include('../includes/flash') %>
-<!-- Flash END -->
 
 <!-- Footer (conditionally include) -->
 <% if (!hideFooter) { %>
