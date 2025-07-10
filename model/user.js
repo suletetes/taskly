@@ -17,11 +17,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Email is required"],
         unique: true,
-        match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
+        match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"], // Validation for email
     },
     avatar: {
         type: String,
-        default: "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png", // Updated default avatar URL
+        default: "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png", // Updated default placeholder
     },
     created_at: {
         type: Date,
@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
     ],
 });
 
-// Pre-save hook for unique username/email check
+// Pre-save hook for unique username/mail validation
 userSchema.pre("save", async function (next) {
     try {
         const existingUser = await mongoose.model("User").findOne({
@@ -56,7 +56,6 @@ userSchema.pre("save", async function (next) {
     }
 });
 
-// Add Passport-Local Mongoose plugin
 userSchema.plugin(passportLocalMongoose, {
     usernameField: "username",
     findByUsername: async function (model, queryParameters) {

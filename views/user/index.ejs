@@ -1,0 +1,76 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <h2 class="text-center">All Users</h2>
+    <div class="row">
+        <% users.forEach(user => { %>
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="user-card">
+                    <img src="<%= user.avatar || 'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png' %>"
+                         alt="<%= user.username %>'s Avatar"
+                         class="user-card-img"
+                         loading="lazy">
+                    <h3 class="text-lg-center mb-lg-1 mt-lg-1"><%= user.username %></h3>
+                    <h5 class="text-lg-center">Tasks Completed: <%= user.tasks ? user.tasks.length : 0 %></h5>
+                    <a href="/users/<%= user._id %>" class="btn btn-view-profile mt-2">View Profile</a>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+
+    <nav aria-label="User Pagination" class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            <!-- Previous button -->
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <button class="page-link"
+                        aria-label="Previous"
+                        data-page="<%= currentPage - 1 %>"
+                        <%= currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : '' %>>
+                    &laquo;
+                </button>
+            </li>
+
+            <!-- Page numbers -->
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <button class="page-link"
+                            aria-label="Go to page <%= i %>"
+                            data-page="<%= i %>">
+                        <%= i %>
+                    </button>
+                </li>
+            <% } %>
+
+            <!-- Next button -->
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <button class="page-link"
+                        aria-label="Next"
+                        data-page="<%= currentPage + 1 %>"
+                        <%= currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : '' %>>
+                    &raquo;
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const pagination = document.querySelector('.pagination');
+        if (pagination) {
+            pagination.addEventListener('click', function (event) {
+                const button = event.target.closest('[data-page]');
+                if (!button || button.disabled) return;
+
+                const page = parseInt(button.getAttribute('data-page'));
+
+                if (page && page > 0) {
+                    // Handle fetching or updating the page
+                    console.log(`Fetching page ${page}...`);
+
+                    // Example: Perform AJAX or page reload
+                    window.location.href = `/users/paginated?page=${page}`;
+                }
+            });
+        }
+    });
+</script>

@@ -1,163 +1,196 @@
 const User = require("../model/user");
 const Task = require("../model/task");
-// const productivityStats = require("./productivityStats");
 
-// Create a new user
+// Render 'New User' Form
+module.exports.renderNewUserForm = async (req, res) => {
+    try {
+        res.render("auth/signup", {
+            title: 'Add User | Taskly',
+            hideNavbar: true,
+            hideFooter: true
+        }); // Render a form to create a new user
+    } catch (error) {
+        console.error("Error rendering user form:", error);
+        req.flash("error", "Could not load user creation form.");
+        res.redirect("/user/users");
+    }
+};
+
+// Create a New User
 module.exports.createUser = async (req, res) => {
     try {
         const {fullname, username, email, avatar} = req.body;
 
-        // Create and save the user
         const newUser = new User({fullname, username, email, avatar});
-        const savedUser = await newUser.save();
+        await newUser.save();
 
-        // Redirect to the new user's profile
-        res.redirect(`/users/${savedUser._id}`);
+        req.flash("success", "User created successfully!");
+        res.redirect(`/user/${newUser._id}`);
     } catch (error) {
         console.error("Error creating user:", error);
-
-        // Handle validation errors
-        if (error.name === "ValidationError") {
-            const errors = Object.values(error.errors).map((err) => err.message);
-            return res.status(400).json({error: errors});
-        }
-
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Failed to create user.");
+        res.redirect("/user/signup");
     }
 };
 
-// Get all users
+// Get All Users
+/*
 module.exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
+        // Default values for pagination
+        const perPage = 10; // Number of users per page
+        const page = parseInt(req.query.page) || 1; // Current page, defaults to page 1
+
+        // Fetch the total count of users in the database
+        const totalUsers = await User.countDocuments();
+
+        // Fetch the users for the current page
+        const users = await User.find()
+            .populate("tasks", "title") // Adjust as needed for your data
+            .skip((page - 1) * perPage) // Skip the previous pages
+            .limit(perPage); // Limit the results to the perPage count
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalUsers / perPage);
+
+        // Render the view and pass all required variables
+        res.render("user/index", {
+            users,
+            currentPage: page,
+            totalPages,
+            title: "Users | Taskly",
+            hideNavbar: false,
+            hideFooter: false
         });
-        res.render("user/users", {users});
     } catch (error) {
         console.error("Error fetching users:", error);
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Unable to fetch users.");
+        res.redirect("/");
     }
 };
+*/
 
-// Get a single user by ID
+// Get a Single User by ID
 module.exports.getUserById = async (req, res) => {
     try {
         const {id} = req.params;
-        const user = await User.findById(id).populate("tasks", {
-            title: 1,
-            due: 1,
-            priority: 1,
-            status: 1,
-        });
+        const user = await User.findById(id).populate("tasks");
 
         if (!user) {
-            return res.status(404).json({error: "User not found."});
+            req.flash("error", "User not found.");
+            return res.redirect("/users");
         }
 
-        // Render users/index with the single user in an array
-        res.render("user/users", {users: [user]});
+        res.render("user/show", {user});
     } catch (error) {
         console.error("Error fetching user:", error);
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Could not retrieve user.");
+        res.redirect("/users");
     }
 };
 
-// Update a user by ID
+// Render Edit User Form
+module.exports.renderEditUserForm = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const user = await User.findById(id);
+
+        if (!user) {
+            req.flash("error", "User not found.");
+            return res.redirect("/users");
+        }
+
+        res.render("user/edit", {
+            user, title: 'Edit User | Taskly',
+            hideNavbar: true,
+            hideFooter: true
+        });
+    } catch (error) {
+        console.error("Error rendering user edit form:", error);
+        req.flash("error", "Could not load user edit form.");
+        res.redirect("/user/users");
+    }
+};
+
+// Update a User by ID
 module.exports.updateUser = async (req, res) => {
     try {
         const {id} = req.params;
         const updates = req.body;
 
-        // Find and update the user
-        const updatedUser = await User.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedUser = await User.findByIdAndUpdate(id, updates, {
+            new: true,
+            runValidators: true,
+        });
 
         if (!updatedUser) {
-            return res.status(404).json({error: "User not found."});
+            req.flash("error", "User not found.");
+            return res.redirect("/users");
         }
 
-        // Redirect to the updated user's profile
-        res.redirect(`/users/${updatedUser._id}`);
+        req.flash("success", "User updated successfully!");
+        res.redirect(`/users/${id}`);
     } catch (error) {
         console.error("Error updating user:", error);
-
-        // Handle validation errors
-        if (error.name === "ValidationError") {
-            const errors = Object.values(error.errors).map((err) => err.message);
-            return res.status(400).json({error: errors});
-        }
-
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Could not update user.");
+        res.redirect(`/users/${id}/edit`);
     }
 };
 
-// Delete a user by ID
+// Delete a User by ID
 module.exports.deleteUser = async (req, res) => {
     try {
         const {id} = req.params;
 
-        // Check if the user exists
         const user = await User.findById(id);
         if (!user) {
-            return res.status(404).json({error: "User not found."});
+            req.flash("error", "User not found.");
+            return res.redirect("/users");
         }
 
-        // Delete all tasks associated with the user
+        // Delete all tasks for this user
         await Task.deleteMany({user: id});
 
-        // Delete the user
         await User.findByIdAndDelete(id);
 
-        // Redirect to the users list after deletion
-        res.redirect("/users");
+        req.flash("success", "User deleted successfully!");
+        res.redirect("/user/users");
     } catch (error) {
         console.error("Error deleting user:", error);
-        res.status(500).json({error: "Internal server error."});
+        req.flash("error", "Failed to delete user.");
+        res.redirect("/users");
     }
 };
 
-// Get tasks for a specific user
-module.exports.getUserTasks = async (req, res) => {
-    try {
-        const {id} = req.params;
-
-        // Find the user and populate their tasks
-        const user = await User.findById(id).populate("tasks");
-        if (!user) {
-            return res.status(404).json({error: "User not found."});
-        }
-
-        // Render users/index with the user's tasks as users
-        res.render("users/index", {users: user.tasks});
-    } catch (error) {
-        console.error("Error fetching user tasks:", error);
-        res.status(500).json({error: "Internal server error."});
-    }
-};
+// Get All Users in Paginated Form
 module.exports.getPaginatedUsers = async (req, res) => {
     try {
-        const USERS_PER_PAGE = 12;
-        const {page = 1} = req.query; // Get the current page from query params (default: 1)
+        const perPage = 10; // Number of users per page
+        const page = parseInt(req.query.page) || 1; // Get the page number from query, default to 1
 
-        // Fetch users with pagination
-        const users = await User.find() // Find all users
-            .skip((page - 1) * USERS_PER_PAGE) // Skip users for previous pages
-            .limit(USERS_PER_PAGE); // Limit to USERS_PER_PAGE
-        const totalUsers = await User.countDocuments(); // Count all users for pagination
+        // Get total user count
+        const totalUsers = await User.countDocuments();
 
-        // Calculate total pages
-        const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+        // Fetch users for the current page
+        const users = await User.find()
+            .populate("tasks", "title")
+            .skip((page - 1) * perPage)
+            .limit(perPage);
 
-        // Render the EJS view and pass data
-        res.render("users/index", {
+        const totalPages = Math.ceil(totalUsers / perPage);
+
+        // Render the paginated user list
+        res.render("user/index", {
             users,
-            currentPage: Number(page),
+            currentPage: page,
             totalPages,
+            title: "Users | Taskly",
+            hideNavbar: false,
+            hideFooter: false,
         });
     } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).send("Internal Server Error");
+        console.error("Error fetching paginated users:", error);
+        req.flash("error", "Unable to fetch users.");
+        res.redirect("/");
     }
 };

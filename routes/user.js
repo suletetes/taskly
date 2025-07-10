@@ -6,21 +6,43 @@ const {
     updateUser,
     deleteUser,
     getUserTasks,
-    getPaginatedUsers, // Add the new controller
+    getPaginatedUsers,
+    renderNewUserForm
 } = require("../controllers/user");
-const { isLoggedIn, validateUser, isUserExists } = require("../middleware");
+const {isLoggedIn, validateUser, isUserExists} = require("../middleware");
 
 const router = express.Router();
 
-// Add the paginated users route
-router.get("/paginated", isLoggedIn, getPaginatedUsers); // Ensure user is logged in to fetch paginated users
 
-// Other user-related routes
+
+// Define the paginated route before the dynamic :id route
+router.get("/paginated", getPaginatedUsers);
+
+// Routes
+router.get("/new",  renderNewUserForm); // Ensures user is logged in before access
 router.post("/", validateUser, createUser);
-router.get("/", isLoggedIn, getAllUsers); // Fetch all users (if required elsewhere)
-router.get("/:id", isLoggedIn, isUserExists, getUserById);
-router.put("/:id", isLoggedIn, isUserExists, validateUser, updateUser);
-router.delete("/:id", isLoggedIn, isUserExists, deleteUser);
-router.get("/:id/tasks", isLoggedIn, isUserExists, getUserTasks);
+// router.get("/", getAllUsers);
+router.get("/:id", isUserExists, getUserById);
+router.put("/:id", isUserExists, validateUser, updateUser);
+router.delete("/:id", isUserExists, deleteUser);
+
+
+
+/*
+
+// Routes
+// router.get("/paginated", isLoggedIn, getPaginatedUsers);
+// router.get("/paginated",  getPaginatedUsers);
+router.post("/", validateUser, createUser);
+// router.get("/", isLoggedIn, getAllUsers);
+router.get("/", getAllUsers);
+// router.get("/:id", isLoggedIn, isUserExists, getUserById);
+router.get("/:id", isUserExists, getUserById);
+// router.put("/:id", isLoggedIn, isUserExists, validateUser, updateUser);
+router.put("/:id", isUserExists, validateUser, updateUser);
+// router.delete("/:id", isLoggedIn, isUserExists, deleteUser);
+router.delete("/:id", isUserExists, deleteUser);
+// router.get("/:id/tasks", isLoggedIn, isUserExists, getUserTasks);
+*/
 
 module.exports = router;
