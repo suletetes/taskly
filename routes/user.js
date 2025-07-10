@@ -1,31 +1,24 @@
 const express = require("express");
 const {
     createUser,
-    getAllUsers,
     getUserById,
     updateUser,
     deleteUser,
-    getUserTasks,
-    getPaginatedUsers,
-    renderNewUserForm
+    showAllUsers,
+    renderNewUserForm,
 } = require("../controllers/user");
-const {isLoggedIn, validateUser, isUserExists} = require("../middleware");
+const { isLoggedIn, validateUser, isUserExists } = require("../middleware");
 
 const router = express.Router();
 
+// Static Routes
+router.get("/new", renderNewUserForm); // Static route for creating a new user
+router.get("/", showAllUsers); // Paginated users route
 
-
-// Define the paginated route before the dynamic :id route
-router.get("/paginated", getPaginatedUsers);
-
-// Routes
-router.get("/new",  renderNewUserForm); // Ensures user is logged in before access
-router.post("/", validateUser, createUser);
-// router.get("/", getAllUsers);
+// Dynamic Routes
 router.get("/:id", isUserExists, getUserById);
 router.put("/:id", isUserExists, validateUser, updateUser);
 router.delete("/:id", isUserExists, deleteUser);
-
 
 
 /*

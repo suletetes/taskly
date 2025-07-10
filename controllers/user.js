@@ -33,62 +33,6 @@ module.exports.createUser = async (req, res) => {
     }
 };
 
-// Get All Users
-/*
-module.exports.getAllUsers = async (req, res) => {
-    try {
-        // Default values for pagination
-        const perPage = 10; // Number of users per page
-        const page = parseInt(req.query.page) || 1; // Current page, defaults to page 1
-
-        // Fetch the total count of users in the database
-        const totalUsers = await User.countDocuments();
-
-        // Fetch the users for the current page
-        const users = await User.find()
-            .populate("tasks", "title") // Adjust as needed for your data
-            .skip((page - 1) * perPage) // Skip the previous pages
-            .limit(perPage); // Limit the results to the perPage count
-
-        // Calculate total pages
-        const totalPages = Math.ceil(totalUsers / perPage);
-
-        // Render the view and pass all required variables
-        res.render("user/index", {
-            users,
-            currentPage: page,
-            totalPages,
-            title: "Users | Taskly",
-            hideNavbar: false,
-            hideFooter: false
-        });
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        req.flash("error", "Unable to fetch users.");
-        res.redirect("/");
-    }
-};
-*/
-
-// Get a Single User by ID
-module.exports.getUserById = async (req, res) => {
-    try {
-        const {id} = req.params;
-        const user = await User.findById(id).populate("tasks");
-
-        if (!user) {
-            req.flash("error", "User not found.");
-            return res.redirect("/users");
-        }
-
-        res.render("user/show", {user});
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        req.flash("error", "Could not retrieve user.");
-        res.redirect("/users");
-    }
-};
-
 // Render Edit User Form
 module.exports.renderEditUserForm = async (req, res) => {
     try {
@@ -162,11 +106,30 @@ module.exports.deleteUser = async (req, res) => {
     }
 };
 
+// Get a Single User by ID
+module.exports.getUserById = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const user = await User.findById(id).populate("tasks");
+
+        if (!user) {
+            req.flash("error", "User not found.");
+            return res.redirect("/users");
+        }
+
+        res.render("user/show", {user});
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        req.flash("error", "Could not retrieve user.");
+        res.redirect("/users");
+    }
+};
+
 // Get All Users in Paginated Form
-module.exports.getPaginatedUsers = async (req, res) => {
+module.exports.showAllUsers = async (req, res) => {
     try {
         const perPage = 10; // Number of users per page
-        const page = parseInt(req.query.page) || 1; // Get the page number from query, default to 1
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1); // Ensure a positive page number
 
         // Get total user count
         const totalUsers = await User.countDocuments();
@@ -179,17 +142,22 @@ module.exports.getPaginatedUsers = async (req, res) => {
 
         const totalPages = Math.ceil(totalUsers / perPage);
 
-        // Render the paginated user list
+        if (!users.length && page > 1) {
+            req.flash("error", "Requested page doesn't exist.");
+            return res.redirect(`/users?page=${totalPages}`);
+        }
+
         res.render("user/index", {
             users,
             currentPage: page,
             totalPages,
-            title: "Users | Taskly",
+            totalUsers,
+            title: "All Users | Taskly",
             hideNavbar: false,
             hideFooter: false,
         });
     } catch (error) {
-        console.error("Error fetching paginated users:", error);
+        console.error("Error fetching all users:", error);
         req.flash("error", "Unable to fetch users.");
         res.redirect("/");
     }
