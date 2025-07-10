@@ -45,25 +45,12 @@ module.exports.createTask = async (req, res) => {
     }
 };
 
-// Get All Tasks
-module.exports.getAllTasks = async (req, res) => {
-    try {
-        // Fetch all tasks and populate the associated user with avatar and fullname fields
-        const tasks = await Task.find().populate("user", "avatar fullname");
 
-        // Render the tasks/list view with the populated tasks
-        res.render("task/list", {
-            tasks,
-            title: 'Task List | Taskly',
-            hideNavbar: false,
-            hideFooter: false
-        });
-    } catch (error) {
-        console.error("Error fetching tasks:", error);
-        req.flash("error", "Unable to fetch tasks.");
-        res.redirect("/");
-    }
-};
+/*
+#todo
+remove get all task
+
+*/
 // Get a Single Task by ID
 module.exports.getTaskById = async (req, res) => {
     try {

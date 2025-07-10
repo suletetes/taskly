@@ -19,8 +19,6 @@ const {
 
 const router = express.Router();
 
-// Task Index - View All Tasks
-router.get("/", isLoggedIn, getAllTasks);
 
 // New Task Form
 router.get("/new", isLoggedIn, renderNewTaskForm);
