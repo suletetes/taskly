@@ -1,5 +1,6 @@
 const User = require("../model/user");
 const Task = require("../model/task");
+const userTaskStats = require("./calculateProductivityStats");
 
 // Render 'New User' Form
 module.exports.renderNewUserForm = async (req, res) => {
@@ -107,9 +108,12 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 // Get a Single User by ID
+
 module.exports.getUserById = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
+
+        // Find the user and populate their tasks
         const user = await User.findById(id).populate("tasks");
 
         if (!user) {
@@ -117,7 +121,34 @@ module.exports.getUserById = async (req, res) => {
             return res.redirect("/users");
         }
 
-        res.render("user/show", {user});
+        // Calculate productivity stats
+        const stats = await userTaskStats.calculateProductivityStats(id);
+
+        // Evaluate dynamic status for each task
+        const tasks = user.tasks.map(task => {
+            const now = new Date();
+            const dueDate = task.due;
+            let dynamicStatus = task.status;
+
+            if (dynamicStatus === "in-progress") {
+                dynamicStatus = dueDate < now ? "failed" : "in-progress";
+            }
+
+            return {
+                ...task._doc,
+                dynamicStatus
+            };
+        });
+
+        // Render the user's profile with tasks and stats
+        res.render("user/show", {
+            user,
+            stats,
+            tasks,
+            title: "User Profile | Taskly",
+            hideNavbar: false,
+            hideFooter: false,
+        });
     } catch (error) {
         console.error("Error fetching user:", error);
         req.flash("error", "Could not retrieve user.");
