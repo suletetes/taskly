@@ -13,6 +13,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const User = require('./model/user');
 const userRoutes = require('./routes/user');
 const taskRoutes = require('./routes/task');
+require("dotenv").config();
 
 // Initialize Express app
 const app = express();
@@ -81,9 +82,25 @@ app.use((req, res, next) => {
 app.use("/users", userRoutes);
 app.use("/tasks", taskRoutes);
 
+// Mock login middleware for development/testing purposes
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV === "development") { // Ensure it only works in development mode
+        const mockUserId = "686a7bdc5d6cef03ecb8a905"; // Replace with a valid user ID from your database
+        User.findById(mockUserId)
+            .then((mockUser) => {
+                req.user = mockUser; // Simulates an authenticated user
+                res.locals.currentUser = mockUser; // Add the mock user to locals for templates
+                next();
+            })
+            .catch(next);
+    } else {
+        next();
+    }
+});
+
 // Root route
 app.get("/", (req, res) => {
-    res.render("task/list", {
+    res.render("home/home", {
         title: 'Home | Taskly',
         hideNavbar: false,
         hideFooter: false
@@ -91,6 +108,15 @@ app.get("/", (req, res) => {
     // res.send("Welcome to Taskly!");
     // res.render("home", {message: "Welcome to Taskly!"}); // Render a home page with a message
     // res.render({message: "Welcome to Taskly!"}); // Render a home page with a message
+});
+
+// About route
+app.get("/about", (req, res) => {
+    res.render("info/about", {
+        title: 'About | Taskly',
+        hideNavbar: false,
+        hideFooter: false
+    })
 });
 
 // Error handling for unmatched routes
