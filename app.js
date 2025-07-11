@@ -13,6 +13,8 @@ const mongoSanitize = require('express-mongo-sanitize');
 const User = require('./model/user');
 const userRoutes = require('./routes/user');
 const taskRoutes = require('./routes/task');
+const indexRoutes = require('./routes/index');
+
 require("dotenv").config();
 
 // Initialize Express app
@@ -79,6 +81,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use('/', indexRoutes);  // Root path and static pages
 app.use("/users", userRoutes);
 app.use("/tasks", taskRoutes);
 
@@ -98,42 +101,20 @@ app.use((req, res, next) => {
     }
 });
 
-// Root route
-app.get("/", (req, res) => {
-    res.render("home/home", {
-        title: 'Home | Taskly',
-        hideNavbar: false,
-        hideFooter: false
-    })
-    // res.send("Welcome to Taskly!");
-    // res.render("home", {message: "Welcome to Taskly!"}); // Render a home page with a message
-    // res.render({message: "Welcome to Taskly!"}); // Render a home page with a message
-});
-
-// About route
-app.get("/about", (req, res) => {
-    res.render("info/about", {
-        title: 'About | Taskly',
-        hideNavbar: false,
-        hideFooter: false
-    })
-});
 
 // Error handling for unmatched routes
 /*app.all("*", (req, res, next) => {
     res.send("Welcome to Taskly!");
     // next(new ExpressError("Page Not Found", 404));
     next(new ExpressError("Page Not Found", 404));
-});*/
+});
 
 // Global error handler
-/*
 app.use((err, req, res, next) => {
-    // const {statusCode = 500, message = "Something went wrong!"} = err;
-    // res.status(statusCode).render("error", {message}); // Render an error view
-    // res.render("new")
-});
-*/
+    const {statusCode = 500, message = "Something went wrong!"} = err;
+    res.status(statusCode).render("error", {message}); // Render an error view
+    res.render("errors/notFound", {})
+});*/
 
 // Start server
 const PORT = 3000;

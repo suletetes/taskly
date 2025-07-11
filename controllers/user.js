@@ -159,7 +159,7 @@ module.exports.getUserById = async (req, res) => {
 // Get All Users in Paginated Form
 module.exports.showAllUsers = async (req, res) => {
     try {
-        const perPage = 10; // Number of users per page
+        const perPage = 12; // Number of users per page
         const page = Math.max(1, parseInt(req.query.page, 10) || 1); // Ensure a positive page number
 
         // Get total user count
@@ -167,19 +167,32 @@ module.exports.showAllUsers = async (req, res) => {
 
         // Fetch users for the current page
         const users = await User.find()
-            .populate("tasks", "title")
+            .populate("tasks", "title due status") // Populate necessary task fields
             .skip((page - 1) * perPage)
             .limit(perPage);
 
+        // Calculate stats for each user
+        const usersWithStats = await Promise.all(users.map(async user => {
+            const stats = await userTaskStats.calculateProductivityStats(user._id);
+            const totalTasks = user.tasks.length;
+            return {
+                ...user.toObject(),
+                stats,
+                totalTasks,
+                created_at: user.created_at
+            };
+        }));
+
         const totalPages = Math.ceil(totalUsers / perPage);
 
-        if (!users.length && page > 1) {
+        // If no users exist for the current page, redirect to the last page
+        if (!usersWithStats.length && page > 1) {
             req.flash("error", "Requested page doesn't exist.");
             return res.redirect(`/users?page=${totalPages}`);
         }
 
         res.render("user/index", {
-            users,
+            users: usersWithStats, // Include users with calculated stats
             currentPage: page,
             totalPages,
             totalUsers,
