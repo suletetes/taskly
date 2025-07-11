@@ -14,11 +14,17 @@
                 </picture>
             </div>
             <div>
-                <h2 class="fw-bold mb-2"><%= user.name || 'User Name' %></h2>
+                <h2 class="fw-bold mb-2"><%= user.fullname || 'User Name' %></h2>
                 <p class="text-muted mb-1"><i class="fa fa-user me-1"></i>Username: <span
                             class="fw-semibold"><%= user.username || 'Username' %></span></p>
-                <p class="text-muted mb-3"><i class="fa fa-calendar me-1"></i>Member Since: <span
-                            class="fw-semibold"><%= user.memberSince || 'Unknown' %></span></p>
+                <p class="text-muted mb-3">
+                    <i class="fa fa-calendar me-1"></i>
+                    Member Since: <span class="fw-semibold">
+        <%= new Date(user.created_at).toLocaleDateString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        }) || 'Unknown' %>
+    </span>
+                </p>
                 <a href="/profile/edit" class="btn btn-secondary btn-lg px-4 mt-2 me-2">
                     <i class="fa fa-edit me-2"></i>Edit Profile</a>
                 <form action="/profile/delete" method="POST" class="d-inline">
@@ -160,20 +166,24 @@
                                         <% if (dynamicStatus === "in-progress") { %>
                                             <!-- Edit Button -->
                                             <form action="/tasks/<%= task._id %>/edit" method="GET" class="d-inline">
-                                                <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                <button type="submit"
+                                                        class="btn btn-outline-primary btn-sm rounded-pill px-3">
                                                     <i class="fa fa-edit me-1"></i>Edit
                                                 </button>
                                             </form>
 
                                             <!-- Delete Button -->
-                                            <form action="/tasks/<%= task._id %>?_method=DELETE" method="POST" class="d-inline">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <form action="/tasks/<%= task._id %>?_method=DELETE" method="POST"
+                                                  class="d-inline">
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                                     <i class="fa fa-trash me-1"></i>Delete
                                                 </button>
                                             </form>
 
                                             <!-- Done Button -->
-                                            <form action="/tasks/<%= task._id %>/complete" method="POST" class="d-inline">
+                                            <form action="/tasks/<%= task._id %>/complete" method="POST"
+                                                  class="d-inline">
                                                 <button type="submit" class="btn btn-success btn-sm rounded-pill px-3">
                                                     <i class="fa fa-check me-1"></i>Done
                                                 </button>

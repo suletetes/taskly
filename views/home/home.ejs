@@ -126,95 +126,43 @@
                         Explore our active users and their productivity stats below.
                     </p>
                 </div>
-                <div class="col-md-6">
-                    <div class="row voffset align-items-center">
-                        <div class="col-lg-3">
-                            <picture>
-                                <source type="image/webp" srcset="/img/lazyload-ph.png"
-                                        data-srcset="/img/placeholder-user.webp">
-                                <img src="/img/lazyload-ph.png" data-src="img/placeholder-user.png"
-                                     class="img-fluid rounded-circle lazyload" alt="placeholder user" width="122"
-                                     height="122">
-                            </picture>
-                        </div>
-                        <div class="col">
-                            <h4 class="fw-semibold text-secondary mb-1 text-lg-start text-center">
-                                John Doe
-                            </h4>
-                            <p class="mb-2 lh-sm text-lg-start text-center">
-                                <span class="fw-medium">Task Completion Rate:</span> 92%<br>
-                                <span class="fw-medium">Failed Tasks:</span> 3%
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row voffset align-items-center">
-                        <div class="col-lg-3">
-                            <picture>
-                                <source type="image/webp" srcset="/img/lazyload-ph.png"
-                                        data-srcset="/img/placeholder-user.webp">
-                                <img src="/img/lazyload-ph.png" data-src="img/placeholder-user.png"
-                                     class="img-fluid rounded-circle lazyload" alt="placeholder user" width="122"
-                                     height="122">
-                            </picture>
-                        </div>
-                        <div class="col">
-                            <h4 class="fw-semibold text-secondary mb-1 text-lg-start text-center">
-                                John Doe
-                            </h4>
-                            <p class="mb-2 lh-sm text-lg-start text-center">
-                                <span class="fw-medium">Task Completion Rate:</span> 87%<br>
-                                <span class="fw-medium">Failed Tasks:</span> 5%
-                            </p>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-12">
+            </div>
+            <div class="row">
+                <!-- Loop through users #todo there is an issue with the avatar image check home.ejs, index.js-->
+                <% if (users && users.length > 0) { %>
+                    <% users.forEach(user => { %>
+                        <div class="col-md-6">
                             <div class="row voffset align-items-center">
                                 <div class="col-lg-3">
                                     <picture>
-                                        <source type="image/webp" srcset="/img/lazyload-ph.png"
-                                                data-srcset="/img/placeholder-user.webp">
-                                        <img src="/img/lazyload-ph.png" data-src="img/placeholder-user.png"
-                                             class="img-fluid rounded-circle lazyload" alt="placeholder user"
+                                        <source type="image/webp" srcset="/images/placeholder-user.webp">
+                                        <img src="<%= user.avatar || '/images/placeholder-user.png' %>"
+                                             class="img-fluid rounded-circle lazyload"
+                                             alt="<%= user.fullname %>'s Avatar"
                                              width="122" height="122">
                                     </picture>
                                 </div>
                                 <div class="col">
                                     <h4 class="fw-semibold text-secondary mb-1 text-lg-start text-center">
-                                        John Doe
+                                        <%= user.fullname || "User Name" %>
                                     </h4>
                                     <p class="mb-2 lh-sm text-lg-start text-center">
-                                        <span class="fw-medium">Task Completion Rate:</span> 95%<br>
-                                        <span class="fw-medium">Failed Tasks:</span> 2%
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="row voffset align-items-center">
-                                <div class="col-lg-3">
-                                    <picture>
-                                        <source type="image/webp" srcset="/img/lazyload-ph.png"
-                                                data-srcset="/img/placeholder-user.webp">
-                                        <img src="/img/lazyload-ph.png" data-src="img/placeholder-user.png"
-                                             class="img-fluid rounded-circle lazyload" alt="placeholder user"
-                                             width="122" height="122">
-                                    </picture>
-                                </div>
-                                <div class="col">
-                                    <h4 class="fw-semibold text-secondary mb-1 text-lg-start text-center">
-                                        John Doe
-                                    </h4>
-                                    <p class="mb-2 lh-sm text-lg-start text-center">
-                                        <span class="fw-medium">Task Completion Rate:</span> 90%<br>
-                                        <span class="fw-medium">Failed Tasks:</span> 4%
+                                        <span class="fw-medium">Task Completion Rate:</span>
+                                        <%= user.stats?.completionRate || 'N/A' %>%<br>
+                                        <span class="fw-medium">Failed Tasks:</span>
+                                        <%= user.stats?.failed || 0 %>
                                     </p>
                                 </div>
                             </div>
                         </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-12">
+                        <p class="text-center text-muted fs-5">
+                            No users found. Be the first to join Taskly!
+                        </p>
                     </div>
-                </div>
+                <% } %>
             </div>
         </div>
     </div>
@@ -241,5 +189,4 @@
         </div>
     </div>
 </section>
-
 
