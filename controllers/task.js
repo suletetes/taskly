@@ -45,31 +45,6 @@ module.exports.createTask = async (req, res) => {
     }
 };
 
-
-/*
-#todo
-remove get all task
-
-*/
-// Get a Single Task by ID
-module.exports.getTaskById = async (req, res) => {
-    try {
-        const {id} = req.params;
-        const task = await Task.findById(id).populate("user", "fullname username email");
-
-        if (!task) {
-            req.flash("error", "Task not found.");
-            return res.redirect("/list");
-        }
-
-        res.render("task/show", {task});
-    } catch (error) {
-        console.error("Error fetching task:", error);
-        req.flash("error", "Failed to retrieve task.");
-        res.redirect("/list");
-    }
-};
-
 // Render Edit Task Form
 module.exports.renderEditTaskForm = async (req, res) => {
     try {
@@ -140,18 +115,48 @@ module.exports.deleteTask = async (req, res) => {
     }
 };
 
-// Get All Tasks of a Specific User
+// Get All Tasks of a Specific User with Pagination
 module.exports.getTasksByUser = async (req, res) => {
     try {
-        const {userId} = req.params;
-        const user = await User.findById(userId).populate("tasks");
+        const { userId } = req.params;
+        const user = await User.findById(userId);
 
         if (!user) {
             req.flash("error", "User not found.");
             return res.redirect("/list");
         }
 
-        res.render("task/list", {tasks: user.tasks, user});
+        const perPage = 8; // Tasks per page
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1); // Current page, defaults to 1
+
+        const totalTasks = await Task.countDocuments({ user: userId }); // Total tasks count
+        const totalPages = Math.ceil(totalTasks / perPage); // Calculate total pages
+
+        // Fetch paginated tasks
+        const tasks = await Task.find({ user: userId })
+            .skip((page - 1) * perPage)
+            .limit(perPage)
+            .sort({ dueDate: 1 }); // Optional: Sort tasks by due date
+
+        // Redirect to the last available page if the current is out of range
+        if (page > totalPages && totalPages > 0) {
+            return res.redirect(`/tasks/${userId}?page=${totalPages}`);
+        }
+
+        res.render("task/list", {
+            tasks,
+            user,
+            title: 'Add Task | Taskly',
+            hideNavbar: false,
+            hideFooter: false,
+            pagination: {
+                totalTasks,
+                totalPages,
+                currentPage: page,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1,
+            },
+        });
     } catch (error) {
         console.error("Error fetching user's tasks:", error);
         req.flash("error", "Could not fetch tasks for the user.");
