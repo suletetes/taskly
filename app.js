@@ -31,44 +31,52 @@ db.once("open", () => {
     console.log("Database connected");
 });
 
-// Middleware to parse incoming requests
-app.use(express.urlencoded({extended: true}));
+// ✅ Middleware to parse incoming form and JSON data
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Other middleware
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(path.resolve(), "public")));
+
+// Optional: Sanitize data to prevent MongoDB operator injection
 /*
 app.use(
     mongoSanitize({
-        allowDots: true, // Optional: Allow dots in keys (safely)
-        replaceWith: '_', // Replace prohibited keys instead of removing them
+        allowDots: true,
+        replaceWith: '_',
     })
 );
 */
 
-
 // Set EJS as the view engine
-app.engine('ejs', ejsMate); // Use ejs-mate for rendering EJS templates
+app.engine('ejs', ejsMate);
 app.set("view engine", "ejs");
-app.set('views', path.join(__dirname, 'views')); // Path to views folder
+app.set('views', path.join(__dirname, 'views'));
 
 // Session configuration
 const sessionConfig = {
-    secret: "thisshouldbeasecretkey", // Change this to a secure secret
+    secret: "thisshouldbeasecretkey",
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        expires: Date.now() + 1000 * 60 * 60 * 24, // 1 day
+        expires: Date.now() + 1000 * 60 * 60 * 24,
         maxAge: 1000 * 60 * 60 * 24,
     },
 };
 app.use(session(sessionConfig));
 app.use(flash());
+// Middleware to make `currentUser` available in all templates
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user || null; // `req.user` is set by Passport.js if authenticated
+    next();
+});
 
 // Passport configuration
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
@@ -81,40 +89,42 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/', indexRoutes);  // Root path and static pages
+app.use('/', indexRoutes);
 app.use("/users", userRoutes);
-app.use("/tasks", taskRoutes);
+// app.use("/tasks", taskRoutes);
 
-// Mock login middleware for development/testing purposes
-app.use((req, res, next) => {
-    if (process.env.NODE_ENV === "development") { // Ensure it only works in development mode
-        const mockUserId = "686a7bdc5d6cef03ecb8a905"; // Replace with a valid user ID from your database
-        User.findById(mockUserId)
-            .then((mockUser) => {
-                req.user = mockUser; // Simulates an authenticated user
-                res.locals.currentUser = mockUser; // Add the mock user to locals for templates
-                next();
-            })
-            .catch(next);
-    } else {
-        next();
+// Mock login middleware for development/testing
+/*app.use(async (req, res, next) => {
+    if (process.env.NODE_ENV === "development") {
+        try {
+            const mockUserId = "6873dbd84307aecaf4fb6496";
+            const mockUser = await User.findById(mockUserId);
+
+            if (!mockUser) {
+                throw new Error("Mock user not found. Please ensure the mock user exists in the database.");
+            }
+
+            req.user = mockUser; // Attach mock user to the request
+            res.locals.currentUser = mockUser; // Make it available in templates
+            console.log("Mock user logged in:", mockUser.username); // Optional: Log for debugging
+        } catch (error) {
+            console.error("Error in mock login middleware:", error.message);
+            return next(error);
+        }
     }
-});
-
-
-// Error handling for unmatched routes
-/*app.all("*", (req, res, next) => {
-    res.send("Welcome to Taskly!");
-    // next(new ExpressError("Page Not Found", 404));
+    next();
+});*/
+// Catch-all for unmatched routes
+/*
+app.all("*", (req, res, next) => {
     next(new ExpressError("Page Not Found", 404));
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
-    const {statusCode = 500, message = "Something went wrong!"} = err;
-    res.status(statusCode).render("error", {message}); // Render an error view
-    res.render("errors/notFound", {})
-});*/
+    const { statusCode = 500, message = "Something went wrong!" } = err;
+    res.status(statusCode).render("error", { message });
+});
+*/
 
 // Start server
 const PORT = 3000;

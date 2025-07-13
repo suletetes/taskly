@@ -26,25 +26,24 @@ const Joi = BaseJoi.extend(extension);
 
 // Task Schema
 const taskSchema = Joi.object({
-    task: Joi.object({
-        title: Joi.string().required().escapeHTML(),
-        due: Joi.date().required(),
-        priority: Joi.string().required().valid("Low", "Medium", "High"),
-        description: Joi.string().optional().escapeHTML(),
-        tags: Joi.array().items(Joi.string().escapeHTML()).default([]),
-        status: Joi.string().valid("in-progress", "failed", "completed").default("in-progress"),
-    }).required(),
+    title: Joi.string().required().escapeHTML(),
+    due: Joi.date().required(),
+    priority: Joi.string().required().valid("Low", "Medium", "High"),
+    description: Joi.string().optional().escapeHTML(),
+    tags: Joi.array().items(Joi.string().escapeHTML()).default([]),
+    status: Joi.string().valid("in-progress", "failed", "completed").default("in-progress"),
 });
 
-// User Schema
 const userSchema = Joi.object({
-    user: Joi.object({
-        fullname: Joi.string().required().escapeHTML(),
-        username: Joi.string().required().escapeHTML(),
-        email: Joi.string().required().email().escapeHTML(),
-        password: Joi.string().required().min(6), // For registration only
-        avatar: Joi.string().optional().uri().escapeHTML(), // Ensure avatar is a valid URI
-    }).required(),
+    fullname: Joi.string().required().escapeHTML(),
+    username: Joi.string().required().escapeHTML(),
+    email: Joi.string().email().required().escapeHTML(),
+    password: Joi.string().required().min(6),
+    confirm_password: Joi.string()
+        .required()
+        .valid(Joi.ref("password")) // Ensure confirm_password matches password
+        .messages({ "any.only": "Passwords do not match!" }), // Custom error message
+    avatar: Joi.string().optional().uri().escapeHTML(),
 });
 
 // Export both schemas

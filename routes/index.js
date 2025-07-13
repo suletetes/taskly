@@ -14,26 +14,19 @@ router.get('/', async (req, res) => {
         const usersWithStats = await Promise.all(users.map(async (user) => {
             const stats = await userTaskStats.calculateProductivityStats(user._id);
             return {
-                ...user.toObject(),
-                stats
+                ...user.toObject(), stats
             };
         }));
 
         // Render the home page with users and their stats
         res.render('home/home', {
-            title: 'Home | Taskly',
-            hideNavbar: false,
-            hideFooter: false,
-            users: usersWithStats // Pass user data with stats to the view
+            title: 'Home | Taskly', hideNavbar: false, hideFooter: false, users: usersWithStats // Pass user data with stats to the view
         });
     } catch (err) {
         console.error("Error fetching users:", err);
         req.flash("error", "Unable to load users.");
         res.render('home/home', {
-            title: 'Home | Taskly',
-            hideNavbar: false,
-            hideFooter: false,
-            users: [] // Fallback to an empty array in case of error
+            title: 'Home | Taskly', hideNavbar: false, hideFooter: false, users: [] // Fallback to an empty array in case of error
         });
     }
 });
@@ -41,9 +34,7 @@ router.get('/', async (req, res) => {
 // About route
 router.get('/about', (req, res) => {
     res.render('info/about', {
-        title: 'About | Taskly',
-        hideNavbar: false,
-        hideFooter: false
+        title: 'About | Taskly', hideNavbar: false, hideFooter: false
     });
 });
 

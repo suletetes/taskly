@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { taskSchema, userSchema } from "./schemas.js"; // Import schemas
 import User from "./model/user.js";
 import Task from "./model/task.js";
@@ -6,7 +7,7 @@ import ExpressError from "./utils/ExpressError.js"; // Custom error class
 // Middleware: Check if the user is authenticated (logged in)
 export const isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) { // Ensure `passport` is being used for authentication
-        req.session.returnTo = req.originalUrl; // Save the page to return after login
+        req.session.returnTo = req.originalUrl; // Save the page to return to after login
         req.flash("error", "You must be signed in first!");
         return res.redirect("/login");
     }
@@ -15,10 +16,11 @@ export const isLoggedIn = (req, res, next) => {
 
 // Middleware: Validate user data using Joi schema from schemas.js
 export const validateUser = (req, res, next) => {
+    console.log("Request Body:", req.body);
     const { error } = userSchema.validate(req.body);
     if (error) {
         const message = error.details.map(el => el.message).join(", ");
-        throw new ExpressError(message, 400); // Throw custom error
+        throw new ExpressError(message, 400); // Throw custom validation error
     }
     next();
 };
@@ -28,15 +30,25 @@ export const validateTask = (req, res, next) => {
     const { error } = taskSchema.validate(req.body);
     if (error) {
         const message = error.details.map(el => el.message).join(", ");
-        throw new ExpressError(message, 400); // Throw custom error
+        throw new ExpressError(message, 400); // Throw custom validation error
     }
     next();
 };
+
+// Middleware: Validate MongoDB ObjectId
+const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // Middleware: Check if a user exists
 export const isUserExists = async (req, res, next) => {
     try {
         const { id } = req.params;
+
+        // Validate if the ID is a valid MongoDB ObjectId
+        if (!validateObjectId(id)) {
+            req.flash("error", "Invalid user ID!");
+            return res.redirect("/users");
+        }
+
         const user = await User.findById(id);
 
         if (!user) {
@@ -46,7 +58,7 @@ export const isUserExists = async (req, res, next) => {
         next();
     } catch (error) {
         console.error("Error finding user:", error);
-        req.flash("error", "Invalid user!");
+        req.flash("error", "Could not retrieve user!");
         return res.redirect("/users");
     }
 };
@@ -55,6 +67,13 @@ export const isUserExists = async (req, res, next) => {
 export const isTaskExists = async (req, res, next) => {
     try {
         const { id } = req.params;
+
+        // Validate if the ID is a valid MongoDB ObjectId
+        if (!validateObjectId(id)) {
+            req.flash("error", "Invalid task ID!");
+            return res.redirect("/tasks");
+        }
+
         const task = await Task.findById(id);
 
         if (!task) {
@@ -64,7 +83,7 @@ export const isTaskExists = async (req, res, next) => {
         next();
     } catch (error) {
         console.error("Error finding task:", error);
-        req.flash("error", "Invalid task!");
+        req.flash("error", "Could not retrieve task!");
         return res.redirect("/tasks");
     }
 };
@@ -82,7 +101,7 @@ export const isTaskAuthor = async (req, res, next) => {
 
         // Ensure the logged-in user is the owner of the task
         if (!task.user.equals(req.user._id)) {
-            req.flash("error", "You do not have permission for this action!");
+            req.flash("error", "You do not have permission to perform this action!");
             return res.redirect("/tasks");
         }
         next();
