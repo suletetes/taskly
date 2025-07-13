@@ -17,11 +17,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Email is required"],
         unique: true,
-        match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"], // Validation for email
+        match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     avatar: {
         type: String,
-        default: "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png", // Updated default placeholder
+        default:
+            "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png",
     },
     created_at: {
         type: Date,
@@ -30,12 +31,12 @@ const userSchema = new mongoose.Schema({
     tasks: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Task", // Reference to the Task model
+            ref: "Task",
         },
     ],
 });
 
-// Pre-save hook for unique username/mail validation
+// Pre-save hook for unique username/email validation
 userSchema.pre("save", async function (next) {
     try {
         const existingUser = await mongoose.model("User").findOne({
@@ -56,13 +57,19 @@ userSchema.pre("save", async function (next) {
     }
 });
 
+// Updated `findByUsername` for Mongoose Query Compatibility
+const findByUsername = function (model, queryParameters) {
+    const query = {
+        $or: [{ username: queryParameters.username }, { email: queryParameters.username }],
+    };
+
+    return model.findOne(query); // Return the Mongoose Query object (no `.exec()` here)
+};
+
+// Configure `passport-local-mongoose`
 userSchema.plugin(passportLocalMongoose, {
     usernameField: "username",
-    findByUsername: async function (model, queryParameters) {
-        return model.findOne({
-            $or: [{ username: queryParameters.username }, { email: queryParameters.username }],
-        });
-    },
+    findByUsername, // Use the compatibility fix
 });
 
 const User = mongoose.model("User", userSchema);

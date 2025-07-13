@@ -6,36 +6,41 @@ const {
     deleteUser,
     showAllUsers,
     renderNewUserForm,
+    renderEditUserForm,
+    renderLoginForm,
 } = require("../controllers/user");
-const { isLoggedIn, validateUser, isUserExists } = require("../middleware");
+const {
+    createTask, renderNewTaskForm, updateTask, deleteTask, renderEditTaskForm, getTaskById,
+} = require("../controllers/task");
+const {
+    isLoggedIn, validateUser, validateTask, isUserExists, isTaskExists, isTaskAuthor,
+} = require("../middleware");
+const passport = require("passport");
 
 const router = express.Router();
 
-// Static Routes
-router.get("/new", renderNewUserForm); // Static route for creating a new user
-router.get("/", showAllUsers); // Paginated users route
+// User Routes
+router.get("/new", renderNewUserForm); // Render a sign-up form
+router.get("/", showAllUsers); // Show paginated list of users
+router.post("/", validateUser, createUser); // Register a new user
+router.get("/login", renderLoginForm); // Render the login form
+router.post("/login", passport.authenticate("local", {
+    failureFlash: true, failureRedirect: "/users/login",
+}), (req, res) => {
+    req.flash("success", "Successfully logged in!");
+    res.redirect("/users"); // Redirect after login
+});
+router.get("/:id", isUserExists, getUserById); // Get a user's profile
+router.get("/:id/edit", isLoggedIn, isUserExists, renderEditUserForm); // Render edit form
+router.put("/:id", isLoggedIn, isUserExists, validateUser, updateUser); // Update user details
+router.delete("/:id", isUserExists, deleteUser); // Delete a user
 
-// Dynamic Routes
-router.get("/:id", isUserExists, getUserById);
-router.put("/:id", isUserExists, validateUser, updateUser);
-router.delete("/:id", isUserExists, deleteUser);
-
-
-/*
-
-// Routes
-// router.get("/paginated", isLoggedIn, getPaginatedUsers);
-// router.get("/paginated",  getPaginatedUsers);
-router.post("/", validateUser, createUser);
-// router.get("/", isLoggedIn, getAllUsers);
-router.get("/", getAllUsers);
-// router.get("/:id", isLoggedIn, isUserExists, getUserById);
-router.get("/:id", isUserExists, getUserById);
-// router.put("/:id", isLoggedIn, isUserExists, validateUser, updateUser);
-router.put("/:id", isUserExists, validateUser, updateUser);
-// router.delete("/:id", isLoggedIn, isUserExists, deleteUser);
-router.delete("/:id", isUserExists, deleteUser);
-// router.get("/:id/tasks", isLoggedIn, isUserExists, getUserTasks);
-*/
+// Task Routes Nested under Users
+router.get("/:userId/tasks/new", isUserExists, renderNewTaskForm); // Render a form for adding tasks
+router.post("/:userId/tasks", isUserExists, validateTask, createTask); // Add a task for a user
+// router.get("/:userId/tasks/:taskId", isUserExists, isTaskExists, getTaskById); // Get details of a specific task
+router.get("/:userId/tasks/:taskId/edit", isUserExists, isTaskExists, isTaskAuthor, renderEditTaskForm); // Render a task edit form
+router.put("/:userId/tasks/:taskId", isUserExists, isTaskExists, validateTask, isTaskAuthor, updateTask); // Update a task
+router.delete("/:userId/tasks/:taskId", isUserExists, isTaskExists, isTaskAuthor, deleteTask); // Delete a task
 
 module.exports = router;

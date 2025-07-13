@@ -20,17 +20,36 @@ module.exports.renderNewUserForm = async (req, res) => {
 // Create a New User
 module.exports.createUser = async (req, res) => {
     try {
-        const {fullname, username, email, avatar} = req.body;
+        console.log(req.body);
+        const { fullname, username, email, avatar, password } = req.body;
 
-        const newUser = new User({fullname, username, email, avatar});
-        await newUser.save();
+        // Create a new user instance (without saving it yet)
+        const newUser = new User({ fullname, username, email, avatar });
+
+        // Use the `register` method to hash and save the password along with the user
+        const registeredUser = await User.register(newUser, password);
 
         req.flash("success", "User created successfully!");
-        res.redirect(`/user/${newUser._id}`);
+        res.redirect(`/users/${registeredUser._id}`);
     } catch (error) {
         console.error("Error creating user:", error);
         req.flash("error", "Failed to create user.");
-        res.redirect("/user/signup");
+        res.redirect("/users/signup");
+    }
+};
+
+// Render Login Form
+module.exports.renderLoginForm = async (req, res) => {
+    try {
+        res.render("auth/login", {
+            title: "Login | Taskly",
+            hideNavbar: true,
+            hideFooter: true,
+        });
+    } catch (error) {
+        console.error("Error rendering login form:", error);
+        req.flash("error", "Could not load login page.");
+        res.redirect("/");
     }
 };
 
@@ -107,8 +126,7 @@ module.exports.deleteUser = async (req, res) => {
     }
 };
 
-// Get a Single User by ID
-
+// user profile by ID
 module.exports.getUserById = async (req, res) => {
     try {
         const { id } = req.params;
