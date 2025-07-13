@@ -9,7 +9,7 @@
                     <h2 class="mb-4 text-center fw-bold text-dark">Login to Taskly</h2>
 
                     <!-- Login Form -->
-                    <form id="login-form" action="custom-action-url" method="POST" novalidate>
+                    <form id="login-form" action="/users/login" method="POST" novalidate>
                         <!-- Username or Email -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold" for="username">Username or Email</label>
@@ -25,7 +25,7 @@
                                    placeholder="Enter your password" type="password" autocomplete="current-password">
                             <div class="invalid-feedback">Password is required.</div>
                             <p class="text-end mt-2">
-                                <a href="#" class="text-primary fw-semibold text-decoration-underline"
+                                <a href="/users/password-reset" class="text-primary fw-semibold text-decoration-underline"
                                    style="font-size: 0.9em;">Forgot Password?</a>
                             </p>
                         </div>
@@ -38,7 +38,7 @@
                         <!-- Signup CTA -->
                         <p class="text-center mt-4 mb-0">
                             <span class="text-muted">Don't have an account?</span>
-                            <a href="/signup" class="text-primary fw-semibold text-decoration-underline">Sign up here</a>
+                            <a href="/users/new" class="text-primary fw-semibold text-decoration-underline">Sign up here</a>
                         </p>
                     </form>
                 </div>
@@ -47,4 +47,3 @@
     </div>
 </div>
 <!-- Login Box END -->
-

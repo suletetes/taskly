@@ -1,5 +1,6 @@
 <% layout('layouts/boilerplate') %>
-<!-- Tasks -->
+
+<!-- User Profile -->
 <div class="bloc l-bloc py-5 bg-light" id="bloc-tasks">
     <div class="container bloc-lg bloc-no-padding-lg">
         <!-- User Info Section -->
@@ -16,7 +17,9 @@
                 <p class="text-muted mb-1"><i class="fa fa-user me-1"></i>Username: <span
                             class="fw-semibold"><%= user.username %></span></p>
                 <p class="text-muted mb-3"><i class="fa fa-calendar me-1"></i>Member Since: <span
-                            class="fw-semibold"><%= user.memberSince %></span></p>
+                            class="fw-semibold"><%= new Date(user.created_at).toLocaleDateString('en-US', {
+                            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                        }) || 'Unknown' %></span></p>
                 <a href="/tasks/new" class="btn btn-primary btn-lg px-4 mt-2" aria-label="Add Task" title="Add Task">
                     <i class="fa fa-plus me-2"></i>Add Task
                 </a>
@@ -24,55 +27,109 @@
         </div>
         <hr class="my-5">
 
-        <!-- Task Cards -->
+        <!-- Task Cards Section -->
         <div class="row justify-content-center">
             <div class="col-12 col-lg-8">
                 <div class="d-flex flex-column gap-4">
                     <% if (tasks && tasks.length) { %>
                         <% tasks.forEach(task => { %>
-                            <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 
-                                <%= task.status === 'completed' ? 'border-success' :
-                                    task.status === 'failed' ? 'border-danger' :
-                                            task.status === 'in-progress' ? 'border-info' : 'border-warning' %>">
+
+                            <!-- Determine Dynamic Status -->
+                            <%
+                                const now = new Date();
+                                const dueDate = new Date(task.due);
+                                let dynamicStatus = task.status;
+
+                                if (dynamicStatus === "in-progress") {
+                                    dynamicStatus = dueDate < now ? "failed" : "in-progress";
+                                }
+
+                                let borderClass, statusIcon, statusBadge;
+                                if (dynamicStatus === "completed") {
+                                    borderClass = "success";
+                                    statusIcon = '<span class="fa fa-check-circle fa-2x text-success me-3"></span>';
+                                    statusBadge = `<span class="badge bg-success ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-check me-1"></i> Completed
+                                       </span>`;
+                                } else if (dynamicStatus === "failed") {
+                                    borderClass = "danger";
+                                    statusIcon = '<span class="fa fa-times-circle fa-2x text-danger me-3"></span>';
+                                    statusBadge = `<span class="badge bg-danger ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-exclamation-triangle me-1"></i> Failed
+                                       </span>`;
+                                } else {
+                                    borderClass = "info";
+                                    statusIcon = '<span class="fa fa-spinner fa-2x text-info me-3"></span>';
+                                    statusBadge = `<span class="badge bg-info text-dark ms-auto align-self-start px-3 py-2 fs-6">
+                                        <i class="fa fa-hourglass-half me-1"></i> In Progress
+                                       </span>`;
+                                }
+                            %>
+
+                            <!-- Task Card -->
+                            <div class="card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-<%= borderClass %>">
                                 <div class="card-body p-4">
                                     <div class="d-flex align-items-center mb-3">
-                                        <span class="fa <%= task.status === 'completed' ? 'fa-check-circle text-success' :
-                                                task.status === 'failed' ? 'fa-times-circle text-danger' :
-                                                        task.status === 'in-progress' ? 'fa-spinner text-info' : 'fa-tasks text-primary' %> fa-2x me-3"></span>
+                                        <%# Dynamic Status Icon %>
+                                        <%- statusIcon %>
+
+                                        <!-- Task Title and Due Date -->
                                         <div>
                                             <h4 class="card-title mb-1 fw-bold"><%= task.title %></h4>
-                                            <small class="text-muted"><i
-                                                        class="fa fa-calendar-alt me-1"></i>Due: <%= task.dueDate ? task.dueDate.toISOString().split('T')[0] : 'No Due Date' %>
+                                            <small class="text-muted">
+                                                <i class="fa fa-calendar-alt me-1"></i>
+                                                Due: <%= new Date(task.due).toISOString().split('T')[0] %>
                                             </small>
                                         </div>
-                                        <span class="badge <%= task.priority === 'High' ? 'bg-danger' :
-                                                task.priority === 'Medium' ? 'bg-warning text-dark' : 'bg-success' %> ms-auto align-self-start px-3 py-2 fs-6">
-                                            <i class="fa <%= task.priority === 'High' ? 'fa-bolt' :
-                                                    task.priority === 'Medium' ? 'fa-arrow-up' : 'fa-arrow-down' %> me-1"></i>
-                                            <%= task.priority %>
-                                        </span>
+
+                                        <!-- Status or Priority Badge -->
+                                        <%- statusBadge %>
                                     </div>
+
+                                    <!-- Task Description -->
                                     <p class="card-text text-muted mb-3">
                                         <%= task.description || 'No description provided.' %>
                                     </p>
+
+                                    <!-- Task Tags -->
                                     <div class="mb-3">
-                                        <% (task.tags || []).forEach(tag => { %>
-                                            <span class="badge bg-secondary me-1"><%= tag %></span>
-                                        <% }) %>
+                                        <% if (task.tags && task.tags.length) { %>
+                                            <% task.tags.forEach(tag => { %>
+                                                <span class="badge bg-secondary me-1"><%= tag %></span>
+                                            <% }) %>
+                                        <% } %>
+
+                                        <% if (task.priority === "High") { %>
+                                            <span class="badge bg-warning text-dark me-1"><i
+                                                        class="fa fa-arrow-up me-1"></i> High Priority</span>
+                                        <% } else if (task.priority === "Medium") { %>
+                                            <span class="badge bg-warning me-1"><i class="fa fa-arrow-up me-1"></i> Medium Priority</span>
+                                        <% } else if (task.priority === "Low") { %>
+                                            <span class="badge bg-success me-1"><i class="fa fa-arrow-down me-1"></i> Low Priority</span>
+                                        <% } %>
                                     </div>
+
+                                    <!-- Action Buttons -->
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a href="/tasks/<%= task._id %>/edit"
-                                           class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                            <i class="fa fa-edit me-1"></i>Edit
-                                        </a>
-                                        <form action="/tasks/<%= task._id %>?_method=DELETE" method="POST"
-                                              class="d-inline">
-                                            <button type="submit"
-                                                    class="btn btn-outline-danger btn-sm rounded-pill px-3">
-                                                <i class="fa fa-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
-                                        <% if (task.status !== 'completed') { %>
+                                        <% if (dynamicStatus === "in-progress") { %>
+                                            <!-- Edit Button -->
+                                            <form action="/tasks/<%= task._id %>/edit" method="GET" class="d-inline">
+                                                <button type="submit"
+                                                        class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                    <i class="fa fa-edit me-1"></i>Edit
+                                                </button>
+                                            </form>
+
+                                            <!-- Delete Button -->
+                                            <form action="/tasks/<%= task._id %>?_method=DELETE" method="POST"
+                                                  class="d-inline">
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                    <i class="fa fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+
+                                            <!-- Done Button -->
                                             <form action="/tasks/<%= task._id %>/complete" method="POST"
                                                   class="d-inline">
                                                 <button type="submit" class="btn btn-success btn-sm rounded-pill px-3">
@@ -81,27 +138,38 @@
                                             </form>
                                         <% } %>
                                     </div>
+                                    <!-- Action Buttons End-->
                                 </div>
                             </div>
-                        <% }) %>
+
+                        <% }); %>
                     <% } else { %>
                         <p class="text-center text-muted">No tasks available. Create a new task to get started!</p>
                     <% } %>
                 </div>
-                <!-- Pagination -->
-                <nav class="d-flex justify-content-center mt-5" aria-label="Task pagination">
-                    <ul class="pagination pagination-lg">
-                        <% if (pagination) { %>
-                            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
-                                <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
-                                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                                </li>
-                            <% } %>
-                        <% } %>
-                    </ul>
-                </nav>
             </div>
         </div>
+        <!-- Tasks End -->
     </div>
+    <nav class="d-flex justify-content-center mt-5" aria-label="Task pagination">
+        <ul class="pagination pagination-lg">
+            <% if (pagination) { %>
+                <% if (pagination.hasPreviousPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= pagination.currentPage - 1 %>">Previous</a>
+                    </li>
+                <% } %>
+                <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                    <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+                <% if (pagination.hasNextPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= pagination.currentPage + 1 %>">Next</a>
+                    </li>
+                <% } %>
+            <% } %>
+        </ul>
+    </nav>
 </div>
-<!-- Tasks End -->
