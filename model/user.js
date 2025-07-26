@@ -17,11 +17,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Email is required"],
         unique: true,
+        lowercase: true,
         match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     avatar: {
         type: String,
-        default: "../../public/img/avatars/avatar1.png",
+        default:
+            "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png",
     },
     created_at: {
         type: Date,
@@ -30,42 +32,78 @@ const userSchema = new mongoose.Schema({
     tasks: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Task", // Reference to the Task model
+            ref: "Task",
         },
     ],
 });
 
-// Pre-save hook: validate uniqueness of username and email
 userSchema.pre("save", async function (next) {
     try {
         const existingUser = await mongoose.model("User").findOne({
-            $or: [{ username: this.username }, { email: this.email }],
+            username: this.username,
         });
 
-        if (existingUser) {
-            if (existingUser.username === this.username) {
-                throw new Error("The username is already taken.");
-            } else if (existingUser.email === this.email) {
-                throw new Error("The email is already in use.");
-            }
+        if (existingUser && existingUser._id.toString() !== this._id.toString()) {
+            const error = new Error("The username is already taken.");
+            error.statusCode = 400;
+            return next(error);
         }
-
         next();
     } catch (err) {
-        next(err);
+        return next(err);
     }
 });
 
-// Add Passport-Local Mongoose plugin
-userSchema.plugin(passportLocalMongoose, {
-    usernameField: "username",
-    findByUsername: async function (model, queryParameters) {
-        return model.findOne({
-            $or: [{ username: queryParameters.username }, { email: queryParameters.username }],
+
+/*
+// Pre-save hook for unique username/email validation
+userSchema.pre("save", async function (next) {
+    try {
+        const existingUser = await mongoose.model("User").findOne({
+            $or: [
+                { username: this.username },
+                { email: this.email },
+            ],
         });
-    },
+
+        if (existingUser && existingUser._id.toString() !== this._id.toString()) {
+            if (existingUser.username === this.username) {
+                const error = new Error("The username is already taken.");
+                error.statusCode = 400;
+                return next(error);
+            }
+            if (existingUser.email === this.email) {
+                const error = new Error("The email is already in use.");
+                error.statusCode = 400;
+                return next(error);
+            }
+        }
+        next();
+    } catch (err) {
+        return next(err);
+    }
 });
 
-// Export the User model
+// Updated `findByUsername` for Mongoose Query Compatibility
+function enhancedFindByUsername(model, queryParameters) {
+    const query = {
+        $or: [
+            { username: queryParameters.username },
+            { email: queryParameters.username },
+        ],
+    };
+
+    return model.findOne(query); // Return Mongoose query object
+}
+
+// Configure `passport-local-mongoose`
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: "username",
+    findByUsername: enhancedFindByUsername, // Enhanced for email and username login
+});*/
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: "username",
+});
+
 const User = mongoose.model("User", userSchema);
 module.exports = User;

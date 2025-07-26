@@ -1,16 +1,17 @@
-import express from "express";
-import mongoose from "mongoose";
-import session from "express-session";
-import flash from "connect-flash";
-import passport from "passport";
-import LocalStrategy from "passport-local";
-import methodOverride from "method-override";
-import mongoSanitize from "express-mongo-sanitize";
-import path from "path";
-import userRoutes from "./routes/user.js";
-import taskRoutes from "./routes/task.js";
-import ExpressError from "./utils/ExpressError.js";
-import User from "./model/user.js";
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
+const ejsMate = require('ejs-mate');
+const session = require('express-session');
+const flash = require('connect-flash');
+const methodOverride = require('method-override');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./model/user');
+const userRoutes = require('./routes/user');
+const indexRoutes = require('./routes/index');
+
+require("dotenv").config();
 
 // Initialize Express app
 const app = express();
@@ -26,69 +27,79 @@ db.once("open", () => {
     console.log("Database connected");
 });
 
-// Middleware to parse incoming requests
-app.use(express.urlencoded({ extended: true }));
+// Middleware to parse incoming form and JSON data
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+
+// Other middleware
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(path.resolve(), "public")));
+
+// Optional: Sanitize data to prevent MongoDB operator injection
+/*
 app.use(
     mongoSanitize({
-        replaceWith: "_",
+        allowDots: true,
+        replaceWith: '_',
     })
 );
+*/
 
 // Set EJS as the view engine
+app.engine('ejs', ejsMate);
 app.set("view engine", "ejs");
-app.set("views", path.join(path.resolve(), "views"));
+app.set('views', path.join(__dirname, 'views'));
 
 // Session configuration
 const sessionConfig = {
-    secret: "thisshouldbeasecretkey", // Change this to a secure secret
+    secret: process.env.SESSION_SECRET || 'thisshouldbeabettersecret!',
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        expires: Date.now() + 1000 * 60 * 60 * 24, // 1 day
-        maxAge: 1000 * 60 * 60 * 24,
+        secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // Expires in 7 days
+        maxAge: 1000 * 60 * 60 * 24 * 7,
     },
 };
+
 app.use(session(sessionConfig));
 app.use(flash());
 
-// Passport configuration
+// Passport configuration and middleware
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Flash messages middleware
+// Flash and user middleware
 app.use((req, res, next) => {
-    res.locals.currentUser = req.user;
+    // res.locals.currentUser = "req.user"; // Make user available in all templates
+    res.locals.currentUser = req.user; // Make user available in all templates
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();
 });
 
 // Routes
+app.use("/", indexRoutes);
 app.use("/users", userRoutes);
-app.use("/tasks", taskRoutes);
 
-// Root route
-app.get("/", (req, res) => {
-    res.render("home", { message: "Welcome to Taskly!" }); // Render a home page with a message
-});
-
-// Error handling for unmatched routes
+// Catch-all for unmatched routes
+/*
 app.all("*", (req, res, next) => {
-    next(new ExpressError("Page Not Found", 404));
+    req.flash("error", "Page not found!");
+    res.redirect("/");
 });
 
-// Global error handler
+// Error handler middleware
 app.use((err, req, res, next) => {
     const { statusCode = 500, message = "Something went wrong!" } = err;
-    res.status(statusCode).render("error", { message }); // Render an error view
+    console.error("Error:", err.stack);
+    res.status(statusCode).render("error", { message });
 });
+*/
 
 // Start server
 const PORT = 3000;

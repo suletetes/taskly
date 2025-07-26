@@ -41,7 +41,7 @@ function quickDate(option) {
     const today = new Date();
     const calcDate = {
         today: new Date(today),
-        tomorrow: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+        tomorrow: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
         nextweek: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7),
     };
 
@@ -224,21 +224,28 @@ setupFormValidation('add-task-form');
 setupFormValidation('edit-task-form');
 
 // --- Avatar Selection Logic ---
-const thumbs = document.querySelectorAll('.avatar-thumb');
-const avatarLarge = document.getElementById('avatar-large');
-const avatarInput = document.getElementById('avatar-input');
-if (thumbs.length && avatarLarge && avatarInput) {
-    thumbs.forEach(thumb => {
-        thumb.addEventListener('click', function () {
-            thumbs.forEach(t => t.classList.remove('selected'));
-            this.classList.add('selected');
-            const avatarPath = this.dataset.avatar || this.getAttribute('data-src');
-            avatarLarge.src = avatarPath;
-            avatarInput.value = avatarPath;
-        });
-    });
-}
+document.addEventListener('DOMContentLoaded', function () {
+    const thumbs = document.querySelectorAll('.avatar-thumb');
+    const avatarLarge = document.getElementById('avatar-large');
+    const avatarInput = document.getElementById('avatar-input');
 
+    if (thumbs && thumbs.length > 0 && avatarLarge && avatarInput) {
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', function () {
+                // Remove 'selected' class from all thumbnails
+                thumbs.forEach(t => t.classList.remove('selected'));
+
+                // Add 'selected' class to clicked thumbnail
+                thumb.classList.add('selected');
+
+                // Extract avatar URL and update large preview and hidden input
+                const avatarPath = thumb.getAttribute('data-avatar') || thumb.src;
+                avatarLarge.src = avatarPath;
+                avatarInput.value = avatarPath;
+            });
+        });
+    }
+});
 // --- Hide priority error when a radio is selected ---
 document.querySelectorAll('input[name="priority"]').forEach(function (radio) {
     radio.addEventListener('change', function () {

@@ -24,9 +24,14 @@ const labels = ["Admin", "Manager", "Developer", "Tester", "Guest", "Contributor
 const sampleNames = ["Alice Doe", "Bob Smith", "Carol Johnson", "David Warner", "Eve Adams", "Frank Bell"];
 const sampleUsernames = ["alice", "bob", "carol", "david", "eve", "frank"];
 const sampleAvatars = [
-    "../../public/img/avatars/avatar-1.jpg",
-    "../../public/img/avatars/avatar-2.jpg",
-    "../../public/img/avatars/avatar-3.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661915/avatar-1_rltonx.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661916/avatar-2_pcpiuc.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-3_uge9uz.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661918/avatar-4_u7ekxu.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661920/avatar-5_mhbem1.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-6_yhpqaq.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661921/avatar-8_qou6jc.jpg",
+    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661921/avatar-9_bvbvnm.jpg",
 ];
 
 // Generate random users

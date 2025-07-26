@@ -1,182 +1,183 @@
-import Task from "../model/task.js";
-import User from "../model/user.js";
+const Task = require("../model/task");
+const User = require("../model/user");
 
-// Controller for task operations
-const taskController = {
-    // Create a new task
-    createTask: async (req, res) => {
-        try {
-            const { title, due, priority, description, tags, labels, userId } = req.body;
-
-            // Validate the user ID
-            const user = await User.findById(userId);
-            if (!user) {
-                return res.status(404).json({ error: "User not found." });
-            }
-
-            // Create the task
-            const newTask = new Task({ title, due, priority, description, tags, labels, user: userId });
-            const savedTask = await newTask.save();
-
-            // Associate the task with the user
-            user.tasks.push(savedTask._id);
-            await user.save();
-
-            // Render users/index with all users after task creation
-            const users = await User.find().populate("tasks", {
-                title: 1,
-                due: 1,
-                priority: 1,
-                status: 1,
-            });
-            res.render("users/index", { users });
-
-            res.status(201).json({ message: "Task created successfully.", task: savedTask });
-        } catch (error) {
-            console.error("Error creating task:", error);
-            res.status(500).json({ error: "Internal server error." });
-        }
-    },
-
-    // Get all tasks
-    getAllTasks: async (req, res) => {
-        try {
-            const tasks = await Task.find().populate("user", "username email"); // Populate user info
-
-            // Render users/index with all users (since view expects users)
-            const users = await User.find().populate("tasks", {
-                title: 1,
-                due: 1,
-                priority: 1,
-                status: 1,
-            });
-            res.render("users/index", { users });
-
-            res.status(200).json(tasks);
-        } catch (error) {
-            console.error("Error fetching tasks:", error);
-            res.status(500).json({ error: "Internal server error." });
-        }
-    },
-
-    // Get a single task by ID
-    getTaskById: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const task = await Task.findById(id).populate("user", "username email"); // Populate user info
-            if (!task) {
-                return res.status(404).json({ error: "Task not found." });
-            }
-
-            // Render users/index with the user owning the task
-            const user = await User.findById(task.user).populate("tasks", {
-                title: 1,
-                due: 1,
-                priority: 1,
-                status: 1,
-            });
-            res.render("users/index", { users: [user] });
-
-            res.status(200).json(task);
-        } catch (error) {
-            console.error("Error fetching task:", error);
-            res.status(500).json({ error: "Internal server error." });
-        }
-    },
-
-    // Update a task by ID
-    updateTask: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const updates = req.body;
-
-            // Find and update the task
-            const updatedTask = await Task.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
-            if (!updatedTask) {
-                return res.status(404).json({ error: "Task not found." });
-            }
-
-            // Render users/index with all users after task update
-            const users = await User.find().populate("tasks", {
-                title: 1,
-                due: 1,
-                priority: 1,
-                status: 1,
-            });
-            res.render("users/index", { users });
-
-            res.status(200).json({ message: "Task updated successfully.", task: updatedTask });
-        } catch (error) {
-            console.error("Error updating task:", error);
-            res.status(500).json({ error: "Internal server error." });
-        }
-    },
-
-    // Delete a task by ID
-    deleteTask: async (req, res) => {
-        try {
-            const { id } = req.params;
-
-            // Find the task
-            const task = await Task.findById(id);
-            if (!task) {
-                return res.status(404).json({ error: "Task not found." });
-            }
-
-            // Remove the task from the associated user's tasks array
-            await User.findByIdAndUpdate(task.user, { $pull: { tasks: task._id } });
-
-            // Delete the task
-            await Task.findByIdAndDelete(id);
-
-            // Render users/index with all users after task deletion
-            const users = await User.find().populate("tasks", {
-                title: 1,
-                due: 1,
-                priority: 1,
-                status: 1,
-            });
-            res.render("users/index", { users });
-
-            res.status(200).json({ message: "Task deleted successfully." });
-        } catch (error) {
-            console.error("Error deleting task:", error);
-            res.status(500).json({ error: "Internal server error." });
-        }
-    },
-
-    // Get tasks for a specific user
-    getTasksByUser: async (req, res) => {
-        try {
-            const { userId } = req.params;
-
-            // Validate the user ID
-            const user = await User.findById(userId).populate("tasks");
-            if (!user) {
-                return res.status(404).json({ error: "User not found." });
-            }
-
-            // Task count stats
-            const completed = await Task.countDocuments({ user: userId, status: "completed" });
-            const failed = await Task.countDocuments({ user: userId, status: "failed" });
-            const ongoing = await Task.countDocuments({ user: userId, status: "in-progress" });
-
-            // Render users/index with the user's tasks as users
-            res.render("users/index", { users: user.tasks });
-
-            res.status(200).json({
-                tasks: user.tasks,
-                stats: {
-                    completed,
-                    failed,
-                    ongoing,
-                },
-            });
-        } catch (error) {
-            console.error("Error fetching user tasks:", error);
-            res.status(500).json({ error: "Internal server error." });
-        }
-    },
+// Render 'New Task' Form
+module.exports.renderNewTaskForm = async (req, res) => {
+    try {
+        const users = await User.find(); // Fetch all users for the dropdown
+        res.render("task/add", {
+            users,
+            title: 'Add Task | Taskly',
+            hideNavbar: false,
+            hideFooter: false
+        });
+        // console.log(this)
+    } catch (error) {
+        console.error("Error rendering task form:", error);
+        req.flash("error", "Could not load task creation form.");
+        res.redirect("/tasks");
+    }
 };
 
-export default taskController;
+// Create a New Task
+module.exports.createTask = async (req, res) => {
+    try {
+        console.log("Received due date:", req.body.due);
+
+        const { userId } = req.params; // Extract user ID
+        const { title, due, priority, description, tags } = req.body; // Get task details
+
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            req.flash("error", "User not found.");
+            return res.redirect(`/users/${userId}/tasks/new`);
+        }
+
+        // Validate due date (server-side check)
+        const dueDate = new Date(due);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Midnight of today
+
+        if (dueDate < today) {
+            req.flash("error", "Due date cannot be in the past.");
+            return res.redirect(`/users/${userId}/tasks/new`);
+        }
+
+        // Create a new task and associate it with the user
+        const newTask = new Task({ title, due: dueDate, priority, description, tags, user: userId });
+        await newTask.save();
+
+        // Save the task to the user's list of tasks
+        user.tasks.push(newTask._id);
+        await user.save();
+
+        req.flash("success", "Task created successfully!");
+        res.redirect(`/users/${userId}`); // Redirect to user's task list
+    } catch (error) {
+        console.error("Error creating task:", error);
+        req.flash("error", "Failed to create task.");
+        res.redirect(`/users/${req.params.userId}/tasks/new`);
+    }
+};
+// Render Edit Task Form
+module.exports.renderEditTaskForm = async (req, res) => {
+    try {
+        const {taskId} = req.params;
+        const task = await Task.findById(taskId); // Fetch task data for editing
+        const users = await User.find(); // Fetch all users for reassigning task
+
+        if (!task) {
+            req.flash("error", "Task not found.");
+            return res.redirect("/list");
+        }
+
+        res.render("task/update", {
+            task,
+            users,
+            title: 'Update Task | Taskly',
+            hideNavbar: false,
+            hideFooter: false
+        });
+    } catch (error) {
+        console.error("Error loading edit task form:", error);
+        req.flash("error", "Failed to load task edit form.");
+        res.redirect("/tasks");
+    }
+};
+// complete task
+
+
+// Update a Task by ID
+module.exports.updateTask = async (req, res) => {
+    try {
+        const {taskId, userId} = req.params;
+        const updates = req.body;
+
+        const updatedTask = await Task.findByIdAndUpdate(taskId, updates, {new: true, runValidators: true});
+        if (!updatedTask) {
+            req.flash("error", "Task not found.");
+            return res.redirect("/list");
+        }
+
+        req.flash("success", "Task updated successfully!");
+        res.redirect(`/users/${userId}`);
+    } catch (error) {
+        console.error("Error updating task:", error);
+        req.flash("error", "Could not update task.");
+        res.redirect(`/task/${taskId}/edit`);
+    }
+};
+
+// Delete a Task by ID
+module.exports.deleteTask = async (req, res) => {
+    try {
+        const {taskId} = req.params;
+
+        const task = await Task.findById(taskId);
+        if (!task) {
+            req.flash("error", "Task not found.");
+            return res.redirect(`/users/${userId}`);
+        }
+
+        await User.findByIdAndUpdate(task.user, {$pull: {tasks: task._id}});
+        await Task.findByIdAndDelete(taskId);
+
+        req.flash("success", "Task deleted successfully!");
+        res.redirect(`/users/${userId}`);
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        req.flash("error", "Failed to delete task.");
+        res.redirect(`/users/${userId}`);
+    }
+};
+
+// Get All Tasks of a Specific User with Pagination
+/*module.exports.getTasksByUser = async (req, res) => {
+    try {
+        const {userId} = req.params;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            req.flash("error", "User not found.");
+            return res.redirect("/list");
+        }
+
+        const perPage = 8; // Tasks per page
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1); // Current page, defaults to 1
+
+        const totalTasks = await Task.countDocuments({user: userId}); // Total tasks count
+        const totalPages = Math.ceil(totalTasks / perPage); // Calculate total pages
+
+        // Fetch paginated tasks
+        const tasks = await Task.find({user: userId})
+            .skip((page - 1) * perPage)
+            .limit(perPage)
+            .sort({dueDate: 1}); // Optional: Sort tasks by due date
+
+        // Redirect to the last available page if the current is out of range
+        if (page > totalPages && totalPages > 0) {
+            return res.redirect(`/tasks/${userId}?page=${totalPages}`);
+        }
+
+        res.render("task/list", {
+            tasks,
+            user,
+            title: 'Add Task | Taskly',
+            hideNavbar: false,
+            hideFooter: false,
+            pagination: {
+                totalTasks,
+                totalPages,
+                currentPage: page,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1,
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching user's tasks:", error);
+        req.flash("error", "Could not fetch tasks for the user.");
+        res.redirect("/list");
+    }
+};*/
+
