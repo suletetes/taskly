@@ -41,7 +41,7 @@ function quickDate(option) {
     const today = new Date();
     const calcDate = {
         today: new Date(today),
-        tomorrow: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+        tomorrow: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
         nextweek: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7),
     };
 

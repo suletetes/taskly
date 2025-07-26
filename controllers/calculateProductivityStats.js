@@ -59,7 +59,7 @@ module.exports.calculateProductivityStats = async (userId) => {
             failed,
             streak,
             avgTime: `${avgCompletionTime.toFixed(2)} hrs`,
-            completionRate: `${completionRate}%`,
+            completionRate: `${completionRate}`,
             ongoing: inProgress,
         };
     } catch (error) {
