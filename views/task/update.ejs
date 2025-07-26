@@ -5,7 +5,8 @@
     <div class="container bloc-lg-lg">
         <div class="row">
             <div class="col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
-                <form id="edit-task-form" action="/tasks/<%= task._id %>?_method=PUT" method="POST" autocomplete="off" novalidate>
+                <form id="edit-task-form" action="/users/<%= currentUser._id %>/tasks/<%= task._id %>?_method=PUT"
+                      method="POST" autocomplete="off" novalidate>
                     <!-- Title -->
                     <div class="row">
                         <div class="col-lg-12">
@@ -41,6 +42,7 @@
                                           placeholder="Details or notes about this task"><%= task.description %></textarea>
                             </div>
                         </div>
+
                         <!-- Due Date -->
                         <div class="text-lg-start col-12">
                             <div class="form-group mb-3">
@@ -50,8 +52,8 @@
                                 <input type="date" 
                                        class="form-control" 
                                        id="due-date" 
-                                       name="dueDate" 
-                                       value="<%= task.dueDate ? task.dueDate.toISOString().split('T')[0] : '' %>" 
+                                       name="due"
+                                       value="<%= task.due ? task.due.toISOString().split('T')[0] : '' %>"
                                        required>
                                 <div class="invalid-feedback" id="due-date-error">Due date is required.</div>
                                 <div class="mt-2">
@@ -68,17 +70,17 @@
                                     <h4><i class="fa fa-bolt me-1"></i>Priority <span class="text-danger">*</span></h4>
                                 </label>
                                 <div class="btn-group w-100" role="group" aria-label="Priority">
-                                    <input type="radio" class="btn-check" name="priority" id="priority-low" value="Low" <%= task.priority === 'Low' ? 'checked' : '' %> required>
+                                    <input type="radio" class="btn-check" name="priority" id="priority-low" value="low" <%= task.priority === 'low' ? 'checked' : '' %> required>
                                     <label class="btn btn-outline-primary" for="priority-low">
                                         <i class="fa fa-circle text-primary me-1"></i>Low
                                     </label>
 
-                                    <input type="radio" class="btn-check" name="priority" id="priority-medium" value="Medium" <%= task.priority === 'Medium' ? 'checked' : '' %> required>
+                                    <input type="radio" class="btn-check" name="priority" id="priority-medium" value="medium" <%= task.priority === 'medium' ? 'checked' : '' %> required>
                                     <label class="btn btn-outline-warning" for="priority-medium">
                                         <i class="fa fa-circle text-warning me-1"></i>Medium
                                     </label>
 
-                                    <input type="radio" class="btn-check" name="priority" id="priority-high" value="High" <%= task.priority === 'High' ? 'checked' : '' %> required>
+                                    <input type="radio" class="btn-check" name="priority" id="priority-high" value="high" <%= task.priority === 'high' ? 'checked' : '' %> required>
                                     <label class="btn btn-outline-danger" for="priority-high">
                                         <i class="fa fa-circle text-danger me-1"></i>High
                                     </label>

@@ -5,7 +5,8 @@
     <div class="container bloc-lg-lg">
         <div class="row">
             <div class="col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
-                <form id="add-task-form" autocomplete="off" novalidate>
+                <form id="add-task-form" action="/users/<%= currentUser._id %>/tasks" method="post"
+                      novalidate>
                     <div class="row">
                         <div class="col-lg-12">
                             <h2 class="mb-4 text-lg-center">
@@ -39,7 +40,14 @@
                                     <h4><i class="fa fa-calendar-alt me-1"></i>Due Date <span
                                                 class="text-danger">*</span></h4>
                                 </label>
-                                <input type="date" class="form-control" id="due-date" name="dueDate" required>
+                                <input
+                                        type="date"
+                                        class="form-control"
+                                        id="due-date"
+                                        name="due"
+                                        required
+                                        min="<%= new Date().toISOString().split('T')[0] %>"
+                                >
                                 <div class="invalid-feedback" id="due-date-error" style="display:none;">Due Date is
                                     required.
                                 </div>
@@ -98,9 +106,6 @@
                                                                                                   class="btn-close btn-close-white btn-sm ms-1 remove-tag"
                                                                                                   aria-label="Remove"></button></span>
                                 </div>
-                                <input type="text" class="form-control" id="tag-input" placeholder="+ Add">
-                                <small class="form-text text-muted">Press Enter to add tag. Click × to
-                                    remove.</small>
                             </div>
                         </div>
                     </div>
