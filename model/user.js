@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Email is required"],
         unique: true,
+        lowercase: true,
         match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     avatar: {
@@ -36,40 +37,72 @@ const userSchema = new mongoose.Schema({
     ],
 });
 
+userSchema.pre("save", async function (next) {
+    try {
+        const existingUser = await mongoose.model("User").findOne({
+            username: this.username,
+        });
+
+        if (existingUser && existingUser._id.toString() !== this._id.toString()) {
+            const error = new Error("The username is already taken.");
+            error.statusCode = 400;
+            return next(error);
+        }
+        next();
+    } catch (err) {
+        return next(err);
+    }
+});
+
+
+/*
 // Pre-save hook for unique username/email validation
 userSchema.pre("save", async function (next) {
     try {
         const existingUser = await mongoose.model("User").findOne({
-            $or: [{ username: this.username }, { email: this.email }],
+            $or: [
+                { username: this.username },
+                { email: this.email },
+            ],
         });
 
-        if (existingUser) {
+        if (existingUser && existingUser._id.toString() !== this._id.toString()) {
             if (existingUser.username === this.username) {
-                throw new Error("The username is already taken.");
-            } else if (existingUser.email === this.email) {
-                throw new Error("The email is already in use.");
+                const error = new Error("The username is already taken.");
+                error.statusCode = 400;
+                return next(error);
+            }
+            if (existingUser.email === this.email) {
+                const error = new Error("The email is already in use.");
+                error.statusCode = 400;
+                return next(error);
             }
         }
-
         next();
     } catch (err) {
-        next(err);
+        return next(err);
     }
 });
 
 // Updated `findByUsername` for Mongoose Query Compatibility
-const findByUsername = function (model, queryParameters) {
+function enhancedFindByUsername(model, queryParameters) {
     const query = {
-        $or: [{ username: queryParameters.username }, { email: queryParameters.username }],
+        $or: [
+            { username: queryParameters.username },
+            { email: queryParameters.username },
+        ],
     };
 
-    return model.findOne(query); // Return the Mongoose Query object (no `.exec()` here)
-};
+    return model.findOne(query); // Return Mongoose query object
+}
 
 // Configure `passport-local-mongoose`
 userSchema.plugin(passportLocalMongoose, {
     usernameField: "username",
-    findByUsername, // Use the compatibility fix
+    findByUsername: enhancedFindByUsername, // Enhanced for email and username login
+});*/
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: "username",
 });
 
 const User = mongoose.model("User", userSchema);
