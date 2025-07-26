@@ -22,34 +22,49 @@ module.exports.renderNewTaskForm = async (req, res) => {
 // Create a New Task
 module.exports.createTask = async (req, res) => {
     try {
-        const {title, due, priority, description, tags, labels, userId} = req.body;
+        console.log("Received due date:", req.body.due);
 
+        const { userId } = req.params; // Extract user ID
+        const { title, due, priority, description, tags } = req.body; // Get task details
+
+        // Check if the user exists
         const user = await User.findById(userId);
         if (!user) {
             req.flash("error", "User not found.");
-            return res.redirect("/task/add");
+            return res.redirect(`/users/${userId}/tasks/new`);
         }
 
-        const newTask = new Task({title, due, priority, description, tags, labels, user: userId});
+        // Validate due date (server-side check)
+        const dueDate = new Date(due);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Midnight of today
+
+        if (dueDate < today) {
+            req.flash("error", "Due date cannot be in the past.");
+            return res.redirect(`/users/${userId}/tasks/new`);
+        }
+
+        // Create a new task and associate it with the user
+        const newTask = new Task({ title, due: dueDate, priority, description, tags, user: userId });
         await newTask.save();
 
+        // Save the task to the user's list of tasks
         user.tasks.push(newTask._id);
         await user.save();
 
         req.flash("success", "Task created successfully!");
-        res.redirect("/task/list");
+        res.redirect(`/users/${userId}`); // Redirect to user's task list
     } catch (error) {
         console.error("Error creating task:", error);
         req.flash("error", "Failed to create task.");
-        res.redirect("/task/add");
+        res.redirect(`/users/${req.params.userId}/tasks/new`);
     }
 };
-
 // Render Edit Task Form
 module.exports.renderEditTaskForm = async (req, res) => {
     try {
-        const {id} = req.params;
-        const task = await Task.findById(id); // Fetch task data for editing
+        const {taskId} = req.params;
+        const task = await Task.findById(taskId); // Fetch task data for editing
         const users = await User.find(); // Fetch all users for reassigning task
 
         if (!task) {
@@ -74,51 +89,51 @@ module.exports.renderEditTaskForm = async (req, res) => {
 // Update a Task by ID
 module.exports.updateTask = async (req, res) => {
     try {
-        const {id} = req.params;
+        const {taskId, userId} = req.params;
         const updates = req.body;
 
-        const updatedTask = await Task.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedTask = await Task.findByIdAndUpdate(taskId, updates, {new: true, runValidators: true});
         if (!updatedTask) {
             req.flash("error", "Task not found.");
             return res.redirect("/list");
         }
 
         req.flash("success", "Task updated successfully!");
-        res.redirect(`/task/${id}`);
+        res.redirect(`/users/${userId}`);
     } catch (error) {
         console.error("Error updating task:", error);
         req.flash("error", "Could not update task.");
-        res.redirect(`/task/${id}/edit`);
+        res.redirect(`/task/${taskId}/edit`);
     }
 };
 
 // Delete a Task by ID
 module.exports.deleteTask = async (req, res) => {
     try {
-        const {id} = req.params;
+        const {taskId} = req.params;
 
-        const task = await Task.findById(id);
+        const task = await Task.findById(taskId);
         if (!task) {
             req.flash("error", "Task not found.");
-            return res.redirect("/list");
+            return res.redirect(`/users/${userId}`);
         }
 
         await User.findByIdAndUpdate(task.user, {$pull: {tasks: task._id}});
-        await Task.findByIdAndDelete(id);
+        await Task.findByIdAndDelete(taskId);
 
         req.flash("success", "Task deleted successfully!");
-        res.redirect("/list");
+        res.redirect(`/users/${userId}`);
     } catch (error) {
         console.error("Error deleting task:", error);
         req.flash("error", "Failed to delete task.");
-        res.redirect("/list");
+        res.redirect(`/users/${userId}`);
     }
 };
 
 // Get All Tasks of a Specific User with Pagination
-module.exports.getTasksByUser = async (req, res) => {
+/*module.exports.getTasksByUser = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const {userId} = req.params;
         const user = await User.findById(userId);
 
         if (!user) {
@@ -129,14 +144,14 @@ module.exports.getTasksByUser = async (req, res) => {
         const perPage = 8; // Tasks per page
         const page = Math.max(1, parseInt(req.query.page, 10) || 1); // Current page, defaults to 1
 
-        const totalTasks = await Task.countDocuments({ user: userId }); // Total tasks count
+        const totalTasks = await Task.countDocuments({user: userId}); // Total tasks count
         const totalPages = Math.ceil(totalTasks / perPage); // Calculate total pages
 
         // Fetch paginated tasks
-        const tasks = await Task.find({ user: userId })
+        const tasks = await Task.find({user: userId})
             .skip((page - 1) * perPage)
             .limit(perPage)
-            .sort({ dueDate: 1 }); // Optional: Sort tasks by due date
+            .sort({dueDate: 1}); // Optional: Sort tasks by due date
 
         // Redirect to the last available page if the current is out of range
         if (page > totalPages && totalPages > 0) {
@@ -162,5 +177,5 @@ module.exports.getTasksByUser = async (req, res) => {
         req.flash("error", "Could not fetch tasks for the user.");
         res.redirect("/list");
     }
-};
+};*/
 

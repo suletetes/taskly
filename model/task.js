@@ -12,7 +12,8 @@ const taskSchema = new mongoose.Schema(
             required: [true, "Due date is required"],
             validate: {
                 validator: function (value) {
-                    return value >= new Date(); // No past due dates
+                    const now = new Date();
+                    return value >= new Date(now.getFullYear(), now.getMonth(), now.getDate()); // No past dates but allow today
                 },
                 message: "Due date cannot be in the past.",
             },
@@ -20,7 +21,7 @@ const taskSchema = new mongoose.Schema(
         priority: {
             type: String,
             required: [true, "Priority is required"],
-            enum: ["Low", "Medium", "High"], // Limited allowed values for priority
+            enum: ["low", "medium", "high"], // Limited allowed values for priority
         },
         description: {
             type: String,
