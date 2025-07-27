@@ -128,23 +128,20 @@
                 </div>
             </div>
             <div class="row">
-                <!-- Loop through users #todo there is an issue with the avatar image check home.ejs, index.js-->
+                <!-- Loop through users -->
                 <% if (users && users.length > 0) { %>
                     <% users.forEach(user => { %>
                         <div class="col-md-6">
                             <div class="row voffset align-items-center">
                                 <div class="col-lg-3">
-                                    <picture>
-                                        <source type="image/webp" srcset="/images/placeholder-user.webp">
-                                        <img src="<%= user.avatar || '/images/placeholder-user.png' %>"
-                                             class="img-fluid rounded-circle lazyload"
-                                             alt="<%= user.fullname %>'s Avatar"
-                                             width="122" height="122">
-                                    </picture>
+                                    <img src="<%= user.avatar || '/images/placeholder-user.png' %>"
+                                         class="img-fluid rounded-circle lazyload"
+                                         alt="<%= user.fullname || 'User Name' %>'s Avatar"
+                                         width="122" height="122">
                                 </div>
                                 <div class="col">
                                     <h4 class="fw-semibold text-secondary mb-1 text-lg-start text-center">
-                                        <%= user.fullname || "User Name" %>
+                                        <a href="/users/<%= user._id %>"><%= user.fullname || "User Name" %></a>
                                     </h4>
                                     <p class="mb-2 lh-sm text-lg-start text-center">
                                         <span class="fw-medium">Task Completion Rate:</span>
