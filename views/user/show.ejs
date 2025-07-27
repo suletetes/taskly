@@ -22,7 +22,7 @@
 
                 <% if (currentUser && currentUser._id.toString() === user._id.toString()) { %>
                     <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
-                        <a href="/tasks/new" class="btn btn-primary btn-lg px-4" aria-label="Add Task" title="Add Task">
+                        <a href="/users/<%= user._id %>/tasks/new" class="btn btn-primary btn-lg px-4" aria-label="Add Task" title="Add Task">
                             <i class="fa fa-plus me-2"></i>Add Task
                         </a>
                         <a href="/users/<%= user._id %>/edit" class="btn btn-secondary btn-lg px-4" role="button" aria-label="Edit Profile" title="Edit Profile">
@@ -140,7 +140,6 @@
                                                 <i class="fa fa-trash me-1"></i>Delete
                                             </button>
                                         </form>
-                                        router.post("/:userId/tasks/:taskId", isLoggedIn, isUserExists, isTaskExists, validateTask, isTaskAuthor, catchAsync(complete));
 
                                         <form action="/users/<%= user._id %>/tasks/<%= task._id %>" method="POST" class="d-inline">
                                             <button type="submit" class="btn btn-success btn-sm rounded-pill px-3">
