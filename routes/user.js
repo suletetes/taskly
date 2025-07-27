@@ -20,6 +20,7 @@ const {
     renderNewTaskForm,
     updateTask,
     deleteTask,
+    complete,
     renderEditTaskForm,
 } = require("../controllers/task");
 
@@ -85,8 +86,12 @@ router.post("/:userId/tasks", isLoggedIn, isUserExists, validateTask, catchAsync
 // Render a form to edit a specific task
 router.get("/:userId/tasks/:taskId/edit", isLoggedIn, isUserExists, isTaskExists, isTaskAuthor, catchAsync(renderEditTaskForm));
 
+// done a specific task
+router.post("/:userId/tasks/:taskId", isLoggedIn, isUserExists, isTaskExists, isTaskAuthor, catchAsync(complete));
+
 // Update a specific task
 router.put("/:userId/tasks/:taskId", isLoggedIn, isUserExists, isTaskExists, validateTask, isTaskAuthor, catchAsync(updateTask));
+
 
 // Delete a specific task
 router.delete("/:userId/tasks/:taskId", isLoggedIn, isUserExists, isTaskExists, isTaskAuthor, catchAsync(deleteTask));

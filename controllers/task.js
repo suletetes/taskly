@@ -24,8 +24,8 @@ module.exports.createTask = async (req, res) => {
     try {
         console.log("Received due date:", req.body.due);
 
-        const { userId } = req.params; // Extract user ID
-        const { title, due, priority, description, tags } = req.body; // Get task details
+        const {userId} = req.params; // Extract user ID
+        const {title, due, priority, description, tags} = req.body; // Get task details
 
         // Check if the user exists
         const user = await User.findById(userId);
@@ -45,7 +45,7 @@ module.exports.createTask = async (req, res) => {
         }
 
         // Create a new task and associate it with the user
-        const newTask = new Task({ title, due: dueDate, priority, description, tags, user: userId });
+        const newTask = new Task({title, due: dueDate, priority, description, tags, user: userId});
         await newTask.save();
 
         // Save the task to the user's list of tasks
@@ -85,8 +85,25 @@ module.exports.renderEditTaskForm = async (req, res) => {
         res.redirect("/tasks");
     }
 };
-// complete task
-
+// Mark a Task as Done
+module.exports.complete = async (req, res) => {
+    try {
+        const {taskId, userId} = req.params;
+        const task = await Task.findById(taskId);
+        if (!task) {
+            req.flash("error", "Task not found.");
+            return res.redirect("/list");
+        }
+        task.status = "done"; // or use a boolean: task.completed = true;
+        await task.save();
+        req.flash("success", "Task marked as done!");
+        res.redirect(`/users/${userId}`);
+    } catch (error) {
+        console.error("Error marking task as done:", error);
+        req.flash("error", "Could not mark task as done.");
+        res.redirect(`/task/${req.params.taskId}/edit`);
+    }
+};
 
 // Update a Task by ID
 module.exports.updateTask = async (req, res) => {
