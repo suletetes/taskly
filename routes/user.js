@@ -1,18 +1,12 @@
 const express = require("express");
-const passport = require("passport");
 const catchAsync = require("../utils/catchAsync");
 
 const {
-    createUser,
     getUserById,
     updateUser,
     deleteUser,
     showAllUsers,
-    renderNewUserForm,
     renderEditUserForm,
-    renderLoginForm,
-    login,
-    logout
 } = require("../controllers/user");
 
 const {
@@ -26,7 +20,6 @@ const {
 
 const {
     isLoggedIn,
-    validateUser,
     validateTask,
     isUserExists,
     isTaskExists,
@@ -38,29 +31,8 @@ const router = express.Router();
 
 // ==================== User Routes ====================
 
-// Render a sign-up form
-router.get("/new", (renderNewUserForm));
-
 // Show all users (paginated)
 router.get("/", (showAllUsers));
-
-// Register a new user
-router.post("/", validateUser, (createUser));
-
-// Render the login form
-router.get("/login", (renderLoginForm));
-
-// Handle user login
-router.post(
-    "/login",
-    passport.authenticate("local", {
-        failureFlash: true, // Show failure flash message
-        failureRedirect: "/users/login", // Redirect back to login page on failure
-    }),
-    catchAsync(login)
-);
-
-router.get('/logout', logout)
 
 // Get a specific user's profile
 router.get("/:userId", getUserById);
