@@ -94,7 +94,7 @@ module.exports.complete = async (req, res) => {
             req.flash("error", "Task not found.");
             return res.redirect("/list");
         }
-        task.status = "done"; // or use a boolean: task.completed = true;
+        task.status = "completed"; // or use a boolean: task.completed = true;
         await task.save();
         req.flash("success", "Task marked as done!");
         res.redirect(`/users/${userId}`);
