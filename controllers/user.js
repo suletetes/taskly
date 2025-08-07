@@ -17,7 +17,6 @@ module.exports.renderNewUserForm = async (req, res) => {
     }
 };
 
-// Create a New User
 // Create a New User (with auto-login functionality)
 module.exports.createUser = async (req, res, next) => {
     try {
