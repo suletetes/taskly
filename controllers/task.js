@@ -4,6 +4,14 @@ const User = require("../model/user");
 // Render 'New Task' Form
 module.exports.renderNewTaskForm = async (req, res) => {
     try {
+        const {userId} = req.params; // Extract user ID
+        const user = await User.findById(userId); // Fetch the user
+
+        if (!user) {
+            req.flash("error", "User not found.");
+            return res.redirect("/users");
+        }
+
         const users = await User.find(); // Fetch all users for the dropdown
         res.render("task/add", {
             users,
@@ -11,7 +19,6 @@ module.exports.renderNewTaskForm = async (req, res) => {
             hideNavbar: false,
             hideFooter: false
         });
-        // console.log(this)
     } catch (error) {
         console.error("Error rendering task form:", error);
         req.flash("error", "Could not load task creation form.");
@@ -63,13 +70,13 @@ module.exports.createTask = async (req, res) => {
 // Render Edit Task Form
 module.exports.renderEditTaskForm = async (req, res) => {
     try {
-        const {taskId} = req.params;
-        const task = await Task.findById(taskId); // Fetch task data for editing
-        const users = await User.find(); // Fetch all users for reassigning task
+        const {taskId, userId} = req.params;
+        const task = await Task.findById(taskId);
+        const users = await User.find(); // ✅ Fixed line
 
         if (!task) {
             req.flash("error", "Task not found.");
-            return res.redirect("/list");
+            return res.redirect(`/users/${userId}`);
         }
 
         res.render("task/update", {
@@ -82,7 +89,7 @@ module.exports.renderEditTaskForm = async (req, res) => {
     } catch (error) {
         console.error("Error loading edit task form:", error);
         req.flash("error", "Failed to load task edit form.");
-        res.redirect("/tasks");
+        res.redirect(`/users/${req.params.userId}`);
     }
 };
 // Mark a Task as Done

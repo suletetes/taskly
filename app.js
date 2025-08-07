@@ -10,6 +10,7 @@ const LocalStrategy = require('passport-local');
 const User = require('./model/user');
 const userRoutes = require('./routes/user');
 const indexRoutes = require('./routes/index');
+const ExpressError = require('./utils/ExpressError');
 
 require("dotenv").config();
 
@@ -75,8 +76,7 @@ passport.deserializeUser(User.deserializeUser());
 
 // Flash and user middleware
 app.use((req, res, next) => {
-    // res.locals.currentUser = "req.user"; // Make user available in all templates
-    res.locals.currentUser = req.user; // Make user available in all templates
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();
@@ -87,19 +87,30 @@ app.use("/", indexRoutes);
 app.use("/users", userRoutes);
 
 // Catch-all for unmatched routes
-/*
-app.all("*", (req, res, next) => {
-    req.flash("error", "Page not found!");
-    res.redirect("/");
+app.get('/{*any}', (req, res) => {
+    res.status(404).render("error/notFound", {
+        err: {statusCode: 404, message: "Page Not Found"},
+        title: "404 | Taskly",
+        hideNavbar: false,
+        hideFooter: false
+    });
 });
 
 // Error handler middleware
 app.use((err, req, res, next) => {
-    const { statusCode = 500, message = "Something went wrong!" } = err;
-    console.error("Error:", err.stack);
-    res.status(statusCode).render("error", { message });
+    console.error(err);
+    res.status(err.statusCode || 500).render("error/notFound", {
+        err: {
+            statusCode: err.statusCode || 500,
+            message: err.message || "Something went wrong",
+            stack: err.stack
+        },
+        // title: `${err.statusCode || 500} | Taskly`,
+        title: `${err.statusCode || 500} | Taskly`,
+        hideNavbar: false,
+        hideFooter: false
+    });
 });
-*/
 
 // Start server
 const PORT = 3000;

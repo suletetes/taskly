@@ -7,29 +7,6 @@ const catchAsync = require("../utils/catchAsync");
 const {login, logout, renderNewUserForm, renderLoginForm, createUser} = require("../controllers/user");
 const {validateUser} = require("../middleware");
 
-// Render a sign-up form
-router.get("/signup", (renderNewUserForm));
-
-// Register a new user
-router.post("/", validateUser, (createUser));
-
-// Render the login form
-router.get("/login", (renderLoginForm));
-
-// Render the login form
-router.post(
-    "/login",
-    passport.authenticate("local", {
-        failureFlash: true, // Show failure flash message
-        failureRedirect: "/users/login", // Redirect back to login page on failure
-    }),
-    catchAsync(login)
-);
-
-// logout route
-router.get('/logout', logout)
-
-
 router.get('/', async (req, res) => {
     try {
         // Fetch a limited number of users (e.g., top 6)
@@ -57,6 +34,29 @@ router.get('/', async (req, res) => {
         });
     }
 });
+
+// Render a sign-up form
+router.get("/signup", (renderNewUserForm));
+
+// Register a new user
+router.post("/", validateUser, (createUser));
+
+// Render the login form
+router.get("/login", (renderLoginForm));
+
+// Render the login form
+router.post(
+    "/login",
+    passport.authenticate("local", {
+        failureFlash: true, // Show failure flash message
+        failureRedirect: "/users/login", // Redirect back to login page on failure
+    }),
+    catchAsync(login)
+);
+
+// logout route
+router.get('/logout', logout)
+
 
 // About route
 router.get('/about', (req, res) => {
