@@ -1,66 +1,94 @@
 # Taskly
 
-Taskly is a productivity web app for managing users and their tasks. It features user authentication, profile management, and CRUD operations for tasks.
+Taskly is a modern, full-featured productivity web app designed to help users manage tasks, track progress, and boost efficiency. Built with Node.js, Express, MongoDB, and EJS, Taskly offers a seamless experience for user and task management, complete with authentication, profile customization, and productivity analytics.
 
-## Features
+---
 
-- User registration, login, and logout
-- User profile editing and deletion
-- Avatar support
-- Flash messages for feedback
-- Task creation, editing, completion, and deletion
-- Productivity stats on the home page
-- Responsive EJS views with Bootstrap styling
+## 🌟 Demo
 
-## Technologies
+![Taskly Screenshot](public/img/task--main.jpg)
 
-- Node.js
-- Express
-- MongoDB (Mongoose)
-- EJS templating
-- Bootstrap
-- Passport.js authentication
+---
 
-## Folder Structure
+## 🚀 Features
 
-- `controllers/` — Route handlers for users and tasks
-- `model/` — Mongoose models for User and Task
-- `routes/` — Express route definitions
-- `views/` — EJS templates for pages
-- `public/` — Static assets (CSS, JS, images, fonts)
-- `middleware.js` — Custom middleware
-- `schemas.js` — Joi validation schemas
-- `utils/` — Utility functions
-- `app.js` — Main Express app
+- **User Authentication:** Secure registration, login, and logout with Passport.js
+- **Profile Management:** Edit user details, upload avatars, and delete accounts
+- **Task Management:** Create, edit, complete, and delete tasks
+- **Productivity Stats:** Visualize your productivity on the home page
+- **Responsive UI:** Beautiful EJS templates styled with Bootstrap
+- **Flash Messages:** Instant feedback for user actions
+- **Validation:** Robust input validation with Joi
+- **RESTful API Structure:** Clean and maintainable routes and controllers
+- **Pagination:** Paginated user and task lists for scalability
+- **Error Handling:** Friendly error pages and messages
+- **Custom Middleware:** For authentication, validation, and error handling
 
-## Setup
+---
+
+## 🛠️ Technologies Used
+
+- **Node.js** — JavaScript runtime
+- **Express** — Web framework
+- **MongoDB & Mongoose** — Database and ODM
+- **EJS** — Templating engine
+- **Bootstrap** — Responsive design
+- **Passport.js** — Authentication
+- **Joi** — Validation
+
+---
+
+## 📁 Folder Structure
+
+```
+controllers/      # Route handlers for users and tasks
+model/            # Mongoose models (User, Task)
+routes/           # Express route definitions
+views/            # EJS templates for all pages
+public/           # Static assets (CSS, JS, images, fonts)
+utils/            # Utility functions (error handling, async wrappers)
+schemas.js        # Joi validation schemas
+middleware.js     # Custom middleware
+app.js            # Main Express app
+```
+
+---
+
+## 📝 Getting Started
 
 1. **Clone the repository:**
-   ```
-   git clone <your-repo-url>
+   ```bash
+   git clone https://github.com/yourusername/taskly.git
    cd taskly
    ```
-
 2. **Install dependencies:**
-   ```
+   ```bash
    npm install
    ```
-
-3. **Configure environment variables:**
-    - Create a `.env` file for MongoDB URI and session secret.
-
-4. **Run the app:**
+3. **Set up environment variables:**
+   - Create a `.env` file and add your MongoDB URI and session secret:
+     ```env
+     MONGODB_URI=mongodb://127.0.0.1:27017/taskly
+     SESSION_SECRET=yourSecretKey
+     ```
+4. **Seed the database (optional):**
+   ```bash
+   node seeds/userSeed.js
    ```
+5. **Start the app:**
+   ```bash
    npm start
    ```
-   The app runs on `http://localhost:3000` by default.
+6. **Visit Taskly in your browser:**
+   - Go to [http://localhost:3000](http://localhost:3000)
 
-## API Documentation
+---
 
-See below for main endpoints. All form routes render EJS views.
+## 📚 API Documentation
+
+All form routes render EJS views. Here are the main endpoints:
 
 ### Authentication
-
 - `GET /signup` — Render sign-up form
 - `POST /` — Register user (`fullname`, `username`, `email`, `password`, `avatar`)
 - `GET /login` — Render login form
@@ -68,7 +96,6 @@ See below for main endpoints. All form routes render EJS views.
 - `GET /logout` — Log out
 
 ### User Management
-
 - `GET /users` — List users (paginated)
 - `GET /users/:userId` — User profile
 - `GET /users/:userId/edit` — Edit user (auth required)
@@ -76,7 +103,6 @@ See below for main endpoints. All form routes render EJS views.
 - `DELETE /users/:userId` — Delete user (auth required)
 
 ### User Tasks
-
 - `GET /users/:userId/tasks/new` — Add task form (auth required)
 - `POST /users/:userId/tasks` — Create task
 - `GET /users/:userId/tasks/:taskId/edit` — Edit task form
@@ -85,6 +111,9 @@ See below for main endpoints. All form routes render EJS views.
 - `DELETE /users/:userId/tasks/:taskId` — Delete task
 
 ### Home & Info
-
 - `GET /` — Home page with stats
 - `GET /about` — About page
+
+---
+
+**Taskly** — Your productivity, organized.

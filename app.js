@@ -11,14 +11,16 @@ const User = require('./model/user');
 const userRoutes = require('./routes/user');
 const indexRoutes = require('./routes/index');
 const ExpressError = require('./utils/ExpressError');
+const dotenv = require("dotenv");
 
-require("dotenv").config();
+dotenv.config();
 
 // Initialize Express app
 const app = express();
 
 // Database connection
-mongoose.connect("mongodb://127.0.0.1:27017/taskly", {
+const dbUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/taskly";
+mongoose.connect(dbUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -105,7 +107,6 @@ app.use((err, req, res, next) => {
             message: err.message || "Something went wrong",
             stack: err.stack
         },
-        // title: `${err.statusCode || 500} | Taskly`,
         title: `${err.statusCode || 500} | Taskly`,
         hideNavbar: false,
         hideFooter: false
