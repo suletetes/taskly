@@ -1,10 +1,10 @@
-<% layout('../layouts/boilerplate')%>
-<div class="body-class">
-    <div class="error-container">
-        <h1>404</h1>
-        <h2>Oops! Page Not Found</h2>
-        <p>The page you are looking for might have been removed, had its name changed, or is temporarily
-            unavailable.</p>
+<% layout('layouts/boilerplate')%>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="text-center">
+        <h1><%= err.statusCode || 500 %> - <%= err.message %></h1>
+        <% if (err.stack) { %>
+            <pre><%= err.stack %></pre>
+        <% } %>
         <a href="/">Back to Home</a>
     </div>
 </div>
