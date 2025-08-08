@@ -12,11 +12,17 @@ const userRoutes = require('./routes/user');
 const indexRoutes = require('./routes/index');
 const ExpressError = require('./utils/ExpressError');
 const dotenv = require("dotenv");
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
 
 dotenv.config();
 
 // Initialize Express app
 const app = express();
+
+// Security middlewares
+app.use(helmet());
+app.use(mongoSanitize());
 
 // Database connection
 const dbUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/taskly";
@@ -38,15 +44,6 @@ app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(path.resolve(), "public")));
 
-// Optional: Sanitize data to prevent MongoDB operator injection
-/*
-app.use(
-    mongoSanitize({
-        allowDots: true,
-        replaceWith: '_',
-    })
-);
-*/
 
 // Set EJS as the view engine
 app.engine('ejs', ejsMate);
