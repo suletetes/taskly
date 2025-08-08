@@ -10,7 +10,6 @@ const LocalStrategy = require('passport-local');
 const User = require('./model/user');
 const userRoutes = require('./routes/user');
 const indexRoutes = require('./routes/index');
-const ExpressError = require('./utils/ExpressError');
 const dotenv = require("dotenv");
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -29,7 +28,8 @@ const dbUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/taskly";
 mongoose.connect(dbUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-});
+}).then(r => console.log("MongoDB connected"));
+
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
@@ -111,7 +111,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Serving on port ${PORT}`);
 });
