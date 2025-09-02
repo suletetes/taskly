@@ -4,13 +4,13 @@ Taskly is a modern, full-featured productivity web app designed to help users ma
 
 ---
 
-## 🌟 Demo
+## Demo
 
 ![Home 1](showCaseImages/home%201.png)
 
 ---
 
-## 🖼️ Demo Gallery
+## Demo Gallery
 
 | Home |                  Home                  |                 Home                   |
 |:----:|:--------------------------------------:|:--------------------------------------:|
@@ -26,7 +26,7 @@ Taskly is a modern, full-featured productivity web app designed to help users ma
 
 ---
 
-## 🚀 Features
+## Features
 
 - **User Authentication:** Secure registration, login, and logout with Passport.js
 - **Profile Management:** Edit user details, upload avatars, and delete accounts
@@ -42,7 +42,7 @@ Taskly is a modern, full-featured productivity web app designed to help users ma
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **Node.js** — JavaScript runtime
 - **Express** — Web framework
@@ -54,7 +54,7 @@ Taskly is a modern, full-featured productivity web app designed to help users ma
 
 ---
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 controllers/      # Route handlers for users and tasks
@@ -70,7 +70,7 @@ app.js            # Main Express app
 
 ---
 
-## 📝 Getting Started
+## Getting Started
 
 1. **Clone the repository:**
    ```bash
@@ -100,7 +100,7 @@ app.js            # Main Express app
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 All form routes render EJS views. Here are the main endpoints:
 
