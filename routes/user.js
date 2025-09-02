@@ -38,8 +38,8 @@ router.get("/", (showAllUsers));
 router.get("/:userId", getUserById);
 
 // Render an edit form for the user
-// router.get("/:userId/edit", isLoggedIn, isUserExists, renderEditUserForm);
-// router.get("/:id/edit", isLoggedIn, catchAsync(renderEditUserForm), isUserExists);
+router.get("/:userId/edit", isLoggedIn, isUserExists, renderEditUserForm);
+router.get("/:id/edit", isLoggedIn, catchAsync(renderEditUserForm), isUserExists);
 
 // Update user details
 router.put("/:userId", isLoggedIn, isUserExists, validateUserUpdate, catchAsync(updateUser));
