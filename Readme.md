@@ -6,7 +6,23 @@ Taskly is a modern, full-featured productivity web app designed to help users ma
 
 ## 🌟 Demo
 
-![Taskly Screenshot](public/img/task--main.jpg)
+![Home 1](showCaseImages/home%201.png)
+
+---
+
+## 🖼️ Demo Gallery
+
+| Home |                  Home                  |                 Home                   |
+|:----:|:--------------------------------------:|:--------------------------------------:|
+| ![Home 1](showCaseImages/home%201.png) | ![Home 2](showCaseImages/home%202.png) | ![Home 3](showCaseImages/home%203.png) |
+
+| Signup | Login | Profile |
+|:------:|:-----:|:-------:|
+| ![Signup](showCaseImages/signup.png) | ![Login](showCaseImages/login.png) | ![Profile](showCaseImages/profile.png) |
+
+| All Users | Add Task | Edit User |
+|:---------:|:--------:|:---------:|
+| ![All Users](showCaseImages/all%20users.png) | ![Add Task](showCaseImages/add%20task.png) | ![Edit User](showCaseImages/edit%20user.png) |
 
 ---
 
