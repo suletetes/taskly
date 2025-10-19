@@ -38,9 +38,13 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly')
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const taskRoutes = require('./routes/tasks');
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Taskly API Server is running' });
