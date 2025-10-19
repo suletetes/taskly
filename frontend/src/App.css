@@ -612,8 +612,9 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
-}/* U
-ser List Styles */
+}
+
+/* User List Styles */
 .user-list {
   max-width: 1200px;
   margin: 0 auto;
@@ -1088,8 +1089,9 @@ ser List Styles */
     width: 50px;
     height: 50px;
   }
-}/
-* Statistics Dashboard Styles */
+}
+
+/* Statistics Dashboard Styles */
 .stats-dashboard {
   max-width: 1000px;
 }
@@ -1850,8 +1852,9 @@ ser List Styles */
   .summary-value {
     font-size: 1.25rem;
   }
-}/
-* Performance Metrics Styles */
+}
+
+/* Performance Metrics Styles */
 .performance-metrics {
   display: flex;
   flex-direction: column;
@@ -1877,8 +1880,9 @@ ser List Styles */
   color: #333;
   font-weight: 600;
   font-size: 1.1rem;
-}/* Dashb
-oard Tabs */
+}
+
+/* Dashboard Tabs */
 .dashboard-tabs {
   display: flex;
   border-bottom: 2px solid #e9ecef;
@@ -1923,8 +1927,9 @@ oard Tabs */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}/* Analyti
-cs Controls */
+}
+
+/* Analytics Controls */
 .analytics-controls {
   display: flex;
   align-items: center;
