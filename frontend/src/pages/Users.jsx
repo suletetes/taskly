@@ -1,10 +1,10 @@
 import React from 'react'
+import UserList from '../components/user/UserList'
 
 const Users = () => {
   return (
     <div className="users">
-      <h1>All Users</h1>
-      <p>Users page will be implemented in task 7.2</p>
+      <UserList />
     </div>
   )
 }
