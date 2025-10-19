@@ -209,3 +209,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+.idea/taskly.iml
+.idea/jsLibraryMappings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.gitignore
+.vscode/settings.json
