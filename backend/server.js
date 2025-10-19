@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
+// const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -10,7 +10,9 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(mongoSanitize());
+// app.use(mongoSanitize({
+//   replaceWith: '_'
+// }));
 
 // Rate limiting
 const limiter = rateLimit({

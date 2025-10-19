@@ -14,7 +14,7 @@
     "dotenv": "^17.1.0",
     "cors": "^2.8.5",
     "helmet": "^8.1.0",
-    "express-mongo-sanitize": "^2.2.0",
+    "express-mongo-sanitize": "^2.1.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
