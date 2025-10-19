@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useTaskOperations } from '../../hooks/useTasks'
 import { useNotification } from '../../context/NotificationContext'
+import { useAnalytics } from '../../context/AnalyticsContext'
 import LoadingSpinner from '../common/LoadingSpinner'
 
 const TaskStatusUpdater = ({
@@ -11,6 +12,7 @@ const TaskStatusUpdater = ({
 }) => {
   const { updateTaskStatus, loading } = useTaskOperations()
   const { showSuccess, showError, showInfo, showWarning } = useNotification()
+  const { onTaskUpdated, onTaskCompleted } = useAnalytics()
   
   const [updatingTasks, setUpdatingTasks] = useState(new Set())
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date())
@@ -39,7 +41,7 @@ const TaskStatusUpdater = ({
       try {
         setUpdatingTasks(prev => new Set(prev).add(update.id))
         
-        await updateTaskStatus(update.id, update.newStatus)
+        const result = await updateTaskStatus(update.id, update.newStatus)
         
         // Update local task list
         if (onTasksUpdate) {
@@ -49,6 +51,24 @@ const TaskStatusUpdater = ({
               : task
           )
           onTasksUpdate(updatedTasks)
+        }
+
+        // Trigger analytics update
+        const task = tasks.find(t => t._id === update.id)
+        if (task) {
+          if (update.newStatus === 'completed') {
+            onTaskCompleted({
+              taskId: update.id,
+              userId: task.user,
+              task: { ...task, status: update.newStatus }
+            })
+          } else {
+            onTaskUpdated({
+              taskId: update.id,
+              userId: task.user,
+              task: { ...task, status: update.newStatus }
+            })
+          }
         }
 
         showInfo(`Task status updated to ${update.newStatus}: ${update.reason}`)
@@ -72,7 +92,7 @@ const TaskStatusUpdater = ({
     try {
       setUpdatingTasks(prev => new Set(prev).add(taskId))
       
-      await updateTaskStatus(taskId, newStatus)
+      const result = await updateTaskStatus(taskId, newStatus)
       
       // Update local task list
       if (onTasksUpdate) {
@@ -82,6 +102,24 @@ const TaskStatusUpdater = ({
             : task
         )
         onTasksUpdate(updatedTasks)
+      }
+
+      // Trigger analytics update
+      const task = tasks.find(t => t._id === taskId)
+      if (task) {
+        if (newStatus === 'completed') {
+          onTaskCompleted({
+            taskId,
+            userId: task.user,
+            task: { ...task, status: newStatus }
+          })
+        } else {
+          onTaskUpdated({
+            taskId,
+            userId: task.user,
+            task: { ...task, status: newStatus }
+          })
+        }
       }
 
       showSuccess('Task status updated successfully')

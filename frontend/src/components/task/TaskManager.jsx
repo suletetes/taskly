@@ -5,6 +5,7 @@ import TaskDeleteConfirmation from './TaskDeleteConfirmation'
 import { useTasks, useTaskOperations } from '../../hooks/useTasks'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotification } from '../../context/NotificationContext'
+import { useAnalytics } from '../../context/AnalyticsContext'
 
 const TaskManager = ({
   userId = null,
@@ -15,6 +16,7 @@ const TaskManager = ({
 }) => {
   const { user } = useAuth()
   const { showSuccess, showError } = useNotification()
+  const { onTaskCreated, onTaskUpdated, onTaskDeleted, onTaskCompleted } = useAnalytics()
   const targetUserId = userId || user?.id || user?._id
 
   // Modal states
@@ -53,14 +55,29 @@ const TaskManager = ({
   // Handle form submission
   const handleFormSubmit = useCallback(async (formData) => {
     try {
+      let result
       if (editingTask) {
         // Update existing task
-        await updateTask(editingTask._id, formData)
+        result = await updateTask(editingTask._id, formData)
         showSuccess('Task updated successfully')
+        
+        // Trigger analytics update
+        onTaskUpdated({
+          taskId: editingTask._id,
+          userId: targetUserId,
+          task: result.data
+        })
       } else {
         // Create new task
-        await createTask(targetUserId, formData)
+        result = await createTask(targetUserId, formData)
         showSuccess('Task created successfully')
+        
+        // Trigger analytics update
+        onTaskCreated({
+          taskId: result.data._id,
+          userId: targetUserId,
+          task: result.data
+        })
       }
       
       setIsFormModalOpen(false)
@@ -70,7 +87,7 @@ const TaskManager = ({
       console.error('Task operation failed:', error)
       showError(error.message || 'Operation failed')
     }
-  }, [editingTask, updateTask, createTask, targetUserId, showNotification])
+  }, [editingTask, updateTask, createTask, targetUserId, showSuccess, showError, onTaskCreated, onTaskUpdated])
 
   // Handle form cancel
   const handleFormCancel = useCallback(() => {
@@ -84,13 +101,20 @@ const TaskManager = ({
     try {
       await deleteTask(taskId)
       showSuccess('Task deleted successfully')
+      
+      // Trigger analytics update
+      onTaskDeleted({
+        taskId,
+        userId: targetUserId
+      })
+      
       setDeletingTask(null)
       setLastRefresh(new Date())
     } catch (error) {
       console.error('Delete task failed:', error)
       showError(error.message || 'Failed to delete task')
     }
-  }, [deleteTask, showNotification])
+  }, [deleteTask, showSuccess, showError, onTaskDeleted, targetUserId])
 
   // Handle delete cancel
   const handleDeleteCancel = useCallback(() => {

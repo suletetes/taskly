@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import userService from '../../services/userService'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
+import ProductivityAnalytics from '../dashboard/ProductivityAnalytics'
 
 const UserStatsDashboard = ({ userId, user }) => {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -82,6 +84,27 @@ const UserStatsDashboard = ({ userId, user }) => {
         <h2>Statistics Dashboard</h2>
         <p>Comprehensive overview of task performance and productivity metrics</p>
       </div>
+
+      {/* Dashboard Tabs */}
+      <div className="dashboard-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          📊 Overview
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          📈 Analytics
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="dashboard-content">
+        {activeTab === 'overview' && (
+          <div className="overview-tab">
 
       {/* Key Metrics */}
       <div className="key-metrics">
@@ -268,7 +291,14 @@ const UserStatsDashboard = ({ userId, user }) => {
             </div>
           </div>
         </div>
-      )}
+        )}
+
+        {activeTab === 'analytics' && (
+          <div className="analytics-tab">
+            <ProductivityAnalytics userId={userId} user={user} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

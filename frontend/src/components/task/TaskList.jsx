@@ -5,6 +5,7 @@ import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
 import { useTasks, useTaskOperations, useTaskFilters } from '../../hooks/useTasks'
 import { useAuth } from '../../hooks/useAuth'
+import { useAnalytics } from '../../context/AnalyticsContext'
 
 const TaskList = ({ 
   userId = null, 
@@ -16,6 +17,7 @@ const TaskList = ({
   initialFilters = {}
 }) => {
   const { user } = useAuth()
+  const { onTaskCompleted, onTaskUpdated } = useAnalytics()
   const targetUserId = userId || user?.id || user?._id
   
   const { filters, updateFilter, updateFilters, resetFilters, hasActiveFilters } = useTaskFilters(initialFilters)
@@ -35,14 +37,33 @@ const TaskList = ({
   const handleToggleComplete = useCallback(async (taskId, shouldComplete) => {
     try {
       const newStatus = shouldComplete ? 'completed' : 'in-progress'
-      await updateTaskStatus(taskId, newStatus)
+      const result = await updateTaskStatus(taskId, newStatus)
+      
+      // Find the task to get user info
+      const task = tasks.find(t => t._id === taskId)
+      if (task) {
+        // Trigger analytics update
+        if (shouldComplete) {
+          onTaskCompleted({
+            taskId,
+            userId: task.user || targetUserId,
+            task: { ...task, status: newStatus }
+          })
+        } else {
+          onTaskUpdated({
+            taskId,
+            userId: task.user || targetUserId,
+            task: { ...task, status: newStatus }
+          })
+        }
+      }
       
       // Refresh tasks to get updated data
       refreshTasks()
     } catch (error) {
       console.error('Failed to update task status:', error)
     }
-  }, [updateTaskStatus, refreshTasks])
+  }, [updateTaskStatus, refreshTasks, tasks, targetUserId, onTaskCompleted, onTaskUpdated])
 
   // Handle task edit
   const handleTaskEdit = useCallback((task) => {
