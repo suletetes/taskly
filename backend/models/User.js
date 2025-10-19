@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -42,25 +41,13 @@ const userSchema = new mongoose.Schema({
     ],
 });
 
-// Pre-save hook for password hashing
-userSchema.pre("save", async function (next) {
-    try {
-        // Only hash the password if it has been modified (or is new)
-        if (!this.isModified("password")) return next();
-
-        // Hash password with cost of 12
-        const hashedPassword = await bcrypt.hash(this.password, 12);
-        this.password = hashedPassword;
-
-        next();
-    } catch (err) {
-        return next(err);
-    }
-});
-
 // Pre-save hook for unique username validation
 userSchema.pre("save", async function (next) {
     try {
+        if (!this.isModified('username') && !this.isNew) {
+            return next();
+        }
+
         const existingUser = await mongoose.model("User").findOne({
             username: this.username,
         });
@@ -75,18 +62,6 @@ userSchema.pre("save", async function (next) {
         return next(err);
     }
 });
-
-// Instance method to check password
-userSchema.methods.comparePassword = async function (candidatePassword) {
-    return bcrypt.compare(candidatePassword, this.password);
-};
-
-// Instance method to get user without password
-userSchema.methods.toJSON = function () {
-    const userObject = this.toObject();
-    delete userObject.password;
-    return userObject;
-};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
