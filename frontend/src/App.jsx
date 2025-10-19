@@ -24,37 +24,37 @@ function App() {
             <main className="main-content">
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route 
-                  path="/login" 
+                <Route
+                  path="/login"
                   element={
                     <GuestRoute>
                       <Login />
                     </GuestRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/signup" 
+                <Route
+                  path="/signup"
                   element={
                     <GuestRoute>
                       <Signup />
                     </GuestRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/profile" 
+                <Route
+                  path="/profile"
                   element={
                     <ProtectedRoute>
                       <Profile />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/users" 
+                <Route
+                  path="/users"
                   element={
                     <ProtectedRoute>
                       <Users />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
                 <Route path="/about" element={<About />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
