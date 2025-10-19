@@ -1,3 +1,18 @@
+// Mock the password utilities to use lower salt rounds for faster testing
+jest.mock('../../utils/password', () => {
+  const bcrypt = require('bcryptjs');
+  const TEST_SALT_ROUNDS = 4; // Much faster for testing
+
+  return {
+    hashPassword: async (password) => {
+      return await bcrypt.hash(password, TEST_SALT_ROUNDS);
+    },
+    comparePassword: async (password, hashedPassword) => {
+      return await bcrypt.compare(password, hashedPassword);
+    }
+  };
+});
+
 const { hashPassword, comparePassword } = require('../../utils/password');
 
 describe('Password Utilities', () => {

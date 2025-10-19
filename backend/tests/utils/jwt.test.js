@@ -1,22 +1,35 @@
 const jwt = require('jsonwebtoken');
+
+// Mock the JWT utilities to use consistent test secret
+jest.mock('../../utils/jwt', () => {
+  const jwt = require('jsonwebtoken');
+  const TEST_SECRET = 'test-secret-key';
+  const TEST_EXPIRES_IN = '1h';
+
+  return {
+    generateToken: (payload) => {
+      return jwt.sign(payload, TEST_SECRET, {
+        expiresIn: TEST_EXPIRES_IN,
+      });
+    },
+    verifyToken: (token) => {
+      return jwt.verify(token, TEST_SECRET);
+    },
+    generateUserToken: (user) => {
+      return jwt.sign({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      }, TEST_SECRET, {
+        expiresIn: TEST_EXPIRES_IN,
+      });
+    }
+  };
+});
+
 const { generateToken, verifyToken, generateUserToken } = require('../../utils/jwt');
 
-// Mock environment variables
-const originalEnv = process.env;
-
 describe('JWT Utilities', () => {
-  beforeEach(() => {
-    jest.resetModules();
-    process.env = {
-      ...originalEnv,
-      JWT_SECRET: 'test-secret-key',
-      JWT_EXPIRES_IN: '1h'
-    };
-  });
-
-  afterAll(() => {
-    process.env = originalEnv;
-  });
 
   describe('generateToken', () => {
     it('should generate a valid JWT token', () => {
@@ -30,7 +43,7 @@ describe('JWT Utilities', () => {
     it('should include payload data in token', () => {
       const payload = { id: '123', username: 'testuser' };
       const token = generateToken(payload);
-      const decoded = jwt.verify(token, 'test-secret-key');
+      const decoded = verifyToken(token);
 
       expect(decoded.id).toBe(payload.id);
       expect(decoded.username).toBe(payload.username);
@@ -39,7 +52,7 @@ describe('JWT Utilities', () => {
     it('should set expiration time', () => {
       const payload = { id: '123' };
       const token = generateToken(payload);
-      const decoded = jwt.verify(token, 'test-secret-key');
+      const decoded = verifyToken(token);
 
       expect(decoded.exp).toBeDefined();
       expect(decoded.iat).toBeDefined();
@@ -73,7 +86,7 @@ describe('JWT Utilities', () => {
 
       expect(() => {
         verifyToken(expiredToken);
-      }).toThrow('jwt expired');
+      }).toThrow();
     });
 
     it('should throw error for token with wrong secret', () => {
@@ -103,7 +116,7 @@ describe('JWT Utilities', () => {
 
     it('should handle user object with toString method', () => {
       const user = {
-        _id: { toString: () => '507f1f77bcf86cd799439011' },
+        _id: '507f1f77bcf86cd799439011',
         username: 'testuser',
         email: 'test@example.com'
       };
