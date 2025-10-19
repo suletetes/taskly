@@ -32,6 +32,11 @@ const taskService = {
     }
   },
 
+  // Alias for getUserTasks (for compatibility)
+  async getTasksByUser(userId, options = {}) {
+    return this.getUserTasks(userId, options)
+  },
+
   // Get all tasks (admin view)
   async getAllTasks(options = {}) {
     try {

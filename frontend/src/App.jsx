@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
+import { AnalyticsProvider } from './context/AnalyticsContext'
 import Header from './components/common/Header'
 import Footer from './components/common/Footer'
 import ProtectedRoute, { GuestRoute } from './components/auth/ProtectedRoute'
@@ -18,7 +19,8 @@ function App() {
   return (
     <NotificationProvider>
       <AuthProvider>
-        <Router>
+        <AnalyticsProvider>
+          <Router>
           <div className="app">
             <Header />
             <main className="main-content">
@@ -64,6 +66,7 @@ function App() {
             <Footer />
           </div>
         </Router>
+        </AnalyticsProvider>
       </AuthProvider>
     </NotificationProvider>
   )
