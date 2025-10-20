@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import userService from '../../services/userService'
 import UserCard from './UserCard'
-import LoadingSpinner from '../common/LoadingSpinner'
+import LoadingSpinner, { InlineSpinner } from '../common/LoadingSpinner'
+import { SkeletonCard } from '../common/SkeletonLoader'
 import ErrorMessage from '../common/ErrorMessage'
 
 const UserList = () => {
@@ -201,7 +202,7 @@ const UserList = () => {
             )}
           </div>
           <button type="submit" className="search-btn" disabled={searchLoading}>
-            {searchLoading ? <LoadingSpinner size="small" message="" /> : '🔍'}
+            {searchLoading ? <InlineSpinner size="small" /> : '🔍'}
           </button>
         </form>
       </div>
@@ -225,7 +226,18 @@ const UserList = () => {
       )}
 
       {/* Loading State */}
-      {loading && <LoadingSpinner message="Loading users..." />}
+      {loading && (
+        <div className="users-grid">
+          {Array.from({ length: 6 }, (_, index) => (
+            <SkeletonCard 
+              key={index} 
+              hasAvatar={true}
+              lines={3}
+              className="user-skeleton"
+            />
+          ))}
+        </div>
+      )}
 
       {/* Error State */}
       {error && (

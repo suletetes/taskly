@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import TaskCard from './TaskCard'
 import TaskFilters from './TaskFilters'
-import LoadingSpinner from '../common/LoadingSpinner'
+import LoadingSpinner, { InlineSpinner } from '../common/LoadingSpinner'
+import { SkeletonCard } from '../common/SkeletonLoader'
 import ErrorMessage from '../common/ErrorMessage'
 import { useTasks, useTaskOperations, useTaskFilters } from '../../hooks/useTasks'
 import { useAuth } from '../../hooks/useAuth'
@@ -182,7 +183,14 @@ const TaskList = ({
 
       {loading && !tasks.length ? (
         <div className="task-list-loading">
-          <LoadingSpinner message="Loading tasks..." />
+          {Array.from({ length: 3 }, (_, index) => (
+            <SkeletonCard 
+              key={index} 
+              hasAvatar={showUser}
+              lines={2}
+              className="task-skeleton"
+            />
+          ))}
         </div>
       ) : (
         <>
@@ -256,7 +264,7 @@ const TaskList = ({
               >
                 {loading ? (
                   <>
-                    <LoadingSpinner size="small" />
+                    <InlineSpinner size="small" />
                     Loading more...
                   </>
                 ) : (
