@@ -1,4 +1,285 @@
 /* =========================
+   GLOBAL STYLES
+   ========================= */
+
+/* Preloader Styles */
+.page-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-preloader::after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Scroll to Top Button Styles */
+.scrollToTop {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    background-color: #007bff !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    width: 50px !important;
+    height: 50px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    z-index: 2000 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.scrollToTop:hover {
+    background-color: #0056b3 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.scrollToTop svg {
+    fill: currentColor !important;
+}
+
+/* Page Container Styles */
+.page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================
+   NAVBAR STYLES (from EJS)
+   ========================= */
+
+/* Bloc styles */
+.bloc {
+    width: 100%;
+    clear: both;
+    background: 50% 50% no-repeat;
+    padding: 0 50px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    position: relative;
+}
+
+.bloc .container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.l-bloc {
+    color: rgba(0, 0, 0, .5);
+}
+
+.none {
+    background: none !important;
+}
+
+.bloc-sm {
+    padding: 20px 50px;
+}
+
+.bloc-no-padding-lg {
+    padding: 0 50px;
+}
+
+/* Navbar Brand */
+.navbar-brand {
+    font-weight: normal;
+    font-size: 20px;
+    margin-left: 0px;
+    color: #575757!important;
+    text-transform: none;
+    font-family: "helvetica";
+    font-weight: 600;
+    margin: 0;
+}
+
+.link-style {
+    color: #575757;
+    text-decoration: none;
+}
+
+.ltc-2869 {
+    color: #575757!important;
+}
+
+/* Navbar Toggler */
+.ui-navbar-toggler {
+    border: 0px!important;
+    border-radius: 0px!important;
+    background: transparent!important;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    transition: all 0.3s;
+    position: relative;
+    border: none;
+}
+
+.navbar-toggler-icon {
+    display: block;
+    width: 30px;
+    height: 30px;
+    position: relative;
+}
+
+.svg-menu-icon {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Navigation Links */
+.site-navigation {
+    position: relative;
+    text-align: right;
+    top: 0;
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-transition: -webkit-transform 0.3s;
+    transition: transform 0.3s;
+}
+
+.nav-link {
+    font-weight: 400;
+    color: #575757!important;
+    text-transform: none;
+    font-size: 16px;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #007bff!important;
+}
+
+.a-btn {
+    font-family: "helvetica";
+    font-weight: 400;
+    color: #575757!important;
+    text-transform: none;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.a-btn:hover {
+    text-transform: none;
+    color: #007bff!important;
+}
+
+/* Navbar Collapse */
+.navbar-collapse {
+    flex-basis: 100%;
+    flex-grow: 1;
+    align-items: center;
+}
+
+.navbar-expand-md .navbar-collapse {
+    display: flex!important;
+    flex-basis: auto;
+}
+
+.navbar-nav {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+
+.navbar-expand-md .navbar-nav {
+    flex-direction: row;
+}
+
+.navbar-expand-md .navbar-nav .nav-link {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767.98px) {
+    .navbar-collapse {
+        display: none;
+    }
+    
+    .navbar-collapse.show {
+        display: block;
+    }
+    
+    .navbar-nav {
+        flex-direction: column;
+    }
+    
+    .nav-link {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+    
+    .bloc-sm {
+        padding: 20px;
+    }
+    
+    .bloc-no-padding-lg {
+        padding: 0 20px;
+    }
+}
+
+/* Hover effects */
+.hover-open-submenu .nav-item:hover .nav-link {
+    color: #007bff!important;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#root {
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Override default body styles for auth pages */
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* =========================
    LOGIN PAGE STYLES
    ========================= */
 .login-card {
@@ -16,19 +297,28 @@
     align-items: center;
     justify-content: center;
     padding: 2rem 0;
+    width: 100%;
+    min-height: 100vh;
 }
 
 .bloc-xl-lg {
     padding: 3rem 0;
+    width: 100%;
 }
 
 @media (max-width: 576px) {
     .login-card {
         padding: 1.2rem 0.5rem;
+        margin: 1rem;
     }
     
     .bloc, .bloc-xl-lg {
         padding: 1rem 0;
+    }
+    
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 
@@ -132,11 +422,30 @@
 @media (max-width: 576px) {
     .signup-card {
         padding: 1.2rem 0.5rem;
+        margin: 1rem;
     }
 
     .avatar-large {
         width: 100px;
         height: 100px;
+    }
+    
+    .avatar-thumb {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .avatar-gallery {
+        gap: 8px;
+    }
+    
+    .d-grid.gap-3.d-md-flex {
+        flex-direction: column;
+    }
+    
+    .d-grid.gap-3.d-md-flex .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
     }
 }
 

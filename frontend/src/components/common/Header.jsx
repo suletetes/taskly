@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotification } from '../../context/NotificationContext'
@@ -33,73 +33,138 @@ const Header = () => {
     setIsMobileMenuOpen(false)
   }
 
-  const renderAuthenticatedNav = () => (
-    <>
-      <li><Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={closeMobileMenu}>Home</Link></li>
-      <li><Link to="/users" className={location.pathname === '/users' ? 'active' : ''} onClick={closeMobileMenu}>Users</Link></li>
-      <li><Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''} onClick={closeMobileMenu}>Profile</Link></li>
-      <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''} onClick={closeMobileMenu}>About</Link></li>
-      <li className="user-menu">
-        <span className="user-greeting">
-          Hello, {user?.firstName || user?.email || 'User'}
-        </span>
-        <button 
-          onClick={handleLogout} 
-          className="logout-button"
-          disabled={isLoggingOut}
-        >
-          {isLoggingOut ? (
-            <>
-              <LoadingSpinner size="small" />
-              Logging out...
-            </>
-          ) : (
-            'Logout'
-          )}
-        </button>
-      </li>
-    </>
-  )
-
-  const renderGuestNav = () => (
-    <>
-      <li><Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={closeMobileMenu}>Home</Link></li>
-      <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''} onClick={closeMobileMenu}>About</Link></li>
-      <li><Link to="/login" className={location.pathname === '/login' ? 'active' : ''} onClick={closeMobileMenu}>Login</Link></li>
-      <li><Link to="/signup" className={location.pathname === '/signup' ? 'active' : ''} onClick={closeMobileMenu}>Sign Up</Link></li>
-    </>
-  )
-
   return (
-    <header className="header">
-      <nav className="nav">
-        <Link to="/" className="nav-brand" onClick={closeMobileMenu}>
-          <h2>Taskly</h2>
-        </Link>
-        
-        <button 
-          className="mobile-menu-toggle"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle navigation menu"
-        >
-          <span className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-        </button>
-        
-        {isLoading ? (
-          <div className="nav-loading">
-            <LoadingSpinner size="small" />
+    <div className="bloc l-bloc none" id="bloc-0">
+      <div className="container bloc-sm bloc-no-padding-lg">
+        <div className="row">
+          <div className="col">
+            <nav className="navbar navbar-light row navbar-expand-md hover-open-submenu" role="navigation">
+              <div className="container-fluid">
+                <Link className="navbar-brand link-style ltc-2869" to="/" onClick={closeMobileMenu}>
+                  Taskly
+                </Link>
+
+                <button
+                  id="nav-toggle"
+                  type="button"
+                  className="ui-navbar-toggler navbar-toggler border-0 p-0 ms-auto me-md-0"
+                  aria-expanded={isMobileMenuOpen}
+                  aria-label="Toggle navigation"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-25309"
+                  onClick={toggleMobileMenu}
+                >
+                  <span className="navbar-toggler-icon">
+                    <svg height="32" viewBox="0 0 32 32" width="32">
+                      <path className="svg-menu-icon" d="m2 9h28m-28 7h28m-28 7h28"></path>
+                    </svg>
+                  </span>
+                </button>
+
+                <div className={`collapse navbar-collapse navbar-35179 navbar-25309 ${isMobileMenuOpen ? 'show' : ''}`}>
+                  {isLoading ? (
+                    <div className="d-flex justify-content-center align-items-center ms-auto">
+                      <LoadingSpinner size="small" />
+                    </div>
+                  ) : (
+                    <ul className="site-navigation nav navbar-nav none ms-auto">
+                      {/* Home */}
+                      <li className="nav-item">
+                        <Link
+                          to="/"
+                          className={`nav-link ltc-2869 ${location.pathname === '/' ? 'active' : ''}`}
+                          onClick={closeMobileMenu}
+                        >
+                          Home
+                        </Link>
+                      </li>
+
+                      {/* About */}
+                      <li className="nav-item">
+                        <Link
+                          to="/about"
+                          className={`nav-link a-btn ltc-2869 ${location.pathname === '/about' ? 'active' : ''}`}
+                          onClick={closeMobileMenu}
+                        >
+                          About
+                        </Link>
+                      </li>
+
+                      {/* Users */}
+                      <li className="nav-item">
+                        <Link
+                          to="/users"
+                          className={`nav-link a-btn ltc-2869 ${location.pathname === '/users' ? 'active' : ''}`}
+                          onClick={closeMobileMenu}
+                        >
+                          Users
+                        </Link>
+                      </li>
+
+                      {/* Conditional rendering: If the user is authenticated */}
+                      {isAuthenticated ? (
+                        <>
+                          {/* Profile link for logged-in users */}
+                          <li className="nav-item">
+                            <Link
+                              to="/profile"
+                              className={`nav-link a-btn ltc-2869 ${location.pathname === '/profile' ? 'active' : ''}`}
+                              onClick={closeMobileMenu}
+                            >
+                              Profile
+                            </Link>
+                          </li>
+                          {/* Logout for authenticated users */}
+                          <li className="nav-item">
+                            <button
+                              onClick={handleLogout}
+                              className="nav-link a-btn ltc-2869 btn btn-link"
+                              disabled={isLoggingOut}
+                              style={{ border: 'none', background: 'none', padding: '0.5rem 1rem' }}
+                            >
+                              {isLoggingOut ? (
+                                <>
+                                  <LoadingSpinner size="small" />
+                                  <span className="ms-2">Logging out...</span>
+                                </>
+                              ) : (
+                                'Logout'
+                              )}
+                            </button>
+                          </li>
+                        </>
+                      ) : (
+                        <>
+                          {/* Login and Sign Up for unauthenticated users */}
+                          <li className="nav-item">
+                            <Link
+                              to="/login"
+                              className={`nav-link a-btn ltc-2869 ${location.pathname === '/login' ? 'active' : ''}`}
+                              onClick={closeMobileMenu}
+                            >
+                              Login
+                            </Link>
+                          </li>
+                          <li className="nav-item">
+                            <Link
+                              to="/signup"
+                              className={`nav-link a-btn ltc-2869 ${location.pathname === '/signup' ? 'active' : ''}`}
+                              onClick={closeMobileMenu}
+                            >
+                              Sign Up
+                            </Link>
+                          </li>
+                        </>
+                      )}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </nav>
           </div>
-        ) : (
-          <ul className={`nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-            {isAuthenticated ? renderAuthenticatedNav() : renderGuestNav()}
-          </ul>
-        )}
-      </nav>
-    </header>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -84,7 +84,7 @@ const Login = () => {
 
     try {
       await login({
-        email: formData.email.trim(),
+        username: formData.email.trim(), // Backend accepts username or email in username field
         password: formData.password
       })
       
@@ -109,7 +109,10 @@ const Login = () => {
       backgroundImage: 'url("/img/background/login.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      minHeight: '100vh'
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     }}>
       <div className="container bloc-xl-lg">
         <div className="row justify-content-center">
