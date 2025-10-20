@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 import { AnalyticsProvider } from './context/AnalyticsContext'
@@ -6,6 +6,8 @@ import { ErrorProvider } from './context/ErrorContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import Header from './components/common/Header'
 import Footer from './components/common/Footer'
+import Preloader from './components/common/Preloader'
+import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute, { GuestRoute } from './components/auth/ProtectedRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -16,6 +18,16 @@ import About from './pages/About'
 import NotFound from './pages/NotFound'
 import Unauthorized from './pages/Unauthorized'
 import './App.css'
+
+// Layout wrapper component to handle conditional rendering
+const AppLayout = ({ children }) => {
+  return (
+    <div className="page-container">
+      {children}
+      <ScrollToTop />
+    </div>
+  )
+}
 
 function App() {
   return (
@@ -34,8 +46,12 @@ function App() {
                     </button>
                   </div>
                 )}>
-                  <div className="app">
-                    <Header />
+                  <Preloader />
+                  <AppLayout>
+                    <header>
+                      <Header />
+                    </header>
+                    
                     <main className="main-content">
                       <ErrorBoundary fallback={(error, retry) => (
                         <div className="route-error">
@@ -86,8 +102,9 @@ function App() {
                         </Routes>
                       </ErrorBoundary>
                     </main>
+                    
                     <Footer />
-                  </div>
+                  </AppLayout>
                 </ErrorBoundary>
               </Router>
             </AnalyticsProvider>

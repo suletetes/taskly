@@ -1,5 +1,11 @@
-/* App Layout */
+/* App Layout - Updated to match EJS boilerplate */
 .app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -7,144 +13,10 @@
 
 .main-content {
   flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
   width: 100%;
 }
 
-/* Header Styles */
-.header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  padding: 1rem 0;
-  position: relative;
-}
-
-.nav {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 2rem;
-  position: relative;
-}
-
-.nav-brand h2 {
-  margin: 0;
-  color: #007bff;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 1.5rem;
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.nav-links a:hover,
-.nav-links a.active {
-  color: #007bff;
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-greeting {
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.logout-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.logout-button:hover:not(:disabled) {
-  background-color: #c82333;
-}
-
-.logout-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Mobile Menu Toggle */
-.mobile-menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  z-index: 1001;
-}
-
-.hamburger {
-  display: flex;
-  flex-direction: column;
-  width: 24px;
-  height: 18px;
-  position: relative;
-}
-
-.hamburger span {
-  display: block;
-  height: 2px;
-  width: 100%;
-  background-color: #333;
-  border-radius: 1px;
-  transition: all 0.3s ease;
-  position: absolute;
-}
-
-.hamburger span:nth-child(1) {
-  top: 0;
-}
-
-.hamburger span:nth-child(2) {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.hamburger span:nth-child(3) {
-  bottom: 0;
-}
-
-.hamburger.open span:nth-child(1) {
-  transform: rotate(45deg);
-  top: 50%;
-}
-
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.open span:nth-child(3) {
-  transform: rotate(-45deg);
-  bottom: 50%;
-}
+/* Header styles now handled by Bootstrap navbar classes in custom.css */
 
 /* Footer Styles */
 .footer {
@@ -247,65 +119,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .mobile-menu-toggle {
-    display: block;
-  }
-  
-  .nav-links {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-    flex-direction: column;
-    padding: 1rem 2rem;
-    gap: 0.5rem;
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
-  }
-  
-  .nav-links.mobile-open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  .nav-links li {
-    width: 100%;
-  }
-  
-  .nav-links a {
-    display: block;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #e9ecef;
-  }
-  
-  .nav-links a:last-child {
-    border-bottom: none;
-  }
-  
-  .user-menu {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.75rem 0;
-    border-top: 1px solid #e9ecef;
-    margin-top: 0.5rem;
-  }
-  
-  .user-greeting {
-    font-size: 0.875rem;
-  }
-  
-  .logout-button {
-    width: 100%;
-    justify-content: center;
-  }
-  
   .main-content {
     padding: 1rem;
   }
