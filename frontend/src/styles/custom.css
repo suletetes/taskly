@@ -2,7 +2,7 @@
    LOGIN PAGE STYLES
    ========================= */
 .login-card {
-    max-width: 400px; /* Remove fixed sizes for flexibility */
+    max-width: 400px;
     margin: 0 auto;
     padding: 2rem;
     background-color: #ffffff;
@@ -10,9 +10,25 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Login page background styling */
+.bloc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.bloc-xl-lg {
+    padding: 3rem 0;
+}
+
 @media (max-width: 576px) {
     .login-card {
         padding: 1.2rem 0.5rem;
+    }
+    
+    .bloc, .bloc-xl-lg {
+        padding: 1rem 0;
     }
 }
 
@@ -105,12 +121,12 @@
    SIGNUP PAGE STYLES
    ========================= */
 .signup-card {
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: 2rem;
     background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 576px) {
@@ -133,19 +149,22 @@
 }
 
 .avatar-thumb {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     object-fit: cover;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 .avatar-thumb:hover {
     transform: scale(1.1);
+    border-color: #0d6efd;
 }
 
 .avatar-thumb.selected {
-    border: 2px solid #0d6efd; /* Bootstrap primary color */
+    border: 3px solid #0d6efd;
+    transform: scale(1.05);
 }
 
 .avatar-preview {
@@ -159,7 +178,8 @@
     width: 150px;
     height: 150px;
     object-fit: cover;
-    border: 2px solid #eee;
+    border: 3px solid #eee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .form-label {

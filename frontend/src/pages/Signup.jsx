@@ -7,11 +7,12 @@ import ErrorMessage from '../components/common/ErrorMessage'
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullname: '',
+    username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    avatar: '/img/placeholder-user.png'
   })
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -20,6 +21,24 @@ const Signup = () => {
   const { showSuccess } = useNotification()
   const navigate = useNavigate()
   const location = useLocation()
+
+  // Avatar options matching the EJS template
+  const avatarOptions = [
+    '/img/placeholder-user.png',
+    '/img/avatars/avatar-1.jpg',
+    '/img/avatars/avatar-2.jpg',
+    '/img/avatars/avatar-3.jpg',
+    '/img/avatars/avatar-4.jpg',
+    '/img/avatars/avatar-5.jpg',
+    '/img/avatars/avatar-6.jpg',
+    '/img/avatars/avatar-7.jpg',
+    '/img/avatars/avatar-8.jpg',
+    '/img/avatars/avatar-9.jpg',
+    '/img/avatars/avatar-10.jpg',
+    '/img/avatars/avatar-11.jpg',
+    '/img/avatars/avatar-12.jpg',
+    '/img/avatars/avatar-13.jpg'
+  ]
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -37,18 +56,18 @@ const Signup = () => {
   const validateForm = () => {
     const newErrors = {}
 
-    // First name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required'
-    } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters long'
+    // Full name validation
+    if (!formData.fullname.trim()) {
+      newErrors.fullname = 'Full name is required'
+    } else if (formData.fullname.trim().length < 2) {
+      newErrors.fullname = 'Full name must be at least 2 characters long'
     }
 
-    // Last name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required'
-    } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters long'
+    // Username validation
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required'
+    } else if (formData.username.trim().length < 3) {
+      newErrors.username = 'Username must be at least 3 characters long'
     }
 
     // Email validation
@@ -63,8 +82,6 @@ const Signup = () => {
       newErrors.password = 'Password is required'
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters long'
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
     }
 
     // Confirm password validation
@@ -107,6 +124,13 @@ const Signup = () => {
     }
   }
 
+  const handleAvatarSelect = (avatarUrl) => {
+    setFormData(prev => ({
+      ...prev,
+      avatar: avatarUrl
+    }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -117,11 +141,18 @@ const Signup = () => {
     setIsSubmitting(true)
 
     try {
+      // Split fullname into firstName and lastName for the API
+      const nameParts = formData.fullname.trim().split(' ')
+      const firstName = nameParts[0]
+      const lastName = nameParts.slice(1).join(' ') || firstName
+
       await register({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
+        firstName,
+        lastName,
+        username: formData.username.trim(),
         email: formData.email.trim(),
-        password: formData.password
+        password: formData.password,
+        avatar: formData.avatar
       })
       
       showSuccess('Account created successfully! Welcome to Taskly.')
@@ -135,138 +166,183 @@ const Signup = () => {
     }
   }
 
-  const handleRetry = () => {
-    clearError()
-    setErrors({})
-  }
-
   return (
-    <div className="signup-page">
-      <div className="signup-container">
-        <div className="signup-header">
-          <h1>Create Account</h1>
-          <p>Join us to start managing your tasks efficiently</p>
-        </div>
+    <div className="bloc-xl-lg" style={{
+      backgroundImage: 'url("/img/background/signup.jpg")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      minHeight: '100vh',
+      paddingTop: '2rem',
+      paddingBottom: '2rem'
+    }}>
+      <div className="row justify-content-center">
+        <div className="col-sm-10 col-md-8 col-lg-7">
+          <div className="signup-card bg-white shadow-lg rounded-4 p-4">
+            <h2 className="mb-4 text-center fw-bold text-dark">Create Your Taskly Account</h2>
 
-        <form onSubmit={handleSubmit} className="signup-form" noValidate>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstName">First Name</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className={errors.firstName ? 'error' : ''}
-                placeholder="Enter your first name"
-                disabled={isSubmitting}
-                autoComplete="given-name"
-                required
+            {/* Avatar Section */}
+            <div className="col-12 mt-5">
+              <h4 className="mb-4 text-center">Select Avatar</h4>
+            </div>
+            <div className="avatar-preview mb-4">
+              <img
+                id="avatar-large"
+                className="avatar-large"
+                src={formData.avatar}
+                alt="Selected avatar"
               />
-              {errors.firstName && <span className="field-error">{errors.firstName}</span>}
+            </div>
+            <div className="avatar-gallery mb-5 flex-wrap justify-center">
+              {avatarOptions.map((avatarUrl, index) => (
+                <picture key={index}>
+                  <img
+                    src={avatarUrl}
+                    className={`avatar-thumb img-fluid rounded-circle shadow ${formData.avatar === avatarUrl ? 'selected' : ''}`}
+                    alt={`Avatar ${index + 1}`}
+                    width="64"
+                    height="64"
+                    style={{ objectFit: 'cover', cursor: 'pointer' }}
+                    onClick={() => handleAvatarSelect(avatarUrl)}
+                  />
+                </picture>
+              ))}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className={errors.lastName ? 'error' : ''}
-                placeholder="Enter your last name"
-                disabled={isSubmitting}
-                autoComplete="family-name"
-                required
-              />
-              {errors.lastName && <span className="field-error">{errors.lastName}</span>}
-            </div>
+            {/* Signup Form */}
+            <form id="signup-form" onSubmit={handleSubmit} noValidate>
+              {/* Avatar Hidden Input */}
+              <input type="hidden" name="avatar" value={formData.avatar} />
+
+              {/* Full Name and Username */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold" htmlFor="fullname">Full Name</label>
+                  <input
+                    id="fullname"
+                    className={`form-control shadow-sm ${errors.fullname ? 'is-invalid' : ''}`}
+                    required
+                    name="fullname"
+                    value={formData.fullname}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    autoComplete="name"
+                    disabled={isSubmitting}
+                  />
+                  {errors.fullname && <div className="invalid-feedback">{errors.fullname}</div>}
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold" htmlFor="username">Username</label>
+                  <input
+                    id="username"
+                    className={`form-control shadow-sm ${errors.username ? 'is-invalid' : ''}`}
+                    required
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="Choose a username"
+                    autoComplete="username"
+                    disabled={isSubmitting}
+                  />
+                  {errors.username && <div className="invalid-feedback">{errors.username}</div>}
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold" htmlFor="email">Email Address</label>
+                <input
+                  id="email"
+                  className={`form-control shadow-sm ${errors.email ? 'is-invalid' : ''}`}
+                  required
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  type="email"
+                  autoComplete="email"
+                  disabled={isSubmitting}
+                />
+                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+              </div>
+
+              {/* Password and Confirm Password */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold" htmlFor="password">Password</label>
+                  <input
+                    id="password"
+                    className={`form-control shadow-sm ${errors.password ? 'is-invalid' : ''}`}
+                    required
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Minimum 6 characters"
+                    type="password"
+                    minLength="6"
+                    autoComplete="new-password"
+                    disabled={isSubmitting}
+                  />
+                  <small id="password-strength" className="text-muted">Must be at least 6 characters.</small>
+                  {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold" htmlFor="confirmPassword">Confirm Password</label>
+                  <input
+                    id="confirmPassword"
+                    className={`form-control shadow-sm ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                    required
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Re-enter your password"
+                    type="password"
+                    autoComplete="new-password"
+                    disabled={isSubmitting}
+                  />
+                  {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
+                </div>
+              </div>
+
+              {/* Global Error Message */}
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
+
+              {/* Signup Buttons & CTA */}
+              <div className="d-grid gap-3 d-md-flex justify-content-between align-items-center mt-4">
+                {/* Go Back Button */}
+                <Link to="/" className="btn btn-outline-secondary shadow-sm fw-bold py-2 px-4">
+                  Go Back
+                </Link>
+
+                {/* Submit Button */}
+                <button
+                  className="btn btn-secondary rounded shadow-sm fw-bold py-2 px-4"
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <LoadingSpinner size="small" />
+                      <span className="ms-2">Creating Account...</span>
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
+                </button>
+              </div>
+
+              {/* Login CTA */}
+              <p className="text-center mt-4 mb-0">
+                Already have an account?{' '}
+                <Link to="/login" state={location.state} className="text-primary text-decoration-underline fw-semibold">
+                  Login here
+                </Link>
+              </p>
+            </form>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={errors.email ? 'error' : ''}
-              placeholder="Enter your email"
-              disabled={isSubmitting}
-              autoComplete="email"
-              required
-            />
-            {errors.email && <span className="field-error">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={errors.password ? 'error' : ''}
-              placeholder="Create a password"
-              disabled={isSubmitting}
-              autoComplete="new-password"
-              required
-            />
-            {errors.password && <span className="field-error">{errors.password}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={errors.confirmPassword ? 'error' : ''}
-              placeholder="Confirm your password"
-              disabled={isSubmitting}
-              autoComplete="new-password"
-              required
-            />
-            {errors.confirmPassword && <span className="field-error">{errors.confirmPassword}</span>}
-          </div>
-
-          {error && (
-            <ErrorMessage 
-              message={error} 
-              onRetry={handleRetry}
-              className="auth-error"
-            />
-          )}
-
-          <button
-            type="submit"
-            className="signup-button"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <LoadingSpinner size="small" />
-                Creating Account...
-              </>
-            ) : (
-              'Create Account'
-            )}
-          </button>
-        </form>
-
-        <div className="signup-footer">
-          <p>
-            Already have an account?{' '}
-            <Link to="/login" state={location.state}>
-              Sign in here
-            </Link>
-          </p>
         </div>
       </div>
     </div>
