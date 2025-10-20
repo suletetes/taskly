@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useAnalytics } from '../context/AnalyticsContext'
 import { useTasks } from '../hooks/useTasks'
+import { useNotification } from '../context/NotificationContext'
 import userService from '../services/userService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorMessage from '../components/common/ErrorMessage'
@@ -13,6 +14,7 @@ const Home = () => {
   const { isAuthenticated, user } = useAuth()
   const { analytics, isLoading: analyticsLoading } = useAnalytics()
   const { tasks, isLoading: tasksLoading, error: tasksError, fetchTasks } = useTasks()
+  const { showSuccess, showError, showWarning, showInfo } = useNotification()
   const [recentTasks, setRecentTasks] = useState([])
   const [featuredUsers, setFeaturedUsers] = useState([])
   const [usersLoading, setUsersLoading] = useState(false)

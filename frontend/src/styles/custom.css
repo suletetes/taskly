@@ -262,6 +262,79 @@
 .hover-open-submenu .nav-item:hover .nav-link {
     color: #007bff!important;
 }
+
+/* =========================
+   FOOTER STYLES (from EJS)
+   ========================= */
+
+/* Footer bloc styles */
+.bloc-lg {
+    padding: 60px 50px;
+}
+
+.bloc-sm-lg {
+    padding: 20px 50px;
+}
+
+footer {
+    margin-top: auto;
+}
+
+footer .bloc {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+footer p {
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Responsive footer */
+@media (max-width: 767.98px) {
+    .bloc-lg {
+        padding: 40px 20px;
+    }
+    
+    .bloc-sm-lg {
+        padding: 20px;
+    }
+}
+
+/* =========================
+   FOOTER STYLES (from EJS)
+   ========================= */
+
+/* Footer bloc styles */
+.bloc-lg {
+    padding: 60px 50px;
+}
+
+.bloc-sm-lg {
+    padding: 20px 50px;
+}
+
+/* Footer responsive */
+@media (max-width: 767.98px) {
+    .bloc-lg {
+        padding: 40px 20px;
+    }
+    
+    .bloc-sm-lg {
+        padding: 20px;
+    }
+}
+
+/* Footer text styles */
+footer p {
+    color: #575757;
+    font-size: 14px;
+    font-family: "helvetica";
+}
+
+footer .mb-0 {
+    margin-bottom: 0!important;
+}
 html, body {
     height: 100%;
     margin: 0;
@@ -1045,20 +1118,127 @@ a.btn.btn-view-profile {
     border: 2px solid #6c757d;
 }
 
-/* Flash Messages*/
+/* Flash Messages - Updated to match EJS exactly */
 .flash-messages-container {
-    position: fixed;
-    top: 10%; /* Position it at the top of the page */
-    left: 50%; /* Center the container horizontally */
-    transform: translateX(-50%); /* Adjust to align center */
-    z-index: 1050; /* Ensure it appears above other content */
-    width: 100%; /* Full width for better visibility */
-    max-width: 600px; /* Optional: Limit the max width */
-    margin-top: 10px; /* Add some spacing from the top */
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    padding: 1rem !important;
+    z-index: 1050 !important;
+    max-width: 400px !important;
+    width: 100% !important;
 }
 
+/* Bootstrap Alert Styles */
 .alert {
-    margin-bottom: 10px; /* Add spacing between multiple alerts */
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.alert-dismissible {
+    padding-right: 4rem;
+}
+
+.alert-dismissible .btn-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 0.9375rem 1.25rem;
+}
+
+.alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.alert-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.alert-warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+}
+
+.alert-info {
+    color: #055160;
+    background-color: #cff4fc;
+    border-color: #b6effb;
+}
+
+/* Bootstrap Fade Animation */
+.fade {
+    transition: opacity 0.15s linear;
+}
+
+.fade:not(.show) {
+    opacity: 0;
+}
+
+.fade.show {
+    opacity: 1;
+}
+
+/* Bootstrap Close Button */
+.btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: 0.25em 0.25em;
+    color: #000;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='m.235.867 8.832 8.832m-8.832 0 8.832-8.832'/%3e%3c/svg%3e") center/1em auto no-repeat;
+    border: 0;
+    border-radius: 0.375rem;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.btn-close:hover {
+    color: #000;
+    text-decoration: none;
+    opacity: 0.75;
+}
+
+.btn-close:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    opacity: 1;
+}
+
+.btn-close:disabled,
+.btn-close.disabled {
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.25;
+}
+
+/* Font Awesome Icons in Alerts */
+.alert .fa {
+    margin-right: 0.5rem;
+}
+
+/* Responsive Flash Messages */
+@media (max-width: 576px) {
+    .flash-messages-container {
+        max-width: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .alert {
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+    }
 }
 
 

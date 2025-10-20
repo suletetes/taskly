@@ -1,10 +1,16 @@
-import React from 'react'
-
 const Footer = () => {
   return (
-    <footer className="footer">
-      <div className="footer-content">
-        <p>&copy; 2024 Taskly. All rights reserved.</p>
+    <footer>
+      <div className="bloc l-bloc none" id="bloc-15">
+        <div className="container bloc-lg bloc-sm-lg">
+          <div className="row">
+            <div className="col-12 text-center">
+              <p className="mb-0">
+                Copyright @ 2025 Taskify
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   )

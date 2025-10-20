@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
-import SuccessMessage from '../components/common/SuccessMessage'
-import ErrorMessage from '../components/common/ErrorMessage'
+import FlashContainer from '../components/common/FlashContainer'
 
 const NotificationContext = createContext()
 
@@ -83,97 +82,12 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <NotificationContainer 
-        notifications={notifications}
-        onRemove={removeNotification}
-      />
+      <FlashContainer />
     </NotificationContext.Provider>
   )
 }
 
-const NotificationContainer = ({ notifications, onRemove }) => {
-  if (notifications.length === 0) {
-    return null
-  }
 
-  return (
-    <div className="notification-container">
-      {notifications.map(notification => {
-        const { id, type, message, ...props } = notification
-
-        switch (type) {
-          case 'success':
-            return (
-              <SuccessMessage
-                key={id}
-                message={message}
-                onClose={() => onRemove(id)}
-                className="notification-item"
-                {...props}
-              />
-            )
-          case 'error':
-            return (
-              <ErrorMessage
-                key={id}
-                message={message}
-                onRetry={props.onRetry}
-                className="notification-item error-notification"
-                onClose={() => onRemove(id)}
-                {...props}
-              />
-            )
-          case 'info':
-            return (
-              <div key={id} className="notification-item info-notification">
-                <div className="notification-content">
-                  <div className="notification-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path
-                        d="M10 0C4.486 0 0 4.486 0 10s4.486 10 10 10 10-4.486 10-10S15.514 0 10 0zm1 15H9v-6h2v6zm0-8H9V5h2v2z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </div>
-                  <p>{message}</p>
-                  <button 
-                    onClick={() => onRemove(id)}
-                    className="notification-close"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            )
-          case 'warning':
-            return (
-              <div key={id} className="notification-item warning-notification">
-                <div className="notification-content">
-                  <div className="notification-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path
-                        d="M10 0L0 20h20L10 0zm1 15H9v-2h2v2zm0-4H9V7h2v4z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </div>
-                  <p>{message}</p>
-                  <button 
-                    onClick={() => onRemove(id)}
-                    className="notification-close"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            )
-          default:
-            return null
-        }
-      })}
-    </div>
-  )
-}
 
 export const useNotification = () => {
   const context = useContext(NotificationContext)

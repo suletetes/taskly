@@ -18,20 +18,7 @@
 
 /* Header styles now handled by Bootstrap navbar classes in custom.css */
 
-/* Footer Styles */
-.footer {
-  background-color: #f8f9fa;
-  border-top: 1px solid #dee2e6;
-  padding: 1rem 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 0 2rem;
-}
+/* Footer styles now handled by Bootstrap classes in custom.css */
 
 /* Loading Spinner */
 .loading-spinner {
