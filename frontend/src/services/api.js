@@ -1,8 +1,15 @@
 import axios from 'axios'
 
+// Global error handler for API errors
+let globalErrorHandler = null
+
+export const setGlobalErrorHandler = (handler) => {
+  globalErrorHandler = handler
+}
+
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -48,6 +55,15 @@ api.interceptors.response.use(
     // Handle network errors
     if (!error.response) {
       error.message = 'Network error. Please check your connection.'
+    }
+
+    // Call global error handler if available and not suppressed
+    if (globalErrorHandler && !originalRequest.suppressGlobalErrorHandler) {
+      globalErrorHandler(error, {
+        context: 'API Request',
+        url: originalRequest.url,
+        method: originalRequest.method
+      })
     }
 
     return Promise.reject(error)
