@@ -14,5 +14,20 @@ export default defineConfig({
       }
     }
   },
-
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          api: ['axios']
+        }
+      }
+    }
+  },
+  preview: {
+    port: 3000,
+    host: true
+  }
 })
