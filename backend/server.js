@@ -1,31 +1,70 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const helmet = require('helmet');
-// const mongoSanitize = require('express-mongo-sanitize');
-const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+
+// Import security middleware
+const {
+  helmetConfig,
+  mongoSanitizeConfig,
+  sanitizeInput,
+  generalLimiter,
+  authLimiter,
+  userLimiter
+} = require('./middleware/security');
 
 const app = express();
 
 // Security middleware
-app.use(helmet());
-// app.use(mongoSanitize({
-//   replaceWith: '_'
-// }));
+app.use(helmetConfig);
+// Temporarily disable mongo sanitize due to compatibility issues
+// app.use(mongoSanitizeConfig);
+app.use(sanitizeInput);
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use('/api/', limiter);
+// Apply rate limiting
+app.use('/api/', generalLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/users', userLimiter);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      process.env.CLIENT_URL || 'http://localhost:3000',
+      process.env.CORS_ORIGIN || 'http://localhost:3000',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
+    ];
+    
+    if (process.env.NODE_ENV === 'production') {
+      // Add production frontend URLs
+      if (process.env.PRODUCTION_CLIENT_URL) {
+        allowedOrigins.push(process.env.PRODUCTION_CLIENT_URL);
+      }
+    }
+    
+    // Remove duplicates and filter out undefined values
+    const uniqueOrigins = [...new Set(allowedOrigins.filter(Boolean))];
+    
+    if (uniqueOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, uniqueOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  preflightContinue: false,
+  optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -47,7 +86,16 @@ app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Taskly API Server is running' });
+  const healthCheck = {
+    status: 'OK',
+    message: 'Taskly API Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    version: require('./package.json').version,
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  };
+  
+  res.json(healthCheck);
 });
 
 // Error handling middleware
