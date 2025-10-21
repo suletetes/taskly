@@ -17,6 +17,9 @@ import Users from './pages/Users'
 import About from './pages/About'
 import NotFound from './pages/NotFound'
 import Unauthorized from './pages/Unauthorized'
+import TaskDashboard from './pages/TaskDashboard'
+import AddTask from './pages/AddTask'
+import EditTask from './pages/EditTask'
 import './App.css'
 
 // Layout wrapper component to handle conditional rendering
@@ -97,6 +100,30 @@ function App() {
                             }
                           />
                           <Route path="/about" element={<About />} />
+                          <Route
+                            path="/tasks"
+                            element={
+                              <ProtectedRoute>
+                                <TaskDashboard />
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/tasks/new"
+                            element={
+                              <ProtectedRoute>
+                                <AddTask />
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/tasks/:taskId/edit"
+                            element={
+                              <ProtectedRoute>
+                                <EditTask />
+                              </ProtectedRoute>
+                            }
+                          />
                           <Route path="/unauthorized" element={<Unauthorized />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
