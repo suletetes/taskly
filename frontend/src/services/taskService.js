@@ -78,8 +78,23 @@ const taskService = {
     }
   },
 
+  // Alias for getTaskById
+  async getTask(taskId) {
+    return this.getTaskById(taskId)
+  },
+
   // Create new task
-  async createTask(userId, taskData) {
+  async createTask(taskData) {
+    try {
+      const response = await apiService.post('/tasks', taskData)
+      return response
+    } catch (error) {
+      throw this.handleTaskError(error)
+    }
+  },
+
+  // Create task for specific user
+  async createTaskForUser(userId, taskData) {
     try {
       const response = await apiService.post(`/users/${userId}/tasks`, taskData)
       return response
