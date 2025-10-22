@@ -34,7 +34,7 @@ const Header = () => {
   }
 
   return (
-    <div className="bloc l-bloc none" id="bloc-0">
+    <div className="l-bloc none" id="bloc-0">
       <div className="container bloc-sm bloc-no-padding-lg">
         <div className="row">
           <div className="col">

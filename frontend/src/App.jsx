@@ -10,10 +10,14 @@ import Footer from './components/common/Footer'
 import Preloader from './components/common/Preloader'
 import ScrollToTop from './components/common/ScrollToTop'
 import LoadingSpinner from './components/common/LoadingSpinner'
+import DevelopmentNotice from './components/common/DevelopmentNotice'
 import ProtectedRoute, { GuestRoute } from './components/auth/ProtectedRoute'
 import { registerServiceWorker, trackWebVitals, preloadCriticalResources } from './utils/performanceOptimization'
 import { preloadCriticalResources as seoPreload } from './utils/seoOptimization'
+import { initColorFixes } from './utils/colorFix'
 import './App.css'
+import './styles/colorFixes.css'
+import './styles/textVisibility.css'
 
 // Lazy load pages for better performance
 const Home = React.lazy(() => import('./pages/Home'))
@@ -45,6 +49,9 @@ function App() {
     trackWebVitals()
     preloadCriticalResources()
     seoPreload()
+
+    // Fix color contrast issues
+    initColorFixes()
   }, [])
 
   return (
@@ -53,7 +60,12 @@ function App() {
         <ErrorProvider>
           <AuthProvider>
             <AnalyticsProvider>
-              <Router>
+              <Router
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true
+                }}
+              >
                 <ErrorBoundary fallback={(error, retry) => (
                   <div className="app-error">
                     <h1>Application Error</h1>
@@ -64,11 +76,12 @@ function App() {
                   </div>
                 )}>
                   <Preloader />
+                  <DevelopmentNotice />
                   <AppLayout>
                     <header>
                       <Header />
                     </header>
-                    
+
                     <main className="main-content">
                       <ErrorBoundary fallback={(error, retry) => (
                         <div className="route-error">
@@ -149,7 +162,7 @@ function App() {
                         </Suspense>
                       </ErrorBoundary>
                     </main>
-                    
+
                     <Footer />
                   </AppLayout>
                 </ErrorBoundary>

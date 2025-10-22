@@ -1,198 +1,150 @@
-import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-// Page transition variants
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    x: -20,
-    scale: 0.98
-  },
-  in: {
-    opacity: 1,
-    x: 0,
-    scale: 1
-  },
-  out: {
-    opacity: 0,
-    x: 20,
-    scale: 0.98
-  }
-}
-
-const pageTransition = {
-  type: 'tween',
-  ease: 'anticipate',
-  duration: 0.4
-}
-
-// Slide transition variants
-const slideVariants = {
-  initial: {
-    x: '100%'
-  },
-  in: {
-    x: 0
-  },
-  out: {
-    x: '-100%'
-  }
-}
-
-// Fade transition variants
-const fadeVariants = {
-  initial: {
-    opacity: 0
-  },
-  in: {
-    opacity: 1
-  },
-  out: {
-    opacity: 0
-  }
-}
-
-// Scale transition variants
-const scaleVariants = {
-  initial: {
-    opacity: 0,
-    scale: 0.8
-  },
-  in: {
-    opacity: 1,
-    scale: 1
-  },
-  out: {
-    opacity: 0,
-    scale: 1.2
-  }
-}
-
-// Page transition wrapper
+// Simple CSS-based page transition wrapper
 export const PageTransition = ({ children, variant = 'default' }) => {
   const location = useLocation()
-  
-  const getVariants = () => {
+  const [displayLocation, setDisplayLocation] = useState(location)
+  const [transitionStage, setTransitionStage] = useState('fadeIn')
+
+  useEffect(() => {
+    if (location !== displayLocation) {
+      setTransitionStage('fadeOut')
+    }
+  }, [location, displayLocation])
+
+  const transitionStyles = {
+    default: {
+      transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
+      opacity: transitionStage === 'fadeIn' ? 1 : 0,
+      transform: transitionStage === 'fadeIn' ? 'translateX(0)' : 'translateX(-20px)'
+    },
+    fade: {
+      transition: 'opacity 0.3s ease-in-out',
+      opacity: transitionStage === 'fadeIn' ? 1 : 0
+    },
+    slide: {
+      transition: 'transform 0.3s ease-in-out',
+      transform: transitionStage === 'fadeIn' ? 'translateX(0)' : 'translateX(100%)'
+    }
+  }
+
+  const getStyle = () => {
     switch (variant) {
-      case 'slide':
-        return slideVariants
       case 'fade':
-        return fadeVariants
-      case 'scale':
-        return scaleVariants
+        return transitionStyles.fade
+      case 'slide':
+        return transitionStyles.slide
       default:
-        return pageVariants
+        return transitionStyles.default
     }
   }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="in"
-        exit="out"
-        variants={getVariants()}
-        transition={pageTransition}
-        style={{ width: '100%', height: '100%' }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <div
+      style={getStyle()}
+      onTransitionEnd={() => {
+        if (transitionStage === 'fadeOut') {
+          setDisplayLocation(location)
+          setTransitionStage('fadeIn')
+        }
+      }}
+    >
+      {transitionStage === 'fadeOut' ? children : children}
+    </div>
   )
 }
 
-// Stagger animation for lists
-export const StaggerContainer = ({ children, staggerDelay = 0.1 }) => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: staggerDelay
-      }
-    }
-  }
+// Simple stagger animation for lists
+export const StaggerContainer = ({ children, staggerDelay = 100 }) => {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {children}
-    </motion.div>
+    <div style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
+      {React.Children.map(children, (child, index) => (
+        <div
+          key={index}
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: `opacity 0.5s ease-out ${index * staggerDelay}ms, transform 0.5s ease-out ${index * staggerDelay}ms`
+          }}
+        >
+          {child}
+        </div>
+      ))}
+    </div>
   )
 }
 
 // Individual item animation for stagger
 export const StaggerItem = ({ children, delay = 0 }) => {
-  const itemVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 20 
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay,
-        duration: 0.5,
-        ease: 'easeOut'
-      }
-    }
-  }
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), delay)
+    return () => clearTimeout(timer)
+  }, [delay])
 
   return (
-    <motion.div variants={itemVariants}>
+    <div
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'opacity 0.5s ease-out, transform 0.5s ease-out'
+      }}
+    >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
 // Hover animations
-export const HoverScale = ({ children, scale = 1.05 }) => (
-  <motion.div
-    whileHover={{ scale }}
-    whileTap={{ scale: 0.95 }}
-    transition={{ type: 'spring', stiffness: 300 }}
-  >
-    {children}
-  </motion.div>
-)
+export const HoverScale = ({ children, scale = 1.05 }) => {
+  const [isHovered, setIsHovered] = useState(false)
 
-// Loading animation
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        transform: isHovered ? `scale(${scale})` : 'scale(1)',
+        transition: 'transform 0.2s ease-in-out',
+        cursor: 'pointer'
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+// Loading animation with CSS
 export const LoadingDots = () => {
-  const dotVariants = {
-    initial: { y: 0 },
-    animate: { y: -10 }
-  }
+  const [activeIndex, setActiveIndex] = useState(0)
 
-  const dotTransition = {
-    duration: 0.5,
-    repeat: Infinity,
-    repeatType: 'reverse',
-    ease: 'easeInOut'
-  }
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % 3)
+    }, 500)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="loading-dots" style={{ display: 'flex', gap: '4px' }}>
       {[0, 1, 2].map((index) => (
-        <motion.div
+        <div
           key={index}
-          variants={dotVariants}
-          initial="initial"
-          animate="animate"
-          transition={{
-            ...dotTransition,
-            delay: index * 0.1
-          }}
           style={{
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            backgroundColor: '#007bff'
+            backgroundColor: '#007bff',
+            transform: activeIndex === index ? 'translateY(-10px)' : 'translateY(0)',
+            transition: 'transform 0.3s ease-in-out'
           }}
         />
       ))}
@@ -202,50 +154,48 @@ export const LoadingDots = () => {
 
 // Card flip animation
 export const FlipCard = ({ children, isFlipped = false }) => {
-  const flipVariants = {
-    front: { rotateY: 0 },
-    back: { rotateY: 180 }
-  }
-
   return (
-    <motion.div
-      variants={flipVariants}
-      animate={isFlipped ? 'back' : 'front'}
-      transition={{ duration: 0.6 }}
-      style={{ transformStyle: 'preserve-3d' }}
+    <div
+      style={{
+        transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        transition: 'transform 0.6s ease-in-out',
+        transformStyle: 'preserve-3d'
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
 // Slide up animation for modals
 export const SlideUpModal = ({ children, isOpen }) => {
-  const modalVariants = {
-    hidden: {
-      y: '100%',
-      opacity: 0
-    },
-    visible: {
-      y: 0,
-      opacity: 1
+  const [shouldRender, setShouldRender] = useState(isOpen)
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true)
+    }
+  }, [isOpen])
+
+  const handleTransitionEnd = () => {
+    if (!isOpen) {
+      setShouldRender(false)
     }
   }
 
+  if (!shouldRender) return null
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          transition={{ type: 'spring', damping: 25, stiffness: 500 }}
-        >
-          {children}
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div
+      style={{
+        transform: isOpen ? 'translateY(0)' : 'translateY(100%)',
+        opacity: isOpen ? 1 : 0,
+        transition: 'transform 0.3s ease-out, opacity 0.3s ease-out'
+      }}
+      onTransitionEnd={handleTransitionEnd}
+    >
+      {children}
+    </div>
   )
 }
 

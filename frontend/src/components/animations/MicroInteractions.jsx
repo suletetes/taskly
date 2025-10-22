@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import { motion, useAnimation } from 'framer-motion'
+import React, { useState, useEffect, useRef } from 'react'
 
 // Button with ripple effect
 export const RippleButton = ({ children, onClick, className, ...props }) => {
   const [ripples, setRipples] = useState([])
+  const [isHovered, setIsHovered] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
 
   const handleClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -28,17 +29,24 @@ export const RippleButton = ({ children, onClick, className, ...props }) => {
   }
 
   return (
-    <motion.button
+    <button
       className={`ripple-button ${className || ''}`}
       onClick={handleClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      style={{ position: 'relative', overflow: 'hidden' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      style={{ 
+        position: 'relative', 
+        overflow: 'hidden',
+        transform: `scale(${isPressed ? 0.98 : isHovered ? 1.02 : 1})`,
+        transition: 'transform 0.1s ease-in-out'
+      }}
       {...props}
     >
       {children}
       {ripples.map(ripple => (
-        <motion.span
+        <span
           key={ripple.id}
           className="ripple"
           style={{
@@ -49,35 +57,42 @@ export const RippleButton = ({ children, onClick, className, ...props }) => {
             height: ripple.size,
             borderRadius: '50%',
             backgroundColor: 'rgba(255, 255, 255, 0.6)',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            animation: 'ripple-animation 0.6s ease-out forwards'
           }}
-          initial={{ scale: 0, opacity: 1 }}
-          animate={{ scale: 2, opacity: 0 }}
-          transition={{ duration: 0.6 }}
         />
       ))}
-    </motion.button>
+      <style jsx>{`
+        @keyframes ripple-animation {
+          from {
+            transform: scale(0);
+            opacity: 1;
+          }
+          to {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+      `}</style>
+    </button>
   )
 }
 
 // Floating action button
 export const FloatingActionButton = ({ children, onClick, className }) => {
+  const [isVisible, setIsVisible] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
+
   return (
-    <motion.button
+    <button
       className={`fab ${className || ''}`}
       onClick={onClick}
-      whileHover={{ 
-        scale: 1.1,
-        boxShadow: '0 8px 25px rgba(0, 123, 255, 0.3)'
-      }}
-      whileTap={{ scale: 0.9 }}
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ 
-        type: 'spring',
-        stiffness: 260,
-        damping: 20
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         position: 'fixed',
         bottom: '20px',
@@ -92,11 +107,14 @@ export const FloatingActionButton = ({ children, onClick, className }) => {
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
-        zIndex: 1000
+        zIndex: 1000,
+        transform: `scale(${isVisible ? (isHovered ? 1.1 : 1) : 0})`,
+        boxShadow: isHovered ? '0 8px 25px rgba(0, 123, 255, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
+        transition: 'transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), box-shadow 0.2s ease-in-out'
       }}
     >
       {children}
-    </motion.button>
+    </button>
   )
 }
 
