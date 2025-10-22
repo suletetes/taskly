@@ -1,11 +1,34 @@
 import axios from 'axios'
+import { mockApiService } from './mockApi'
 
 // Global error handler for API errors
 let globalErrorHandler = null
+let useMockApi = false
 
 export const setGlobalErrorHandler = (handler) => {
   globalErrorHandler = handler
 }
+
+// Check if we should use mock API (when backend is not available)
+const checkBackendAvailability = async () => {
+  try {
+    const response = await fetch(import.meta.env.VITE_API_URL || 'http://localhost:5000/api/health', {
+      method: 'GET',
+      timeout: 2000
+    })
+    return response.ok
+  } catch (error) {
+    return false
+  }
+}
+
+// Initialize backend availability check
+checkBackendAvailability().then(isAvailable => {
+  if (!isAvailable) {
+    useMockApi = true
+    console.warn('Backend not available, using mock API for development')
+  }
+})
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -70,10 +93,15 @@ api.interceptors.response.use(
   }
 )
 
-// Generic API methods with retry logic
+// Generic API methods with retry logic and mock fallback
 const apiService = {
-  // GET request with retry
+  // GET request with retry and mock fallback
   async get(url, config = {}) {
+    // Use mock API if backend is not available
+    if (useMockApi) {
+      return this.getMockResponse(url, 'GET', config)
+    }
+
     const maxRetries = config.retries || 2
     let lastError
 
@@ -83,6 +111,13 @@ const apiService = {
         return response.data
       } catch (error) {
         lastError = error
+        
+        // If network error, switch to mock API
+        if (!error.response && i === maxRetries) {
+          console.warn('Switching to mock API due to network error')
+          useMockApi = true
+          return this.getMockResponse(url, 'GET', config)
+        }
         
         // Don't retry on client errors (4xx)
         if (error.response?.status >= 400 && error.response?.status < 500) {
@@ -97,6 +132,49 @@ const apiService = {
     }
     
     throw lastError
+  },
+
+  // Mock response handler
+  async getMockResponse(url, method, config = {}) {
+    const params = new URLSearchParams(url.split('?')[1] || '')
+    const page = parseInt(params.get('page')) || 1
+    const limit = parseInt(params.get('limit')) || 10
+    const search = params.get('search') || ''
+
+    // Route to appropriate mock endpoint
+    if (url.includes('/users') && !url.includes('/tasks')) {
+      if (url.match(/\/users\/\w+$/)) {
+        const userId = url.split('/').pop()
+        return mockApiService.getUserById(userId)
+      } else if (url.includes('/stats')) {
+        const userId = url.split('/')[2]
+        return mockApiService.getUserStats(userId)
+      } else {
+        return mockApiService.getUsers(page, limit, search)
+      }
+    } else if (url.includes('/tasks')) {
+      if (url.includes('/users/')) {
+        const userId = url.split('/')[2]
+        return mockApiService.getUserTasks(userId, page, limit)
+      } else {
+        return mockApiService.getAllTasks(page, limit)
+      }
+    }
+
+    // Default empty response
+    return {
+      success: true,
+      data: {
+        items: [],
+        pagination: {
+          currentPage: 1,
+          totalPages: 0,
+          totalItems: 0,
+          hasNextPage: false,
+          hasPreviousPage: false
+        }
+      }
+    }
   },
 
   // POST request with retry

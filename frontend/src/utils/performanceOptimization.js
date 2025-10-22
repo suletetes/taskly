@@ -1,4 +1,5 @@
 // Performance optimization utilities
+import React from 'react'
 
 // Lazy loading for images
 export const lazyLoadImage = (img) => {
@@ -20,21 +21,40 @@ export const lazyLoadImage = (img) => {
 
 // Preload critical resources
 export const preloadCriticalResources = () => {
-  // Preload critical CSS
-  const criticalCSS = document.createElement('link')
-  criticalCSS.rel = 'preload'
-  criticalCSS.as = 'style'
-  criticalCSS.href = '/css/critical.css'
-  document.head.appendChild(criticalCSS)
+  // Only preload resources in production and if they exist
+  if (process.env.NODE_ENV === 'production') {
+    // Preload critical CSS if it exists
+    fetch('/css/critical.css', { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          const criticalCSS = document.createElement('link')
+          criticalCSS.rel = 'preload'
+          criticalCSS.as = 'style'
+          criticalCSS.href = '/css/critical.css'
+          document.head.appendChild(criticalCSS)
+        }
+      })
+      .catch(() => {
+        // File doesn't exist, skip preloading
+      })
 
-  // Preload critical fonts
-  const criticalFont = document.createElement('link')
-  criticalFont.rel = 'preload'
-  criticalFont.as = 'font'
-  criticalFont.type = 'font/woff2'
-  criticalFont.href = '/fonts/inter-var.woff2'
-  criticalFont.crossOrigin = 'anonymous'
-  document.head.appendChild(criticalFont)
+    // Preload critical fonts if they exist
+    fetch('/fonts/inter-var.woff2', { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          const criticalFont = document.createElement('link')
+          criticalFont.rel = 'preload'
+          criticalFont.as = 'font'
+          criticalFont.type = 'font/woff2'
+          criticalFont.href = '/fonts/inter-var.woff2'
+          criticalFont.crossOrigin = 'anonymous'
+          document.head.appendChild(criticalFont)
+        }
+      })
+      .catch(() => {
+        // File doesn't exist, skip preloading
+      })
+  }
 }
 
 // Bundle size optimization
@@ -106,7 +126,7 @@ export const addResourceHints = () => {
 
 // Service Worker registration
 export const registerServiceWorker = () => {
-  if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
@@ -128,15 +148,56 @@ export const measurePerformance = (name, fn) => {
   return result
 }
 
-// Web Vitals tracking
+// Web Vitals tracking (manual implementation)
 export const trackWebVitals = () => {
-  if (typeof window !== 'undefined') {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(console.log)
-      getFID(console.log)
-      getFCP(console.log)
-      getLCP(console.log)
-      getTTFB(console.log)
+  if (typeof window !== 'undefined' && 'performance' in window) {
+    // Track First Contentful Paint
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.name === 'first-contentful-paint') {
+          console.log('FCP:', entry.startTime)
+        }
+        if (entry.name === 'largest-contentful-paint') {
+          console.log('LCP:', entry.startTime)
+        }
+      }
     })
+    
+    try {
+      observer.observe({ entryTypes: ['paint', 'largest-contentful-paint'] })
+    } catch (e) {
+      // Fallback for browsers that don't support these metrics
+      console.log('Performance observer not supported')
+    }
+
+    // Track Cumulative Layout Shift
+    let clsValue = 0
+    const clsObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (!entry.hadRecentInput) {
+          clsValue += entry.value
+        }
+      }
+      console.log('CLS:', clsValue)
+    })
+
+    try {
+      clsObserver.observe({ entryTypes: ['layout-shift'] })
+    } catch (e) {
+      console.log('Layout shift observer not supported')
+    }
+
+    // Track First Input Delay
+    const fidObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        console.log('FID:', entry.processingStart - entry.startTime)
+      }
+    })
+
+    try {
+      fidObserver.observe({ entryTypes: ['first-input'] })
+    } catch (e) {
+      console.log('First input observer not supported')
+    }
   }
 }
