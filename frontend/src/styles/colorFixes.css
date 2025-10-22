@@ -1,0 +1,194 @@
+/* Color Contrast Fixes for Better Visibility */
+
+/* Force light theme and high contrast */
+html, body {
+  color: #212529 !important;
+  background-color: #ffffff !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Override any external CSS that might cause issues */
+* {
+  color: inherit !important;
+}
+
+/* Ensure all text has proper contrast */
+body {
+  color: #212529 !important;
+  background-color: #ffffff !important;
+}
+
+/* Fix dark text on dark backgrounds */
+.text-dark {
+  color: #212529 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-secondary {
+  color: #495057 !important;
+}
+
+/* Ensure headings are visible */
+h1, h2, h3, h4, h5, h6 {
+  color: #212529 !important;
+}
+
+/* Fix quote sections that might have contrast issues */
+.display-6 {
+  color: #212529 !important;
+}
+
+/* Fix any dark overlays or backgrounds */
+.bloc {
+  background-color: transparent !important;
+}
+
+.bloc.l-bloc {
+  background-color: #ffffff !important;
+}
+
+/* Fix container text */
+.container {
+  color: #212529 !important;
+}
+
+/* Fix paragraph text */
+p {
+  color: #495057 !important;
+}
+
+/* Fix any text that might be invisible */
+.text-center {
+  color: #212529 !important;
+}
+
+/* Fix quote text specifically */
+.fw-bold {
+  color: #212529 !important;
+}
+
+/* Fix any background overlays */
+.bg-light {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+}
+
+/* Fix navigation text */
+.nav-link {
+  color: #495057 !important;
+}
+
+.nav-link:hover {
+  color: #007bff !important;
+}
+
+/* Fix button text */
+.btn {
+  color: #ffffff !important;
+}
+
+.btn-primary {
+  background-color: #007bff !important;
+  border-color: #007bff !important;
+  color: #ffffff !important;
+}
+
+.btn-secondary {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+/* Fix card text */
+.card {
+  background-color: #ffffff !important;
+  color: #212529 !important;
+}
+
+.card-body {
+  color: #212529 !important;
+}
+
+/* Fix any remaining dark text issues */
+* {
+  color: inherit;
+}
+
+/* Specific fix for quote sections */
+.bloc-lg .row .col {
+  color: #212529 !important;
+}
+
+/* Fix any Bootstrap overrides */
+.text-wrap {
+  color: #212529 !important;
+}
+
+/* Ensure links are visible */
+a {
+  color: #007bff !important;
+}
+
+a:hover {
+  color: #0056b3 !important;
+}
+
+/* Fix form elements */
+.form-control {
+  color: #495057 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #ced4da !important;
+}
+
+/* Fix any remaining visibility issues */
+.invisible-text {
+  color: #212529 !important;
+  background-color: transparent !important;
+}
+
+/* Media queries for responsive text */
+@media (max-width: 768px) {
+  body, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: #212529 !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  body {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: #000000 !important;
+  }
+  
+  p, span, div {
+    color: #000000 !important;
+  }
+}
+
+/* Dark mode detection and override */
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #212529 !important;
+    background-color: #ffffff !important;
+  }
+}
+
+/* Force light theme */
+html {
+  color-scheme: light !important;
+}
+
+/* Fix any CSS custom properties that might cause issues */
+:root {
+  --bs-body-color: #212529 !important;
+  --bs-body-bg: #ffffff !important;
+  --bs-text-opacity: 1 !important;
+}

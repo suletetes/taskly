@@ -91,11 +91,11 @@
 }
 
 .bloc-lg {
-    padding: 60px 50px;
+    padding: 30px 50px;
 }
 
 .bloc-md-lg {
-    padding: 50px;
+    padding: 25px;
 }
 
 .bloc-no-padding {
@@ -143,11 +143,11 @@
 
 /* Vertical Offset */
 .voffset {
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 .voffset-lg {
-    margin-top: 80px;
+    margin-top: 40px;
 }
 
 /* Lazy Loading Placeholder */
@@ -168,11 +168,11 @@
     }
     
     .bloc-lg {
-        padding: 40px 20px;
+        padding: 25px 20px;
     }
     
     .bloc-md-lg {
-        padding: 30px 20px;
+        padding: 20px 20px;
     }
     
     .bloc-no-padding {
@@ -187,11 +187,11 @@
     }
     
     .bloc-lg {
-        padding: 30px 10px;
+        padding: 20px 10px;
     }
     
     .bloc-md-lg {
-        padding: 20px 10px;
+        padding: 15px 10px;
     }
     
     .bloc-no-padding {
@@ -199,12 +199,12 @@
     }
     
     .voffset {
-        margin-top: 20px;
+        margin-top: 15px;
     }
     
     .mg-md {
         margin-top: 5px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
 }
 
@@ -215,11 +215,11 @@
     }
     
     .bloc-lg {
-        padding: 20px 5px;
+        padding: 15px 5px;
     }
     
     .bloc-md-lg {
-        padding: 15px 5px;
+        padding: 10px 5px;
     }
     
     .bloc-no-padding {
@@ -227,7 +227,7 @@
     }
     
     .voffset {
-        margin-top: 15px;
+        margin-top: 10px;
     }
     
     .display-6 {
@@ -439,10 +439,6 @@
    ========================= */
 
 /* Footer bloc styles */
-.bloc-lg {
-    padding: 60px 50px;
-}
-
 .bloc-sm-lg {
     padding: 20px 50px;
 }
@@ -463,34 +459,6 @@ footer p {
 
 /* Responsive footer */
 @media (max-width: 767.98px) {
-    .bloc-lg {
-        padding: 40px 20px;
-    }
-    
-    .bloc-sm-lg {
-        padding: 20px;
-    }
-}
-
-/* =========================
-   FOOTER STYLES (from EJS)
-   ========================= */
-
-/* Footer bloc styles */
-.bloc-lg {
-    padding: 60px 50px;
-}
-
-.bloc-sm-lg {
-    padding: 20px 50px;
-}
-
-/* Footer responsive */
-@media (max-width: 767.98px) {
-    .bloc-lg {
-        padding: 40px 20px;
-    }
-    
     .bloc-sm-lg {
         padding: 20px;
     }

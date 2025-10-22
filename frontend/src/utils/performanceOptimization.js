@@ -126,14 +126,24 @@ export const addResourceHints = () => {
 
 // Service Worker registration
 export const registerServiceWorker = () => {
+  // Only register service worker in production
   if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('SW registered: ', registration)
+      // Check if service worker file exists before registering
+      fetch('/sw.js', { method: 'HEAD' })
+        .then(response => {
+          if (response.ok) {
+            navigator.serviceWorker.register('/sw.js')
+              .then((registration) => {
+                console.log('SW registered: ', registration)
+              })
+              .catch((registrationError) => {
+                console.log('SW registration failed: ', registrationError)
+              })
+          }
         })
-        .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError)
+        .catch(() => {
+          console.log('Service worker file not found, skipping registration')
         })
     })
   }
@@ -150,15 +160,22 @@ export const measurePerformance = (name, fn) => {
 
 // Web Vitals tracking (manual implementation)
 export const trackWebVitals = () => {
-  if (typeof window !== 'undefined' && 'performance' in window) {
-    // Track First Contentful Paint
+  if (typeof window !== 'undefined' && 'performance' in window && process.env.NODE_ENV === 'development') {
+    let fcpReported = false
+    let lcpReported = false
+    let clsValue = 0
+    let clsReported = false
+    
+    // Track First Contentful Paint and Largest Contentful Paint
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (entry.name === 'first-contentful-paint') {
+        if (entry.name === 'first-contentful-paint' && !fcpReported) {
           console.log('FCP:', entry.startTime)
+          fcpReported = true
         }
-        if (entry.name === 'largest-contentful-paint') {
+        if (entry.name === 'largest-contentful-paint' && !lcpReported) {
           console.log('LCP:', entry.startTime)
+          lcpReported = true
         }
       }
     })
@@ -166,38 +183,45 @@ export const trackWebVitals = () => {
     try {
       observer.observe({ entryTypes: ['paint', 'largest-contentful-paint'] })
     } catch (e) {
-      // Fallback for browsers that don't support these metrics
-      console.log('Performance observer not supported')
+      // Silently fail for unsupported browsers
     }
 
-    // Track Cumulative Layout Shift
-    let clsValue = 0
+    // Track Cumulative Layout Shift (report only final value)
     const clsObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         if (!entry.hadRecentInput) {
           clsValue += entry.value
         }
       }
-      console.log('CLS:', clsValue)
     })
 
     try {
       clsObserver.observe({ entryTypes: ['layout-shift'] })
+      
+      // Report CLS value after page load
+      window.addEventListener('beforeunload', () => {
+        if (!clsReported && clsValue > 0) {
+          console.log('CLS:', clsValue)
+          clsReported = true
+        }
+      })
     } catch (e) {
-      console.log('Layout shift observer not supported')
+      // Silently fail for unsupported browsers
     }
 
     // Track First Input Delay
     const fidObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        console.log('FID:', entry.processingStart - entry.startTime)
+        const fid = entry.processingStart - entry.startTime
+        console.log('FID:', fid)
+        fidObserver.disconnect() // Only report once
       }
     })
 
     try {
       fidObserver.observe({ entryTypes: ['first-input'] })
     } catch (e) {
-      console.log('First input observer not supported')
+      // Silently fail for unsupported browsers
     }
   }
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import userService from '../services/userService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import DocumentHead from '../components/common/DocumentHead'
+import SafeImage from '../components/common/SafeImage'
 
 const Home = () => {
   const [users, setUsers] = useState([])
@@ -40,16 +41,14 @@ const Home = () => {
             <div className="container bloc-no-padding bloc-no-padding-lg">
               <div className="row g-0">
                 <div className="col-md-12 col-lg-12 offset-lg-0 text-lg-start">
-                  <picture>
-                    <source type="image/webp" srcSet="/img/task--main.webp" />
-                    <img 
-                      src="/img/task--main.jpg"
-                      className="img-fluid mx-auto d-block lazyload" 
-                      alt="task main" 
-                      width="2240" 
-                      height="1484"
-                    />
-                  </picture>
+                  <SafeImage
+                    src="/img/task--main.jpg"
+                    fallbackSrc="/img/placeholder-user.png"
+                    className="img-fluid mx-auto d-block lazyload" 
+                    alt="task main" 
+                    width="2240" 
+                    height="1484"
+                  />
                 </div>
               </div>
             </div>
@@ -86,16 +85,14 @@ const Home = () => {
             <div className="container bloc-no-padding">
               <div className="row g-0">
                 <div className="col-md-12 offset-lg--1 col-lg-6">
-                  <picture>
-                    <source type="image/webp" srcSet="/img/sidebar-task-1.webp" />
-                    <img 
-                      src="/img/sidebar-task-1.jpg"
-                      className="img-fluid mx-auto d-block lazyload" 
-                      alt="task-management" 
-                      width="1120"
-                      height="742"
-                    />
-                  </picture>
+                  <SafeImage
+                    src="/img/sidebar-task-1.jpg"
+                    fallbackSrc="/img/placeholder-user.png"
+                    className="img-fluid mx-auto d-block lazyload" 
+                    alt="task-management" 
+                    width="1120"
+                    height="742"
+                  />
                 </div>
                 <div className="align-self-center offset-md-1 col-md-10 col-sm-10 offset-sm-1 offset-1 col-10 offset-lg-1 col-lg-4">
                   <h2 className="mg-md fw-bold display-5 text-secondary mb-3">
@@ -122,16 +119,14 @@ const Home = () => {
             <div className="container bloc-no-padding">
               <div className="row g-0">
                 <div className="order-md-0 col-md-12 col-lg-6 order-lg-1 offset-lg-1">
-                  <picture>
-                    <source type="image/webp" srcSet="/img/sidebar-task-2.webp" />
-                    <img 
-                      src="/img/sidebar-task-2.jpg"
-                      className="img-fluid mx-auto d-block lazyload" 
-                      alt="organize-task" 
-                      width="1120"
-                      height="742"
-                    />
-                  </picture>
+                  <SafeImage
+                    src="/img/sidebar-task-2.jpg"
+                    fallbackSrc="/img/placeholder-user.png"
+                    className="img-fluid mx-auto d-block lazyload" 
+                    alt="organize-task" 
+                    width="1120"
+                    height="742"
+                  />
                 </div>
                 <div className="align-self-center offset-md-1 col-md-10 col-lg-4 col-sm-10 offset-sm-1 col-10 offset-1">
                   <h2 className="mg-md fw-bold display-5 text-secondary mb-3">
@@ -176,8 +171,9 @@ const Home = () => {
                     <div key={user._id || user.id} className="col-md-6">
                       <div className="row voffset align-items-center">
                         <div className="col-lg-3">
-                          <img 
+                          <SafeImage
                             src={user.avatar || '/img/placeholder-user.png'}
+                            fallbackSrc="/img/placeholder-user.png"
                             className="img-fluid rounded-circle lazyload"
                             alt={`${user.fullname || 'User Name'}'s Avatar`}
                             width="122" 

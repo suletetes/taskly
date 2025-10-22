@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
 import authService from '../services/authService'
 
 // Initial state
@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   // Load user from storage or API
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     dispatch({ type: AUTH_ACTIONS.LOAD_USER_START })
 
     try {
@@ -160,10 +160,10 @@ export const AuthProvider = ({ children }) => {
         payload: error.message
       })
     }
-  }
+  }, [dispatch])
 
   // Login function
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     dispatch({ type: AUTH_ACTIONS.LOGIN_START })
 
     try {
@@ -188,7 +188,7 @@ export const AuthProvider = ({ children }) => {
       })
       throw error
     }
-  }
+  }, [dispatch])
 
   // Register function
   const register = async (userData) => {
@@ -238,9 +238,9 @@ export const AuthProvider = ({ children }) => {
   }
 
   // Clear error function
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR })
-  }
+  }, [dispatch])
 
   // Set loading function
   const setLoading = (loading) => {

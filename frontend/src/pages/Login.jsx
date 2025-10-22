@@ -29,7 +29,7 @@ const Login = () => {
   // Clear auth errors when component mounts
   useEffect(() => {
     clearError()
-  }, [clearError])
+  }, [])
 
   const validateForm = () => {
     const newErrors = {}
