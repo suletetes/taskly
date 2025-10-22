@@ -212,7 +212,7 @@ const Home = () => {
         {/* Second Quote Section - James Clear */}
         <section>
           <div className="bloc l-bloc" id="bloc-6">
-            <div className="container bloc-lg bloc-md-lg">
+            <div className="container bloc-sm">
               <div className="row justify-content-center">
                 <div className="text-center w-100">
                   <h2 className="display-6 fw-bold mb-3 text-wrap">

@@ -42,12 +42,12 @@ h1, h2, h3, h4, h5, h6 {
   color: #212529 !important;
 }
 
-/* Fix any dark overlays or backgrounds */
-.bloc {
+/* Fix any dark overlays or backgrounds - but preserve background images */
+.bloc:not([style*="background-image"]) {
   background-color: transparent !important;
 }
 
-.bloc.l-bloc {
+.bloc.l-bloc:not([style*="background-image"]) {
   background-color: #ffffff !important;
 }
 
