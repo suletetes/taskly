@@ -135,14 +135,20 @@ const apiService = {
   },
 
   // Mock response handler
-  async getMockResponse(url, method, config = {}) {
+  async getMockResponse(url, method, config = {}, data = null) {
     const params = new URLSearchParams(url.split('?')[1] || '')
     const page = parseInt(params.get('page')) || 1
     const limit = parseInt(params.get('limit')) || 10
     const search = params.get('search') || ''
 
     // Route to appropriate mock endpoint
-    if (url.includes('/users') && !url.includes('/tasks')) {
+    if (url.includes('/auth/login') && method === 'POST') {
+      return mockApiService.login(data)
+    } else if (url.includes('/auth/register') && method === 'POST') {
+      return mockApiService.register(data)
+    } else if (url.includes('/auth/me')) {
+      return mockApiService.getCurrentUser()
+    } else if (url.includes('/users') && !url.includes('/tasks')) {
       if (url.match(/\/users\/\w+$/)) {
         const userId = url.split('/').pop()
         return mockApiService.getUserById(userId)
@@ -179,6 +185,11 @@ const apiService = {
 
   // POST request with retry
   async post(url, data, config = {}) {
+    // Use mock API if backend is not available
+    if (useMockApi) {
+      return this.getMockResponse(url, 'POST', config, data)
+    }
+
     const maxRetries = config.retries || 1 // Less retries for POST to avoid duplicates
     let lastError
 
@@ -188,6 +199,13 @@ const apiService = {
         return response.data
       } catch (error) {
         lastError = error
+        
+        // If network error on last retry, switch to mock API for auth endpoints
+        if (!error.response && i === maxRetries && url.includes('/auth/')) {
+          console.warn('Switching to mock API for auth due to network error')
+          useMockApi = true
+          return this.getMockResponse(url, 'POST', config, data)
+        }
         
         // Don't retry on client errors (4xx)
         if (error.response?.status >= 400 && error.response?.status < 500) {

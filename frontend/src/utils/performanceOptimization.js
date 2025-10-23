@@ -23,24 +23,32 @@ export const lazyLoadImage = (img) => {
 export const preloadCriticalResources = () => {
   // Only preload resources in production and if they exist
   if (process.env.NODE_ENV === 'production') {
-    // Preload critical CSS if it exists
-    fetch('/css/critical.css', { method: 'HEAD' })
-      .then(response => {
+    // Check and preload critical CSS if it exists
+    const checkAndPreloadCSS = async () => {
+      try {
+        const response = await fetch('/css/critical.css', { method: 'HEAD' })
         if (response.ok) {
           const criticalCSS = document.createElement('link')
           criticalCSS.rel = 'preload'
           criticalCSS.as = 'style'
           criticalCSS.href = '/css/critical.css'
+          criticalCSS.onload = () => {
+            // Convert to stylesheet after preload
+            setTimeout(() => {
+              criticalCSS.rel = 'stylesheet'
+            }, 100)
+          }
           document.head.appendChild(criticalCSS)
         }
-      })
-      .catch(() => {
-        // File doesn't exist, skip preloading
-      })
+      } catch (error) {
+        // File doesn't exist or network error, skip preloading
+      }
+    }
 
-    // Preload critical fonts if they exist
-    fetch('/fonts/inter-var.woff2', { method: 'HEAD' })
-      .then(response => {
+    // Check and preload critical fonts if they exist
+    const checkAndPreloadFont = async () => {
+      try {
+        const response = await fetch('/fonts/inter-var.woff2', { method: 'HEAD' })
         if (response.ok) {
           const criticalFont = document.createElement('link')
           criticalFont.rel = 'preload'
@@ -50,10 +58,13 @@ export const preloadCriticalResources = () => {
           criticalFont.crossOrigin = 'anonymous'
           document.head.appendChild(criticalFont)
         }
-      })
-      .catch(() => {
-        // File doesn't exist, skip preloading
-      })
+      } catch (error) {
+        // File doesn't exist or network error, skip preloading
+      }
+    }
+
+    checkAndPreloadCSS()
+    checkAndPreloadFont()
   }
 }
 
