@@ -165,233 +165,352 @@ const AddTask = () => {
       />
       
       {/* Add Task Section */}
-      <div className="bloc none l-bloc mt-3" id="bloc-add-task">
-        <div className="container bloc-lg-lg">
-          <div className="row">
-            <div className="col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
-              {error && (
-                <ErrorMessage
-                  message={error}
-                  onClose={() => setError(null)}
-                />
-              )}
-
-              <form onSubmit={handleSubmit} noValidate>
-                <div className="row">
-                  <div className="col-lg-12">
-                    <h2 className="mb-4 text-lg-center">
-                      <i className="fa fa-plus-circle me-2"></i>Add New Task
-                    </h2>
+      <div className="bloc l-bloc py-5" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-8 col-xl-7">
+              {/* Header Card */}
+              <div className="text-center mb-4">
+                <div className="card border-0 shadow-lg rounded-4" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                  <div className="card-body py-4">
+                    <h1 className="text-white mb-2 fw-bold">
+                      <i className="fa fa-plus-circle me-3"></i>Create New Task
+                    </h1>
+                    <p className="text-white-50 mb-0 fs-5">Stay organized and boost your productivity</p>
                   </div>
-                  
-                  {/* Task Title */}
-                  <div className="text-lg-start col-12">
-                    <div className="form-group mb-3">
-                      <label className="form-label" htmlFor="task-title">
-                        <h4><i className="fa fa-heading me-1"></i> Task Title <span className="text-danger">*</span></h4>
+                </div>
+              </div>
+
+              {/* Main Form Card */}
+              <div className="card border-0 shadow-lg rounded-4" style={{ backgroundColor: '#ffffff' }}>
+                <div className="card-body p-5">
+                  {error && (
+                    <div className="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                      <i className="fa fa-exclamation-triangle me-2"></i>
+                      <strong>Error:</strong> {error}
+                      <button 
+                        type="button" 
+                        className="btn-close" 
+                        onClick={() => setError(null)}
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSubmit} noValidate>
+                    {/* Task Title */}
+                    <div className="mb-4">
+                      <label className="form-label fw-bold text-dark mb-3" htmlFor="task-title">
+                        <i className="fa fa-heading text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                        Task Title <span className="text-danger">*</span>
                       </label>
                       <input 
                         type="text" 
-                        className={`form-control ${validationErrors.title ? 'is-invalid' : ''}`}
+                        className={`form-control form-control-lg border-2 ${validationErrors.title ? 'is-invalid border-danger' : 'border-light'}`}
                         id="task-title" 
                         name="title"
                         value={formData.title}
                         onChange={handleInputChange}
-                        placeholder="e.g. Finalize design proposal" 
+                        placeholder="What needs to be done?" 
                         autoFocus
                         disabled={loading}
+                        style={{ 
+                          fontSize: '1.1rem',
+                          padding: '15px 20px',
+                          borderRadius: '12px',
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                        }}
                       />
                       {validationErrors.title && (
-                        <div className="invalid-feedback">{validationErrors.title}</div>
+                        <div className="invalid-feedback fw-semibold">{validationErrors.title}</div>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Task Description */}
-                  <div className="text-lg-start col-12">
-                    <div className="form-group mb-3">
-                      <label className="form-label" htmlFor="task-desc">
-                        <h4><i className="fa fa-align-left me-1"></i>Description</h4>
+                    
+                    {/* Task Description */}
+                    <div className="mb-4">
+                      <label className="form-label fw-bold text-dark mb-3" htmlFor="task-desc">
+                        <i className="fa fa-align-left text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                        Description
                       </label>
                       <textarea 
-                        className="form-control" 
+                        className="form-control border-2 border-light" 
                         id="task-desc" 
                         name="description" 
-                        rows="3"
+                        rows="4"
                         value={formData.description}
                         onChange={handleInputChange}
-                        placeholder="Details or notes about this task"
+                        placeholder="Add more details about this task..."
                         disabled={loading}
+                        style={{ 
+                          fontSize: '1rem',
+                          padding: '15px 20px',
+                          borderRadius: '12px',
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                          resize: 'vertical'
+                        }}
                       />
                     </div>
-                  </div>
-                  
-                  {/* Due Date */}
-                  <div className="text-lg-start col-12">
-                    <div className="form-group mb-3">
-                      <label className="form-label fs-5" htmlFor="due-date">
-                        <h4><i className="fa fa-calendar-alt me-1"></i>Due Date <span className="text-danger">*</span></h4>
+                    
+                    {/* Due Date */}
+                    <div className="mb-4">
+                      <label className="form-label fw-bold text-dark mb-3" htmlFor="due-date">
+                        <i className="fa fa-calendar-alt text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                        Due Date <span className="text-danger">*</span>
                       </label>
                       <input
                         type="date"
-                        className={`form-control ${validationErrors.due ? 'is-invalid' : ''}`}
+                        className={`form-control form-control-lg border-2 ${validationErrors.due ? 'is-invalid border-danger' : 'border-light'}`}
                         id="due-date"
                         name="due"
                         value={formData.due}
                         onChange={handleInputChange}
                         min={new Date().toISOString().split('T')[0]}
                         disabled={loading}
+                        style={{ 
+                          fontSize: '1.1rem',
+                          padding: '15px 20px',
+                          borderRadius: '12px',
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                        }}
                       />
                       {validationErrors.due && (
-                        <div className="invalid-feedback">{validationErrors.due}</div>
+                        <div className="invalid-feedback fw-semibold">{validationErrors.due}</div>
                       )}
-                      <div className="mt-2">
-                        <button 
-                          type="button" 
-                          className="btn btn-outline-secondary btn-sm me-1"
-                          onClick={() => quickDate('today')}
-                          disabled={loading}
-                        >
-                          Today
-                        </button>
-                        <button 
-                          type="button" 
-                          className="btn btn-outline-secondary btn-sm me-1"
-                          onClick={() => quickDate('tomorrow')}
-                          disabled={loading}
-                        >
-                          Tomorrow
-                        </button>
-                        <button 
-                          type="button" 
-                          className="btn btn-outline-secondary btn-sm"
-                          onClick={() => quickDate('nextweek')}
-                          disabled={loading}
-                        >
-                          Next Week
-                        </button>
+                      <div className="mt-3">
+                        <small className="text-muted fw-semibold d-block mb-2">Quick select:</small>
+                        <div className="d-flex gap-2 flex-wrap">
+                          <button 
+                            type="button" 
+                            className="btn btn-primary rounded-pill px-4 py-2"
+                            onClick={() => quickDate('today')}
+                            disabled={loading}
+                            style={{ 
+                              fontWeight: '600',
+                              backgroundColor: '#0d6efd',
+                              borderColor: '#0d6efd',
+                              color: 'white'
+                            }}
+                          >
+                            <i className="fa fa-clock me-2"></i>Today
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn btn-primary rounded-pill px-4 py-2"
+                            onClick={() => quickDate('tomorrow')}
+                            disabled={loading}
+                            style={{ 
+                              fontWeight: '600',
+                              backgroundColor: '#0d6efd',
+                              borderColor: '#0d6efd',
+                              color: 'white'
+                            }}
+                          >
+                            <i className="fa fa-sun me-2"></i>Tomorrow
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn btn-primary rounded-pill px-4 py-2"
+                            onClick={() => quickDate('nextweek')}
+                            disabled={loading}
+                            style={{ 
+                              fontWeight: '600',
+                              backgroundColor: '#0d6efd',
+                              borderColor: '#0d6efd',
+                              color: 'white'
+                            }}
+                          >
+                            <i className="fa fa-calendar-week me-2"></i>Next Week
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Priority */}
-                  <div className="text-lg-start col-12">
-                    <div className="form-group mb-3">
-                      <label className="form-label fs-5">
-                        <h4><i className="fa fa-bolt me-1"></i>Priority <span className="text-danger">*</span></h4>
+                    
+                    {/* Priority */}
+                    <div className="mb-4">
+                      <label className="form-label fw-bold text-dark mb-3">
+                        <i className="fa fa-flag text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                        Priority <span className="text-danger">*</span>
                       </label>
-                      <div className="btn-group w-100" role="group" aria-label="Priority">
-                        <input 
-                          type="radio" 
-                          className="btn-check" 
-                          name="priority" 
-                          id="priority-low"
-                          value="low" 
-                          checked={formData.priority === 'low'}
-                          onChange={() => handlePriorityChange('low')}
-                          disabled={loading}
-                        />
-                        <label className="btn btn-outline-primary" htmlFor="priority-low">
-                          <i className="fa fa-circle text-primary me-1"></i>Low
-                        </label>
+                      <div className="row g-3">
+                        <div className="col-md-4">
+                          <input 
+                            type="radio" 
+                            className="btn-check" 
+                            name="priority" 
+                            id="priority-low"
+                            value="low" 
+                            checked={formData.priority === 'low'}
+                            onChange={() => handlePriorityChange('low')}
+                            disabled={loading}
+                          />
+                          <label 
+                            className="btn btn-outline-success w-100 py-4 border-2 rounded-3" 
+                            htmlFor="priority-low"
+                            style={{ 
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              transition: 'all 0.3s ease',
+                              boxShadow: formData.priority === 'low' ? '0 4px 15px rgba(40, 167, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)'
+                            }}
+                          >
+                            <i className="fa fa-arrow-down d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
+                            Low Priority
+                          </label>
+                        </div>
                         
-                        <input 
-                          type="radio" 
-                          className="btn-check" 
-                          name="priority" 
-                          id="priority-medium"
-                          value="medium" 
-                          checked={formData.priority === 'medium'}
-                          onChange={() => handlePriorityChange('medium')}
-                          disabled={loading}
-                        />
-                        <label className="btn btn-outline-warning" htmlFor="priority-medium">
-                          <i className="fa fa-circle text-warning me-1"></i>Medium
-                        </label>
+                        <div className="col-md-4">
+                          <input 
+                            type="radio" 
+                            className="btn-check" 
+                            name="priority" 
+                            id="priority-medium"
+                            value="medium" 
+                            checked={formData.priority === 'medium'}
+                            onChange={() => handlePriorityChange('medium')}
+                            disabled={loading}
+                          />
+                          <label 
+                            className="btn btn-outline-warning w-100 py-4 border-2 rounded-3" 
+                            htmlFor="priority-medium"
+                            style={{ 
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              transition: 'all 0.3s ease',
+                              boxShadow: formData.priority === 'medium' ? '0 4px 15px rgba(255, 193, 7, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)'
+                            }}
+                          >
+                            <i className="fa fa-equals d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
+                            Medium Priority
+                          </label>
+                        </div>
                         
-                        <input 
-                          type="radio" 
-                          className="btn-check" 
-                          name="priority" 
-                          id="priority-high"
-                          value="high" 
-                          checked={formData.priority === 'high'}
-                          onChange={() => handlePriorityChange('high')}
-                          disabled={loading}
-                        />
-                        <label className="btn btn-outline-danger" htmlFor="priority-high">
-                          <i className="fa fa-circle text-danger me-1"></i>High
-                        </label>
+                        <div className="col-md-4">
+                          <input 
+                            type="radio" 
+                            className="btn-check" 
+                            name="priority" 
+                            id="priority-high"
+                            value="high" 
+                            checked={formData.priority === 'high'}
+                            onChange={() => handlePriorityChange('high')}
+                            disabled={loading}
+                          />
+                          <label 
+                            className="btn btn-outline-danger w-100 py-4 border-2 rounded-3" 
+                            htmlFor="priority-high"
+                            style={{ 
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              transition: 'all 0.3s ease',
+                              boxShadow: formData.priority === 'high' ? '0 4px 15px rgba(220, 53, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)'
+                            }}
+                          >
+                            <i className="fa fa-arrow-up d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
+                            High Priority
+                          </label>
+                        </div>
                       </div>
                       {validationErrors.priority && (
-                        <div className="invalid-feedback d-block">{validationErrors.priority}</div>
+                        <div className="text-danger fw-semibold mt-2">
+                          <i className="fa fa-exclamation-circle me-1"></i>
+                          {validationErrors.priority}
+                        </div>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Tags */}
-                  <div className="text-lg-start col-12">
-                    <div className="form-group mb-3">
-                      <label className="form-label fs-5">
-                        <i className="fa fa-tags me-1"></i>Tags
+                    
+                    {/* Tags */}
+                    <div className="mb-5">
+                      <label className="form-label fw-bold text-dark mb-3">
+                        <i className="fa fa-tags text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                        Tags
                       </label>
-                      <div className="mb-2" id="tag-list">
+                      <div className="mb-3">
                         {tags.map((tag, index) => (
-                          <span key={index} className="badge bg-secondary me-1 tag-item">
+                          <span 
+                            key={index} 
+                            className="badge me-2 mb-2 px-3 py-2 fs-6 rounded-pill"
+                            style={{ 
+                              backgroundColor: '#6c757d',
+                              color: 'white',
+                              fontSize: '0.9rem !important'
+                            }}
+                          >
+                            <i className="fa fa-tag me-1"></i>
                             {tag}
                             <button 
                               type="button" 
-                              className="btn-close btn-close-white btn-sm ms-1 remove-tag" 
-                              aria-label="Remove"
+                              className="btn-close btn-close-white btn-sm ms-2" 
+                              aria-label="Remove tag"
                               onClick={() => removeTag(tag)}
                               disabled={loading}
+                              style={{ fontSize: '0.6rem' }}
                             />
                           </span>
                         ))}
                       </div>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        id="tag-input" 
-                        placeholder="+ Add"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={handleTagInputKeyPress}
-                        disabled={loading}
-                      />
-                      <small className="form-text text-muted">Press Enter to add tags. Click × to remove.</small>
+                      <div className="input-group" style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                        <span className="input-group-text border-2 border-light" style={{ borderRadius: '12px 0 0 12px', padding: '15px 20px' }}>
+                          <i className="fa fa-plus text-primary"></i>
+                        </span>
+                        <input 
+                          type="text" 
+                          className="form-control border-2 border-light" 
+                          placeholder="Add a tag and press Enter"
+                          value={tagInput}
+                          onChange={(e) => setTagInput(e.target.value)}
+                          onKeyPress={handleTagInputKeyPress}
+                          disabled={loading}
+                          style={{ 
+                            fontSize: '1rem',
+                            padding: '15px 20px',
+                            borderRadius: '0 12px 12px 0'
+                          }}
+                        />
+                      </div>
+                      <small className="form-text text-muted mt-2 fw-semibold">
+                        <i className="fa fa-info-circle me-1"></i>
+                        Press Enter to add tags. Use tags to organize your tasks.
+                      </small>
                     </div>
-                  </div>
+                    
+                    {/* Form Actions */}
+                    <div className="d-flex gap-3 justify-content-end pt-4 border-top">
+                      <button 
+                        className="btn btn-outline-secondary btn-lg px-5 py-3 rounded-pill" 
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={loading}
+                        style={{ fontWeight: '600', fontSize: '1rem' }}
+                      >
+                        <i className="fa fa-times me-2"></i>Cancel
+                      </button>
+                      <button 
+                        className="btn btn-lg px-5 py-3 rounded-pill text-white" 
+                        type="submit"
+                        disabled={loading}
+                        style={{ 
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          border: 'none',
+                          fontWeight: '600',
+                          fontSize: '1rem',
+                          boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+                        }}
+                      >
+                        {loading ? (
+                          <>
+                            <LoadingSpinner size="small" />
+                            <span className="ms-2">Creating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <i className="fa fa-plus me-2"></i>Create Task
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-                
-                {/* Form Actions */}
-                <div className="d-flex gap-2 mt-3">
-                  <button 
-                    className="bloc-button btn btn-wire w-50" 
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <LoadingSpinner size="small" />
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fa fa-plus me-1"></i>Add Task
-                      </>
-                    )}
-                  </button>
-                  <button 
-                    className="bloc-button btn btn-outline-secondary w-50" 
-                    type="button"
-                    onClick={handleCancel}
-                    disabled={loading}
-                  >
-                    <i className="fa fa-times me-1"></i>Cancel
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>

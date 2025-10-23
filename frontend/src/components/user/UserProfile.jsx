@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import userService from '../../services/userService'
 import taskService from '../../services/taskService'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
 import DocumentHead from '../common/DocumentHead'
+import SafeImage from '../common/SafeImage'
 
-const UserProfile = ({ user, isOwnProfile = false }) => {
+const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
   const { user: currentUser } = useAuth()
+  const { userId } = useParams()
+  const [user, setUser] = useState(propUser)
   const [tasks, setTasks] = useState([])
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
@@ -20,8 +23,9 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
     hasPreviousPage: false
   })
 
-  const userId = user?.id || user?._id
+  const targetUserId = userId || user?.id || user?._id
   const tasksPerPage = 10
+  const isViewingOwnProfile = isOwnProfile || (currentUser && targetUserId && (currentUser._id === targetUserId || currentUser.id === targetUserId))
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -29,12 +33,20 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
         setLoading(true)
         setError(null)
 
+        // If we have a userId from params, fetch the user data first
+        if (userId && !propUser) {
+          const userResponse = await userService.getUserById(userId)
+          setUser(userResponse.data)
+        }
+
+        const userIdToUse = userId || targetUserId
+
         // Fetch user stats
-        const statsResponse = await userService.getUserStats(userId)
+        const statsResponse = await userService.getUserStats(userIdToUse)
         setStats(statsResponse.data || {})
 
         // Fetch user tasks
-        const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
+        const tasksResponse = await taskService.getUserTasks(userIdToUse, currentPage, tasksPerPage)
         setTasks(tasksResponse.data.items || tasksResponse.data || [])
         setPagination(tasksResponse.data.pagination || {
           totalPages: 1,
@@ -49,10 +61,10 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
       }
     }
 
-    if (userId) {
+    if (targetUserId || userId) {
       fetchUserData()
     }
-  }, [userId, currentPage])
+  }, [userId, targetUserId, currentPage, propUser])
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -61,11 +73,7 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
     }
   }
 
-  const getAvatarUrl = (avatar) => {
-    if (!avatar) return '/img/placeholder-user.png'
-    if (avatar.startsWith('http')) return avatar
-    return `/uploads/avatars/${avatar}`
-  }
+
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -211,8 +219,9 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
           {/* User Info Section */}
           <div className="d-flex justify-content-between align-items-center flex-wrap mb-5">
             <div className="order-1 order-md-1 me-4 mb-3 mb-md-0">
-              <img 
-                src={getAvatarUrl(user.avatar)}
+              <SafeImage
+                src={user.avatar}
+                fallbackSrc="/img/placeholder-user.png"
                 className="img-fluid rounded-circle shadow lazyload"
                 alt="User avatar"
                 width="180" 
@@ -231,10 +240,10 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
                 <span className="fw-semibold"> {formatDate(user.created_at || user.createdAt)}</span>
               </p>
 
-              {isOwnProfile && currentUser && (currentUser._id?.toString() === user._id?.toString() || currentUser.id === user.id) && (
+              {isViewingOwnProfile && (
                 <div className="d-flex justify-content-center gap-2 flex-wrap mb-3">
                   <Link 
-                    to={`/users/${user._id || user.id}/tasks/new`} 
+                    to="/tasks/new" 
                     className="btn btn-primary btn-lg px-4" 
                     aria-label="Add Task" 
                     title="Add Task"
@@ -242,7 +251,7 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
                     <i className="fa fa-plus me-2"></i>Add Task
                   </Link>
                   <Link 
-                    to={`/users/${user._id || user.id}/edit`} 
+                    to="/profile/edit" 
                     className="btn btn-secondary btn-lg px-4" 
                     role="button" 
                     aria-label="Edit Profile" 
@@ -353,10 +362,10 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
                               </span>
                             )}
                           </div>
-                          {dynamicStatus === 'in-progress' && isOwnProfile && (
+                          {dynamicStatus === 'in-progress' && isViewingOwnProfile && (
                             <div className="d-flex justify-content-end gap-2">
                               <Link 
-                                to={`/users/${user._id || user.id}/tasks/${task._id || task.id}/edit`}
+                                to={`/tasks/${task._id || task.id}/edit`}
                                 className="btn btn-outline-primary btn-sm rounded-pill px-3"
                               >
                                 <i className="fa fa-edit me-1"></i>Edit
@@ -386,10 +395,10 @@ const UserProfile = ({ user, isOwnProfile = false }) => {
                   </p>
                 )}
                 
-                {!tasks.length && isOwnProfile && (
+                {!tasks.length && isViewingOwnProfile && (
                   <div className="text-center mt-3">
                     <Link 
-                      to={`/users/${user._id || user.id}/tasks/new`} 
+                      to="/tasks/new" 
                       className="btn btn-secondary"
                     >
                       <i className="fa fa-plus me-1"></i>Create New Task

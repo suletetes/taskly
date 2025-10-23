@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import userService from '../../services/userService'
 import LoadingSpinner from '../common/LoadingSpinner'
-import ErrorMessage from '../common/ErrorMessage'
-import SuccessMessage from '../common/SuccessMessage'
 import DocumentHead from '../common/DocumentHead'
+import SafeImage from '../common/SafeImage'
 
-const EditProfile = ({ user, onUpdate, onCancel }) => {
-  const { updateUser } = useAuth()
+const EditProfile = () => {
+  const { user, updateUser } = useAuth()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullname: user?.fullname || '',
     username: user?.username || '',
@@ -24,21 +25,36 @@ const EditProfile = ({ user, onUpdate, onCancel }) => {
 
   // Predefined avatar options
   const avatarOptions = [
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661915/avatar-1_rltonx.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661916/avatar-2_pcpiuc.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-3_uge9uz.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661918/avatar-4_u7ekxu.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661920/avatar-5_mhbem1.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-6_yhpqaq.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661916/avatar-7_nkwrzp.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661921/avatar-8_qou6jc.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661921/avatar-9_bvbvnm.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661915/avatar-10_whnfik.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661916/avatar-11_mfblhm.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661915/avatar-12_xua4xf.jpg',
-    'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-13_nn8ore.jpg'
+    '/img/placeholder-user.png',
+    '/img/avatars/avatar-1.jpg',
+    '/img/avatars/avatar-2.jpg',
+    '/img/avatars/avatar-3.jpg',
+    '/img/avatars/avatar-4.jpg',
+    '/img/avatars/avatar-5.jpg',
+    '/img/avatars/avatar-6.jpg',
+    '/img/avatars/avatar-7.jpg',
+    '/img/avatars/avatar-8.jpg',
+    '/img/avatars/avatar-9.jpg',
+    '/img/avatars/avatar-10.jpg',
+    '/img/avatars/avatar-11.jpg',
+    '/img/avatars/avatar-12.jpg',
+    '/img/avatars/avatar-13.jpg'
   ]
+
+  const handleCancel = () => {
+    navigate('/profile')
+  }
+
+  if (!user) {
+    return (
+      <div className="bloc l-bloc py-5 bg-light">
+        <div className="container text-center">
+          <h1>Edit Profile</h1>
+          <p>Please log in to edit your profile.</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -131,10 +147,10 @@ const EditProfile = ({ user, onUpdate, onCancel }) => {
 
       setSuccess('Profile updated successfully!')
 
-      // Call parent update handler
-      if (onUpdate) {
-        onUpdate(updatedUser.data)
-      }
+      // Navigate back to profile
+      setTimeout(() => {
+        navigate('/profile')
+      }, 2000)
 
     } catch (err) {
       setError(err.message)
@@ -151,223 +167,265 @@ const EditProfile = ({ user, onUpdate, onCancel }) => {
         keywords="edit profile, user settings, account management"
       />
       
-      {/* user setting */}
-      <div 
-        className="bloc none l-bloc" 
-        id="bloc-13"
-        style={{
-          backgroundImage: "url('/img/background/signup.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <div className="container bloc-lg-lg">
-          <div className="row">
-            <div className="col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
-              <div className="signup-card">
-                <h1 className="mb-4 text-center">Edit User Settings</h1>
+      {/* Edit Profile Section */}
+      <div className="bloc l-bloc py-5 bg-light">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-10 col-xl-8">
+              <div className="card shadow-lg border-0 rounded-4 glass-card">
+                <div className="card-header bg-primary text-white text-center py-4 rounded-top-4">
+                  <h2 className="mb-0 fw-bold">
+                    <i className="fa fa-user-edit me-2"></i>Edit Profile
+                  </h2>
+                  <p className="mb-0 mt-2 opacity-75">Update your personal information and settings</p>
+                </div>
                 
-                {error && (
-                  <ErrorMessage
-                    message={error}
-                    onClose={() => setError(null)}
-                  />
-                )}
+                <div className="card-body p-4">
+                  {error && (
+                    <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                      <i className="fa fa-exclamation-triangle me-2"></i>
+                      {error}
+                      <button 
+                        type="button" 
+                        className="btn-close" 
+                        onClick={() => setError(null)}
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                  )}
 
-                {success && (
-                  <SuccessMessage
-                    message={success}
-                    onClose={() => setSuccess(null)}
-                  />
-                )}
+                  {success && (
+                    <div className="alert alert-success alert-dismissible fade show" role="alert">
+                      <i className="fa fa-check-circle me-2"></i>
+                      {success}
+                      <button 
+                        type="button" 
+                        className="btn-close" 
+                        onClick={() => setSuccess(null)}
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                  )}
 
-                {/* Avatar Section */}
-                <div className="row">
-                  <div className="col-lg-12 mt-5">
-                    <h4 className="mb-4 text-lg-center">Update Profile Photo</h4>
-                  </div>
-                  <div className="text-lg-start col-lg-12 mb-lg-2">
-                    <div className="form-group mb-3">
-                      <div className="avatar-preview mb-4">
-                        <img 
-                          id="avatar-large" 
-                          className="avatar-large"
-                          src={selectedAvatar}
-                          alt="Selected avatar"
-                          style={{ width: '150px', height: '150px', objectFit: 'cover' }}
-                        />
+                  <form onSubmit={handleSubmit} noValidate>
+                    {/* Avatar Section */}
+                    <div className="mb-5">
+                      <div className="text-center">
+                        <h4 className="mb-4 text-primary">
+                          <i className="fa fa-camera me-2"></i>Profile Photo
+                        </h4>
+                        <div className="d-flex justify-content-center mb-4">
+                          <div className="position-relative">
+                            <SafeImage
+                              src={selectedAvatar}
+                              fallbackSrc="/img/placeholder-user.png"
+                              className="rounded-circle shadow-lg"
+                              alt="Selected avatar"
+                              width="150"
+                              height="150"
+                              style={{ 
+                                objectFit: 'cover', 
+                                border: '4px solid #fff',
+                                display: 'block',
+                                margin: '0 auto'
+                              }}
+                            />
+                            <div className="position-absolute bottom-0 end-0 bg-primary rounded-circle p-2">
+                              <i className="fa fa-camera text-white"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-muted mb-3">Choose from the avatars below</p>
                       </div>
-                      <div className="avatar-gallery mb-5 d-flex flex-wrap justify-content-center gap-2">
-                        {avatarOptions.map((avatarUrl, index) => (
-                          <img
-                            key={index}
-                            src={avatarUrl}
-                            className={`avatar-thumb img-fluid rounded-circle shadow ${selectedAvatar === avatarUrl ? 'selected' : ''}`}
-                            alt={`Avatar ${index + 1}`}
-                            width="64"
-                            height="64"
-                            style={{ 
-                              objectFit: 'cover',
-                              cursor: 'pointer',
-                              border: selectedAvatar === avatarUrl ? '3px solid #007bff' : '2px solid transparent'
-                            }}
-                            onClick={() => handleAvatarSelect(avatarUrl)}
-                          />
-                        ))}
+                      
+                      <div className="row justify-content-center">
+                        <div className="col-lg-10">
+                          <div className="d-flex flex-wrap justify-content-center gap-3">
+                            {avatarOptions.map((avatarUrl, index) => (
+                              <div key={index} className="position-relative">
+                                <SafeImage
+                                  src={avatarUrl}
+                                  fallbackSrc="/img/placeholder-user.png"
+                                  className={`rounded-circle shadow-sm ${selectedAvatar === avatarUrl ? 'border border-primary border-3' : 'border border-light border-2'}`}
+                                  alt={`Avatar ${index + 1}`}
+                                  width="70"
+                                  height="70"
+                                  style={{ 
+                                    objectFit: 'cover',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    transform: selectedAvatar === avatarUrl ? 'scale(1.1)' : 'scale(1)'
+                                  }}
+                                  onClick={() => handleAvatarSelect(avatarUrl)}
+                                />
+                                {selectedAvatar === avatarUrl && (
+                                  <div className="position-absolute top-0 end-0 bg-primary rounded-circle p-1">
+                                    <i className="fa fa-check text-white" style={{ fontSize: '0.7rem' }}></i>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <form onSubmit={handleSubmit} className="needs-validation" noValidate>
-                    {/* Name and Username Fields */}
+                    {/* Profile Information */}
                     <div className="row mb-4">
-                      <h4 className="text-center text-secondary mb-4">Profile Information</h4>
-                      <div className="col-lg-6 mb-3">
-                        <label className="form-label" htmlFor="current_fullname">Current Full Name</label>
-                        <input 
-                          id="current_fullname" 
-                          className="form-control" 
-                          value={user?.fullname || ''} 
-                          disabled 
-                        />
+                      <div className="col-12 mb-4">
+                        <h4 className="text-primary border-bottom pb-2">
+                          <i className="fa fa-user me-2"></i>Personal Information
+                        </h4>
                       </div>
-                      <div className="col-lg-6 mb-3">
-                        <label className="form-label" htmlFor="current_username">Current Username</label>
-                        <input 
-                          id="current_username" 
-                          className="form-control" 
-                          value={user?.username || ''} 
-                          disabled 
-                        />
-                      </div>
-                      <div className="col-lg-6 mb-3">
-                        <label className="form-label" htmlFor="fullname">New Full Name</label>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-semibold" htmlFor="fullname">
+                          <i className="fa fa-id-card text-primary me-2"></i>Full Name
+                        </label>
                         <input 
                           id="fullname" 
-                          className={`form-control ${validationErrors.fullname ? 'is-invalid' : ''}`}
+                          className={`form-control form-control-lg shadow-sm ${validationErrors.fullname ? 'is-invalid' : ''}`}
                           name="fullname"
                           value={formData.fullname}
                           onChange={handleInputChange}
-                          placeholder="Enter new full name" 
-                          minLength="2"
+                          placeholder="Enter your full name" 
                           disabled={loading}
                         />
                         {validationErrors.fullname && (
                           <div className="invalid-feedback">{validationErrors.fullname}</div>
                         )}
                       </div>
-                      <div className="col-lg-6 mb-3">
-                        <label className="form-label" htmlFor="username">New Username</label>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-semibold" htmlFor="username">
+                          <i className="fa fa-at text-primary me-2"></i>Username
+                        </label>
                         <input 
                           id="username" 
-                          className={`form-control ${validationErrors.username ? 'is-invalid' : ''}`}
+                          className={`form-control form-control-lg shadow-sm ${validationErrors.username ? 'is-invalid' : ''}`}
                           name="username"
                           value={formData.username}
                           onChange={handleInputChange}
-                          placeholder="Enter new username" 
-                          minLength="3"
+                          placeholder="Enter your username" 
                           disabled={loading}
                         />
                         {validationErrors.username && (
                           <div className="invalid-feedback">{validationErrors.username}</div>
                         )}
                       </div>
-                    </div>
-
-                    {/* Email Section */}
-                    <div className="mb-4 border-bottom pb-3">
-                      <h4 className="text-center text-secondary mb-4">Email Settings</h4>
-                      <div className="row">
-                        <div className="col-lg-12 mb-3">
-                          <label className="form-label" htmlFor="current_email">Current Email</label>
-                          <input 
-                            id="current_email" 
-                            className="form-control" 
-                            value={user?.email || ''} 
-                            disabled 
-                          />
-                        </div>
-                        <div className="col-lg-12 mb-3">
-                          <label className="form-label" htmlFor="email">New Email Address</label>
-                          <input 
-                            id="email" 
-                            className={`form-control ${validationErrors.email ? 'is-invalid' : ''}`}
-                            name="email" 
-                            type="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            placeholder="Enter new email address"
-                            disabled={loading}
-                          />
-                          {validationErrors.email && (
-                            <div className="invalid-feedback">{validationErrors.email}</div>
-                          )}
-                        </div>
+                      
+                      <div className="col-12 mb-3">
+                        <label className="form-label fw-semibold" htmlFor="email">
+                          <i className="fa fa-envelope text-primary me-2"></i>Email Address
+                        </label>
+                        <input 
+                          id="email" 
+                          className={`form-control form-control-lg shadow-sm ${validationErrors.email ? 'is-invalid' : ''}`}
+                          name="email" 
+                          type="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="Enter your email address"
+                          disabled={loading}
+                        />
+                        {validationErrors.email && (
+                          <div className="invalid-feedback">{validationErrors.email}</div>
+                        )}
                       </div>
                     </div>
 
                     {/* Password Section */}
-                    <div className="mb-4">
-                      <h4 className="text-center text-secondary mb-4">Password Settings</h4>
-                      <div className="row">
-                        <div className="col-lg-12 mb-3">
-                          <label className="form-label" htmlFor="current_password">Current Password</label>
-                          <input 
-                            id="current_password" 
-                            className="form-control" 
-                            name="currentPassword"
-                            type="password" 
-                            value={formData.currentPassword}
-                            onChange={handleInputChange}
-                            placeholder="Current Password" 
-                            minLength="8"
-                            disabled={loading}
-                          />
-                        </div>
-                        <div className="col-lg-6 mb-3">
-                          <label className="form-label" htmlFor="new_password">New Password</label>
-                          <input 
-                            id="new_password" 
-                            className={`form-control ${validationErrors.newPassword ? 'is-invalid' : ''}`}
-                            name="newPassword"
-                            type="password" 
-                            value={formData.newPassword}
-                            onChange={handleInputChange}
-                            placeholder="New Password" 
-                            minLength="6"
-                            disabled={loading}
-                          />
-                          <small className="text-muted">Minimum 6 characters</small>
-                          {validationErrors.newPassword && (
-                            <div className="invalid-feedback">{validationErrors.newPassword}</div>
-                          )}
-                        </div>
-                        <div className="col-lg-6 mb-3">
-                          <label className="form-label" htmlFor="confirm_password">Confirm New Password</label>
-                          <input 
-                            id="confirm_password" 
-                            className={`form-control ${validationErrors.confirmPassword ? 'is-invalid' : ''}`}
-                            name="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleInputChange}
-                            disabled={loading}
-                          />
-                          {validationErrors.confirmPassword && (
-                            <div className="invalid-feedback">{validationErrors.confirmPassword}</div>
-                          )}
-                        </div>
+                    <div className="row mb-4">
+                      <div className="col-12 mb-4">
+                        <h4 className="text-primary border-bottom pb-2">
+                          <i className="fa fa-lock me-2"></i>Change Password
+                          <small className="text-muted ms-2">(Optional)</small>
+                        </h4>
+                      </div>
+                      
+                      <div className="col-12 mb-3">
+                        <label className="form-label fw-semibold" htmlFor="current_password">
+                          <i className="fa fa-key text-primary me-2"></i>Current Password
+                        </label>
+                        <input 
+                          id="current_password" 
+                          className="form-control form-control-lg shadow-sm" 
+                          name="currentPassword"
+                          type="password" 
+                          value={formData.currentPassword}
+                          onChange={handleInputChange}
+                          placeholder="Enter current password to change it" 
+                          disabled={loading}
+                        />
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-semibold" htmlFor="new_password">
+                          <i className="fa fa-shield-alt text-primary me-2"></i>New Password
+                        </label>
+                        <input 
+                          id="new_password" 
+                          className={`form-control form-control-lg shadow-sm ${validationErrors.newPassword ? 'is-invalid' : ''}`}
+                          name="newPassword"
+                          type="password" 
+                          value={formData.newPassword}
+                          onChange={handleInputChange}
+                          placeholder="Enter new password" 
+                          disabled={loading}
+                        />
+                        <small className="text-muted">Minimum 6 characters</small>
+                        {validationErrors.newPassword && (
+                          <div className="invalid-feedback">{validationErrors.newPassword}</div>
+                        )}
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-semibold" htmlFor="confirm_password">
+                          <i className="fa fa-check-circle text-primary me-2"></i>Confirm Password
+                        </label>
+                        <input 
+                          id="confirm_password" 
+                          className={`form-control form-control-lg shadow-sm ${validationErrors.confirmPassword ? 'is-invalid' : ''}`}
+                          name="confirmPassword"
+                          type="password"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          placeholder="Confirm new password"
+                          disabled={loading}
+                        />
+                        {validationErrors.confirmPassword && (
+                          <div className="invalid-feedback">{validationErrors.confirmPassword}</div>
+                        )}
                       </div>
                     </div>
-
-                    {/* Submit Button */}
-                    <button 
-                      className="btn btn-secondary text-light w-100 shadow-sm mt-4" 
-                      type="submit"
-                      disabled={loading}
-                    >
-                      {loading ? <LoadingSpinner size="small" message="" /> : 'Save Changes'}
-                    </button>
+                    
+                    {/* Form Actions */}
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                      <button 
+                        className="btn btn-outline-secondary btn-lg px-4" 
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={loading}
+                      >
+                        <i className="fa fa-times me-2"></i>Cancel
+                      </button>
+                      <button 
+                        className="btn btn-primary btn-lg px-4" 
+                        type="submit"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <LoadingSpinner size="small" />
+                            <span className="ms-2">Saving...</span>
+                          </>
+                        ) : (
+                          <>
+                            <i className="fa fa-save me-2"></i>Save Changes
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </form>
                 </div>
               </div>
