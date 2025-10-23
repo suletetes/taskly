@@ -18,6 +18,14 @@ const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Add auth-page class to body for background image support
+  useEffect(() => {
+    document.body.classList.add('auth-page')
+    return () => {
+      document.body.classList.remove('auth-page')
+    }
+  }, [])
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -87,9 +95,9 @@ const Login = () => {
         username: formData.email.trim(), // Backend accepts username or email in username field
         password: formData.password
       })
-      
+
       showSuccess('Welcome back! You have been successfully logged in.')
-      
+
       // Navigation will be handled by useEffect when isAuthenticated changes
     } catch (err) {
       // Error is handled by AuthContext
@@ -109,10 +117,7 @@ const Login = () => {
       backgroundImage: 'url("/img/background/login.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      height: '100vh'
     }}>
       <div className="container bloc-xl-lg">
         <div className="row justify-content-center">

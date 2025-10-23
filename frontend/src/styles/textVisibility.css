@@ -5,7 +5,7 @@ html {
   color-scheme: light only !important;
 }
 
-body, html {
+body:not(.auth-page), html {
   color: #000000 !important;
   background: #ffffff !important;
 }
@@ -78,7 +78,7 @@ input, textarea, select {
     color: inherit !important;
   }
   
-  body {
+  body:not(.auth-page) {
     color: #000000 !important;
     background: #ffffff !important;
   }

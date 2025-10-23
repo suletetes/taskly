@@ -1,7 +1,7 @@
 /* Color Contrast Fixes for Better Visibility */
 
-/* Force light theme and high contrast */
-html, body {
+/* Force light theme and high contrast - but preserve auth page backgrounds */
+html, body:not(.auth-page) {
   color: #212529 !important;
   background-color: #ffffff !important;
   -webkit-font-smoothing: antialiased !important;
@@ -13,8 +13,8 @@ html, body {
   color: inherit !important;
 }
 
-/* Ensure all text has proper contrast */
-body {
+/* Ensure all text has proper contrast - but not for auth pages */
+body:not(.auth-page) {
   color: #212529 !important;
   background-color: #ffffff !important;
 }
@@ -159,7 +159,7 @@ a:hover {
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  body {
+  body:not(.auth-page) {
     color: #000000 !important;
     background-color: #ffffff !important;
   }
@@ -175,7 +175,7 @@ a:hover {
 
 /* Dark mode detection and override */
 @media (prefers-color-scheme: dark) {
-  body {
+  body:not(.auth-page) {
     color: #212529 !important;
     background-color: #ffffff !important;
   }

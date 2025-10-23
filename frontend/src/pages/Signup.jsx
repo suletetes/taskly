@@ -22,6 +22,14 @@ const Signup = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Add auth-page class to body for background image support
+  useEffect(() => {
+    document.body.classList.add('auth-page')
+    return () => {
+      document.body.classList.remove('auth-page')
+    }
+  }, [])
+
   // Avatar options matching the EJS template
   const avatarOptions = [
     '/img/placeholder-user.png',
@@ -161,20 +169,13 @@ const Signup = () => {
   }
 
   return (
-    <div className="bloc none l-bloc" style={{
+    <div className="bloc-xl-lg" style={{
       backgroundImage: 'url("/img/background/signup.jpg")',
       backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingTop: '2rem',
-      paddingBottom: '2rem'
+      backgroundPosition: 'center'
     }}>
-      <div className="container bloc-xl-lg">
-        <div className="row justify-content-center">
-          <div className="col-sm-10 col-md-8 col-lg-7">
+      <div className="row justify-content-center">
+        <div className="col-sm-10 col-md-8 col-lg-7">
             <div className="signup-card bg-white shadow-lg rounded-4 p-4">
               <h2 className="mb-4 text-center fw-bold text-dark">Create Your Taskly Account</h2>
 
@@ -340,7 +341,6 @@ const Signup = () => {
                   </Link>
                 </p>
               </form>
-            </div>
           </div>
         </div>
       </div>
