@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const { register, login, logout, getProfile } = require('../controllers/authController');
-const { authenticateToken } = require('../middleware/auth');
-const { validateRegister, validateLogin } = require('../middleware/validation');
+import { register, login, logout, getProfile } from '../controllers/authController.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { validateRegister, validateLogin } from '../middleware/validation.js';
 
 /**
  * @route   POST /api/auth/register
@@ -33,4 +33,4 @@ router.post('/logout', logout);
  */
 router.get('/me', authenticateToken, getProfile);
 
-module.exports = router;
+export default router;

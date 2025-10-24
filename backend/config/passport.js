@@ -1,7 +1,7 @@
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/User');
-const { comparePassword } = require('../utils/password');
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import User from '../models/User.js';
+import { comparePassword } from '../utils/password.js';
 
 // Local Strategy
 passport.use(new LocalStrategy({
@@ -46,4 +46,4 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-module.exports = passport;
+export default passport;

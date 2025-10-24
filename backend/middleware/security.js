@@ -1,7 +1,7 @@
-const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
-const rateLimit = require('express-rate-limit');
-const sanitizeHtml = require('sanitize-html');
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
+import sanitizeHtml from 'sanitize-html';
 
 // Helmet configuration for security headers
 const helmetConfig = helmet({
@@ -109,7 +109,7 @@ const userLimiter = rateLimit({
   legacyHeaders: false
 });
 
-module.exports = {
+export {
   helmetConfig,
   mongoSanitizeConfig,
   sanitizeInput,

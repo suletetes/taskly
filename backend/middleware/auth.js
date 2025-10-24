@@ -1,73 +1,21 @@
-const { verifyToken } = require('../utils/jwt');
-const User = require('../models/User');
-
 /**
- * Middleware to authenticate JWT tokens
+ * Middleware to authenticate using Passport sessions
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const authenticateToken = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'Access token required',
-          code: 'UNAUTHORIZED'
-        }
-      });
-    }
-
-    const decoded = verifyToken(token);
-    
-    // Fetch user from database to ensure they still exist
-    const user = await User.findById(decoded.id).select('-password');
-    
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'User not found',
-          code: 'UNAUTHORIZED'
-        }
-      });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'Invalid token',
-          code: 'UNAUTHORIZED'
-        }
-      });
-    }
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'Token expired',
-          code: 'TOKEN_EXPIRED'
-        }
-      });
-    }
-
-    return res.status(500).json({
-      success: false,
-      error: {
-        message: 'Authentication error',
-        code: 'INTERNAL_SERVER_ERROR'
-      }
-    });
+export const authenticateToken = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
   }
+
+  return res.status(401).json({
+    success: false,
+    error: {
+      message: 'Authentication required',
+      code: 'UNAUTHORIZED'
+    }
+  });
 };
 
 /**
@@ -76,7 +24,7 @@ const authenticateToken = async (req, res, next) => {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const authorizeUser = (req, res, next) => {
+export const authorizeUser = (req, res, next) => {
   const { userId } = req.params;
   
   // Allow access if user is accessing their own resources or if no userId in params
@@ -94,33 +42,13 @@ const authorizeUser = (req, res, next) => {
 };
 
 /**
- * Optional authentication middleware - doesn't fail if no token provided
+ * Optional authentication middleware - doesn't fail if not authenticated
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const optionalAuth = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token) {
-      const decoded = verifyToken(token);
-      const user = await User.findById(decoded.id).select('-password');
-      if (user) {
-        req.user = user;
-      }
-    }
-    
-    next();
-  } catch (error) {
-    // Continue without authentication if token is invalid
-    next();
-  }
-};
-
-module.exports = {
-  authenticateToken,
-  authorizeUser,
-  optionalAuth,
+export const optionalAuth = (req, res, next) => {
+  // User will be available in req.user if authenticated via Passport
+  // No need to check anything, just continue
+  next();
 };

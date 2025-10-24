@@ -4,7 +4,6 @@ import authService from '../services/authService'
 // Initial state
 const initialState = {
   user: null,
-  token: null,
   isAuthenticated: false,
   isLoading: true,
   error: null
@@ -44,7 +43,6 @@ const authReducer = (state, action) => {
       return {
         ...state,
         user: action.payload.user,
-        token: action.payload.token,
         isAuthenticated: true,
         isLoading: false,
         error: null
@@ -65,7 +63,6 @@ const authReducer = (state, action) => {
       return {
         ...state,
         user: null,
-        token: null,
         isAuthenticated: false,
         isLoading: false,
         error: action.payload
@@ -75,7 +72,6 @@ const authReducer = (state, action) => {
       return {
         ...state,
         user: null,
-        token: null,
         isAuthenticated: false,
         isLoading: false,
         error: null
@@ -117,48 +113,31 @@ export const AuthProvider = ({ children }) => {
     loadUser()
   }, [])
 
-  // Load user from storage or API
+  // Load user from session or API
   const loadUser = useCallback(async () => {
     dispatch({ type: AUTH_ACTIONS.LOAD_USER_START })
 
     try {
-      // Check if user is stored locally
-      if (authService.isAuthenticated()) {
+      // Try to get user data from API (session-based)
+      const currentUser = await authService.getCurrentUser()
+      dispatch({
+        type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
+        payload: currentUser
+      })
+    } catch (error) {
+      // If API call fails, check if we have stored user data
+      if (authService.hasStoredUser()) {
         const storedUser = authService.getStoredUser()
-        const storedToken = authService.getStoredToken()
-
-        if (storedUser && storedToken) {
-          // Try to get fresh user data from API
-          try {
-            const currentUser = await authService.getCurrentUser()
-            dispatch({
-              type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
-              payload: currentUser
-            })
-          } catch (error) {
-            // If API call fails, use stored data
-            dispatch({
-              type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
-              payload: storedUser
-            })
-          }
-        } else {
-          dispatch({
-            type: AUTH_ACTIONS.LOAD_USER_FAILURE,
-            payload: 'No valid authentication data found'
-          })
-        }
+        dispatch({
+          type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
+          payload: storedUser
+        })
       } else {
         dispatch({
           type: AUTH_ACTIONS.LOAD_USER_FAILURE,
           payload: 'User not authenticated'
         })
       }
-    } catch (error) {
-      dispatch({
-        type: AUTH_ACTIONS.LOAD_USER_FAILURE,
-        payload: error.message
-      })
     }
   }, [dispatch])
 
@@ -173,8 +152,7 @@ export const AuthProvider = ({ children }) => {
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
           payload: {
-            user: response.data.user,
-            token: response.data.token
+            user: response.data.user
           }
         })
         return response
@@ -201,8 +179,7 @@ export const AuthProvider = ({ children }) => {
         dispatch({
           type: AUTH_ACTIONS.REGISTER_SUCCESS,
           payload: {
-            user: response.data.user,
-            token: response.data.token
+            user: response.data.user
           }
         })
         return response
@@ -262,7 +239,7 @@ export const AuthProvider = ({ children }) => {
         return currentUser
       } catch (error) {
         console.error('Failed to refresh user data:', error)
-        // If refresh fails due to invalid token, logout
+        // If refresh fails due to invalid session, logout
         if (error.status === 401) {
           logout()
         }
@@ -274,7 +251,6 @@ export const AuthProvider = ({ children }) => {
   const value = {
     // State
     user: state.user,
-    token: state.token,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     error: state.error,
