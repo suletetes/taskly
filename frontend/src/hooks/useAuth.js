@@ -99,46 +99,21 @@ export const useAuthRedirect = () => {
   }
 }
 
-// Hook for token management
-export const useToken = () => {
-  const { token } = useAuth()
+// Hook for session management (replaces token management)
+export const useSession = () => {
+  const { isAuthenticated, user } = useAuth()
   
-  const isTokenExpired = () => {
-    if (!token) return true
-    
-    try {
-      // Decode JWT token to check expiration
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const currentTime = Date.now() / 1000
-      
-      return payload.exp < currentTime
-    } catch (error) {
-      console.error('Error decoding token:', error)
-      return true
-    }
+  const isSessionValid = () => {
+    return isAuthenticated && !!user
   }
   
-  const getTokenPayload = () => {
-    if (!token) return null
-    
-    try {
-      return JSON.parse(atob(token.split('.')[1]))
-    } catch (error) {
-      console.error('Error decoding token:', error)
-      return null
-    }
-  }
-  
-  const getTokenExpiration = () => {
-    const payload = getTokenPayload()
-    return payload?.exp ? new Date(payload.exp * 1000) : null
+  const getSessionUser = () => {
+    return user
   }
   
   return {
-    token,
-    isTokenExpired,
-    getTokenPayload,
-    getTokenExpiration
+    isSessionValid,
+    getSessionUser
   }
 }
 

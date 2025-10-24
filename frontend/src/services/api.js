@@ -3,7 +3,7 @@ import { mockApiService } from './mockApi'
 
 // Global error handler for API errors
 let globalErrorHandler = null
-let useMockApi = false
+let useMockApi = false // Force to use real API for now
 
 export const setGlobalErrorHandler = (handler) => {
   globalErrorHandler = handler
@@ -24,9 +24,12 @@ const checkBackendAvailability = async () => {
 
 // Initialize backend availability check
 checkBackendAvailability().then(isAvailable => {
+  console.log('Backend availability check:', isAvailable)
   if (!isAvailable) {
-    useMockApi = true
-    console.warn('Backend not available, using mock API for development')
+    console.warn('Backend not available, but forcing real API usage for debugging')
+    // useMockApi = true // Commented out to force real API usage
+  } else {
+    console.log('Backend is available, using real API')
   }
 })
 

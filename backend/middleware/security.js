@@ -26,6 +26,19 @@ const mongoSanitizeConfig = mongoSanitize({
   replaceWith: '_'
 });
 
+// Helper function to recursively sanitize objects
+const sanitizeObject = (obj, options) => {
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (typeof obj[key] === 'string') {
+        obj[key] = sanitizeHtml(obj[key], options);
+      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+        sanitizeObject(obj[key], options);
+      }
+    }
+  }
+};
+
 // Request sanitization middleware
 const sanitizeInput = (req, res, next) => {
   const sanitizeOptions = {
@@ -45,19 +58,6 @@ const sanitizeInput = (req, res, next) => {
   }
   
   next();
-};
-
-// Helper function to recursively sanitize objects
-const sanitizeObject = (obj, options) => {
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      if (typeof obj[key] === 'string') {
-        obj[key] = sanitizeHtml(obj[key], options);
-      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-        sanitizeObject(obj[key], options);
-      }
-    }
-  }
 };
 
 // General rate limiter
