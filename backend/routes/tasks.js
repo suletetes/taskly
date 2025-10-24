@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const {
+import {
     createTask,
     getTaskById,
     getTasksByUser,
@@ -9,17 +9,17 @@ const {
     completeTask,
     deleteTask,
     updateTaskStatus
-} = require('../controllers/taskController');
+} from '../controllers/taskController.js';
 
-const { authenticateToken } = require('../middleware/auth');
-const {
+import { authenticateToken } from '../middleware/auth.js';
+import {
     validateTaskId,
     validateUserId,
     validateCreateTask,
     validateUpdateTask,
     validateTaskQuery,
     validateTaskStatus
-} = require('../middleware/validation');
+} from '../middleware/validation.js';
 
 /**
  * @route   POST /api/tasks
@@ -89,4 +89,4 @@ router.patch('/:taskId/status',
     updateTaskStatus
 );
 
-module.exports = router;
+export default router;

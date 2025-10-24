@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const { 
+import { 
     getUserById, 
     getAllUsers, 
     updateUser, 
@@ -10,10 +10,10 @@ const {
     changePassword,
     uploadAvatar,
     deleteCurrentUser
-} = require('../controllers/userController');
+} from '../controllers/userController.js';
 
-const { authenticateToken } = require('../middleware/auth');
-const { 
+import { authenticateToken } from '../middleware/auth.js';
+import { 
     validateUpdateUser, 
     validateUserId, 
     validateUserQuery,
@@ -22,14 +22,14 @@ const {
     validateUploadAvatar,
     validateCreateTask,
     validateTaskQuery
-} = require('../middleware/validation');
+} from '../middleware/validation.js';
 
-const {
+import {
     createTask,
     getTasksByUser,
     getUserProductivityStats,
     getTaskStatusSummary
-} = require('../controllers/taskController');
+} from '../controllers/taskController.js';
 
 /**
  * @route   GET /api/users
@@ -171,4 +171,4 @@ router.get('/:userId/tasks/summary',
     getTaskStatusSummary
 );
 
-module.exports = router;
+export default router;

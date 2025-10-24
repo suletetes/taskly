@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 /**
  * Validation middleware factory
@@ -451,7 +451,7 @@ const validateTaskId = validate(taskIdSchema, 'params');
 const validateTaskQuery = validate(taskQuerySchema, 'query');
 const validateTaskStatus = validate(taskStatusSchema);
 
-module.exports = {
+export {
   validate,
   validateRegister,
   validateLogin,

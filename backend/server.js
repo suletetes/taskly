@@ -1,20 +1,22 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const passport = require('./config/passport');
-require('dotenv').config();
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import passport from './config/passport.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Import security middleware
-const {
+import {
   helmetConfig,
   mongoSanitizeConfig,
   sanitizeInput,
   generalLimiter,
   authLimiter,
   userLimiter
-} = require('./middleware/security');
+} from './middleware/security.js';
 
 const app = express();
 
@@ -83,14 +85,16 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
+  name: 'taskly.sid', // Custom session name
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly',
     touchAfter: 24 * 3600 // lazy session update
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    secure: false, // Set to false for development (HTTP)
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    sameSite: 'lax' // Allow cross-site requests
   }
 }));
 
@@ -99,9 +103,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const taskRoutes = require('./routes/tasks');
+import authRoutes from './routes/auth.js';
+import userRoutes from './routes/users.js';
+import taskRoutes from './routes/tasks.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -114,7 +118,7 @@ app.get('/api/health', (req, res) => {
     message: 'Taskly API Server is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    version: require('./package.json').version,
+    version: '1.0.0',
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   };
   
@@ -153,4 +157,4 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-module.exports = app;
+export default app;

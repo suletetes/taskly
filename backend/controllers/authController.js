@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const passport = require('passport');
-const { hashPassword } = require('../utils/password');
+import User from '../models/User.js';
+import passport from 'passport';
+import { hashPassword } from '../utils/password.js';
 
 /**
  * Register a new user
@@ -231,7 +231,7 @@ const getProfile = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     register,
     login,
     logout,

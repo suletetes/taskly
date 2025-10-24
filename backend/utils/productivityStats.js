@@ -1,4 +1,4 @@
-const Task = require("../models/Task");
+import Task from "../models/Task.js";
 
 // Calculate Productivity Stats (Reusable Functionality)
 const fetchTaskCounts = async (userId, status) => {
@@ -68,6 +68,6 @@ const calculateProductivityStats = async (userId) => {
     }
 };
 
-module.exports = {
+export {
     calculateProductivityStats,
 };

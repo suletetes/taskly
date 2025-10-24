@@ -1,6 +1,6 @@
-const Task = require('../models/Task');
-const User = require('../models/User');
-const { calculateProductivityStats } = require('../utils/productivityStats');
+import Task from '../models/Task.js';
+import User from '../models/User.js';
+import { calculateProductivityStats } from '../utils/productivityStats.js';
 
 /**
  * Create a new task
@@ -696,7 +696,7 @@ const getTaskStatusSummary = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     createTask,
     getTaskById,
     getTasksByUser,

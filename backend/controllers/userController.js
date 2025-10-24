@@ -1,7 +1,7 @@
-const User = require('../models/User');
-const Task = require('../models/Task');
-const { calculateProductivityStats } = require('../utils/productivityStats');
-const { comparePassword, hashPassword } = require('../utils/password');
+import User from '../models/User.js';
+import Task from '../models/Task.js';
+import { calculateProductivityStats } from '../utils/productivityStats.js';
+import { comparePassword, hashPassword } from '../utils/password.js';
 
 /**
  * Get user by ID with tasks and statistics
@@ -536,7 +536,7 @@ const deleteCurrentUser = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     getUserById,
     getAllUsers,
     updateUser,
