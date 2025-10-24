@@ -125,19 +125,12 @@ export const AuthProvider = ({ children }) => {
         payload: currentUser
       })
     } catch (error) {
-      // If API call fails, check if we have stored user data
-      if (authService.hasStoredUser()) {
-        const storedUser = authService.getStoredUser()
-        dispatch({
-          type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
-          payload: storedUser
-        })
-      } else {
-        dispatch({
-          type: AUTH_ACTIONS.LOAD_USER_FAILURE,
-          payload: 'User not authenticated'
-        })
-      }
+      // Clear any stale data and mark as not authenticated
+      authService.clearAuthData()
+      dispatch({
+        type: AUTH_ACTIONS.LOAD_USER_FAILURE,
+        payload: 'User not authenticated'
+      })
     }
   }, [dispatch])
 

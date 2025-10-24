@@ -13,7 +13,7 @@ const Login = () => {
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { login, isAuthenticated, error, clearError } = useAuth()
+  const { login, isAuthenticated, isLoading, error, clearError } = useAuth()
   const { showSuccess } = useNotification()
   const navigate = useNavigate()
   const location = useLocation()
@@ -26,13 +26,13 @@ const Login = () => {
     }
   }, [])
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (only after loading is complete)
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !isLoading) {
       const returnTo = location.state?.from || '/'
       navigate(returnTo, { replace: true })
     }
-  }, [isAuthenticated, navigate, location.state])
+  }, [isAuthenticated, isLoading, navigate, location.state])
 
   // Clear auth errors when component mounts
   useEffect(() => {
