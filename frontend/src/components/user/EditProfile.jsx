@@ -402,10 +402,15 @@ const EditProfile = () => {
                     {/* Form Actions */}
                     <div className="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
                       <button 
-                        className="btn btn-outline-secondary btn-lg px-4" 
+                        className="btn btn-lg px-4" 
                         type="button"
                         onClick={handleCancel}
                         disabled={loading}
+                        style={{
+                          backgroundColor: '#6c757d',
+                          borderColor: '#6c757d',
+                          color: 'white'
+                        }}
                       >
                         <i className="fa fa-times me-2"></i>Cancel
                       </button>
