@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -39,6 +39,14 @@ const userSchema = new mongoose.Schema({
             ref: "Task",
         },
     ],
+    stats: {
+        completed: { type: Number, default: 0 },
+        failed: { type: Number, default: 0 },
+        ongoing: { type: Number, default: 0 },
+        completionRate: { type: Number, default: 0 },
+        streak: { type: Number, default: 0 },
+        avgTime: { type: String, default: '0 hrs' }
+    },
 });
 
 // Pre-save hook for unique username validation
@@ -64,4 +72,4 @@ userSchema.pre("save", async function (next) {
 });
 
 const User = mongoose.model("User", userSchema);
-module.exports = User;
+export default User;

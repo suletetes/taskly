@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
     {
@@ -10,13 +10,6 @@ const taskSchema = new mongoose.Schema(
         due: {
             type: Date,
             required: [true, "Due date is required"],
-            validate: {
-                validator: function (value) {
-                    const now = new Date();
-                    return value >= new Date(now.getFullYear(), now.getMonth(), now.getDate()); // No past dates but allow today
-                },
-                message: "Due date cannot be in the past.",
-            },
         },
         priority: {
             type: String,
@@ -73,4 +66,4 @@ taskSchema.methods.completeTask = function () {
 };
 
 const Task = mongoose.model("Task", taskSchema);
-module.exports = Task;
+export default Task;

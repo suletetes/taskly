@@ -235,19 +235,31 @@ const generateTasksForUsers = (users) => {
         
         for (let i = 0; i < numTasks; i++) {
             const template = getRandomItem(taskTemplates);
-            const daysOffset = getRandomNumber(-30, 30); // Tasks from 30 days ago to 30 days in future
             const status = getRandomItem(["completed", "in-progress", "failed"]);
             
+            // Create realistic due dates based on status
+            let dueDate;
+            if (status === 'completed') {
+                // Completed tasks can have past due dates (they were finished)
+                dueDate = getRandomDate(getRandomNumber(-20, -1));
+            } else if (status === 'failed') {
+                // Failed tasks should have past due dates (they missed the deadline)
+                dueDate = getRandomDate(getRandomNumber(-15, -1));
+            } else {
+                // In-progress tasks should have future due dates
+                dueDate = getRandomDate(getRandomNumber(1, 30));
+            }
+            
             tasks.push({
-                title: template.title,
+                title: `${template.title} - ${user.fullname.split(' ')[0]}`,
                 description: template.description,
-                due: getRandomDate(daysOffset),
+                due: dueDate,
                 priority: template.priority,
                 tags: template.tags,
                 status: status,
                 user: user._id,
-                created_at: getRandomDate(getRandomNumber(-60, -1)), // Created 1-60 days ago
-                updated_at: getRandomDate(getRandomNumber(-10, 0)) // Updated within last 10 days
+                createdAt: getRandomDate(getRandomNumber(-60, -1)), // Created 1-60 days ago
+                updatedAt: getRandomDate(getRandomNumber(-10, 0)) // Updated within last 10 days
             });
         }
     });
