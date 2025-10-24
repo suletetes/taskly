@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
 
 // MongoDB connection
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/taskly'); // Removed deprecated options
+        await mongoose.connect('mongodb://127.0.0.1:27017/taskly');
         console.log('MongoDB connected successfully.');
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
@@ -16,91 +17,314 @@ const connectDB = async () => {
 // Random Data Generators
 const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-// Define labels for users
-const labels = ["Admin", "Manager", "Developer", "Tester", "Guest", "Contributor"];
-
-// Sample data arrays for random generation
-const sampleNames = ["Alice Doe", "Bob Smith", "Carol Johnson", "David Warner", "Eve Adams", "Frank Bell"];
-const sampleUsernames = ["alice", "bob", "carol", "david", "eve", "frank"];
-const sampleAvatars = [
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661915/avatar-1_rltonx.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661916/avatar-2_pcpiuc.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-3_uge9uz.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661918/avatar-4_u7ekxu.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661920/avatar-5_mhbem1.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661917/avatar-6_yhpqaq.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661921/avatar-8_qou6jc.jpg",
-    "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751661921/avatar-9_bvbvnm.jpg",
-];
-
-// Generate random users
-const generateRandomUsers = (count) => {
-    const users = [];
-    for (let i = 0; i < count; i++) {
-        const name = getRandomItem(sampleNames) + ` ${i}`;
-        users.push({
-            fullname: name,
-            username: getRandomItem(sampleUsernames) + i,
-            email: `${getRandomItem(sampleUsernames)}${getRandomNumber(1, 1000)}@example.com`,
-            avatar: getRandomItem(sampleAvatars),
-            labels: Array.from(new Set(
-                Array(getRandomNumber(1, 3))
-                    .fill(null)
-                    .map(() => getRandomItem(labels))
-            )), // Assign 1-3 unique labels
-        });
-    }
-    return users;
+const getRandomDate = (daysFromNow) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysFromNow);
+    return date;
 };
 
-// Generate random tasks
-const generateRandomTasks = (userIds, count) => {
-    const tasks = [];
-    for (let i = 0; i < count; i++) {
-        tasks.push({
-            title: `Task ${i + 1}`,
-            due: new Date(new Date().getTime() + getRandomNumber(1, 30) * 24 * 60 * 60 * 1000), // Due in 1-30 days
-            priority: getRandomItem(["Low", "Medium", "High"]),
-            description: "This is a random task description.",
-            tags: ["Work", "Urgent"], // Example tags
-            labels: getRandomItem(labels), // Assign random task label
-            status: getRandomItem(["completed", "in-progress", "failed"]),
-            user: getRandomItem(userIds), // Assign random user
-        });
+// Comprehensive user data
+const userData = [
+    {
+        fullname: "John Doe",
+        username: "johndoe",
+        email: "john@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-1.jpg"
+    },
+    {
+        fullname: "Jane Smith",
+        username: "janesmith",
+        email: "jane@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-2.jpg"
+    },
+    {
+        fullname: "Mike Johnson",
+        username: "mikejohnson",
+        email: "mike@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-3.jpg"
+    },
+    {
+        fullname: "Sarah Wilson",
+        username: "sarahwilson",
+        email: "sarah@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-4.jpg"
+    },
+    {
+        fullname: "David Brown",
+        username: "davidbrown",
+        email: "david@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-5.jpg"
+    },
+    {
+        fullname: "Emily Davis",
+        username: "emilydavis",
+        email: "emily@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-6.jpg"
+    },
+    {
+        fullname: "Alex Rodriguez",
+        username: "alexrodriguez",
+        email: "alex@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-7.jpg"
+    },
+    {
+        fullname: "Lisa Anderson",
+        username: "lisaanderson",
+        email: "lisa@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-8.jpg"
+    },
+    {
+        fullname: "Chris Taylor",
+        username: "christaylor",
+        email: "chris@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-9.jpg"
+    },
+    {
+        fullname: "Amanda White",
+        username: "amandawhite",
+        email: "amanda@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-10.jpg"
+    },
+    {
+        fullname: "Ryan Martinez",
+        username: "ryanmartinez",
+        email: "ryan@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-11.jpg"
+    },
+    {
+        fullname: "Jessica Garcia",
+        username: "jessicagarcia",
+        email: "jessica@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-12.jpg"
+    },
+    {
+        fullname: "Kevin Lee",
+        username: "kevinlee",
+        email: "kevin@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-13.jpg"
+    },
+    {
+        fullname: "Michelle Thompson",
+        username: "michellethompson",
+        email: "michelle@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-1.jpg"
+    },
+    {
+        fullname: "Daniel Clark",
+        username: "danielclark",
+        email: "daniel@example.com",
+        password: "password123",
+        avatar: "/img/avatars/avatar-2.jpg"
     }
+];
+
+// Comprehensive task templates
+const taskTemplates = [
+    {
+        title: "Complete project proposal",
+        description: "Write and submit the quarterly project proposal with budget analysis and timeline.",
+        priority: "high",
+        tags: ["work", "urgent", "proposal"]
+    },
+    {
+        title: "Review team performance",
+        description: "Conduct quarterly performance reviews for all team members and provide feedback.",
+        priority: "medium",
+        tags: ["management", "review", "team"]
+    },
+    {
+        title: "Update website content",
+        description: "Refresh the company website with new product information and testimonials.",
+        priority: "medium",
+        tags: ["web", "content", "marketing"]
+    },
+    {
+        title: "Prepare presentation slides",
+        description: "Create presentation slides for the upcoming client meeting next week.",
+        priority: "high",
+        tags: ["presentation", "client", "meeting"]
+    },
+    {
+        title: "Organize team building event",
+        description: "Plan and organize a team building event for the entire department.",
+        priority: "low",
+        tags: ["team", "event", "planning"]
+    },
+    {
+        title: "Code review for new feature",
+        description: "Review the code implementation for the new user authentication feature.",
+        priority: "high",
+        tags: ["code", "review", "development"]
+    },
+    {
+        title: "Database optimization",
+        description: "Optimize database queries to improve application performance.",
+        priority: "medium",
+        tags: ["database", "optimization", "performance"]
+    },
+    {
+        title: "Write technical documentation",
+        description: "Create comprehensive documentation for the new API endpoints.",
+        priority: "medium",
+        tags: ["documentation", "api", "technical"]
+    },
+    {
+        title: "Client feedback analysis",
+        description: "Analyze recent client feedback and prepare improvement recommendations.",
+        priority: "low",
+        tags: ["analysis", "feedback", "client"]
+    },
+    {
+        title: "Security audit",
+        description: "Conduct a comprehensive security audit of the application infrastructure.",
+        priority: "high",
+        tags: ["security", "audit", "infrastructure"]
+    },
+    {
+        title: "Budget planning meeting",
+        description: "Attend the quarterly budget planning meeting and present department needs.",
+        priority: "medium",
+        tags: ["budget", "meeting", "planning"]
+    },
+    {
+        title: "Employee training session",
+        description: "Conduct training session on new company policies and procedures.",
+        priority: "low",
+        tags: ["training", "policies", "education"]
+    },
+    {
+        title: "Market research report",
+        description: "Compile market research data and create comprehensive analysis report.",
+        priority: "medium",
+        tags: ["research", "market", "analysis"]
+    },
+    {
+        title: "System backup verification",
+        description: "Verify that all system backups are working correctly and data is recoverable.",
+        priority: "high",
+        tags: ["backup", "system", "verification"]
+    },
+    {
+        title: "Social media campaign",
+        description: "Launch new social media campaign for product promotion.",
+        priority: "low",
+        tags: ["social", "campaign", "marketing"]
+    }
+];
+
+// Generate tasks for users
+const generateTasksForUsers = (users) => {
+    const tasks = [];
+    
+    users.forEach((user, userIndex) => {
+        const numTasks = getRandomNumber(3, 8); // Each user gets 3-8 tasks
+        
+        for (let i = 0; i < numTasks; i++) {
+            const template = getRandomItem(taskTemplates);
+            const daysOffset = getRandomNumber(-30, 30); // Tasks from 30 days ago to 30 days in future
+            const status = getRandomItem(["completed", "in-progress", "failed"]);
+            
+            tasks.push({
+                title: template.title,
+                description: template.description,
+                due: getRandomDate(daysOffset),
+                priority: template.priority,
+                tags: template.tags,
+                status: status,
+                user: user._id,
+                created_at: getRandomDate(getRandomNumber(-60, -1)), // Created 1-60 days ago
+                updated_at: getRandomDate(getRandomNumber(-10, 0)) // Updated within last 10 days
+            });
+        }
+    });
+    
     return tasks;
+};
+
+// Calculate user statistics
+const calculateUserStats = async (userId) => {
+    const userTasks = await Task.find({ user: userId });
+    
+    const completed = userTasks.filter(task => task.status === 'completed').length;
+    const failed = userTasks.filter(task => task.status === 'failed').length;
+    const ongoing = userTasks.filter(task => task.status === 'in-progress').length;
+    const total = userTasks.length;
+    
+    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const streak = getRandomNumber(0, 15); // Random streak for demo
+    const avgTime = `${getRandomNumber(1, 8)} hrs`; // Random average time
+    
+    return {
+        completed,
+        failed,
+        ongoing,
+        completionRate,
+        streak,
+        avgTime
+    };
 };
 
 // Seed database
 const seedDB = async () => {
     try {
-        // Clear existing database data
+        console.log("Starting database seeding...");
+        
+        // Clear existing data
         await Task.deleteMany({});
         await User.deleteMany({});
         console.log("Existing collections cleared.");
 
-        // Generate and insert users
-        const randomUsers = generateRandomUsers(25); // Generate 25 random users
-        const createdUsers = await User.insertMany(randomUsers);
+        // Create users with hashed passwords
+        const users = [];
+        for (const user of userData) {
+            const hashedPassword = await bcrypt.hash(user.password, 12);
+            users.push({
+                ...user,
+                password: hashedPassword,
+                created_at: getRandomDate(getRandomNumber(-365, -30)) // Created 30-365 days ago
+            });
+        }
+        
+        const createdUsers = await User.insertMany(users);
         console.log(`${createdUsers.length} users created.`);
 
-        // Generate and insert tasks
-        const userIds = createdUsers.map(user => user._id);
-        const randomTasks = generateRandomTasks(userIds, 60); // Generate 60 tasks for users
-        const createdTasks = await Task.insertMany(randomTasks);
+        // Generate and create tasks
+        const tasks = generateTasksForUsers(createdUsers);
+        const createdTasks = await Task.insertMany(tasks);
         console.log(`${createdTasks.length} tasks created.`);
 
-        // Update users with task references
-        for (const task of createdTasks) {
-            await User.findByIdAndUpdate(task.user, { $push: { tasks: task._id } });
+        // Update users with statistics
+        for (const user of createdUsers) {
+            const stats = await calculateUserStats(user._id);
+            await User.findByIdAndUpdate(user._id, { stats });
         }
+        console.log("User statistics calculated and updated.");
 
-        console.log("Database seeded successfully with users and tasks!");
+        console.log("\n=== SEEDING COMPLETE ===");
+        console.log(`Created ${createdUsers.length} users with ${createdTasks.length} tasks`);
+        console.log("Sample login credentials:");
+        console.log("Email: john@example.com | Password: password123");
+        console.log("Email: jane@example.com | Password: password123");
+        console.log("Email: mike@example.com | Password: password123");
+        
     } catch (error) {
         console.error("Error seeding database:", error);
     } finally {
-        mongoose.connection.close(); // Close the connection after seeding is complete
+        mongoose.connection.close();
     }
 };
 
