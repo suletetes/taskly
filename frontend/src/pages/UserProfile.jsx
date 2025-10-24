@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import userService from '../services/userService'
 import taskService from '../services/taskService'
@@ -8,9 +8,10 @@ import ErrorMessage from '../components/common/ErrorMessage'
 import DocumentHead from '../components/common/DocumentHead'
 import SafeImage from '../components/common/SafeImage'
 
-const Profile = () => {
-  const { user: currentUser, logout } = useAuth()
-  const navigate = useNavigate()
+const UserProfile = () => {
+  const { userId } = useParams()
+  const { user: currentUser } = useAuth()
+  const [user, setUser] = useState(null)
   const [tasks, setTasks] = useState([])
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
@@ -22,8 +23,8 @@ const Profile = () => {
     hasPreviousPage: false
   })
 
-  const userId = currentUser?.id || currentUser?._id
   const tasksPerPage = 10
+  const isViewingOwnProfile = currentUser && (currentUser.id === userId || currentUser._id === userId)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,6 +33,10 @@ const Profile = () => {
       try {
         setLoading(true)
         setError(null)
+
+        // Fetch user profile
+        const userResponse = await userService.getUserById(userId)
+        setUser(userResponse.data.user || userResponse.data)
 
         // Fetch user stats
         const statsResponse = await userService.getUserStats(userId)
@@ -113,56 +118,6 @@ const Profile = () => {
     }
   }
 
-  const handleCompleteTask = async (taskId) => {
-    try {
-      await taskService.updateTaskStatus(taskId, 'completed')
-      // Refresh tasks
-      const tasksResponse = await taskService.getUserTasks(userId, {
-        page: currentPage,
-        limit: tasksPerPage
-      })
-      setTasks(tasksResponse.data.items || tasksResponse.data || [])
-
-      // Refresh stats
-      const statsResponse = await userService.getUserStats(userId)
-      setStats(statsResponse.data || {})
-    } catch (err) {
-      console.error('Failed to complete task:', err)
-    }
-  }
-
-  const handleDeleteTask = async (taskId) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      try {
-        await taskService.deleteTask(taskId)
-        // Refresh tasks
-        const tasksResponse = await taskService.getUserTasks(userId, {
-          page: currentPage,
-          limit: tasksPerPage
-        })
-        setTasks(tasksResponse.data.items || tasksResponse.data || [])
-
-        // Refresh stats
-        const statsResponse = await userService.getUserStats(userId)
-        setStats(statsResponse.data || {})
-      } catch (err) {
-        console.error('Failed to delete task:', err)
-      }
-    }
-  }
-
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      try {
-        await userService.deleteUser(userId)
-        logout()
-        navigate('/')
-      } catch (err) {
-        console.error('Failed to delete account:', err)
-      }
-    }
-  }
-
   const renderPagination = () => {
     if (pagination.totalPages <= 1) return null
 
@@ -216,20 +171,6 @@ const Profile = () => {
     )
   }
 
-  if (!currentUser) {
-    return (
-      <div className="bloc l-bloc py-5 bg-light">
-        <div className="container text-center">
-          <h1>Profile</h1>
-          <p>Please log in to view your profile.</p>
-          <Link to="/login" className="btn btn-primary">
-            Login
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   if (loading) {
     return (
       <div className="bloc l-bloc py-5 bg-light">
@@ -252,11 +193,25 @@ const Profile = () => {
     )
   }
 
+  if (!user) {
+    return (
+      <div className="bloc l-bloc py-5 bg-light">
+        <div className="container text-center">
+          <h1>User Not Found</h1>
+          <p>The user you're looking for doesn't exist.</p>
+          <Link to="/users" className="btn btn-primary">
+            Browse Users
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       <DocumentHead
-        title={`${currentUser.fullname || currentUser.username || 'User'} - Profile | Taskly`}
-        description={`View your profile, tasks, and productivity statistics.`}
+        title={`${user.fullname || user.username || 'User'} - Profile | Taskly`}
+        description={`View ${user.fullname || user.username}'s profile and productivity statistics.`}
         keywords="user profile, tasks, productivity, statistics"
       />
 
@@ -267,7 +222,7 @@ const Profile = () => {
           <div className="d-flex justify-content-between align-items-center flex-wrap mb-5">
             <div className="order-1 order-md-1 me-4 mb-3 mb-md-0">
               <SafeImage
-                src={currentUser.avatar}
+                src={user.avatar}
                 fallbackSrc="/img/placeholder-user.png"
                 className="img-fluid rounded-circle shadow lazyload"
                 alt="User avatar"
@@ -277,46 +232,37 @@ const Profile = () => {
               />
             </div>
             <div className="order-2 order-md-2 ms-md-5 text-center flex-grow-1">
-              <h2 className="fw-bold mb-2">{currentUser.fullname || 'User Name'}</h2>
+              <h2 className="fw-bold mb-2">{user.fullname || 'User Name'}</h2>
               <p className="text-muted mb-1">
                 <i className="fa fa-user me-1"></i>Username:
-                <span className="fw-semibold"> {currentUser.username || 'Username'}</span>
+                <span className="fw-semibold"> {user.username || 'Username'}</span>
               </p>
               <p className="text-muted mb-3">
                 <i className="fa fa-calendar me-1"></i>Member Since:
-                <span className="fw-semibold"> {formatDate(currentUser.created_at || currentUser.createdAt)}</span>
+                <span className="fw-semibold"> {formatDate(user.created_at || user.createdAt)}</span>
               </p>
 
-              <div className="d-flex justify-content-center gap-2 flex-wrap mb-3">
-                <Link
-                  to="/tasks/new"
-                  className="btn btn-primary btn-lg px-4"
-                  aria-label="Add Task"
-                  title="Add Task"
-                >
-                  <i className="fa fa-plus me-2"></i>Add Task
-                </Link>
-                <Link
-                  to="/profile/edit"
-                  className="btn btn-secondary btn-lg px-4"
-                  role="button"
-                  aria-label="Edit Profile"
-                  title="Edit Profile"
-                >
-                  <i className="fa fa-edit me-2"></i>Edit Profile
-                </Link>
-              </div>
-
-              <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }} className="d-flex justify-content-center">
-                <button
-                  type="submit"
-                  className="btn btn-danger btn-lg px-4"
-                  aria-label="Delete Account"
-                  title="Delete Account"
-                >
-                  <i className="fa fa-trash me-2"></i>Delete Account
-                </button>
-              </form>
+              {isViewingOwnProfile && (
+                <div className="d-flex justify-content-center gap-2 flex-wrap mb-3">
+                  <Link
+                    to="/tasks/new"
+                    className="btn btn-primary btn-lg px-4"
+                    aria-label="Add Task"
+                    title="Add Task"
+                  >
+                    <i className="fa fa-plus me-2"></i>Add Task
+                  </Link>
+                  <Link
+                    to="/profile/edit"
+                    className="btn btn-secondary btn-lg px-4"
+                    role="button"
+                    aria-label="Edit Profile"
+                    title="Edit Profile"
+                  >
+                    <i className="fa fa-edit me-2"></i>Edit Profile
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
@@ -416,46 +362,17 @@ const Profile = () => {
                               </span>
                             )}
                           </div>
-                          {dynamicStatus === 'in-progress' && (
-                            <div className="d-flex justify-content-end gap-2">
-                              <Link
-                                to={`/tasks/${task._id || task.id}/edit`}
-                                className="btn btn-outline-primary btn-sm rounded-pill px-3"
-                              >
-                                <i className="fa fa-edit me-1"></i>Edit
-                              </Link>
-                              <button
-                                onClick={() => handleDeleteTask(task._id || task.id)}
-                                className="btn btn-outline-danger btn-sm rounded-pill px-3"
-                              >
-                                <i className="fa fa-trash me-1"></i>Delete
-                              </button>
-                              <button
-                                onClick={() => handleCompleteTask(task._id || task.id)}
-                                className="btn btn-success btn-sm rounded-pill px-3"
-                              >
-                                <i className="fa fa-check me-1"></i>Done
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </div>
                     )
                   })
                 ) : (
-                  <>
-                    <p className="text-center text-muted">
-                      No tasks available. Create a new task to get started!
-                    </p>
-                    <div className="text-center mt-3">
-                      <Link
-                        to="/tasks/new"
-                        className="btn btn-secondary"
-                      >
-                        <i className="fa fa-plus me-1"></i>Create New Task
-                      </Link>
-                    </div>
-                  </>
+                  <p className="text-center text-muted">
+                    {isViewingOwnProfile 
+                      ? "No tasks available. Create a new task to get started!"
+                      : `${user.fullname || user.username} hasn't created any tasks yet.`
+                    }
+                  </p>
                 )}
               </div>
             </div>
@@ -469,4 +386,4 @@ const Profile = () => {
   )
 }
 
-export default Profile
+export default UserProfile

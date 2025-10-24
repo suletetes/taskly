@@ -32,7 +32,7 @@ const TaskDashboard = React.lazy(() => import('./pages/TaskDashboard'))
 const AddTask = React.lazy(() => import('./pages/AddTask'))
 const EditTask = React.lazy(() => import('./pages/EditTask'))
 const EditProfile = React.lazy(() => import('./components/user/EditProfile'))
-const UserProfile = React.lazy(() => import('./components/user/UserProfile'))
+const UserProfile = React.lazy(() => import('./pages/UserProfile'))
 
 // Layout wrapper component to handle conditional rendering
 const AppLayout = ({ children }) => {
