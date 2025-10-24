@@ -22,6 +22,17 @@ const {
 } = require('../middleware/validation');
 
 /**
+ * @route   POST /api/tasks
+ * @desc    Create a new task for current user
+ * @access  Private
+ */
+router.post('/',
+    authenticateToken,
+    validateCreateTask,
+    createTask
+);
+
+/**
  * @route   GET /api/tasks/:taskId
  * @desc    Get task by ID
  * @access  Private

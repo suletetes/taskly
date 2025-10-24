@@ -6,8 +6,7 @@ const authService = {
     try {
       const response = await apiService.post('/auth/register', userData)
       
-      if (response.success && response.data.token) {
-        localStorage.setItem('token', response.data.token)
+      if (response.success && response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user))
       }
       
@@ -22,8 +21,7 @@ const authService = {
     try {
       const response = await apiService.post('/auth/login', credentials)
       
-      if (response.success && response.data.token) {
-        localStorage.setItem('token', response.data.token)
+      if (response.success && response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user))
       }
       
@@ -42,7 +40,6 @@ const authService = {
       console.warn('Logout API call failed:', error.message)
     } finally {
       // Always clear local storage
-      localStorage.removeItem('token')
       localStorage.removeItem('user')
     }
   },
@@ -52,14 +49,14 @@ const authService = {
     try {
       const response = await apiService.get('/auth/me')
       
-      if (response.success && response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data))
-        return response.data
+      if (response.success && response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        return response.data.user
       }
       
       return null
     } catch (error) {
-      // If token is invalid, clear storage
+      // If not authenticated, clear storage
       if (error.response?.status === 401) {
         this.clearAuthData()
       }
@@ -67,11 +64,20 @@ const authService = {
     }
   },
 
-  // Check if user is authenticated
-  isAuthenticated() {
-    const token = localStorage.getItem('token')
+  // Check if user is authenticated (we'll verify with server)
+  async isAuthenticated() {
+    try {
+      await this.getCurrentUser()
+      return true
+    } catch (error) {
+      return false
+    }
+  },
+
+  // Check if user data exists in localStorage (quick check)
+  hasStoredUser() {
     const user = localStorage.getItem('user')
-    return !!(token && user)
+    return !!user
   },
 
   // Get stored user data
@@ -86,14 +92,8 @@ const authService = {
     }
   },
 
-  // Get stored token
-  getStoredToken() {
-    return localStorage.getItem('token')
-  },
-
   // Clear authentication data
   clearAuthData() {
-    localStorage.removeItem('token')
     localStorage.removeItem('user')
   },
 

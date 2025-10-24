@@ -37,15 +37,12 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // This is crucial for session cookies
 })
 
-// Request interceptor to add auth token
+// Request interceptor (no longer need to add auth token for session-based auth)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
     return config
   },
   (error) => {
@@ -65,8 +62,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       
-      // Clear invalid token
-      localStorage.removeItem('token')
+      // Clear user data from localStorage
       localStorage.removeItem('user')
       
       // Redirect to login page
