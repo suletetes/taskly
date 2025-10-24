@@ -215,3 +215,7 @@ dist
 .gitignore
 .vscode/settings.json
 /views/
+/RUNTIME_FIXES.md
+/COLOR_FIXES_APPLIED.md
+/CONVERSION_COMPLETE.md
+/FIXES_APPLIED.md

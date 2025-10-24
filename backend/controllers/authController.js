@@ -1,6 +1,6 @@
 const User = require('../models/User');
-const { generateUserToken } = require('../utils/jwt');
-const { hashPassword, comparePassword } = require('../utils/password');
+const passport = require('passport');
+const { hashPassword } = require('../utils/password');
 
 /**
  * Register a new user
@@ -42,20 +42,34 @@ const register = async (req, res) => {
 
         await newUser.save();
 
-        // Generate JWT token
-        const token = generateUserToken(newUser);
+        // Auto-login after registration
+        req.logIn(newUser, (err) => {
+            if (err) {
+                console.error('Auto-login error:', err);
+                // Still return success for registration, but without login
+                const userResponse = newUser.toObject();
+                delete userResponse.password;
+                
+                return res.status(201).json({
+                    success: true,
+                    data: {
+                        user: userResponse
+                    },
+                    message: 'User registered successfully, please login'
+                });
+            }
 
-        // Remove password from response
-        const userResponse = newUser.toObject();
-        delete userResponse.password;
+            // Remove password from response
+            const userResponse = newUser.toObject();
+            delete userResponse.password;
 
-        res.status(201).json({
-            success: true,
-            data: {
-                user: userResponse,
-                token
-            },
-            message: 'User registered successfully'
+            res.status(201).json({
+                success: true,
+                data: {
+                    user: userResponse
+                },
+                message: 'User registered and logged in successfully'
+            });
         });
 
     } catch (error) {
@@ -84,93 +98,97 @@ const register = async (req, res) => {
 };
 
 /**
- * Login user
+ * Login user using Passport
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-const login = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-
-        // Find user by username or email
-        const user = await User.findOne({
-            $or: [{ username }, { email: username }]
-        });
+const login = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error('Login error:', err);
+            return res.status(500).json({
+                success: false,
+                error: {
+                    message: 'Login failed',
+                    code: 'LOGIN_ERROR'
+                }
+            });
+        }
 
         if (!user) {
             return res.status(401).json({
                 success: false,
                 error: {
-                    message: 'Invalid credentials',
+                    message: info.message || 'Invalid credentials',
                     code: 'INVALID_CREDENTIALS'
                 }
             });
         }
 
-        // Check password
-        const isPasswordValid = await comparePassword(password, user.password);
-
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                error: {
-                    message: 'Invalid credentials',
-                    code: 'INVALID_CREDENTIALS'
-                }
-            });
-        }
-
-        // Generate JWT token
-        const token = generateUserToken(user);
-
-        // Remove password from response
-        const userResponse = user.toObject();
-        delete userResponse.password;
-
-        res.json({
-            success: true,
-            data: {
-                user: userResponse,
-                token
-            },
-            message: 'Login successful'
-        });
-
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({
-            success: false,
-            error: {
-                message: 'Login failed',
-                code: 'LOGIN_ERROR'
+        req.logIn(user, (err) => {
+            if (err) {
+                console.error('Session login error:', err);
+                return res.status(500).json({
+                    success: false,
+                    error: {
+                        message: 'Login failed',
+                        code: 'SESSION_ERROR'
+                    }
+                });
             }
+
+            // Remove password from response
+            const userResponse = user.toObject();
+            delete userResponse.password;
+
+            res.json({
+                success: true,
+                data: {
+                    user: userResponse
+                },
+                message: 'Login successful'
+            });
         });
-    }
+    })(req, res, next);
 };
 
 /**
- * Logout user (client-side token invalidation)
+ * Logout user (destroy session)
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-const logout = async (req, res) => {
-    try {
-        // In JWT-based auth, logout is typically handled client-side by removing the token
-        // This endpoint confirms the logout action
-        res.json({
-            success: true,
-            message: 'Logout successful'
-        });
-    } catch (error) {
-        console.error('Logout error:', error);
-        res.status(500).json({
-            success: false,
-            error: {
-                message: 'Logout failed',
-                code: 'LOGOUT_ERROR'
+const logout = (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error('Logout error:', err);
+            return res.status(500).json({
+                success: false,
+                error: {
+                    message: 'Logout failed',
+                    code: 'LOGOUT_ERROR'
+                }
+            });
+        }
+
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Session destroy error:', err);
+                return res.status(500).json({
+                    success: false,
+                    error: {
+                        message: 'Logout failed',
+                        code: 'SESSION_ERROR'
+                    }
+                });
             }
+
+            res.clearCookie('connect.sid'); // Clear session cookie
+            res.json({
+                success: true,
+                message: 'Logout successful'
+            });
         });
-    }
+    });
 };
 
 /**
@@ -180,7 +198,17 @@ const logout = async (req, res) => {
  */
 const getProfile = async (req, res) => {
     try {
-        // User is attached to req by auth middleware
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                error: {
+                    message: 'Not authenticated',
+                    code: 'UNAUTHORIZED'
+                }
+            });
+        }
+
+        // User is attached to req by Passport
         const userResponse = req.user.toObject();
         delete userResponse.password;
 
