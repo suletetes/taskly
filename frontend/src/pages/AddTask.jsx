@@ -128,15 +128,21 @@ const AddTask = () => {
       setError(null)
 
       const taskData = {
-        ...formData,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        due: formData.due,
+        priority: formData.priority,
         tags,
+        status: 'in-progress',
         user: user.id || user._id
       }
 
-      await taskService.createTask(taskData)
+      console.log('Creating task with data:', taskData)
+      const response = await taskService.createTask(taskData)
+      console.log('Task created successfully:', response)
       
-      // Navigate back to tasks or profile
-      navigate(`/users/${user.id || user._id}`)
+      // Navigate back to profile
+      navigate('/profile')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -344,13 +350,16 @@ const AddTask = () => {
                             disabled={loading}
                           />
                           <label 
-                            className="btn btn-outline-success w-100 py-4 border-2 rounded-3" 
+                            className={`btn w-100 py-4 border-2 rounded-3 ${formData.priority === 'low' ? 'btn-success text-white' : 'btn-outline-success'}`}
                             htmlFor="priority-low"
                             style={{ 
                               fontSize: '1rem',
                               fontWeight: '600',
                               transition: 'all 0.3s ease',
-                              boxShadow: formData.priority === 'low' ? '0 4px 15px rgba(40, 167, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)'
+                              boxShadow: formData.priority === 'low' ? '0 4px 15px rgba(40, 167, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
+                              backgroundColor: formData.priority === 'low' ? '#198754' : 'transparent',
+                              borderColor: '#198754',
+                              color: formData.priority === 'low' ? 'white' : '#198754'
                             }}
                           >
                             <i className="fa fa-arrow-down d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
@@ -370,13 +379,16 @@ const AddTask = () => {
                             disabled={loading}
                           />
                           <label 
-                            className="btn btn-outline-warning w-100 py-4 border-2 rounded-3" 
+                            className={`btn w-100 py-4 border-2 rounded-3 ${formData.priority === 'medium' ? 'btn-warning text-dark' : 'btn-outline-warning'}`}
                             htmlFor="priority-medium"
                             style={{ 
                               fontSize: '1rem',
                               fontWeight: '600',
                               transition: 'all 0.3s ease',
-                              boxShadow: formData.priority === 'medium' ? '0 4px 15px rgba(255, 193, 7, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)'
+                              boxShadow: formData.priority === 'medium' ? '0 4px 15px rgba(255, 193, 7, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
+                              backgroundColor: formData.priority === 'medium' ? '#ffc107' : 'transparent',
+                              borderColor: '#ffc107',
+                              color: formData.priority === 'medium' ? '#000' : '#ffc107'
                             }}
                           >
                             <i className="fa fa-equals d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
@@ -396,13 +408,16 @@ const AddTask = () => {
                             disabled={loading}
                           />
                           <label 
-                            className="btn btn-outline-danger w-100 py-4 border-2 rounded-3" 
+                            className={`btn w-100 py-4 border-2 rounded-3 ${formData.priority === 'high' ? 'btn-danger text-white' : 'btn-outline-danger'}`}
                             htmlFor="priority-high"
                             style={{ 
                               fontSize: '1rem',
                               fontWeight: '600',
                               transition: 'all 0.3s ease',
-                              boxShadow: formData.priority === 'high' ? '0 4px 15px rgba(220, 53, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)'
+                              boxShadow: formData.priority === 'high' ? '0 4px 15px rgba(220, 53, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
+                              backgroundColor: formData.priority === 'high' ? '#dc3545' : 'transparent',
+                              borderColor: '#dc3545',
+                              color: formData.priority === 'high' ? 'white' : '#dc3545'
                             }}
                           >
                             <i className="fa fa-arrow-up d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
@@ -428,7 +443,7 @@ const AddTask = () => {
                         {tags.map((tag, index) => (
                           <span 
                             key={index} 
-                            className="badge me-2 mb-2 px-3 py-2 fs-6 rounded-pill"
+                            className="badge me-2 mb-2 px-3 py-2 fs-6 rounded-pill d-inline-flex align-items-center"
                             style={{ 
                               backgroundColor: '#6c757d',
                               color: 'white',
@@ -439,12 +454,25 @@ const AddTask = () => {
                             {tag}
                             <button 
                               type="button" 
-                              className="btn-close btn-close-white btn-sm ms-2" 
+                              className="btn btn-sm ms-2 p-0" 
                               aria-label="Remove tag"
                               onClick={() => removeTag(tag)}
                               disabled={loading}
-                              style={{ fontSize: '0.6rem' }}
-                            />
+                              style={{ 
+                                fontSize: '0.7rem',
+                                backgroundColor: 'rgba(255,255,255,0.2)',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '18px',
+                                height: '18px',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <i className="fa fa-times"></i>
+                            </button>
                           </span>
                         ))}
                       </div>
@@ -476,11 +504,17 @@ const AddTask = () => {
                     {/* Form Actions */}
                     <div className="d-flex gap-3 justify-content-end pt-4 border-top">
                       <button 
-                        className="btn btn-outline-secondary btn-lg px-5 py-3 rounded-pill" 
+                        className="btn btn-lg px-5 py-3 rounded-pill" 
                         type="button"
                         onClick={handleCancel}
                         disabled={loading}
-                        style={{ fontWeight: '600', fontSize: '1rem' }}
+                        style={{ 
+                          fontWeight: '600', 
+                          fontSize: '1rem',
+                          backgroundColor: '#6c757d',
+                          borderColor: '#6c757d',
+                          color: 'white'
+                        }}
                       >
                         <i className="fa fa-times me-2"></i>Cancel
                       </button>

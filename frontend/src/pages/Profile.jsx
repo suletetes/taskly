@@ -75,7 +75,7 @@ const Profile = () => {
   const getTaskStatus = (task) => {
     const now = new Date()
     const dueDate = new Date(task.due)
-    
+
     if (task.status === 'completed') return 'completed'
     if (task.status === 'in-progress' && dueDate < now) return 'failed'
     return 'in-progress'
@@ -116,7 +116,7 @@ const Profile = () => {
       // Refresh tasks
       const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
       setTasks(tasksResponse.data.items || tasksResponse.data || [])
-      
+
       // Refresh stats
       const statsResponse = await userService.getUserStats(userId)
       setStats(statsResponse.data || {})
@@ -132,7 +132,7 @@ const Profile = () => {
         // Refresh tasks
         const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
         setTasks(tasksResponse.data.items || tasksResponse.data || [])
-        
+
         // Refresh stats
         const statsResponse = await userService.getUserStats(userId)
         setStats(statsResponse.data || {})
@@ -162,8 +162,8 @@ const Profile = () => {
     if (pagination.hasPreviousPage) {
       pages.push(
         <li key="prev" className="page-item">
-          <button 
-            className="page-link" 
+          <button
+            className="page-link"
             onClick={() => handlePageChange(currentPage - 1)}
           >
             Previous
@@ -175,8 +175,8 @@ const Profile = () => {
     for (let i = 1; i <= pagination.totalPages; i++) {
       pages.push(
         <li key={i} className={`page-item ${i === currentPage ? 'active' : ''}`}>
-          <button 
-            className="page-link" 
+          <button
+            className="page-link"
             onClick={() => handlePageChange(i)}
           >
             {i}
@@ -188,8 +188,8 @@ const Profile = () => {
     if (pagination.hasNextPage) {
       pages.push(
         <li key="next" className="page-item">
-          <button 
-            className="page-link" 
+          <button
+            className="page-link"
             onClick={() => handlePageChange(currentPage + 1)}
           >
             Next
@@ -245,12 +245,12 @@ const Profile = () => {
 
   return (
     <>
-      <DocumentHead 
+      <DocumentHead
         title={`${currentUser.fullname || currentUser.username || 'User'} - Profile | Taskly`}
         description={`View your profile, tasks, and productivity statistics.`}
         keywords="user profile, tasks, productivity, statistics"
       />
-      
+
       {/* User Profile */}
       <div className="bloc l-bloc py-5 bg-light" id="bloc-tasks">
         <div className="container bloc-lg bloc-no-padding-lg">
@@ -262,7 +262,7 @@ const Profile = () => {
                 fallbackSrc="/img/placeholder-user.png"
                 className="img-fluid rounded-circle shadow lazyload"
                 alt="User avatar"
-                width="180" 
+                width="180"
                 height="180"
                 style={{ objectFit: 'cover' }}
               />
@@ -270,39 +270,39 @@ const Profile = () => {
             <div className="order-2 order-md-2 ms-md-5 text-center flex-grow-1">
               <h2 className="fw-bold mb-2">{currentUser.fullname || 'User Name'}</h2>
               <p className="text-muted mb-1">
-                <i className="fa fa-user me-1"></i>Username: 
+                <i className="fa fa-user me-1"></i>Username:
                 <span className="fw-semibold"> {currentUser.username || 'Username'}</span>
               </p>
               <p className="text-muted mb-3">
-                <i className="fa fa-calendar me-1"></i>Member Since: 
+                <i className="fa fa-calendar me-1"></i>Member Since:
                 <span className="fw-semibold"> {formatDate(currentUser.created_at || currentUser.createdAt)}</span>
               </p>
 
               <div className="d-flex justify-content-center gap-2 flex-wrap mb-3">
-                <Link 
-                  to="/tasks/new" 
-                  className="btn btn-primary btn-lg px-4" 
-                  aria-label="Add Task" 
+                <Link
+                  to="/tasks/new"
+                  className="btn btn-primary btn-lg px-4"
+                  aria-label="Add Task"
                   title="Add Task"
                 >
                   <i className="fa fa-plus me-2"></i>Add Task
                 </Link>
-                <Link 
-                  to="/profile/edit" 
-                  className="btn btn-secondary btn-lg px-4" 
-                  role="button" 
-                  aria-label="Edit Profile" 
+                <Link
+                  to="/profile/edit"
+                  className="btn btn-secondary btn-lg px-4"
+                  role="button"
+                  aria-label="Edit Profile"
                   title="Edit Profile"
                 >
                   <i className="fa fa-edit me-2"></i>Edit Profile
                 </Link>
               </div>
-              
+
               <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }} className="d-flex justify-content-center">
-                <button 
-                  type="submit" 
-                  className="btn btn-danger btn-lg px-4" 
-                  aria-label="Delete Account" 
+                <button
+                  type="submit"
+                  className="btn btn-danger btn-lg px-4"
+                  aria-label="Delete Account"
                   title="Delete Account"
                 >
                   <i className="fa fa-trash me-2"></i>Delete Account
@@ -364,10 +364,10 @@ const Profile = () => {
                   tasks.map(task => {
                     const dynamicStatus = getTaskStatus(task)
                     const statusConfig = getStatusConfig(dynamicStatus)
-                    
+
                     return (
-                      <div 
-                        key={task._id || task.id} 
+                      <div
+                        key={task._id || task.id}
                         className={`card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-${statusConfig.borderClass}`}
                       >
                         <div className="card-body p-4">
@@ -409,19 +409,19 @@ const Profile = () => {
                           </div>
                           {dynamicStatus === 'in-progress' && (
                             <div className="d-flex justify-content-end gap-2">
-                              <Link 
+                              <Link
                                 to={`/tasks/${task._id || task.id}/edit`}
                                 className="btn btn-outline-primary btn-sm rounded-pill px-3"
                               >
                                 <i className="fa fa-edit me-1"></i>Edit
                               </Link>
-                              <button 
+                              <button
                                 onClick={() => handleDeleteTask(task._id || task.id)}
                                 className="btn btn-outline-danger btn-sm rounded-pill px-3"
                               >
                                 <i className="fa fa-trash me-1"></i>Delete
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleCompleteTask(task._id || task.id)}
                                 className="btn btn-success btn-sm rounded-pill px-3"
                               >
@@ -439,8 +439,8 @@ const Profile = () => {
                       No tasks available. Create a new task to get started!
                     </p>
                     <div className="text-center mt-3">
-                      <Link 
-                        to="/tasks/new" 
+                      <Link
+                        to="/tasks/new"
                         className="btn btn-secondary"
                       >
                         <i className="fa fa-plus me-1"></i>Create New Task
