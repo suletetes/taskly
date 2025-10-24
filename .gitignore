@@ -214,3 +214,4 @@ dist
 .idea/inspectionProfiles/Project_Default.xml
 .gitignore
 .vscode/settings.json
+/views/
