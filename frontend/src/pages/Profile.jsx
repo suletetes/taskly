@@ -308,21 +308,27 @@ const Profile = () => {
               <div className="d-flex justify-content-center gap-3 flex-wrap mb-3">
                 <Link
                   to="/tasks/new"
-                  className="btn btn-light btn-lg px-4 rounded-pill shadow"
+                  className="btn btn-lg px-4 rounded-pill shadow"
                   style={{ 
-                    fontWeight: '600',
-                    color: '#667eea',
-                    border: 'none'
+                    fontWeight: '600 !important',
+                    color: '#667eea !important',
+                    backgroundColor: 'white !important',
+                    border: 'none !important',
+                    textDecoration: 'none !important'
                   }}
                 >
                   <i className="fa fa-plus me-2"></i>Add Task
                 </Link>
                 <Link
                   to="/profile/edit"
-                  className="btn btn-outline-light btn-lg px-4 rounded-pill"
+                  className="btn btn-lg px-4 rounded-pill"
                   style={{ 
-                    fontWeight: '600',
-                    borderWidth: '2px'
+                    fontWeight: '600 !important',
+                    borderWidth: '2px !important',
+                    borderColor: 'white !important',
+                    color: 'white !important',
+                    backgroundColor: 'transparent !important',
+                    textDecoration: 'none !important'
                   }}
                 >
                   <i className="fa fa-edit me-2"></i>Edit Profile
@@ -515,7 +521,13 @@ const Profile = () => {
                   <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }}>
                     <button
                       type="submit"
-                      className="btn btn-outline-danger"
+                      className="btn btn-danger"
+                      style={{
+                        backgroundColor: '#dc3545 !important',
+                        borderColor: '#dc3545 !important',
+                        color: 'white !important',
+                        fontWeight: '600'
+                      }}
                     >
                       <i className="fa fa-trash me-2"></i>Delete Account
                     </button>

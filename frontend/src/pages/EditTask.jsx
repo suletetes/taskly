@@ -367,90 +367,72 @@ const EditTask = () => {
                       </label>
                       <div className="row g-3">
                         <div className="col-md-4">
-                          <input 
-                            type="radio" 
-                            className="btn-check" 
-                            name="priority" 
-                            id="priority-low"
-                            value="low" 
-                            checked={formData.priority === 'low'}
-                            onChange={() => handlePriorityChange('low')}
-                            disabled={submitLoading}
-                          />
-                          <label 
-                            className={`btn w-100 py-4 border-2 rounded-3 ${formData.priority === 'low' ? 'btn-success text-white' : 'btn-outline-success'}`}
-                            htmlFor="priority-low"
-                            style={{ 
-                              fontSize: '1rem',
-                              fontWeight: '600',
+                          <div 
+                            className={`priority-button ${formData.priority === 'low' ? 'selected' : ''}`}
+                            onClick={() => handlePriorityChange('low')}
+                            style={{
+                              cursor: 'pointer',
+                              padding: '20px',
+                              borderRadius: '12px',
+                              border: '2px solid #198754',
+                              backgroundColor: formData.priority === 'low' ? '#198754' : '#ffffff',
+                              color: formData.priority === 'low' ? '#ffffff' : '#198754',
+                              textAlign: 'center',
                               transition: 'all 0.3s ease',
                               boxShadow: formData.priority === 'low' ? '0 4px 15px rgba(40, 167, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
-                              backgroundColor: formData.priority === 'low' ? '#198754 !important' : 'transparent',
-                              borderColor: '#198754',
-                              color: formData.priority === 'low' ? 'white !important' : '#198754'
+                              fontWeight: '600',
+                              fontSize: '1rem'
                             }}
                           >
                             <i className="fa fa-arrow-down d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
                             Low Priority
-                          </label>
+                          </div>
                         </div>
                         
                         <div className="col-md-4">
-                          <input 
-                            type="radio" 
-                            className="btn-check" 
-                            name="priority" 
-                            id="priority-medium"
-                            value="medium" 
-                            checked={formData.priority === 'medium'}
-                            onChange={() => handlePriorityChange('medium')}
-                            disabled={submitLoading}
-                          />
-                          <label 
-                            className={`btn w-100 py-4 border-2 rounded-3 ${formData.priority === 'medium' ? 'btn-warning text-dark' : 'btn-outline-warning'}`}
-                            htmlFor="priority-medium"
-                            style={{ 
-                              fontSize: '1rem',
-                              fontWeight: '600',
+                          <div 
+                            className={`priority-button ${formData.priority === 'medium' ? 'selected' : ''}`}
+                            onClick={() => handlePriorityChange('medium')}
+                            style={{
+                              cursor: 'pointer',
+                              padding: '20px',
+                              borderRadius: '12px',
+                              border: '2px solid #ffc107',
+                              backgroundColor: formData.priority === 'medium' ? '#ffc107' : '#ffffff',
+                              color: formData.priority === 'medium' ? '#000000' : '#ffc107',
+                              textAlign: 'center',
                               transition: 'all 0.3s ease',
                               boxShadow: formData.priority === 'medium' ? '0 4px 15px rgba(255, 193, 7, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
-                              backgroundColor: formData.priority === 'medium' ? '#ffc107 !important' : 'transparent',
-                              borderColor: '#ffc107',
-                              color: formData.priority === 'medium' ? '#000 !important' : '#ffc107'
+                              fontWeight: '600',
+                              fontSize: '1rem'
                             }}
                           >
                             <i className="fa fa-equals d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
                             Medium Priority
-                          </label>
+                          </div>
                         </div>
                         
                         <div className="col-md-4">
-                          <input 
-                            type="radio" 
-                            className="btn-check" 
-                            name="priority" 
-                            id="priority-high"
-                            value="high" 
-                            checked={formData.priority === 'high'}
-                            onChange={() => handlePriorityChange('high')}
-                            disabled={submitLoading}
-                          />
-                          <label 
-                            className={`btn w-100 py-4 border-2 rounded-3 ${formData.priority === 'high' ? 'btn-danger text-white' : 'btn-outline-danger'}`}
-                            htmlFor="priority-high"
-                            style={{ 
-                              fontSize: '1rem',
-                              fontWeight: '600',
+                          <div 
+                            className={`priority-button ${formData.priority === 'high' ? 'selected' : ''}`}
+                            onClick={() => handlePriorityChange('high')}
+                            style={{
+                              cursor: 'pointer',
+                              padding: '20px',
+                              borderRadius: '12px',
+                              border: '2px solid #dc3545',
+                              backgroundColor: formData.priority === 'high' ? '#dc3545' : '#ffffff',
+                              color: formData.priority === 'high' ? '#ffffff' : '#dc3545',
+                              textAlign: 'center',
                               transition: 'all 0.3s ease',
                               boxShadow: formData.priority === 'high' ? '0 4px 15px rgba(220, 53, 69, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
-                              backgroundColor: formData.priority === 'high' ? '#dc3545 !important' : 'transparent',
-                              borderColor: '#dc3545',
-                              color: formData.priority === 'high' ? 'white !important' : '#dc3545'
+                              fontWeight: '600',
+                              fontSize: '1rem'
                             }}
                           >
                             <i className="fa fa-arrow-up d-block mb-2" style={{ fontSize: '1.5rem' }}></i>
                             High Priority
-                          </label>
+                          </div>
                         </div>
                       </div>
                       {validationErrors.priority && (
