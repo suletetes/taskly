@@ -56,10 +56,18 @@ const authService = {
       
       return null
     } catch (error) {
-      // If not authenticated, clear storage
-      if (error.response?.status === 401) {
+      // If not authenticated or network error, clear storage
+      if (error.response?.status === 401 || error.code === 'ERR_NETWORK') {
         this.clearAuthData()
       }
+      
+      // For network errors, throw a more specific error
+      if (error.code === 'ERR_NETWORK') {
+        const networkError = new Error('Backend server is not available')
+        networkError.code = 'BACKEND_UNAVAILABLE'
+        throw networkError
+      }
+      
       throw this.handleAuthError(error)
     }
   },

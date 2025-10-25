@@ -2,7 +2,7 @@ import apiService from './api'
 
 const userService = {
   // Get all users with pagination
-  async getUsers(page = 1, limit = 10, search = '') {
+  async getUsers(page = 1, limit = 10, search = '', endpoint = '/users') {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -10,7 +10,7 @@ const userService = {
         ...(search && { search })
       })
       
-      const response = await apiService.get(`/users?${params}`)
+      const response = await apiService.get(`${endpoint}?${params}`)
       return response
     } catch (error) {
       throw this.handleUserError(error)

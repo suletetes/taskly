@@ -42,8 +42,15 @@ api.interceptors.response.use(
       // Clear user data from localStorage
       localStorage.removeItem('user')
       
-      // Redirect to login page
-      window.location.href = '/login'
+      // Only redirect to login if we're on a protected route
+      // Don't redirect from public pages like home
+      const currentPath = window.location.pathname
+      const publicPaths = ['/', '/about', '/login', '/signup']
+      
+      if (!publicPaths.includes(currentPath)) {
+        // Redirect to login page only from protected routes
+        window.location.href = '/login'
+      }
       
       return Promise.reject(error)
     }

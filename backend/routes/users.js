@@ -32,6 +32,16 @@ import {
 } from '../controllers/taskController.js';
 
 /**
+ * @route   GET /api/users/public
+ * @desc    Get public users list (for home page showcase)
+ * @access  Public
+ */
+router.get('/public', 
+    validateUserQuery, 
+    getAllUsers
+);
+
+/**
  * @route   GET /api/users
  * @desc    Get all users with pagination and search
  * @access  Private

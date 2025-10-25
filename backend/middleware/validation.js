@@ -9,7 +9,7 @@ import Joi from 'joi';
 const validate = (schema, property = 'body') => {
   return (req, res, next) => {
     const { error } = schema.validate(req[property], { abortEarly: false });
-    
+
     if (error) {
       const errors = error.details.map(detail => ({
         field: detail.path.join('.'),
@@ -25,7 +25,7 @@ const validate = (schema, property = 'body') => {
         }
       });
     }
-    
+
     next();
   };
 };
@@ -42,7 +42,7 @@ const registerSchema = Joi.object({
       'string.min': 'Full name must be at least 2 characters long',
       'string.max': 'Full name cannot exceed 50 characters'
     }),
-  
+
   username: Joi.string()
     .trim()
     .alphanum()
@@ -55,7 +55,7 @@ const registerSchema = Joi.object({
       'string.min': 'Username must be at least 3 characters long',
       'string.max': 'Username cannot exceed 30 characters'
     }),
-  
+
   email: Joi.string()
     .email()
     .required()
@@ -63,7 +63,7 @@ const registerSchema = Joi.object({
       'string.empty': 'Email is required',
       'string.email': 'Please provide a valid email address'
     }),
-  
+
   password: Joi.string()
     .min(6)
     .max(128)
@@ -73,7 +73,7 @@ const registerSchema = Joi.object({
       'string.min': 'Password must be at least 6 characters long',
       'string.max': 'Password cannot exceed 128 characters'
     }),
-  
+
   avatar: Joi.string()
     .uri()
     .optional()
@@ -89,7 +89,7 @@ const loginSchema = Joi.object({
     .messages({
       'string.empty': 'Username or email is required'
     }),
-  
+
   password: Joi.string()
     .required()
     .messages({
@@ -108,7 +108,7 @@ const updateUserSchema = Joi.object({
       'string.min': 'Full name must be at least 2 characters long',
       'string.max': 'Full name cannot exceed 50 characters'
     }),
-  
+
   username: Joi.string()
     .trim()
     .alphanum()
@@ -120,21 +120,21 @@ const updateUserSchema = Joi.object({
       'string.min': 'Username must be at least 3 characters long',
       'string.max': 'Username cannot exceed 30 characters'
     }),
-  
+
   email: Joi.string()
     .email()
     .optional()
     .messages({
       'string.email': 'Please provide a valid email address'
     }),
-  
+
   avatar: Joi.string()
     .uri()
     .optional()
     .messages({
       'string.uri': 'Avatar must be a valid URL'
     }),
-  
+
   currentPassword: Joi.string()
     .when('newPassword', {
       is: Joi.exist(),
@@ -144,7 +144,7 @@ const updateUserSchema = Joi.object({
     .messages({
       'any.required': 'Current password is required when setting new password'
     }),
-  
+
   newPassword: Joi.string()
     .min(6)
     .max(128)
@@ -172,14 +172,14 @@ const userQuerySchema = Joi.object({
     .min(1)
     .optional()
     .default(1),
-  
+
   limit: Joi.number()
     .integer()
     .min(1)
     .max(100)
     .optional()
     .default(12),
-  
+
   search: Joi.string()
     .trim()
     .max(100)
@@ -198,7 +198,7 @@ const updateProfileSchema = Joi.object({
       'string.min': 'Full name must be at least 2 characters long',
       'string.max': 'Full name cannot exceed 50 characters'
     }),
-  
+
   username: Joi.string()
     .trim()
     .alphanum()
@@ -210,14 +210,14 @@ const updateProfileSchema = Joi.object({
       'string.min': 'Username must be at least 3 characters long',
       'string.max': 'Username cannot exceed 30 characters'
     }),
-  
+
   email: Joi.string()
     .email()
     .optional()
     .messages({
       'string.email': 'Please provide a valid email address'
     }),
-  
+
   avatar: Joi.string()
     .uri()
     .optional()
@@ -233,7 +233,7 @@ const changePasswordSchema = Joi.object({
     .messages({
       'string.empty': 'Current password is required'
     }),
-  
+
   newPassword: Joi.string()
     .min(6)
     .max(128)
@@ -268,16 +268,14 @@ const createTaskSchema = Joi.object({
       'string.min': 'Title cannot be empty',
       'string.max': 'Title cannot exceed 200 characters'
     }),
-  
+
   due: Joi.date()
-    .min('now')
     .required()
     .messages({
       'date.base': 'Due date must be a valid date',
-      'date.min': 'Due date cannot be in the past',
       'any.required': 'Due date is required'
     }),
-  
+
   priority: Joi.string()
     .valid('low', 'medium', 'high')
     .required()
@@ -285,7 +283,7 @@ const createTaskSchema = Joi.object({
       'any.only': 'Priority must be one of: low, medium, high',
       'any.required': 'Priority is required'
     }),
-  
+
   description: Joi.string()
     .trim()
     .max(1000)
@@ -294,7 +292,7 @@ const createTaskSchema = Joi.object({
     .messages({
       'string.max': 'Description cannot exceed 1000 characters'
     }),
-  
+
   tags: Joi.array()
     .items(Joi.string().trim().max(50))
     .max(10)
@@ -316,7 +314,7 @@ const updateTaskSchema = Joi.object({
       'string.min': 'Title cannot be empty',
       'string.max': 'Title cannot exceed 200 characters'
     }),
-  
+
   due: Joi.date()
     .min('now')
     .optional()
@@ -324,14 +322,14 @@ const updateTaskSchema = Joi.object({
       'date.base': 'Due date must be a valid date',
       'date.min': 'Due date cannot be in the past'
     }),
-  
+
   priority: Joi.string()
     .valid('low', 'medium', 'high')
     .optional()
     .messages({
       'any.only': 'Priority must be one of: low, medium, high'
     }),
-  
+
   description: Joi.string()
     .trim()
     .max(1000)
@@ -340,7 +338,7 @@ const updateTaskSchema = Joi.object({
     .messages({
       'string.max': 'Description cannot exceed 1000 characters'
     }),
-  
+
   tags: Joi.array()
     .items(Joi.string().trim().max(50))
     .max(10)
@@ -349,7 +347,7 @@ const updateTaskSchema = Joi.object({
       'array.max': 'Cannot have more than 10 tags',
       'string.max': 'Each tag cannot exceed 50 characters'
     }),
-  
+
   status: Joi.string()
     .valid('in-progress', 'failed', 'completed')
     .optional()
@@ -375,28 +373,28 @@ const taskQuerySchema = Joi.object({
     .min(1)
     .optional()
     .default(1),
-  
+
   limit: Joi.number()
     .integer()
     .min(1)
     .max(100)
     .optional()
     .default(8),
-  
+
   status: Joi.string()
     .valid('in-progress', 'failed', 'completed')
     .optional()
     .messages({
       'any.only': 'Status must be one of: in-progress, failed, completed'
     }),
-  
+
   priority: Joi.string()
     .valid('low', 'medium', 'high')
     .optional()
     .messages({
       'any.only': 'Priority must be one of: low, medium, high'
     }),
-  
+
   sortBy: Joi.string()
     .valid('due', 'createdAt', 'updatedAt', 'title', 'priority')
     .optional()
@@ -404,7 +402,7 @@ const taskQuerySchema = Joi.object({
     .messages({
       'any.only': 'Sort by must be one of: due, createdAt, updatedAt, title, priority'
     }),
-  
+
   sortOrder: Joi.string()
     .valid('asc', 'desc')
     .optional()
@@ -412,7 +410,7 @@ const taskQuerySchema = Joi.object({
     .messages({
       'any.only': 'Sort order must be either asc or desc'
     }),
-  
+
   search: Joi.string()
     .trim()
     .max(100)

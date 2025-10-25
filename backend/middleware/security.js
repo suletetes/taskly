@@ -82,7 +82,7 @@ const generalLimiter = rateLimit({
 // Strict rate limiter for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 auth requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 5 : 50, // More lenient in development
   message: {
     success: false,
     error: {

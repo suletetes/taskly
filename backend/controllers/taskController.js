@@ -9,7 +9,8 @@ import { calculateProductivityStats } from '../utils/productivityStats.js';
  */
 const createTask = async (req, res) => {
     try {
-        const { userId } = req.params;
+        // Get userId from params (for /users/:userId/tasks) or from authenticated user (for /tasks)
+        const userId = req.params.userId || req.user._id.toString();
         const { title, due, priority, description, tags } = req.body;
 
         // Check if the user exists
@@ -35,20 +36,8 @@ const createTask = async (req, res) => {
             });
         }
 
-        // Validate due date (server-side check)
+        // Convert due date to proper format
         const dueDate = new Date(due);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Midnight of today
-
-        if (dueDate < today) {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'Due date cannot be in the past',
-                    code: 'INVALID_DUE_DATE'
-                }
-            });
-        }
 
         // Create a new task and associate it with the user
         const newTask = new Task({
