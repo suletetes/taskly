@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
         default:
             "https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png",
     },
+    avatarPublicId: {
+        type: String,
+        default: null,
+    },
     created_at: {
         type: Date,
         default: Date.now,

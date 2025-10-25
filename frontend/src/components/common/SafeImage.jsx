@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 const SafeImage = ({ 
   src, 
-  fallbackSrc = '/img/placeholder-user.png',
+  fallbackSrc = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`,
   alt, 
   className = '',
   width,

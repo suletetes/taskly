@@ -35,7 +35,7 @@ const Profile = () => {
 
         // Fetch user stats
         const statsResponse = await userService.getUserStats(userId)
-        setStats(statsResponse.data || {})
+        setStats(statsResponse.data?.stats || {})
 
         // Fetch user tasks
         const tasksResponse = await taskService.getUserTasks(userId, {
@@ -80,8 +80,9 @@ const Profile = () => {
     const dueDate = new Date(task.due)
 
     if (task.status === 'completed') return 'completed'
+    if (task.status === 'failed') return 'failed'
     if (task.status === 'in-progress' && dueDate < now) return 'failed'
-    return 'in-progress'
+    return task.status || 'in-progress'
   }
 
   const getStatusConfig = (status) => {
@@ -125,7 +126,7 @@ const Profile = () => {
 
       // Refresh stats
       const statsResponse = await userService.getUserStats(userId)
-      setStats(statsResponse.data || {})
+      setStats(statsResponse.data?.stats || {})
     } catch (err) {
       console.error('Failed to complete task:', err)
     }
@@ -144,7 +145,7 @@ const Profile = () => {
 
         // Refresh stats
         const statsResponse = await userService.getUserStats(userId)
-        setStats(statsResponse.data || {})
+        setStats(statsResponse.data?.stats || {})
       } catch (err) {
         console.error('Failed to delete task:', err)
       }
@@ -261,113 +262,133 @@ const Profile = () => {
       />
 
       {/* User Profile */}
-      <div className="bloc l-bloc py-5 bg-light" id="bloc-tasks">
+      <div className="bloc l-bloc py-5" id="bloc-tasks" style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: '400px'
+      }}>
         <div className="container bloc-lg bloc-no-padding-lg">
           {/* User Info Section */}
-          <div className="d-flex justify-content-between align-items-center flex-wrap mb-5">
-            <div className="order-1 order-md-1 me-4 mb-3 mb-md-0">
-              <SafeImage
-                src={currentUser.avatar}
-                fallbackSrc="/img/placeholder-user.png"
-                className="img-fluid rounded-circle shadow lazyload"
-                alt="User avatar"
-                width="180"
-                height="180"
-                style={{ objectFit: 'cover' }}
-              />
-            </div>
-            <div className="order-2 order-md-2 ms-md-5 text-center flex-grow-1">
-              <h2 className="fw-bold mb-2">{currentUser.fullname || 'User Name'}</h2>
-              <p className="text-muted mb-1">
-                <i className="fa fa-user me-1"></i>Username:
-                <span className="fw-semibold"> {currentUser.username || 'Username'}</span>
-              </p>
-              <p className="text-muted mb-3">
-                <i className="fa fa-calendar me-1"></i>Member Since:
-                <span className="fw-semibold"> {formatDate(currentUser.created_at || currentUser.createdAt)}</span>
-              </p>
+          <div className="row align-items-center justify-content-center text-center text-white mb-5">
+            <div className="col-12 col-md-8 col-lg-6">
+              {/* Profile Picture */}
+              <div className="position-relative d-inline-block mb-4">
+                <SafeImage
+                  src={currentUser.avatar?.startsWith('http') ? currentUser.avatar : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${currentUser.avatar}`}
+                  fallbackSrc={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`}
+                  className="rounded-circle border border-4 border-white shadow-lg"
+                  alt="User avatar"
+                  width="200"
+                  height="200"
+                  style={{ 
+                    objectFit: 'cover',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <div className="position-absolute bottom-0 end-0 bg-success rounded-circle border border-3 border-white" 
+                     style={{ width: '40px', height: '40px' }}>
+                  <i className="fa fa-check text-white d-flex align-items-center justify-content-center h-100"></i>
+                </div>
+              </div>
 
-              <div className="d-flex justify-content-center gap-2 flex-wrap mb-3">
+              {/* User Details */}
+              <h1 className="display-5 fw-bold mb-3 text-white">{currentUser.fullname || 'User Name'}</h1>
+              
+              <div className="d-flex justify-content-center align-items-center gap-4 mb-3 flex-wrap">
+                <div className="d-flex align-items-center">
+                  <i className="fa fa-user me-2 text-white-50"></i>
+                  <span className="text-white-50">@{currentUser.username || 'username'}</span>
+                </div>
+                <div className="d-flex align-items-center">
+                  <i className="fa fa-calendar me-2 text-white-50"></i>
+                  <span className="text-white-50">Joined {formatDate(currentUser.created_at || currentUser.createdAt)}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="d-flex justify-content-center gap-3 flex-wrap mb-3">
                 <Link
                   to="/tasks/new"
-                  className="btn btn-primary btn-lg px-4"
-                  aria-label="Add Task"
-                  title="Add Task"
+                  className="btn btn-light btn-lg px-4 rounded-pill shadow"
+                  style={{ 
+                    fontWeight: '600',
+                    color: '#667eea',
+                    border: 'none'
+                  }}
                 >
                   <i className="fa fa-plus me-2"></i>Add Task
                 </Link>
                 <Link
                   to="/profile/edit"
-                  className="btn btn-secondary btn-lg px-4"
-                  role="button"
-                  aria-label="Edit Profile"
-                  title="Edit Profile"
+                  className="btn btn-outline-light btn-lg px-4 rounded-pill"
+                  style={{ 
+                    fontWeight: '600',
+                    borderWidth: '2px'
+                  }}
                 >
                   <i className="fa fa-edit me-2"></i>Edit Profile
                 </Link>
               </div>
-
-              <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }} className="d-flex justify-content-center">
-                <button
-                  type="submit"
-                  className="btn btn-danger btn-lg px-4"
-                  aria-label="Delete Account"
-                  title="Delete Account"
-                >
-                  <i className="fa fa-trash me-2"></i>Delete Account
-                </button>
-              </form>
             </div>
           </div>
 
-          <div className="row g-4 justify-content-center">
-            {/* Productivity Stats */}
-            <div className="col-12 col-lg-4">
-              <div className="card shadow-sm border-0 glass-card mb-4">
-                <div className="card-body">
-                  <h5 className="fw-bold mb-4 text-primary">
-                    <i className="fa fa-chart-line me-2"></i>Productivity Stats
-                  </h5>
-                  <div className="row text-center">
-                    <div className="col-6 mb-3">
-                      <span className="ion ion-checkmark-round icon-md text-success mb-1 d-block"></span>
-                      <div className="fw-semibold">Completed</div>
-                      <div className="fs-4 fw-bold">{stats.completed || 0}</div>
-                    </div>
-                    <div className="col-6 mb-3">
-                      <span className="fa fa-bolt icon-md text-warning mb-1 d-block"></span>
-                      <div className="fw-semibold">Streak</div>
-                      <div className="fs-4 fw-bold">
-                        {stats.streak || 0} <span className="fs-6 fw-normal">days</span>
-                      </div>
-                    </div>
-                    <div className="col-6 mb-3">
-                      <span className="fa fa-times-circle icon-md text-danger mb-1 d-block"></span>
-                      <div className="fw-semibold">Failed</div>
-                      <div className="fs-4 fw-bold">{stats.failed || 0}</div>
-                    </div>
-                    <div className="col-6 mb-3">
-                      <span className="fa fa-percent icon-md text-primary mb-1 d-block"></span>
-                      <div className="fw-semibold">Completion Rate</div>
-                      <div className="fs-4 fw-bold">{stats.completionRate || 0}%</div>
-                    </div>
-                    <div className="col-6">
-                      <span className="fa fa-tasks icon-md text-info mb-1 d-block"></span>
-                      <div className="fw-semibold">Ongoing</div>
-                      <div className="fs-4 fw-bold">{stats.ongoing || 0}</div>
-                    </div>
-                    <div className="col-6">
-                      <span className="fa fa-clock icon-md text-secondary mb-1 d-block"></span>
-                      <div className="fw-semibold">Avg. Time</div>
-                      <div className="fs-4 fw-bold">{stats.avgTime || '0 hrs'}</div>
-                    </div>
-                  </div>
+          {/* Stats Cards */}
+          <div className="row g-4 justify-content-center mt-4">
+            <div className="col-6 col-md-3">
+              <div className="card bg-white bg-opacity-90 border-0 rounded-4 shadow text-center h-100">
+                <div className="card-body py-4">
+                  <i className="fa fa-check-circle text-success mb-2" style={{ fontSize: '2.5rem' }}></i>
+                  <h3 className="fw-bold text-success mb-1">{stats.completed || 0}</h3>
+                  <p className="text-muted mb-0 fw-semibold">Completed</p>
                 </div>
               </div>
             </div>
+            <div className="col-6 col-md-3">
+              <div className="card bg-white bg-opacity-90 border-0 rounded-4 shadow text-center h-100">
+                <div className="card-body py-4">
+                  <i className="fa fa-tasks text-info mb-2" style={{ fontSize: '2.5rem' }}></i>
+                  <h3 className="fw-bold text-info mb-1">{stats.ongoing || 0}</h3>
+                  <p className="text-muted mb-0 fw-semibold">Ongoing</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="card bg-white bg-opacity-90 border-0 rounded-4 shadow text-center h-100">
+                <div className="card-body py-4">
+                  <i className="fa fa-bolt text-warning mb-2" style={{ fontSize: '2.5rem' }}></i>
+                  <h3 className="fw-bold text-warning mb-1">{stats.streak || 0}</h3>
+                  <p className="text-muted mb-0 fw-semibold">Day Streak</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="card bg-white bg-opacity-90 border-0 rounded-4 shadow text-center h-100">
+                <div className="card-body py-4">
+                  <i className="fa fa-percentage text-primary mb-2" style={{ fontSize: '2.5rem' }}></i>
+                  <h3 className="fw-bold text-primary mb-1">{stats.completionRate || 0}%</h3>
+                  <p className="text-muted mb-0 fw-semibold">Success Rate</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Task Cards */}
-            <div className="col-12 col-lg-8">
+      {/* Tasks Section */}
+      <div className="bloc l-bloc py-5 bg-light">
+        <div className="container bloc-lg bloc-no-padding-lg">
+
+          {/* Task Cards */}
+          <div className="row justify-content-center">
+            <div className="col-12 col-lg-10">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="fw-bold text-dark mb-0">
+                  <i className="fa fa-tasks text-primary me-2"></i>
+                  My Tasks
+                </h3>
+                <span className="badge bg-primary rounded-pill px-3 py-2">
+                  {tasks.length} {tasks.length === 1 ? 'Task' : 'Tasks'}
+                </span>
+              </div>
               <div className="d-flex flex-column gap-4">
                 {tasks && tasks.length > 0 ? (
                   tasks.map(task => {
@@ -416,23 +437,38 @@ const Profile = () => {
                               </span>
                             )}
                           </div>
-                          {dynamicStatus === 'in-progress' && (
-                            <div className="d-flex justify-content-end gap-2">
+                          {(dynamicStatus === 'in-progress' || dynamicStatus === 'failed') && (
+                            <div className="d-flex justify-content-end gap-2 mt-3">
                               <Link
                                 to={`/tasks/${task._id || task.id}/edit`}
-                                className="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                className="btn btn-primary btn-sm rounded-pill px-3 fw-semibold"
+                                style={{ 
+                                  backgroundColor: '#0d6efd',
+                                  borderColor: '#0d6efd',
+                                  color: 'white'
+                                }}
                               >
                                 <i className="fa fa-edit me-1"></i>Edit
                               </Link>
                               <button
                                 onClick={() => handleDeleteTask(task._id || task.id)}
-                                className="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                className="btn btn-danger btn-sm rounded-pill px-3 fw-semibold"
+                                style={{ 
+                                  backgroundColor: '#dc3545',
+                                  borderColor: '#dc3545',
+                                  color: 'white'
+                                }}
                               >
                                 <i className="fa fa-trash me-1"></i>Delete
                               </button>
                               <button
                                 onClick={() => handleCompleteTask(task._id || task.id)}
-                                className="btn btn-success btn-sm rounded-pill px-3"
+                                className="btn btn-success btn-sm rounded-pill px-3 fw-semibold"
+                                style={{ 
+                                  backgroundColor: '#198754',
+                                  borderColor: '#198754',
+                                  color: 'white'
+                                }}
                               >
                                 <i className="fa fa-check me-1"></i>Done
                               </button>
@@ -463,6 +499,31 @@ const Profile = () => {
 
           {/* Pagination */}
           {renderPagination()}
+
+          {/* Delete Account Section */}
+          <div className="row justify-content-center mt-5">
+            <div className="col-12 col-md-6 text-center">
+              <div className="card border-danger">
+                <div className="card-body">
+                  <h5 className="card-title text-danger">
+                    <i className="fa fa-exclamation-triangle me-2"></i>
+                    Danger Zone
+                  </h5>
+                  <p className="card-text text-muted">
+                    Once you delete your account, there is no going back. Please be certain.
+                  </p>
+                  <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }}>
+                    <button
+                      type="submit"
+                      className="btn btn-outline-danger"
+                    >
+                      <i className="fa fa-trash me-2"></i>Delete Account
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
