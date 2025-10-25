@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useNotification } from '../context/NotificationContext'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorMessage from '../components/common/ErrorMessage'
+import OfflineMode from '../components/common/OfflineMode'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +14,7 @@ const Login = () => {
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { login, isAuthenticated, isLoading, error, clearError } = useAuth()
+  const { login, isAuthenticated, isLoading, error, clearError, backendAvailable } = useAuth()
   const { showSuccess } = useNotification()
   const navigate = useNavigate()
   const location = useLocation()
@@ -28,16 +29,13 @@ const Login = () => {
 
   // Redirect if already authenticated (only after loading is complete)
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated && !isLoading && !isSubmitting) {
       const returnTo = location.state?.from || '/'
       navigate(returnTo, { replace: true })
     }
-  }, [isAuthenticated, isLoading, navigate, location.state])
+  }, [isAuthenticated, isLoading, isSubmitting, navigate, location.state])
 
-  // Clear auth errors when component mounts
-  useEffect(() => {
-    clearError()
-  }, [])
+
 
   const validateForm = () => {
     const newErrors = {}
@@ -110,6 +108,34 @@ const Login = () => {
   const handleRetry = () => {
     clearError()
     setErrors({})
+  }
+
+  // Show offline mode if backend is not available
+  if (!backendAvailable) {
+    return <OfflineMode />
+  }
+
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className="bloc none l-bloc" id="bloc-8" style={{
+        backgroundImage: 'url("/img/background/login.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        height: '100vh'
+      }}>
+        <div className="container bloc-xl-lg">
+          <div className="row justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+            <div className="col-sm-10 col-md-8 col-lg-6">
+              <div className="login-card bg-white shadow-lg rounded-4 p-4 text-center">
+                <LoadingSpinner size="large" />
+                <p className="mt-3 text-muted">Checking authentication...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

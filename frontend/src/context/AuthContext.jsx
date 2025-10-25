@@ -5,8 +5,9 @@ import authService from '../services/authService'
 const initialState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true,
-  error: null
+  isLoading: false, // Set to false initially to prevent blocking
+  error: null,
+  backendAvailable: true
 }
 
 // Action types
@@ -23,7 +24,8 @@ const AUTH_ACTIONS = {
   LOAD_USER_FAILURE: 'LOAD_USER_FAILURE',
   UPDATE_USER: 'UPDATE_USER',
   CLEAR_ERROR: 'CLEAR_ERROR',
-  SET_LOADING: 'SET_LOADING'
+  SET_LOADING: 'SET_LOADING',
+  SET_BACKEND_UNAVAILABLE: 'SET_BACKEND_UNAVAILABLE'
 }
 
 // Reducer function
@@ -96,6 +98,16 @@ const authReducer = (state, action) => {
         isLoading: action.payload
       }
 
+    case AUTH_ACTIONS.SET_BACKEND_UNAVAILABLE:
+      return {
+        ...state,
+        backendAvailable: false,
+        isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        error: 'Backend server is not available'
+      }
+
     default:
       return state
   }
@@ -108,9 +120,63 @@ const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
 
-  // Load user on app start
+  // Load user on app start - only when needed
   useEffect(() => {
-    loadUser()
+    let isMounted = true
+
+    const initializeAuth = async () => {
+      if (!isMounted) return
+
+      // Only check authentication if we have stored user data
+      const hasStoredUser = authService.hasStoredUser()
+      
+      if (!hasStoredUser) {
+        // No stored user, mark as not authenticated without API call
+        dispatch({
+          type: AUTH_ACTIONS.LOAD_USER_FAILURE,
+          payload: 'No stored user data'
+        })
+        return
+      }
+
+      dispatch({ type: AUTH_ACTIONS.LOAD_USER_START })
+
+      try {
+        // Try to get user data from API (session-based)
+        const currentUser = await authService.getCurrentUser()
+        if (isMounted) {
+          dispatch({
+            type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
+            payload: currentUser
+          })
+        }
+      } catch (error) {
+        if (isMounted) {
+          // Clear any stale data and mark as not authenticated
+          authService.clearAuthData()
+          
+          // Check if it's a backend unavailable error
+          if (error.code === 'BACKEND_UNAVAILABLE') {
+            dispatch({
+              type: AUTH_ACTIONS.SET_BACKEND_UNAVAILABLE
+            })
+          } else {
+            dispatch({
+              type: AUTH_ACTIONS.LOAD_USER_FAILURE,
+              payload: 'User not authenticated'
+            })
+          }
+        }
+      }
+    }
+
+    // Add a small delay to prevent rapid re-calls in development
+    const timeoutId = setTimeout(initializeAuth, 100)
+
+    return () => {
+      isMounted = false
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   // Load user from session or API
@@ -247,6 +313,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     error: state.error,
+    backendAvailable: state.backendAvailable,
     
     // Actions
     login,

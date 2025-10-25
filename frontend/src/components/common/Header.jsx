@@ -104,76 +104,36 @@ const Header = () => {
                       {/* Conditional rendering: If the user is authenticated */}
                       {isAuthenticated ? (
                         <>
+                          {/* Profile Link */}
+                          <li className="nav-item">
+                            <Link
+                              to="/profile"
+                              className={`nav-link a-btn ltc-2869 ${location.pathname === '/profile' ? 'active' : ''}`}
+                              onClick={closeMobileMenu}
+                            >
+                              <i className="fa fa-user me-1"></i>Profile
+                            </Link>
+                          </li>
 
-                          {/* User dropdown for authenticated users */}
-                          <li className="nav-item dropdown">
+                          {/* Logout Button */}
+                          <li className="nav-item">
                             <button
-                              className="nav-link dropdown-toggle a-btn ltc-2869 d-flex align-items-center btn btn-link border-0 bg-transparent"
-                              id="navbarDropdown"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
+                              onClick={handleLogout}
+                              className="nav-link a-btn ltc-2869 btn btn-link border-0 bg-transparent"
+                              disabled={isLoggingOut}
                               style={{ cursor: 'pointer', padding: '0.5rem 1rem' }}
                             >
-                              <img
-                                src={user?.avatar || '/img/placeholder-user.png'}
-                                alt="User Avatar"
-                                className="rounded-circle me-2"
-                                width="24"
-                                height="24"
-                                style={{ objectFit: 'cover' }}
-                              />
-                              {user?.fullname || user?.username || 'User'}
+                              {isLoggingOut ? (
+                                <>
+                                  <LoadingSpinner size="small" />
+                                  <span className="ms-2">Logging out...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <i className="fa fa-sign-out-alt me-1"></i>Logout
+                                </>
+                              )}
                             </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                              <li>
-                                <Link
-                                  to="/profile"
-                                  className="dropdown-item"
-                                  onClick={closeMobileMenu}
-                                >
-                                  <i className="fa fa-user me-2"></i>My Profile
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  to="/tasks"
-                                  className="dropdown-item"
-                                  onClick={closeMobileMenu}
-                                >
-                                  <i className="fa fa-tasks me-2"></i>My Tasks
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  to="/profile/edit"
-                                  className="dropdown-item"
-                                  onClick={closeMobileMenu}
-                                >
-                                  <i className="fa fa-edit me-2"></i>Edit Profile
-                                </Link>
-                              </li>
-                              <li><hr className="dropdown-divider" /></li>
-                              <li>
-                                <button
-                                  onClick={handleLogout}
-                                  className="dropdown-item"
-                                  disabled={isLoggingOut}
-                                  style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left' }}
-                                >
-                                  {isLoggingOut ? (
-                                    <>
-                                      <LoadingSpinner size="small" />
-                                      <span className="ms-2">Logging out...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <i className="fa fa-sign-out-alt me-2"></i>Logout
-                                    </>
-                                  )}
-                                </button>
-                              </li>
-                            </ul>
                           </li>
                         </>
                       ) : (

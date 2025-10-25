@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import userService from '../services/userService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import DocumentHead from '../components/common/DocumentHead'
 import SafeImage from '../components/common/SafeImage'
 
 const Home = () => {
+  const { isAuthenticated } = useAuth()
   const [users, setUsers] = useState([])
-  const [usersLoading, setUsersLoading] = useState(true)
+  const [usersLoading, setUsersLoading] = useState(false)
 
   useEffect(() => {
+    // Always fetch users (using appropriate endpoint)
     fetchUsers()
-  }, [])
+  }, [isAuthenticated])
 
   const fetchUsers = async () => {
     try {
       setUsersLoading(true)
-      const response = await userService.getUsers(1, 10) // Get first 10 users for showcase
-      setUsers(response.data.items || response.data || [])
+      // Use public endpoint for home page showcase
+      const endpoint = isAuthenticated ? '/users' : '/users/public'
+      const response = await userService.getUsers(1, 10, '', endpoint)
+      setUsers(response.data.users || response.data.items || response.data || [])
     } catch (error) {
       console.error('Failed to fetch users:', error)
+      // If authentication is required, just show empty users list
+      // Don't redirect or cause errors
       setUsers([])
     } finally {
       setUsersLoading(false)
