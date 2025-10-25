@@ -32,41 +32,14 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 app.use('/api/users', userLimiter);
 
-// CORS configuration
+// CORS configuration - Simplified for development
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      process.env.CLIENT_URL || 'http://localhost:3000',
-      process.env.CORS_ORIGIN || 'http://localhost:3000',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000'
-    ];
-    
-    if (process.env.NODE_ENV === 'production') {
-      // Add production frontend URLs
-      if (process.env.PRODUCTION_CLIENT_URL) {
-        allowedOrigins.push(process.env.PRODUCTION_CLIENT_URL);
-      }
-    }
-    
-    // Remove duplicates and filter out undefined values
-    const uniqueOrigins = [...new Set(allowedOrigins.filter(Boolean))];
-    
-    if (uniqueOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, uniqueOrigins);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins in development
   credentials: true, // This is crucial for session cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   preflightContinue: false,
-  optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));

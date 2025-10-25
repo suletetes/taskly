@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
-import { getAvatarUrl } from "../utils/cloudinarySeeder.js";
+import { getAvatarUrl, initializeAvatars } from "../utils/cloudinarySeeder.js";
 
 // MongoDB connection
 const connectDB = async () => {
@@ -295,6 +295,9 @@ const calculateUserStats = async (userId) => {
 const seedDB = async () => {
     try {
         console.log("Starting database seeding...");
+        
+        // Initialize avatars (upload local images to Cloudinary)
+        await initializeAvatars();
         
         // Clear existing data
         await Task.deleteMany({});
