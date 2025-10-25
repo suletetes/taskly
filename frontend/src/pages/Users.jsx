@@ -27,7 +27,7 @@ const Users = () => {
 
       const response = await userService.getUsers(page, usersPerPage)
       
-      setUsers(response.data.items || response.data || [])
+      setUsers(response.data.users || response.data || [])
       setPagination(response.data.pagination || {
         totalPages: Math.ceil((response.data.length || 0) / usersPerPage),
         totalItems: response.data.length || 0,

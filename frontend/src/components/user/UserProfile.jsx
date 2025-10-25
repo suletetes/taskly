@@ -47,7 +47,7 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
 
         // Fetch user tasks
         const tasksResponse = await taskService.getUserTasks(userIdToUse, currentPage, tasksPerPage)
-        setTasks(tasksResponse.data.items || tasksResponse.data || [])
+        setTasks(tasksResponse.data.tasks || tasksResponse.data || [])
         setPagination(tasksResponse.data.pagination || {
           totalPages: 1,
           hasNextPage: false,
@@ -121,7 +121,7 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
       await taskService.updateTaskStatus(taskId, 'completed')
       // Refresh tasks
       const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
-      setTasks(tasksResponse.data.items || tasksResponse.data || [])
+      setTasks(tasksResponse.data.tasks || tasksResponse.data || [])
     } catch (err) {
       console.error('Failed to complete task:', err)
     }
@@ -133,7 +133,7 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
         await taskService.deleteTask(taskId)
         // Refresh tasks
         const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
-        setTasks(tasksResponse.data.items || tasksResponse.data || [])
+        setTasks(tasksResponse.data.tasks || tasksResponse.data || [])
       } catch (err) {
         console.error('Failed to delete task:', err)
       }

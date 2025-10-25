@@ -30,7 +30,7 @@ const UserList = () => {
 
       const response = await userService.getUsers(page, usersPerPage, search)
       
-      setUsers(response.data.items || response.data || [])
+      setUsers(response.data.users || response.data || [])
       setPagination(response.data.pagination || {
         totalPages: 1,
         totalItems: response.data.length || 0,
