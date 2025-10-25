@@ -24,7 +24,7 @@ const UserCard = ({ user, onUserUpdate, onUserDelete }) => {
         setStatsLoading(true)
         const userId = user?.id || user?._id
         const statsData = await userService.getUserStats(userId)
-        setStats(statsData.data)
+        setStats(statsData.data?.stats || {})
       } catch (err) {
         // Don't show error for stats - it's not critical
         console.warn('Failed to load user stats:', err.message)
@@ -70,9 +70,9 @@ const UserCard = ({ user, onUserUpdate, onUserDelete }) => {
   }
 
   const getAvatarUrl = (avatar) => {
-    if (!avatar) return '/img/placeholder-user.png'
+    if (!avatar) return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`
     if (avatar.startsWith('http')) return avatar
-    return `/uploads/avatars/${avatar}`
+    return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${avatar}`
   }
 
   const getCompletionRateColor = (rate) => {

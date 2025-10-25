@@ -19,7 +19,7 @@ const UserStatsDashboard = ({ userId, user }) => {
         const targetUserId = userId || user?.id || user?._id
         if (targetUserId) {
           const statsData = await userService.getUserStats(targetUserId)
-          setStats(statsData.data)
+          setStats(statsData.data?.stats || {})
         }
       } catch (err) {
         setError(err.message)

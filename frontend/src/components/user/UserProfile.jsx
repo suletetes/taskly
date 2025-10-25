@@ -43,7 +43,7 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
 
         // Fetch user stats
         const statsResponse = await userService.getUserStats(userIdToUse)
-        setStats(statsResponse.data || {})
+        setStats(statsResponse.data?.stats || {})
 
         // Fetch user tasks
         const tasksResponse = await taskService.getUserTasks(userIdToUse, currentPage, tasksPerPage)
@@ -220,8 +220,8 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
           <div className="d-flex justify-content-between align-items-center flex-wrap mb-5">
             <div className="order-1 order-md-1 me-4 mb-3 mb-md-0">
               <SafeImage
-                src={user.avatar}
-                fallbackSrc="/img/placeholder-user.png"
+                src={user.avatar?.startsWith('http') ? user.avatar : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${user.avatar}`}
+                fallbackSrc={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`}
                 className="img-fluid rounded-circle shadow lazyload"
                 alt="User avatar"
                 width="180" 
