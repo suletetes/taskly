@@ -180,21 +180,19 @@ const getTasksByUser = async (req, res) => {
             });
         }
 
-        // Check authorization - users can only view their own tasks or admin can view any
-        if (req.user._id.toString() !== userId && req.user.role !== 'admin') {
-            return res.status(403).json({
-                success: false,
-                error: {
-                    message: 'Not authorized to view tasks for this user',
-                    code: 'UNAUTHORIZED'
-                }
-            });
-        }
+        // For public profile viewing, only show completed tasks
+        // Full task access is only available for own profile or admin
+        const isOwnProfile = req.user._id.toString() === userId;
+        const isAdmin = req.user.role === 'admin';
+        const canViewAllTasks = isOwnProfile || isAdmin;
 
         // Build filter query
         let filterQuery = { user: userId };
 
-        if (status) {
+        // For public viewing, only show completed tasks
+        if (!canViewAllTasks) {
+            filterQuery.status = 'completed';
+        } else if (status) {
             filterQuery.status = status;
         }
 
@@ -494,25 +492,32 @@ const getUserProductivityStats = async (req, res) => {
             });
         }
 
-        // Check authorization - users can only view their own stats or admin can view any
-        if (req.user._id.toString() !== userId && req.user.role !== 'admin') {
-            return res.status(403).json({
-                success: false,
-                error: {
-                    message: 'Not authorized to view statistics for this user',
-                    code: 'UNAUTHORIZED'
-                }
-            });
-        }
+        // For public profile viewing, return basic stats only
+        // Full stats are only available for own profile or admin
+        const isOwnProfile = req.user._id.toString() === userId;
+        const isAdmin = req.user.role === 'admin';
+        const canViewFullStats = isOwnProfile || isAdmin;
 
         // Calculate productivity stats
         const stats = await calculateProductivityStats(userId);
+
+        // Return limited stats for public viewing
+        let responseStats = stats;
+        if (!canViewFullStats) {
+            // Only return basic public stats
+            responseStats = {
+                completed: stats.completed || 0,
+                ongoing: stats.ongoing || 0,
+                completionRate: stats.completionRate || 0,
+                totalTasks: (stats.completed || 0) + (stats.ongoing || 0) + (stats.failed || 0)
+            };
+        }
 
         res.json({
             success: true,
             data: {
                 userId,
-                stats
+                stats: responseStats
             },
             message: 'Productivity statistics retrieved successfully'
         });
