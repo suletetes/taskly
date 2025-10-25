@@ -42,7 +42,7 @@ const Profile = () => {
           page: currentPage,
           limit: tasksPerPage
         })
-        setTasks(tasksResponse.data.items || tasksResponse.data || [])
+        setTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
         setPagination(tasksResponse.data.pagination || {
           totalPages: 1,
           hasNextPage: false,
@@ -121,7 +121,7 @@ const Profile = () => {
         page: currentPage,
         limit: tasksPerPage
       })
-      setTasks(tasksResponse.data.items || tasksResponse.data || [])
+      setTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
 
       // Refresh stats
       const statsResponse = await userService.getUserStats(userId)
@@ -140,7 +140,7 @@ const Profile = () => {
           page: currentPage,
           limit: tasksPerPage
         })
-        setTasks(tasksResponse.data.items || tasksResponse.data || [])
+        setTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
 
         // Refresh stats
         const statsResponse = await userService.getUserStats(userId)

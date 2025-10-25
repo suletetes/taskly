@@ -132,9 +132,7 @@ const AddTask = () => {
         description: formData.description.trim(),
         due: formData.due,
         priority: formData.priority,
-        tags,
-        status: 'in-progress',
-        user: user.id || user._id
+        tags
       }
 
       console.log('Creating task with data:', taskData)
