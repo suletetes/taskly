@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
+import { getAvatarUrl } from "../utils/cloudinarySeeder.js";
 
 // MongoDB connection
 const connectDB = async () => {
@@ -30,105 +31,105 @@ const userData = [
         username: "johndoe",
         email: "john@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-1.jpg"
+        avatar: getAvatarUrl(0)
     },
     {
         fullname: "Jane Smith",
         username: "janesmith",
         email: "jane@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-2.jpg"
+        avatar: getAvatarUrl(1)
     },
     {
         fullname: "Mike Johnson",
         username: "mikejohnson",
         email: "mike@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-3.jpg"
+        avatar: getAvatarUrl(2)
     },
     {
         fullname: "Sarah Wilson",
         username: "sarahwilson",
         email: "sarah@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-4.jpg"
+        avatar: getAvatarUrl(3)
     },
     {
         fullname: "David Brown",
         username: "davidbrown",
         email: "david@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-5.jpg"
+        avatar: getAvatarUrl(4)
     },
     {
         fullname: "Emily Davis",
         username: "emilydavis",
         email: "emily@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-6.jpg"
+        avatar: getAvatarUrl(5)
     },
     {
         fullname: "Alex Rodriguez",
         username: "alexrodriguez",
         email: "alex@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-7.jpg"
+        avatar: getAvatarUrl(6)
     },
     {
         fullname: "Lisa Anderson",
         username: "lisaanderson",
         email: "lisa@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-8.jpg"
+        avatar: getAvatarUrl(7)
     },
     {
         fullname: "Chris Taylor",
         username: "christaylor",
         email: "chris@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-9.jpg"
+        avatar: getAvatarUrl(8)
     },
     {
         fullname: "Amanda White",
         username: "amandawhite",
         email: "amanda@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-10.jpg"
+        avatar: getAvatarUrl(9)
     },
     {
         fullname: "Ryan Martinez",
         username: "ryanmartinez",
         email: "ryan@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-11.jpg"
+        avatar: getAvatarUrl(10)
     },
     {
         fullname: "Jessica Garcia",
         username: "jessicagarcia",
         email: "jessica@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-12.jpg"
+        avatar: getAvatarUrl(11)
     },
     {
         fullname: "Kevin Lee",
         username: "kevinlee",
         email: "kevin@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-13.jpg"
+        avatar: getAvatarUrl(12)
     },
     {
         fullname: "Michelle Thompson",
         username: "michellethompson",
         email: "michelle@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-1.jpg"
+        avatar: getAvatarUrl(13)
     },
     {
         fullname: "Daniel Clark",
         username: "danielclark",
         email: "daniel@example.com",
         password: "password123",
-        avatar: "/img/avatars/avatar-2.jpg"
+        avatar: getAvatarUrl(14)
     }
 ];
 

@@ -54,9 +54,9 @@ const Users = () => {
   }
 
   const getAvatarUrl = (avatar) => {
-    if (!avatar) return '/img/placeholder-user.png'
+    if (!avatar) return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`
     if (avatar.startsWith('http')) return avatar
-    return `/uploads/avatars/${avatar}`
+    return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${avatar}`
   }
 
   const renderPagination = () => {

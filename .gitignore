@@ -224,3 +224,4 @@ dist
 .idea/copilot.data.migration.agent.xml
 .idea/copilot.data.migration.edit.xml
 public/img/
+backend/public/img/

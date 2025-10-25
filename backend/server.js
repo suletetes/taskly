@@ -75,6 +75,10 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Static file serving
+app.use('/img', express.static('public/img'));
+app.use('/uploads', express.static('public/uploads'));
+
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly')
 .then(() => console.log('Connected to MongoDB'))
@@ -106,11 +110,13 @@ app.use(passport.session());
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import taskRoutes from './routes/tasks.js';
+import uploadRoutes from './routes/upload.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/api/health', (req, res) => {
   const healthCheck = {
