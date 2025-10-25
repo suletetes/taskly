@@ -109,8 +109,8 @@ const TaskSearch = ({
       }
 
       const response = await taskService.searchTasks(query, searchOptions)
-      setResults(response.data.items || [])
-      onSearchResults?.(response.data.items || [], query, filters)
+      setResults(response.data.tasks || response.data || [])
+      onSearchResults?.(response.data.tasks || response.data || [], query, filters)
       
       if (query.trim()) {
         saveSearchToHistory(query, filters)

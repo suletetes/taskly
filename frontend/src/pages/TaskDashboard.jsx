@@ -30,7 +30,7 @@ const TaskDashboard = () => {
         if (user) {
           const userId = user.id || user._id
           const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
-          setTasks(response.data.items || response.data || [])
+          setTasks(response.data.tasks || response.data || [])
           setPagination(response.data.pagination || {
             totalPages: 1,
             hasNextPage: false,
@@ -113,7 +113,7 @@ const TaskDashboard = () => {
       // Refresh tasks
       const userId = user.id || user._id
       const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
-      setTasks(response.data.items || response.data || [])
+      setTasks(response.data.tasks || response.data || [])
     } catch (err) {
       console.error('Failed to complete task:', err)
     }
@@ -126,7 +126,7 @@ const TaskDashboard = () => {
         // Refresh tasks
         const userId = user.id || user._id
         const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
-        setTasks(response.data.items || response.data || [])
+        setTasks(response.data.tasks || response.data || [])
       } catch (err) {
         console.error('Failed to delete task:', err)
       }
