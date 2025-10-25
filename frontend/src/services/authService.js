@@ -117,6 +117,11 @@ const authService = {
       message = error.message
     }
 
+    // Clear auth data for 401 and 403 errors
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      this.clearAuthData()
+    }
+
     // Create a standardized error object
     const authError = new Error(message)
     authError.status = error.response?.status

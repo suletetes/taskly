@@ -35,8 +35,8 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Handle 401 errors (unauthorized)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Handle 401 and 403 errors (unauthorized/forbidden)
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true
       
       // Clear user data from localStorage

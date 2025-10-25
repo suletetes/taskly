@@ -9,7 +9,7 @@ import DocumentHead from '../components/common/DocumentHead'
 import SafeImage from '../components/common/SafeImage'
 
 const Profile = () => {
-  const { user: currentUser, logout } = useAuth()
+  const { user: currentUser, isAuthenticated, logout } = useAuth()
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
   const [stats, setStats] = useState({})
@@ -27,7 +27,7 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!userId) return
+      if (!userId || !currentUser || !isAuthenticated) return
 
       try {
         setLoading(true)
@@ -57,7 +57,7 @@ const Profile = () => {
     }
 
     fetchUserData()
-  }, [userId, currentPage])
+  }, [userId, currentPage, currentUser, isAuthenticated])
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
