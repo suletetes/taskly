@@ -209,3 +209,19 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+.idea/taskly.iml
+.idea/jsLibraryMappings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.gitignore
+.vscode/settings.json
+/views/
+/RUNTIME_FIXES.md
+/COLOR_FIXES_APPLIED.md
+/CONVERSION_COMPLETE.md
+/FIXES_APPLIED.md
+.idea/copilot.data.migration.ask2agent.xml
+.idea/copilot.data.migration.ask.xml
+.idea/copilot.data.migration.agent.xml
+.idea/copilot.data.migration.edit.xml
+public/img/
+backend/public/img/

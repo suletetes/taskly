@@ -2,10 +2,29 @@
   "name": "taskly",
   "version": "1.0.0",
   "description": "Task app",
-  "main": "app.js",
+  "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js --watch app.js --watch routes --watch models --watch views --watch controllers"
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:all": "npm run build:backend && npm run build",
+    "install-deps": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "start": "cd backend && npm start",
+    "start:prod": "cd backend && npm run prod",
+    "test": "cd backend && npm test && cd ../frontend && npm run test",
+    "test:coverage": "cd backend && npm run test:coverage && cd ../frontend && npm run test:coverage",
+    "lint": "cd backend && npm run lint && cd ../frontend && npm run lint",
+    "lint:fix": "cd backend && npm run lint:fix && cd ../frontend && npm run lint:fix",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "pm2:start": "cd backend && npm run pm2:start",
+    "pm2:stop": "cd backend && npm run pm2:stop",
+    "pm2:restart": "cd backend && npm run pm2:restart",
+    "pm2:logs": "cd backend && npm run pm2:logs"
   },
   "repository": {
     "type": "git",
@@ -17,22 +36,10 @@
     "url": "https://github.com/suletetes/taskly/issues"
   },
   "homepage": "https://github.com/suletetes/taskly#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
   "dependencies": {
-    "connect-flash": "^0.1.1",
-    "dotenv": "^17.1.0",
-    "ejs": "^3.1.10",
-    "ejs-mate": "^4.0.0",
-    "express": "^5.1.0",
-    "express-mongo-sanitize": "^2.2.0",
-    "express-session": "^1.18.1",
-    "helmet": "^8.1.0",
-    "joi": "^17.13.3",
-    "method-override": "^3.0.0",
-    "mongoose": "^8.16.1",
-    "nodemon": "^3.1.10",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^8.0.0",
-    "sanitize-html": "^2.17.0"
+    "axios": "^1.12.2"
   }
 }
