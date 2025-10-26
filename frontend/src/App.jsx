@@ -1,214 +1,311 @@
-import React, { Suspense, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-import { NotificationProvider } from './context/NotificationContext'
-import { AnalyticsProvider } from './context/AnalyticsContext'
-import { ErrorProvider } from './context/ErrorContext'
-import { ThemeProvider, useTheme } from './components/layout'
-import { Navigation } from './components/layout'
-import ErrorBoundary from './components/common/ErrorBoundary'
-import Header from './components/common/Header'
-import Footer from './components/common/Footer'
-import Preloader from './components/common/Preloader'
-import ScrollToTop from './components/common/ScrollToTop'
-import LoadingSpinner from './components/common/LoadingSpinner'
-import DevelopmentNotice from './components/common/DevelopmentNotice'
-import ProtectedRoute, { GuestRoute } from './components/auth/ProtectedRoute'
-import { registerServiceWorker, trackWebVitals, preloadCriticalResources } from './utils/performanceOptimization'
-import { preloadCriticalResources as seoPreload } from './utils/seoOptimization'
-import { initColorFixes } from './utils/colorFix'
-import './App.css'
-import './styles/colorFixes.css'
-import './styles/textVisibility.css'
+import React, { useState, useEffect, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Toaster } from 'react-hot-toast';
 
-// Lazy load pages for better performance
-const Home = React.lazy(() => import('./pages/Home'))
-const Login = React.lazy(() => import('./pages/Login'))
-const Signup = React.lazy(() => import('./pages/Signup'))
-const Profile = React.lazy(() => import('./pages/Profile'))
-const Users = React.lazy(() => import('./pages/Users'))
-const About = React.lazy(() => import('./pages/About'))
-const NotFound = React.lazy(() => import('./pages/NotFound'))
-const Unauthorized = React.lazy(() => import('./pages/Unauthorized'))
-const TaskDashboard = React.lazy(() => import('./pages/TaskDashboard'))
-const AddTask = React.lazy(() => import('./pages/AddTask'))
-const EditTask = React.lazy(() => import('./pages/EditTask'))
-const EditProfile = React.lazy(() => import('./components/user/EditProfile'))
-const UserProfile = React.lazy(() => import('./pages/UserProfile'))
+// Layout Components
+import Navigation from './components/layout/Navigation';
+import MobileNavigation from './components/mobile/MobileNavigation';
+import { LoadingSpinner, LoadingOverlay } from './components/ui/LoadingStates';
+import ErrorBoundary from './components/error/ErrorBoundary';
+import GlobalSearch from './components/search/GlobalSearch';
+import OfflineStatus from './components/offline/OfflineStatus';
+import { PageTransition } from './components/transitions/PageTransitions';
+import OnboardingFlow from './components/onboarding/OnboardingFlow';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { preloadCriticalComponents } from './utils/lazyImports';
 
-// Layout wrapper component to handle conditional rendering
+// Context Providers
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { ErrorProvider } from './context/ErrorContext';
+import { AnalyticsProvider } from './context/AnalyticsContext';
+import { AppStateProvider } from './context/AppStateContext';
+
+// Lazy-loaded pages
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Tasks = React.lazy(() => import('./pages/Tasks'));
+const Projects = React.lazy(() => import('./pages/Projects'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Signup = React.lazy(() => import('./pages/Signup'));
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+  
+  return user ? children : <Navigate to="/login" replace />;
+};
+
+// Main App Layout
 const AppLayout = ({ children }) => {
-  return (
-    <div className="page-container">
-      {children}
-      <ScrollToTop />
-    </div>
-  )
-}
-
-// Main App Content Component
-const AppContent = () => {
-  const { isDark, toggleTheme } = useTheme();
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const { theme } = useTheme();
+  
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts({
+    enabled: true,
+    onShortcut: (action, event) => {
+      // Handle custom shortcut actions here
+      switch (action) {
+        case 'openGlobalSearch':
+          setShowGlobalSearch(true);
+          return true; // Handled
+        default:
+          return false; // Not handled, use default
+      }
+    }
+  });
+  
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Cmd/Ctrl + K for global search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowGlobalSearch(true);
+      }
+      
+      // Escape to close modals
+      if (e.key === 'Escape') {
+        setShowGlobalSearch(false);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+  
+  // Apply theme class to document and preload components
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else if (theme === 'light') {
+      root.classList.remove('dark');
+    } else {
+      // System theme
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mediaQuery.matches) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+    
+    // Preload critical components on idle
+    preloadCriticalComponents();
+  }, [theme]);
+  
+  const handleQuickAction = (action) => {
+    switch (action) {
+      case 'create-task':
+        // Open task creation modal
+        console.log('Opening task creation modal');
+        break;
+      case 'notifications':
+        // Open notifications panel
+        console.log('Opening notifications');
+        break;
+      case 'search':
+        setShowGlobalSearch(true);
+        break;
+      default:
+        console.log('Unknown quick action:', action);
+    }
+  };
   
   return (
+    <div className="min-h-screen bg-secondary-50 dark:bg-secondary-900 transition-colors duration-200">
+      {/* Desktop Navigation */}
+      <div className="hidden lg:block">
+        <Navigation 
+          onSearchOpen={() => setShowGlobalSearch(true)}
+          onQuickAction={handleQuickAction}
+        />
+      </div>
+      
+      {/* Mobile Navigation */}
+      <MobileNavigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onQuickAction={handleQuickAction}
+      />
+      
+      {/* Main Content */}
+      <main className="lg:ml-64 min-h-screen">
+        {/* Top padding for mobile header */}
+        <div className="lg:hidden h-16" />
+        
+        {/* Page Content */}
+        <div className="p-4 lg:p-8 pb-20 lg:pb-8">
+          <ErrorBoundary>
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <LoadingSpinner size="lg" />
+              </div>
+            }>
+              <PageTransition>
+                {children}
+              </PageTransition>
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+        
+        {/* Bottom padding for mobile navigation */}
+        <div className="lg:hidden h-20" />
+      </main>
+      
+      {/* Global Search */}
+      <GlobalSearch
+        isOpen={showGlobalSearch}
+        onClose={() => setShowGlobalSearch(false)}
+      />
+      
+      {/* Offline Status */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <OfflineStatus />
+      </div>
+      
+      {/* Toast Notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'var(--color-secondary-800)',
+            color: 'var(--color-secondary-100)',
+            border: '1px solid var(--color-secondary-700)',
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--color-success-500)',
+              secondary: 'white',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--color-error-500)',
+              secondary: 'white',
+            },
+          },
+        }}
+      />
+      
+      {/* Onboarding Flow */}
+      <OnboardingFlow />
+    </div>
+  );
+};
+
+// Main App Component
+const App = () => {
+  return (
     <ErrorBoundary>
-      <NotificationProvider>
+      <ThemeProvider>
         <ErrorProvider>
           <AuthProvider>
             <AnalyticsProvider>
-              <Router
-                future={{
-                  v7_startTransition: true,
-                  v7_relativeSplatPath: true
-                }}
-              >
-                <ErrorBoundary fallback={(error, retry) => (
-                  <div className="app-error">
-                    <h1>Application Error</h1>
-                    <p>The application encountered an error and needs to be restarted.</p>
-                    <button onClick={retry} className="btn btn-primary">
-                      Restart Application
-                    </button>
-                  </div>
-                )}>
-                  <Preloader />
-                  <DevelopmentNotice />
-                  
-                  {/* Modern Navigation */}
-                  <Navigation 
-                    onThemeToggle={toggleTheme}
-                    isDark={isDark}
-                  />
-                  
-                  <AppLayout>
-                    <main className="main-content">
-                      <ErrorBoundary fallback={(error, retry) => (
-                        <div className="route-error">
-                          <h2>Page Error</h2>
-                          <p>This page encountered an error. Please try again.</p>
-                          <button onClick={retry} className="btn btn-primary">
-                            Retry
-                          </button>
-                        </div>
-                      )}>
-                        <Suspense fallback={
-                          <div className="page-loading">
-                            <LoadingSpinner size="large" message="Loading page..." />
-                          </div>
-                        }>
-                          <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route
-                              path="/login"
-                              element={
-                                <GuestRoute>
-                                  <Login />
-                                </GuestRoute>
-                              }
-                            />
-                            <Route
-                              path="/signup"
-                              element={
-                                <GuestRoute>
-                                  <Signup />
-                                </GuestRoute>
-                              }
-                            />
-                            <Route
-                              path="/profile"
-                              element={
-                                <ProtectedRoute>
-                                  <Profile />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/users"
-                              element={
-                                <ProtectedRoute>
-                                  <Users />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/users/:userId"
-                              element={
-                                <ProtectedRoute>
-                                  <UserProfile />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route path="/about" element={<About />} />
-                            <Route
-                              path="/tasks"
-                              element={
-                                <ProtectedRoute>
-                                  <TaskDashboard />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/tasks/new"
-                              element={
-                                <ProtectedRoute>
-                                  <AddTask />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/tasks/:taskId/edit"
-                              element={
-                                <ProtectedRoute>
-                                  <EditTask />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/profile/edit"
-                              element={
-                                <ProtectedRoute>
-                                  <EditProfile />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route path="/unauthorized" element={<Unauthorized />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
+              <NotificationProvider>
+                <AppStateProvider>
+                  <Router>
+                  <div className="App">
+                    <Routes>
+                      {/* Public Routes */}
+                      <Route path="/login" element={
+                        <Suspense fallback={<LoadingSpinner size="lg" />}>
+                          <Login />
                         </Suspense>
-                      </ErrorBoundary>
-                    </main>
-
-                    <Footer />
-                  </AppLayout>
-                  
-                  <ScrollToTop />
-                </ErrorBoundary>
-              </Router>
+                      } />
+                      <Route path="/signup" element={
+                        <Suspense fallback={<LoadingSpinner size="lg" />}>
+                          <Signup />
+                        </Suspense>
+                      } />
+                      
+                      {/* Protected Routes */}
+                      <Route path="/" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Dashboard />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Dashboard />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/tasks" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Tasks />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/projects" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Projects />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/analytics" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Analytics />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/profile" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Profile />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/settings" element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Settings />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } />
+                      
+                      {/* Catch all route */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </div>
+                </Router>
+                </AppStateProvider>
+              </NotificationProvider>
             </AnalyticsProvider>
           </AuthProvider>
         </ErrorProvider>
-      </NotificationProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 };
 
-function App() {
-  useEffect(() => {
-    // Initialize performance optimizations
-    registerServiceWorker()
-    trackWebVitals()
-    preloadCriticalResources()
-    seoPreload()
-
-    // Fix color contrast issues
-    initColorFixes()
-  }, [])
-
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
-  )
-}
-
-export default App
+export default App;

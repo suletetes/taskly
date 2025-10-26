@@ -12,10 +12,15 @@ import {
   XIcon,
   SunIcon,
   MoonIcon,
+  ComputerDesktopIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '../ui';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
-const Navigation = ({ user, onThemeToggle, isDark = false }) => {
+const Navigation = ({ onSearchOpen, onQuickAction }) => {
+  const { user } = useAuth();
+  const { theme, toggleTheme, getThemeIcon, getThemeLabel, isDark } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   
@@ -95,10 +100,14 @@ const Navigation = ({ user, onThemeToggle, isDark = false }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onThemeToggle}
-                leftIcon={isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
+                onClick={toggleTheme}
+                leftIcon={
+                  getThemeIcon() === 'sun' ? <SunIcon className="w-4 h-4" /> :
+                  getThemeIcon() === 'moon' ? <MoonIcon className="w-4 h-4" /> :
+                  <ComputerDesktopIcon className="w-4 h-4" />
+                }
               >
-                {isDark ? 'Light' : 'Dark'}
+                {getThemeLabel()}
               </Button>
             </div>
             
@@ -139,8 +148,12 @@ const Navigation = ({ user, onThemeToggle, isDark = false }) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={onThemeToggle}
-              leftIcon={isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
+              onClick={toggleTheme}
+              leftIcon={
+                getThemeIcon() === 'sun' ? <SunIcon className="w-4 h-4" /> :
+                getThemeIcon() === 'moon' ? <MoonIcon className="w-4 h-4" /> :
+                <ComputerDesktopIcon className="w-4 h-4" />
+              }
             />
             <Button
               variant="ghost"
