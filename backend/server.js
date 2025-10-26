@@ -32,9 +32,30 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 app.use('/api/users', userLimiter);
 
-// CORS configuration - Simplified for development
+// CORS configuration - Production ready
 const corsOptions = {
-  origin: true, // Allow all origins in development
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      process.env.CLIENT_URL,
+      process.env.PRODUCTION_CLIENT_URL,
+      process.env.CORS_ORIGIN
+    ].filter(Boolean);
+    
+    // In development, allow localhost
+    if (process.env.NODE_ENV !== 'production') {
+      allowedOrigins.push('http://localhost:3000', 'http://127.0.0.1:3000');
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // This is crucial for session cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
@@ -68,10 +89,10 @@ app.use(session({
     touchAfter: 24 * 3600 // lazy session update
   }),
   cookie: {
-    secure: false, // Set to false for development (HTTP)
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax' // Allow cross-site requests
+    maxAge: parseInt(process.env.SESSION_MAX_AGE) || 1000 * 60 * 60 * 24 * 7, // 7 days
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
   }
 }));
 
@@ -104,20 +125,25 @@ app.get('/api/health', (req, res) => {
   res.json(healthCheck);
 });
 
-// Error handling middleware
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
+  console.error('Global error handler:', err);
+  
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  
+  res.status(err.status || 500).json({
     success: false,
     error: {
-      message: 'Something went wrong!',
-      code: 'INTERNAL_SERVER_ERROR'
+      message: isDevelopment ? err.message : 'Internal server error',
+      code: err.code || 'INTERNAL_ERROR',
+      ...(isDevelopment && { stack: err.stack })
     }
   });
 });
 
-// 404 handler
-app.use((req, res) => {
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     error: {
