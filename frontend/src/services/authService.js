@@ -47,7 +47,9 @@ const authService = {
   // Get current user profile
   async getCurrentUser() {
     try {
-      const response = await apiService.get('/auth/me')
+      const response = await apiService.get('/auth/me', {
+        suppressGlobalErrorHandler: true // Don't show global error for auth checks
+      })
       
       if (response.success && response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user))
@@ -56,9 +58,10 @@ const authService = {
       
       return null
     } catch (error) {
-      // If not authenticated or network error, clear storage
-      if (error.response?.status === 401 || error.code === 'ERR_NETWORK') {
+      // If not authenticated, just clear storage and return null (don't throw)
+      if (error.response?.status === 401) {
         this.clearAuthData()
+        return null
       }
       
       // For network errors, throw a more specific error
@@ -68,6 +71,8 @@ const authService = {
         throw networkError
       }
       
+      // For other errors, clear data and throw
+      this.clearAuthData()
       throw this.handleAuthError(error)
     }
   },

@@ -45,9 +45,10 @@ api.interceptors.response.use(
       // Only redirect to login if we're on a protected route
       // Don't redirect from public pages like home
       const currentPath = window.location.pathname
-      const publicPaths = ['/', '/about', '/login', '/signup']
+      const publicPaths = ['/', '/about', '/login', '/signup', '/users']
+      const isPublicRoute = publicPaths.includes(currentPath) || currentPath.startsWith('/users/')
       
-      if (!publicPaths.includes(currentPath)) {
+      if (!isPublicRoute) {
         // Redirect to login page only from protected routes
         window.location.href = '/login'
       }

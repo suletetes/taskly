@@ -127,11 +127,14 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       if (!isMounted) return
 
-      // Only check authentication if we have stored user data
+      // Only check authentication if we have stored user data or are on a protected route
       const hasStoredUser = authService.hasStoredUser()
+      const currentPath = window.location.pathname
+      const publicPaths = ['/', '/about', '/login', '/signup', '/users']
+      const isPublicRoute = publicPaths.includes(currentPath) || currentPath.startsWith('/users/')
       
-      if (!hasStoredUser) {
-        // No stored user, mark as not authenticated without API call
+      if (!hasStoredUser && isPublicRoute) {
+        // No stored user and on public route, mark as not authenticated without API call
         dispatch({
           type: AUTH_ACTIONS.LOAD_USER_FAILURE,
           payload: 'No stored user data'
@@ -139,34 +142,50 @@ export const AuthProvider = ({ children }) => {
         return
       }
 
-      dispatch({ type: AUTH_ACTIONS.LOAD_USER_START })
+      // Only try to authenticate if we have stored user data or are on a protected route
+      if (hasStoredUser || !isPublicRoute) {
+        dispatch({ type: AUTH_ACTIONS.LOAD_USER_START })
 
-      try {
-        // Try to get user data from API (session-based)
-        const currentUser = await authService.getCurrentUser()
-        if (isMounted) {
-          dispatch({
-            type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
-            payload: currentUser
-          })
-        }
-      } catch (error) {
-        if (isMounted) {
-          // Clear any stale data and mark as not authenticated
-          authService.clearAuthData()
-          
-          // Check if it's a backend unavailable error
-          if (error.code === 'BACKEND_UNAVAILABLE') {
-            dispatch({
-              type: AUTH_ACTIONS.SET_BACKEND_UNAVAILABLE
-            })
-          } else {
-            dispatch({
-              type: AUTH_ACTIONS.LOAD_USER_FAILURE,
-              payload: 'User not authenticated'
-            })
+        try {
+          // Try to get user data from API (session-based)
+          const currentUser = await authService.getCurrentUser()
+          if (isMounted) {
+            if (currentUser) {
+              dispatch({
+                type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
+                payload: currentUser
+              })
+            } else {
+              dispatch({
+                type: AUTH_ACTIONS.LOAD_USER_FAILURE,
+                payload: 'No active session'
+              })
+            }
+          }
+        } catch (error) {
+          if (isMounted) {
+            // Clear any stale data and mark as not authenticated
+            authService.clearAuthData()
+            
+            // Check if it's a backend unavailable error
+            if (error.code === 'BACKEND_UNAVAILABLE') {
+              dispatch({
+                type: AUTH_ACTIONS.SET_BACKEND_UNAVAILABLE
+              })
+            } else {
+              dispatch({
+                type: AUTH_ACTIONS.LOAD_USER_FAILURE,
+                payload: 'User not authenticated'
+              })
+            }
           }
         }
+      } else {
+        // On public route without stored user, just mark as not authenticated
+        dispatch({
+          type: AUTH_ACTIONS.LOAD_USER_FAILURE,
+          payload: 'No authentication needed for public route'
+        })
       }
     }
 
