@@ -4,6 +4,8 @@ import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 import { AnalyticsProvider } from './context/AnalyticsContext'
 import { ErrorProvider } from './context/ErrorContext'
+import { ThemeProvider, useTheme } from './components/layout'
+import { Navigation } from './components/layout'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import Header from './components/common/Header'
 import Footer from './components/common/Footer'
@@ -44,18 +46,10 @@ const AppLayout = ({ children }) => {
   )
 }
 
-function App() {
-  useEffect(() => {
-    // Initialize performance optimizations
-    registerServiceWorker()
-    trackWebVitals()
-    preloadCriticalResources()
-    seoPreload()
-
-    // Fix color contrast issues
-    initColorFixes()
-  }, [])
-
+// Main App Content Component
+const AppContent = () => {
+  const { isDark, toggleTheme } = useTheme();
+  
   return (
     <ErrorBoundary>
       <NotificationProvider>
@@ -79,11 +73,14 @@ function App() {
                 )}>
                   <Preloader />
                   <DevelopmentNotice />
+                  
+                  {/* Modern Navigation */}
+                  <Navigation 
+                    onThemeToggle={toggleTheme}
+                    isDark={isDark}
+                  />
+                  
                   <AppLayout>
-                    <header>
-                      <Header />
-                    </header>
-
                     <main className="main-content">
                       <ErrorBoundary fallback={(error, retry) => (
                         <div className="route-error">
@@ -183,6 +180,8 @@ function App() {
 
                     <Footer />
                   </AppLayout>
+                  
+                  <ScrollToTop />
                 </ErrorBoundary>
               </Router>
             </AnalyticsProvider>
@@ -190,6 +189,25 @@ function App() {
         </ErrorProvider>
       </NotificationProvider>
     </ErrorBoundary>
+  );
+};
+
+function App() {
+  useEffect(() => {
+    // Initialize performance optimizations
+    registerServiceWorker()
+    trackWebVitals()
+    preloadCriticalResources()
+    seoPreload()
+
+    // Fix color contrast issues
+    initColorFixes()
+  }, [])
+
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 
