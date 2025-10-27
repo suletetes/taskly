@@ -132,7 +132,7 @@ const App = () => {
             <AuthProvider>
               <AnalyticsProvider>
                 <AppStateProvider>
-                  <Router>
+                  <Router future={{ v7_startTransition: true }}>
                     <div className="App">
                       <Routes>
                         {/* Public Routes */}

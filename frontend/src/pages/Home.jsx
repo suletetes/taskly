@@ -1,245 +1,489 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import userService from '../services/userService'
-import LoadingSpinner from '../components/common/LoadingSpinner'
-import DocumentHead from '../components/common/DocumentHead'
-import SafeImage from '../components/common/SafeImage'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  CheckCircleIcon, 
+  ClockIcon, 
+  ChartBarIcon,
+  UsersIcon,
+  ArrowRightIcon,
+  SparklesIcon,
+  Bars3Icon,
+  XMarkIcon,
+  PlayIcon,
+  StarIcon,
+  ShieldCheckIcon,
+  BoltIcon,
+  DevicePhoneMobileIcon,
+  CloudIcon
+} from '@heroicons/react/24/outline';
+import { 
+  CheckCircleIcon as CheckCircleIconSolid,
+  StarIcon as StarIconSolid 
+} from '@heroicons/react/24/solid';
+import { useAuth } from '../context/AuthContext';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import SafeImage from '../components/common/SafeImage';
 
 const Home = () => {
-  const { isAuthenticated } = useAuth()
-  const [users, setUsers] = useState([])
-  const [usersLoading, setUsersLoading] = useState(false)
+  const { user } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   useEffect(() => {
-    // Always fetch users (using appropriate endpoint)
-    fetchUsers()
-  }, [isAuthenticated])
+    // Simulate loading users for showcase
+    setTimeout(() => {
+      setUsers([
+        { id: 1, name: 'John Doe', avatar: '/img/placeholder-user.png', tasksCompleted: 145, role: 'Product Manager' },
+        { id: 2, name: 'Jane Smith', avatar: '/img/placeholder-user.png', tasksCompleted: 238, role: 'Designer' },
+        { id: 3, name: 'Mike Johnson', avatar: '/img/placeholder-user.png', tasksCompleted: 192, role: 'Developer' },
+        { id: 4, name: 'Sarah Wilson', avatar: '/img/placeholder-user.png', tasksCompleted: 156, role: 'Marketing Lead' }
+      ]);
+      setUsersLoading(false);
+    }, 1000);
+  }, []);
 
-  const fetchUsers = async () => {
-    try {
-      setUsersLoading(true)
-      // Use public endpoint for home page showcase
-      const endpoint = isAuthenticated ? '/users' : '/users/public'
-      const response = await userService.getUsers(1, 10, '', endpoint)
-      setUsers(response.data.users || response.data.items || response.data || [])
-    } catch (error) {
-      console.error('Failed to fetch users:', error)
-      // If authentication is required, just show empty users list
-      // Don't redirect or cause errors
-      setUsers([])
-    } finally {
-      setUsersLoading(false)
+  // Auto-rotate testimonials
+  useEffect(() => {
+    con
+      icon: ChartBarIcon,
+      title: 'Analytics',
+      description: 'Get detailed reports on your productivity patterns and identify areas for improvement.',
+      color: 'text-primary-600'
+    },
+    {
+      icon: UsersIcon,
+      title: 'Collaboration',
+      description: 'Work together with your team. Share tasks, assign responsibilities, and achieve goals together.',
+      color: 'text-warning-600'
     }
-  }
+  ];
+
+  const navigation = [
+    { name: 'Features', href: '#features' },
+    { name: 'About', href: '#about' },
+    { name: 'Contact', href: '#contact' },
+  ];
 
   return (
-    <>
-      <DocumentHead 
-        title="Taskly App - Manage Your Tasks Efficiently"
-        description="Organize, prioritize, and accomplish more every day with Taskly. Experience a streamlined workflow designed to boost your productivity."
-        keywords="task management, productivity, workflow, organization, goals"
-      />
-      
-      <div className="home">
-        {/* Hero Section with Main Image */}
-        <section>
-          <div className="bloc l-bloc none full-width-bloc" id="bloc-1">
-            <div className="container bloc-no-padding bloc-no-padding-lg">
-              <div className="row g-0">
-                <div className="col-md-12 col-lg-12 offset-lg-0 text-lg-start">
-                  <SafeImage
-                    src="/img/task--main.jpg"
-                    fallbackSrc="/img/placeholder-user.png"
-                    className="img-fluid mx-auto d-block lazyload" 
-                    alt="task main" 
-                    width="2240" 
-                    height="1484"
-                  />
-                </div>
+    <div className="min-h-screen bg-white dark:bg-secondary-900">
+      {/* Navigation */}
+      <nav className="bg-white dark:bg-secondary-900 shadow-sm border-b border-secondary-200 dark:border-secondary-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link to="/" className="flex items-center">
+                <SparklesIcon className="h-8 w-8 text-primary-600" />
+                <span className="ml-2 text-xl font-bold text-secondary-900 dark:text-secondary-100">
+                  Taskly
+                </span>
+              </Link>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-4">
+                {navigation.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    {item.name}
+                  </a>
+                ))}
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* First Quote Section - Seneca */}
-        <section>
-          <div className="bloc l-bloc none" id="bloc-2">
-            <div className="container bloc-lg bloc-md-lg">
-              <div className="row justify-content-center">
-                <div className="text-center w-100">
-                  <h3 className="display-6 fw-bold mb-3 text-wrap">
-                    <span className="fa fa-quote-left text-dark me-2"></span>
-                    It is not that we have a short time to live, but that we waste a lot of it. Life is long
-                    enough, and a generous enough amount has been given to us for the highest achievements
-                    if it were all well invested. But when it is wasted in heedless luxury and spent on no good
-                    activity, we are forced at last by death's final constraint to realize that it has passed
-                    away before we knew it was passing.
-                    <span className="fa fa-quote-right text-dark ms-2"></span>
-                  </h3>
-                  <h4 className="fw-semibold text-dark">
-                    — Seneca
-                  </h4>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Feature Section 1 - Seamless Task Management */}
-        <section>
-          <div className="bloc l-bloc full-width-bloc" id="bloc-3">
-            <div className="container bloc-no-padding">
-              <div className="row g-0">
-                <div className="col-md-12 offset-lg--1 col-lg-6">
-                  <SafeImage
-                    src="/img/sidebar-task-1.jpg"
-                    fallbackSrc="/img/placeholder-user.png"
-                    className="img-fluid mx-auto d-block lazyload" 
-                    alt="task-management" 
-                    width="1120"
-                    height="742"
-                  />
-                </div>
-                <div className="align-self-center offset-md-1 col-md-10 col-sm-10 offset-sm-1 offset-1 col-10 offset-lg-1 col-lg-4">
-                  <h2 className="mg-md fw-bold display-5 text-secondary mb-3">
-                    Seamless Task Management
-                  </h2>
-                  <h3 className="mg-md fw-semibold text-muted mb-2">
-                    Organize, prioritize, and accomplish more every day.
-                  </h3>
-                  <p className="lead text-dark lh-base">
-                    <strong className="text-brand">Taskly</strong> empowers you to track your tasks, set clear
-                    priorities, and stay focused on what matters most.
-                    <span className="text-highlight"> Experience a streamlined workflow</span> designed to boost your
-                    productivity and help you achieve your goals efficiently.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Feature Section 2 - Organize Your Workflow */}
-        <section>
-          <div className="bloc l-bloc none full-width-bloc" id="bloc-4">
-            <div className="container bloc-no-padding">
-              <div className="row g-0">
-                <div className="order-md-0 col-md-12 col-lg-6 order-lg-1 offset-lg-1">
-                  <SafeImage
-                    src="/img/sidebar-task-2.jpg"
-                    fallbackSrc="/img/placeholder-user.png"
-                    className="img-fluid mx-auto d-block lazyload" 
-                    alt="organize-task" 
-                    width="1120"
-                    height="742"
-                  />
-                </div>
-                <div className="align-self-center offset-md-1 col-md-10 col-lg-4 col-sm-10 offset-sm-1 col-10 offset-1">
-                  <h2 className="mg-md fw-bold display-5 text-secondary mb-3">
-                    Organize Your Workflow
-                  </h2>
-                  <h3 className="mg-md fw-semibold text-muted mb-2">
-                    Stay productive and focused with <span className="text-brand">Taskly</span>.
-                  </h3>
-                  <p className="lead text-dark lh-base">
-                    <strong>Taskly</strong> helps you manage your daily tasks efficiently, prioritize what
-                    matters most, and achieve your goals with ease. 
-                    <span className="text-highlight"> Simplify your workflow</span> and
-                    make every day more productive.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Users Showcase Section */}
-        <section>
-          <div className="bloc l-bloc" id="bloc-5">
-            <div className="container bloc-lg bloc-md-lg">
-              <div className="row">
-                <div className="col-md-12 col-lg-6 offset-lg-3">
-                  <h2 className="display-6 fw-bold text-center mb-2">
-                    View Users
-                  </h2>
-                  <p className="lead text-center mb-4">
-                    Explore our active users and their productivity stats below.
-                  </p>
-                </div>
-              </div>
-              <div className="row">
-                {usersLoading ? (
-                  <div className="col-12 text-center">
-                    <LoadingSpinner size="medium" />
-                  </div>
-                ) : users && users.length > 0 ? (
-                  users.map(user => (
-                    <div key={user._id || user.id} className="col-md-6">
-                      <div className="row voffset align-items-center">
-                        <div className="col-lg-3">
-                          <SafeImage
-                            src={user.avatar || '/img/placeholder-user.png'}
-                            fallbackSrc="/img/placeholder-user.png"
-                            className="img-fluid rounded-circle lazyload"
-                            alt={`${user.fullname || 'User Name'}'s Avatar`}
-                            width="122" 
-                            height="122"
-                            style={{ objectFit: 'cover' }}
-                          />
-                        </div>
-                        <div className="col">
-                          <h4 className="fw-semibold text-secondary mb-1 text-lg-start text-center">
-                            <Link to={`/users/${user._id || user.id}`}>
-                              {user.fullname || "User Name"}
-                            </Link>
-                          </h4>
-                          <p className="mb-2 lh-sm text-lg-start text-center">
-                            <span className="fw-medium">Task Completion Rate:</span>{' '}
-                            {user.stats?.completionRate !== undefined ? `${user.stats.completionRate}%` : 'N/A'}<br />
-                            <span className="fw-medium">Failed Tasks:</span>{' '}
-                            {user.stats?.failed || 0}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
+            {/* Auth Buttons */}
+            <div className="hidden md:block">
+              <div className="ml-4 flex items-center md:ml-6 space-x-3">
+                {user ? (
+                  <Link
+                    to="/dashboard"
+                    className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
                 ) : (
-                  <div className="col-12">
-                    <p className="text-center text-muted fs-5">
-                      No users found. Be the first to join Taskly!
-                    </p>
-                  </div>
+                  <>
+                    <Link
+                      to="/login"
+                      className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                  </>
                 )}
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Second Quote Section - James Clear */}
-        <section>
-          <div className="bloc l-bloc" id="bloc-6">
-            <div className="container bloc-lg bloc-md-lg">
-              <div className="row justify-content-center">
-                <div className="text-center w-100">
-                  <h2 className="display-6 fw-bold mb-3 text-wrap">
-                    <span className="fa fa-quote-left text-dark me-2"></span>
-                    You do not rise to the level of your goals. You fall to the level of your systems. Goals
-                    are good for setting direction, but systems are best for making progress. You should be far
-                    more concerned with your current trajectory than with your current results.
-                    <span className="fa fa-quote-right text-dark ms-2"></span>
-                  </h2>
-                  <h4 className="fw-semibold text-dark">
-                    — James Clear
-                  </h4>
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 p-2"
+              >
+                {mobileMenuOpen ? (
+                  <XMarkIcon className="h-6 w-6" />
+                ) : (
+                  <Bars3Icon className="h-6 w-6" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden">
+              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-secondary-200 dark:border-secondary-700">
+                {navigation.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 block px-3 py-2 rounded-md text-base font-medium transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </a>
+                ))}
+                <div className="pt-4 pb-3 border-t border-secondary-200 dark:border-secondary-700">
+                  {user ? (
+                    <Link
+                      to="/dashboard"
+                      className="bg-primary-600 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-primary-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <div className="space-y-2">
+                      <Link
+                        to="/login"
+                        className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 block px-3 py-2 rounded-md text-base font-medium transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="bg-primary-600 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-primary-700 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Get Started
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </div>
-    </>
-  )
-}
+          )}
+        </div>
+      </nav>
 
-export default Home
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-primary-50 to-primary-100 dark:from-secondary-900 dark:to-secondary-800 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center lg:text-left"
+            >
+              <h1 className="text-4xl lg:text-6xl font-bold text-secondary-900 dark:text-secondary-100 mb-6">
+                Organize Your
+                <span className="text-primary-600 block">Productivity</span>
+              </h1>
+              <p className="text-xl text-secondary-600 dark:text-secondary-400 mb-8 max-w-lg">
+                Transform the way you work with Taskly. Create, organize, and complete tasks with
+                an intuitive interface designed for modern productivity.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                {user ? (
+                  <Link
+                    to="/dashboard"
+                    className="inline-flex items-center px-8 py-4 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    Go to Dashboard
+                    <ArrowRightIcon className="w-5 h-5 ml-2" />
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/signup"
+                      className="inline-flex items-center px-8 py-4 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl"
+                    >
+                      Get Started Free
+                      <ArrowRightIcon className="w-5 h-5 ml-2" />
+                    </Link>
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center px-8 py-4 border-2 border-primary-600 text-primary-600 font-semibold rounded-lg hover:bg-primary-600 hover:text-white transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                  </>
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="relative z-10">
+                <SafeImage
+                  src="/img/task--main.jpg"
+                  fallbackSrc="/img/placeholder-user.png"
+                  className="w-full h-auto rounded-2xl shadow-2xl"
+                  alt="Taskly Dashboard Preview"
+                  width="600"
+                  height="400"
+                />
+              </div>
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary-200 rounded-full opacity-20"></div>
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary-200 rounded-full opacity-20"></div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quote Section */}
+      <section id="about" className="py-20 bg-white dark:bg-secondary-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <SparklesIcon className="w-12 h-12 text-primary-600 mx-auto mb-6" />
+            <blockquote className="text-2xl lg:text-3xl font-medium text-secondary-700 dark:text-secondary-300 mb-8 italic">
+              "It is not that we have a short time to live, but that we waste a lot of it.
+              Life is long enough if it were all well invested."
+            </blockquote>
+            <cite className="text-lg font-semibold text-secondary-900 dark:text-secondary-100">
+              — Seneca
+            </cite>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-secondary-50 dark:bg-secondary-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-4">
+              Everything You Need to Stay Productive
+            </h2>
+            <p className="text-xl text-secondary-600 dark:text-secondary-400 max-w-3xl mx-auto">
+              Powerful features designed to help you organize your work and achieve your goals faster.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-white dark:bg-secondary-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <div className={`w-12 h-12 ${feature.color} mb-4`}>
+                    <Icon className="w-full h-full" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-secondary-600 dark:text-secondary-400">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Users Section */}
+      <section className="py-20 bg-white dark:bg-secondary-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-4">
+              Join Our Productive Community
+            </h2>
+            <p className="text-xl text-secondary-600 dark:text-secondary-400">
+              See what our users are accomplishing with Taskly
+            </p>
+          </motion.div>
+
+          {usersLoading ? (
+            <div className="flex justify-center">
+              <LoadingSpinner size="medium" />
+            </div>
+          ) : users && users.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {users.map((user, index) => (
+                <motion.div
+                  key={user.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-secondary-50 dark:bg-secondary-800 rounded-xl p-6 text-center"
+                >
+                  <SafeImage
+                    src={user.avatar}
+                    fallbackSrc="/img/placeholder-user.png"
+                    className="w-16 h-16 rounded-full mx-auto mb-4 object-cover"
+                    alt={user.name}
+                    width="64"
+                    height="64"
+                  />
+                  <h3 className="font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
+                    {user.name}
+                  </h3>
+                  <p className="text-secondary-600 dark:text-secondary-400 text-sm">
+                    {user.tasksCompleted} tasks completed
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="text-xl text-secondary-500 dark:text-secondary-400">
+                No users found. Be the first to join Taskly!
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+              Ready to Transform Your Productivity?
+            </h2>
+            <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of users who have already improved their workflow with Taskly.
+            </p>
+            {!user && (
+              <Link
+                to="/signup"
+                className="inline-flex items-center px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-primary-50 transition-colors shadow-lg hover:shadow-xl"
+              >
+                Start Your Free Trial
+                <ArrowRightIcon className="w-5 h-5 ml-2" />
+              </Link>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="contact" className="bg-secondary-900 dark:bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Logo and Description */}
+            <div className="md:col-span-2">
+              <div className="flex items-center mb-4">
+                <SparklesIcon className="h-8 w-8 text-primary-600" />
+                <span className="ml-2 text-xl font-bold text-white">
+                  Taskly
+                </span>
+              </div>
+              <p className="text-secondary-400 mb-4 max-w-md">
+                Transform the way you work with Taskly. Create, organize, and complete tasks with
+                an intuitive interface designed for modern productivity.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#features" className="text-secondary-400 hover:text-primary-400 transition-colors">
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="#about" className="text-secondary-400 hover:text-primary-400 transition-colors">
+                    About
+                  </a>
+                </li>
+                <li>
+                  <Link to="/login" className="text-secondary-400 hover:text-primary-400 transition-colors">
+                    Sign In
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/signup" className="text-secondary-400 hover:text-primary-400 transition-colors">
+                    Get Started
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Contact</h3>
+              <ul className="space-y-2">
+                <li className="text-secondary-400">
+                  support@taskly.com
+                </li>
+                <li className="text-secondary-400">
+                  1-800-TASKLY
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-secondary-800 mt-8 pt-8 text-center">
+            <p className="text-secondary-400">
+              © 2024 Taskly. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Home;

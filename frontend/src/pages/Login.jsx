@@ -30,7 +30,7 @@ const Login = () => {
   // Redirect if already authenticated (only after loading is complete)
   useEffect(() => {
     if (isAuthenticated && !isLoading && !isSubmitting) {
-      const returnTo = location.state?.from || '/'
+      const returnTo = location.state?.from || '/dashboard'
       navigate(returnTo, { replace: true })
     }
   }, [isAuthenticated, isLoading, isSubmitting, navigate, location.state])
