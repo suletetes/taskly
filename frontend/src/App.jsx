@@ -25,6 +25,8 @@ const Projects = React.lazy(() => import('./pages/Projects'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Settings = React.lazy(() => import('./pages/Settings'));
+const Calendar = React.lazy(() => import('./pages/Calendar'));
+const Teams = React.lazy(() => import('./pages/Teams'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
@@ -197,6 +199,22 @@ const App = () => {
                           <ProtectedRoute>
                             <AppLayout>
                               <Settings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/calendar" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/teams" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Teams />
                             </AppLayout>
                           </ProtectedRoute>
                         } />

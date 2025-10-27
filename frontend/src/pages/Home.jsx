@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   CheckCircleIcon, 
@@ -28,6 +28,11 @@ const Home = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  // Redirect authenticated users to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   useEffect(() => {
     // Simulate loading users for showcase
