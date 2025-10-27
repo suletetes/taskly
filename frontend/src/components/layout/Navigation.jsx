@@ -25,7 +25,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
   const location = useLocation();
   
   const navigationItems = [
-    { name: 'Dashboard', href: '/profile', icon: HomeIcon },
+    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
     { name: 'Tasks', href: '/tasks', icon: CheckIcon },
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
@@ -34,8 +34,8 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
   ];
   
   const isActive = (href) => {
-    if (href === '/profile') {
-      return location.pathname === '/profile' || location.pathname === '/';
+    if (href === '/dashboard') {
+      return location.pathname === '/dashboard' || location.pathname === '/';
     }
     return location.pathname.startsWith(href);
   };
@@ -112,7 +112,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
             </div>
             
             {user && (
-              <div className="flex items-center">
+              <Link to="/profile" className="flex items-center hover:bg-secondary-50 dark:hover:bg-secondary-800 rounded-lg p-2 transition-colors">
                 <img
                   className="w-8 h-8 rounded-full"
                   src={user.avatar || '/img/placeholder-user.png'}
@@ -126,7 +126,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                     @{user.username}
                   </p>
                 </div>
-              </div>
+              </Link>
             )}
           </div>
         </div>
@@ -181,7 +181,11 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
               
               {user && (
                 <div className="pt-4 mt-4 border-t border-secondary-200 dark:border-secondary-700">
-                  <div className="flex items-center px-4 py-3">
+                  <Link 
+                    to="/profile" 
+                    className="flex items-center px-4 py-3 hover:bg-secondary-50 dark:hover:bg-secondary-800 rounded-lg transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
                     <img
                       className="w-10 h-10 rounded-full"
                       src={user.avatar || '/img/placeholder-user.png'}
@@ -195,7 +199,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                         @{user.username}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               )}
             </nav>
