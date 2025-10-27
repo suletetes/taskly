@@ -5,12 +5,8 @@ import { Toaster } from 'react-hot-toast';
 
 // Layout Components
 import Navigation from './components/layout/Navigation';
-import MobileNavigation from './components/mobile/MobileNavigation';
 import { LoadingSpinner, LoadingOverlay } from './components/ui/LoadingStates';
 import ErrorBoundary from './components/error/ErrorBoundary';
-import GlobalSearch from './components/search/GlobalSearch';
-import OfflineStatus from './components/offline/OfflineStatus';
-import { PageTransition } from './components/transitions/PageTransitions';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { preloadCriticalComponents } from './utils/lazyImports';
