@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   ChartBarIcon, 
-  CheckSquareIcon, 
+  CheckIcon, 
   ClockIcon,
   TrophyIcon 
 } from '@heroicons/react/24/outline';
@@ -32,7 +32,7 @@ const Dashboard = () => {
         >
           <div className="flex items-center">
             <div className="p-3 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
-              <CheckSquareIcon className="w-6 h-6 text-primary-600" />
+              <CheckIcon className="w-6 h-6 text-primary-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-secondary-600 dark:text-secondary-400">

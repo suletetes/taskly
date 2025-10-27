@@ -6,7 +6,6 @@ import {
   ArrowLeftIcon,
   XMarkIcon,
   SparklesIcon,
-  CheckSquareIcon,
   ChartBarIcon,
   UsersIcon,
   CogIcon
@@ -27,7 +26,7 @@ const ONBOARDING_STEPS = [
     id: 'profile',
     title: 'Complete Your Profile',
     description: 'Tell us a bit about yourself to personalize your experience.',
-    icon: CheckSquareIcon,
+    icon: CheckIcon,
     content: 'ProfileStep'
   },
   {
@@ -41,7 +40,7 @@ const ONBOARDING_STEPS = [
     id: 'first-task',
     title: 'Create Your First Task',
     description: 'Let\'s start with creating your first task to get familiar with the interface.',
-    icon: CheckSquareIcon,
+    icon: CheckIcon,
     content: 'FirstTaskStep'
   },
   {
@@ -78,7 +77,7 @@ const WelcomeStep = ({ onNext }) => (
     
     <div className="grid grid-cols-2 gap-4 mb-8 max-w-md mx-auto">
       <div className="bg-secondary-50 dark:bg-secondary-800 rounded-lg p-4">
-        <CheckSquareIcon className="w-6 h-6 text-primary-600 mx-auto mb-2" />
+        <CheckIcon className="w-6 h-6 text-primary-600 mx-auto mb-2" />
         <p className="text-sm font-medium text-secondary-900 dark:text-secondary-100">Task Management</p>
       </div>
       <div className="bg-secondary-50 dark:bg-secondary-800 rounded-lg p-4">
@@ -122,7 +121,7 @@ const ProfileStep = ({ onNext, onPrev }) => {
     <div className="max-w-md mx-auto">
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckSquareIcon className="w-8 h-8 text-primary-600" />
+          <CheckIcon className="w-8 h-8 text-primary-600" />
         </div>
         <h2 className="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">
           Complete Your Profile

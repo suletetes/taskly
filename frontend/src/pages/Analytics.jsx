@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   ChartBarIcon, 
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ClockIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
@@ -30,7 +30,7 @@ const Analytics = () => {
       value: '87%',
       change: '+5%',
       changeType: 'positive',
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: 'primary'
     },
     {
