@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckSquareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 // Skeleton loader components
 export const SkeletonCard = ({ className = '' }) => (
@@ -99,7 +99,7 @@ export const ButtonLoading = ({ size = 'sm' }) => (
 
 // Empty state component
 export const EmptyState = ({ 
-  icon: Icon = CheckSquareIcon,
+  icon: Icon = CheckIcon,
   title = 'No items found',
   description = 'Get started by creating your first item.',
   action,

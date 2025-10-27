@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
-  CheckSquareIcon,
+  CheckIcon,
   CalendarIcon,
   ChartBarIcon,
   UsersIcon,
   CogIcon,
-  MenuIcon,
-  XIcon,
+  Bars3Icon,
+  XMarkIcon,
   SunIcon,
   MoonIcon,
   ComputerDesktopIcon,
@@ -26,7 +26,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
   
   const navigationItems = [
     { name: 'Dashboard', href: '/profile', icon: HomeIcon },
-    { name: 'Tasks', href: '/tasks', icon: CheckSquareIcon },
+    { name: 'Tasks', href: '/tasks', icon: CheckIcon },
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
     { name: 'Teams', href: '/teams', icon: UsersIcon },
@@ -79,7 +79,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
           <div className="flex items-center flex-shrink-0 px-6 py-4 border-b border-secondary-200 dark:border-secondary-700">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                <CheckSquareIcon className="w-5 h-5 text-white" />
+                <CheckIcon className="w-5 h-5 text-white" />
               </div>
               <span className="ml-3 text-xl font-bold text-secondary-900 dark:text-secondary-100">
                 Taskly
@@ -137,7 +137,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-              <CheckSquareIcon className="w-5 h-5 text-white" />
+              <CheckIcon className="w-5 h-5 text-white" />
             </div>
             <span className="ml-3 text-xl font-bold text-secondary-900 dark:text-secondary-100">
               Taskly
@@ -159,7 +159,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              leftIcon={isMobileMenuOpen ? <XIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
+              leftIcon={isMobileMenuOpen ? <XMarkIcon className="w-5 h-5" /> : <Bars3Icon className="w-5 h-5" />}
             />
           </div>
         </div>
