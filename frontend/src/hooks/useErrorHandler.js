@@ -1,8 +1,34 @@
 import { useCallback } from 'react'
-import { useNotification } from '../context/NotificationContext'
 
 const useErrorHandler = () => {
-  const { showError, showWarning } = useNotification()
+  // Use a safer approach that doesn't depend on NotificationProvider
+  const showError = useCallback((message, options = {}) => {
+    console.error('Error:', message)
+    // Fallback to console if notification context is not available
+    try {
+      const { useNotification } = require('../context/NotificationContext')
+      const notification = useNotification()
+      if (notification?.showError) {
+        notification.showError(message, options)
+      }
+    } catch (e) {
+      // If notification context is not available, just log
+      console.error('Notification context not available:', message)
+    }
+  }, [])
+
+  const showWarning = useCallback((message, options = {}) => {
+    console.warn('Warning:', message)
+    try {
+      const { useNotification } = require('../context/NotificationContext')
+      const notification = useNotification()
+      if (notification?.showWarning) {
+        notification.showWarning(message, options)
+      }
+    } catch (e) {
+      console.warn('Notification context not available:', message)
+    }
+  }, [])
 
   const handleError = useCallback((error, options = {}) => {
     console.error('Error handled by useErrorHandler:', error)

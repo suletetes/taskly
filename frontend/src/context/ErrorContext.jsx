@@ -1,11 +1,21 @@
 import React, { createContext, useContext, useCallback, useEffect } from 'react'
 import { setGlobalErrorHandler } from '../services/api'
-import useErrorHandler from '../hooks/useErrorHandler'
 
 const ErrorContext = createContext()
 
 export const ErrorProvider = ({ children }) => {
-  const { handleError, handleWarning, handleValidationError } = useErrorHandler()
+  const handleError = useCallback((error, options = {}) => {
+    console.error('Error handled by ErrorProvider:', error)
+    // Basic error handling without notification dependency
+  }, [])
+
+  const handleWarning = useCallback((message, options = {}) => {
+    console.warn('Warning handled by ErrorProvider:', message)
+  }, [])
+
+  const handleValidationError = useCallback((validationErrors, options = {}) => {
+    console.error('Validation error handled by ErrorProvider:', validationErrors)
+  }, [])
 
   // Set up global error handlers
   useEffect(() => {

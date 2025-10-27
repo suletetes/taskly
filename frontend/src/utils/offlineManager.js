@@ -315,11 +315,13 @@ class OfflineManager {
   // Show notification
   showNotification(title, body, options = {}) {
     if ('Notification' in window && Notification.permission === 'granted') {
+      // Remove actions and other service worker specific options for regular notifications
+      const { actions, ...safeOptions } = options;
       new Notification(title, {
         body,
         icon: '/icons/icon-192x192.png',
         badge: '/icons/badge-72x72.png',
-        ...options
+        ...safeOptions
       });
     }
   }
