@@ -46,12 +46,13 @@ const Tasks = () => {
     
     try {
       setLoading(true);
-      const response = await taskService.getUserTasks(user.id, {
+      const response = await taskService.getUserTasks(user._id, {
         limit: 100, // Load more tasks for better UX
         sortBy: 'createdAt',
         sortOrder: 'desc'
       });
-      setTasks(response.data || []);
+      const tasksData = response.data;
+      setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
       console.error('Failed to load tasks:', error);
       showError('Failed to load tasks. Please try again.');
@@ -80,14 +81,14 @@ const Tasks = () => {
         // Update existing task
         const response = await taskService.updateTask(editingTask._id, taskData);
         showSuccess('Task updated successfully!');
-        setTasks(prev => prev.map(task => 
+        setTasks(prev => (Array.isArray(prev) ? prev : []).map(task => 
           task._id === editingTask._id ? response.data : task
         ));
       } else {
         // Create new task
         const response = await taskService.createTask(taskData);
         showSuccess('Task created successfully!');
-        setTasks(prev => [response.data, ...prev]);
+        setTasks(prev => [response.data, ...(Array.isArray(prev) ? prev : [])]);
       }
       
       setShowTaskModal(false);
@@ -106,7 +107,7 @@ const Tasks = () => {
     try {
       await taskService.deleteTask(task._id);
       showSuccess('Task deleted successfully!');
-      setTasks(prev => prev.filter(t => t._id !== task._id));
+      setTasks(prev => (Array.isArray(prev) ? prev : []).filter(t => t._id !== task._id));
     } catch (error) {
       console.error('Failed to delete task:', error);
       showError('Failed to delete task. Please try again.');
@@ -118,7 +119,7 @@ const Tasks = () => {
       const newStatus = task.status === 'completed' ? 'todo' : 'completed';
       const response = await taskService.updateTaskStatus(task._id, newStatus);
       showSuccess(`Task marked as ${newStatus === 'completed' ? 'completed' : 'incomplete'}!`);
-      setTasks(prev => prev.map(t => 
+      setTasks(prev => (Array.isArray(prev) ? prev : []).map(t => 
         t._id === task._id ? { ...t, status: newStatus } : t
       ));
     } catch (error) {
@@ -153,7 +154,7 @@ const Tasks = () => {
   };
 
   // Filter tasks based on search and filters
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = (Array.isArray(tasks) ? tasks : []).filter(task => {
     const matchesSearch = !searchTerm || 
       task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchTerm.toLowerCase());

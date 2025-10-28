@@ -29,10 +29,30 @@ const Home = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  // Redirect authenticated users to dashboard
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // Define testimonials array first
+  const testimonials = [
+    {
+      name: 'Alex Chen',
+      role: 'CEO, TechStart',
+      avatar: '/img/placeholder-user.png',
+      content: 'Taskly transformed how our team works. We\'ve increased productivity by 40% and never miss deadlines anymore.',
+      rating: 5
+    },
+    {
+      name: 'Maria Rodriguez',
+      role: 'Project Manager, DesignCo',
+      avatar: '/img/placeholder-user.png',
+      content: 'The best task management tool I\'ve ever used. The interface is intuitive and the analytics are incredibly helpful.',
+      rating: 5
+    },
+    {
+      name: 'David Kim',
+      role: 'Freelance Developer',
+      avatar: '/img/placeholder-user.png',
+      content: 'As a freelancer, Taskly helps me stay organized across multiple projects. It\'s like having a personal assistant.',
+      rating: 5
+    }
+  ];
 
   useEffect(() => {
     // Simulate loading users for showcase
@@ -53,7 +73,12 @@ const Home = () => {
       setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonials.length]);
+
+  // Redirect authenticated users to dashboard (after all hooks are called)
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const features = [
     {
@@ -97,30 +122,6 @@ const Home = () => {
       description: 'Bank-level security with end-to-end encryption and compliance standards.',
       color: 'from-red-500 to-rose-600',
       bgColor: 'bg-red-50 dark:bg-red-900/20'
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: 'Alex Chen',
-      role: 'CEO, TechStart',
-      avatar: '/img/placeholder-user.png',
-      content: 'Taskly transformed how our team works. We\'ve increased productivity by 40% and never miss deadlines anymore.',
-      rating: 5
-    },
-    {
-      name: 'Maria Rodriguez',
-      role: 'Project Manager, DesignCo',
-      avatar: '/img/placeholder-user.png',
-      content: 'The best task management tool I\'ve ever used. The interface is intuitive and the analytics are incredibly helpful.',
-      rating: 5
-    },
-    {
-      name: 'David Kim',
-      role: 'Freelance Developer',
-      avatar: '/img/placeholder-user.png',
-      content: 'As a freelancer, Taskly helps me stay organized across multiple projects. It\'s like having a personal assistant.',
-      rating: 5
     }
   ];
 
