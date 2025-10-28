@@ -1,5 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  UserIcon, 
+  CameraIcon, 
+  PencilIcon, 
+  KeyIcon,
+  TrashIcon,
+  CheckIcon,
+  XMarkIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  PhotoIcon,
+  Cog6ToothIcon,
+  ChartBarIcon,
+  CalendarIcon,
+  FireIcon,
+  TrophyIcon,
+  ClockIcon,
+  StarIcon
+} from '@heroicons/react/24/outline'
 import { useAuth } from '../hooks/useAuth'
 import userService from '../services/userService'
 import taskService from '../services/taskService'
@@ -9,21 +29,78 @@ import DocumentHead from '../components/common/DocumentHead'
 import SafeImage from '../components/common/SafeImage'
 
 const Profile = () => {
-  const { user: currentUser, isAuthenticated, logout } = useAuth()
+  const { user: currentUser, isAuthenticated, logout, updateUser } = useAuth()
   const navigate = useNavigate()
-  const [tasks, setTasks] = useState([])
+  
+  // State management
+  const [activeTab, setActiveTab] = useState('overview')
   const [stats, setStats] = useState({})
+  const [recentTasks, setRecentTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pagination, setPagination] = useState({
-    totalPages: 1,
-    hasNextPage: false,
-    hasPreviousPage: false
+  
+  // Edit profile state
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [profileForm, setProfileForm] = useState({
+    fullname: '',
+    email: '',
+    bio: '',
+    location: '',
+    company: '',
+    role: '',
+    website: '',
+    phone: ''
   })
-
+  
+  // Avatar change state
+  const [isChangingAvatar, setIsChangingAvatar] = useState(false)
+  const [selectedAvatar, setSelectedAvatar] = useState('')
+  const [avatarOptions] = useState([
+    '/img/avatars/avatar-1.jpg',
+    '/img/avatars/avatar-2.jpg',
+    '/img/avatars/avatar-3.jpg',
+    '/img/avatars/avatar-4.jpg',
+    '/img/avatars/avatar-5.jpg',
+    '/img/avatars/avatar-6.jpg',
+    '/img/avatars/avatar-7.jpg',
+    '/img/avatars/avatar-8.jpg'
+  ])
+  
+  // Password change state
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  })
+  
+  // Form submission states
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+  
   const userId = currentUser?.id || currentUser?._id
-  const tasksPerPage = 10
+
+  // Initialize form data when user data is available
+  useEffect(() => {
+    if (currentUser) {
+      setProfileForm({
+        fullname: currentUser.fullname || '',
+        email: currentUser.email || '',
+        bio: currentUser.bio || '',
+        location: currentUser.location || '',
+        company: currentUser.company || '',
+        role: currentUser.role || '',
+        website: currentUser.website || '',
+        phone: currentUser.phone || ''
+      })
+      setSelectedAvatar(currentUser.avatar || '/img/placeholder-user.png')
+    }
+  }, [currentUser])
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -37,17 +114,14 @@ const Profile = () => {
         const statsResponse = await userService.getUserStats(userId)
         setStats(statsResponse.data?.stats || {})
 
-        // Fetch user tasks
+        // Fetch recent tasks
         const tasksResponse = await taskService.getUserTasks(userId, {
-          page: currentPage,
-          limit: tasksPerPage
+          page: 1,
+          limit: 5,
+          sortBy: 'updatedAt',
+          sortOrder: 'desc'
         })
-        setTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
-        setPagination(tasksResponse.data.pagination || {
-          totalPages: 1,
-          hasNextPage: false,
-          hasPreviousPage: false
-        })
+        setRecentTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
 
       } catch (err) {
         setError(err.message)
@@ -57,98 +131,75 @@ const Profile = () => {
     }
 
     fetchUserData()
-  }, [userId, currentPage, currentUser, isAuthenticated])
+  }, [userId, currentUser, isAuthenticated])
 
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= pagination.totalPages) {
-      setCurrentPage(newPage)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }
+  // Form handlers
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
-
-  const getTaskStatus = (task) => {
-    const now = new Date()
-    const dueDate = new Date(task.due)
-
-    if (task.status === 'completed') return 'completed'
-    if (task.status === 'failed') return 'failed'
-    if (task.status === 'in-progress' && dueDate < now) return 'failed'
-    return task.status || 'in-progress'
-  }
-
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case 'completed':
-        return {
-          borderClass: 'success',
-          iconClass: 'fa fa-check-circle fa-2x text-success me-3',
-          badgeClass: 'badge bg-success ms-auto align-self-start px-3 py-2 fs-6',
-          badgeIcon: 'fa fa-check me-1',
-          badgeText: 'Completed'
-        }
-      case 'failed':
-        return {
-          borderClass: 'danger',
-          iconClass: 'fa fa-times-circle fa-2x text-danger me-3',
-          badgeClass: 'badge bg-danger ms-auto align-self-start px-3 py-2 fs-6',
-          badgeIcon: 'fa fa-exclamation-triangle me-1',
-          badgeText: 'Failed'
-        }
-      default:
-        return {
-          borderClass: 'info',
-          iconClass: 'fa fa-spinner fa-2x text-info me-3',
-          badgeClass: 'badge bg-info text-dark ms-auto align-self-start px-3 py-2 fs-6',
-          badgeIcon: 'fa fa-hourglass-half me-1',
-          badgeText: 'In Progress'
-        }
-    }
-  }
-
-  const handleCompleteTask = async (taskId) => {
     try {
-      await taskService.updateTaskStatus(taskId, 'completed')
-      // Refresh tasks
-      const tasksResponse = await taskService.getUserTasks(userId, {
-        page: currentPage,
-        limit: tasksPerPage
-      })
-      setTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
-
-      // Refresh stats
-      const statsResponse = await userService.getUserStats(userId)
-      setStats(statsResponse.data?.stats || {})
+      await userService.updateProfile(profileForm)
+      await updateUser() // Refresh user data in context
+      setIsEditingProfile(false)
+      setSuccessMessage('Profile updated successfully!')
+      setTimeout(() => setSuccessMessage(''), 3000)
     } catch (err) {
-      console.error('Failed to complete task:', err)
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  const handleDeleteTask = async (taskId) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      try {
-        await taskService.deleteTask(taskId)
-        // Refresh tasks
-        const tasksResponse = await taskService.getUserTasks(userId, {
-          page: currentPage,
-          limit: tasksPerPage
-        })
-        setTasks(tasksResponse.data.tasks || tasksResponse.data.items || tasksResponse.data || [])
+  const handleAvatarChange = async (newAvatar) => {
+    setIsSubmitting(true)
+    setError(null)
 
-        // Refresh stats
-        const statsResponse = await userService.getUserStats(userId)
-        setStats(statsResponse.data?.stats || {})
-      } catch (err) {
-        console.error('Failed to delete task:', err)
-      }
+    try {
+      await userService.updateProfile({ avatar: newAvatar })
+      await updateUser() // Refresh user data in context
+      setSelectedAvatar(newAvatar)
+      setIsChangingAvatar(false)
+      setSuccessMessage('Avatar updated successfully!')
+      setTimeout(() => setSuccessMessage(''), 3000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setError('New passwords do not match')
+      setIsSubmitting(false)
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setError('New password must be at least 6 characters long')
+      setIsSubmitting(false)
+      return
+    }
+
+    try {
+      await userService.changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      })
+      setIsChangingPassword(false)
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      setSuccessMessage('Password changed successfully!')
+      setTimeout(() => setSuccessMessage(''), 3000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -159,70 +210,41 @@ const Profile = () => {
         logout()
         navigate('/')
       } catch (err) {
-        console.error('Failed to delete account:', err)
+        setError(err.message)
       }
     }
   }
 
-  const renderPagination = () => {
-    if (pagination.totalPages <= 1) return null
-
-    const pages = []
-
-    if (pagination.hasPreviousPage) {
-      pages.push(
-        <li key="prev" className="page-item">
-          <button
-            className="page-link"
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-            Previous
-          </button>
-        </li>
-      )
-    }
-
-    for (let i = 1; i <= pagination.totalPages; i++) {
-      pages.push(
-        <li key={i} className={`page-item ${i === currentPage ? 'active' : ''}`}>
-          <button
-            className="page-link"
-            onClick={() => handlePageChange(i)}
-          >
-            {i}
-          </button>
-        </li>
-      )
-    }
-
-    if (pagination.hasNextPage) {
-      pages.push(
-        <li key="next" className="page-item">
-          <button
-            className="page-link"
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            Next
-          </button>
-        </li>
-      )
-    }
-
-    return (
-      <nav className="d-flex justify-content-center mt-5" aria-label="Task pagination">
-        <ul className="pagination pagination-lg">
-          {pages}
-        </ul>
-      </nav>
-    )
+  const formatTimeAgo = (dateString) => {
+    if (!dateString) return 'Unknown'
+    const now = new Date()
+    const date = new Date(dateString)
+    const diffInSeconds = Math.floor((now - date) / 1000)
+    
+    if (diffInSeconds < 60) return 'Just now'
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
+    return date.toLocaleDateString()
   }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown'
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+
 
   if (!currentUser) {
     return (
-      <div className="bloc l-bloc py-5 bg-light">
-        <div className="container text-center">
-          <h1>Profile</h1>
-          <p>Please log in to view your profile.</p>
+      <div className="min-h-screen bg-secondary-50 dark:bg-secondary-900 flex items-center justify-center">
+        <div className="text-center">
+          <UserIcon className="w-16 h-16 text-secondary-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">Profile</h1>
+          <p className="text-secondary-600 dark:text-secondary-400 mb-4">Please log in to view your profile.</p>
           <Link to="/login" className="btn btn-primary">
             Login
           </Link>
@@ -233,22 +255,8 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="bloc l-bloc py-5 bg-light">
-        <div className="container">
-          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-            <LoadingSpinner size="large" message="Loading profile..." />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="bloc l-bloc py-5 bg-light">
-        <div className="container">
-          <ErrorMessage message={error} />
-        </div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-secondary-900 flex items-center justify-center">
+        <LoadingSpinner size="large" message="Loading profile..." />
       </div>
     )
   }
@@ -260,6 +268,328 @@ const Profile = () => {
         description={`View your profile, tasks, and productivity statistics.`}
         keywords="user profile, tasks, productivity, statistics"
       />
+
+      <div className="min-h-screen bg-secondary-50 dark:bg-secondary-900">
+        {/* Success Message */}
+        <AnimatePresence>
+          {successMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              className="fixed top-4 right-4 z-50 bg-success-500 text-white px-6 py-3 rounded-lg shadow-lg"
+            >
+              <div className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2" />
+                {successMessage}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Error Message */}
+        {error && (
+          <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
+            <div className="flex items-center">
+              <XMarkIcon className="w-5 h-5 mr-2" />
+              {error}
+              <button 
+                onClick={() => setError(null)}
+                className="ml-2 hover:bg-red-600 rounded p-1"
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Header Section */}
+        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+              {/* Avatar Section */}
+              <div className="relative group">
+                <div className="relative">
+                  <SafeImage
+                    src={currentUser.avatar?.startsWith('http') ? currentUser.avatar : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${currentUser.avatar}`}
+                    fallbackSrc={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`}
+                    className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover"
+                    alt="Profile avatar"
+                  />
+                  <button
+                    onClick={() => setIsChangingAvatar(true)}
+                    className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <CameraIcon className="w-8 h-8 text-white" />
+                  </button>
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-success-500 rounded-full p-2">
+                  <CheckIcon className="w-4 h-4 text-white" />
+                </div>
+              </div>
+
+              {/* User Info */}
+              <div className="flex-1 text-center lg:text-left">
+                <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+                  {currentUser.fullname || currentUser.username || 'User'}
+                </h1>
+                <p className="text-primary-100 text-lg mb-4">
+                  {currentUser.role || 'Member'} {currentUser.company && `at ${currentUser.company}`}
+                </p>
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 text-primary-100">
+                  <div className="flex items-center">
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    Joined {new Date(currentUser.created_at || currentUser.createdAt).toLocaleDateString()}
+                  </div>
+                  {currentUser.location && (
+                    <div className="flex items-center">
+                      <span className="w-4 h-4 mr-2">📍</span>
+                      {currentUser.location}
+                    </div>
+                  )}
+                </div>
+                {currentUser.bio && (
+                  <p className="text-primary-100 mt-4 max-w-2xl">
+                    {currentUser.bio}
+                  </p>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsEditingProfile(true)}
+                  className="btn btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <PencilIcon className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => setIsChangingPassword(true)}
+                  className="btn btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <KeyIcon className="w-4 h-4 mr-2" />
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-success-100 dark:bg-success-900/20 rounded-lg">
+                  <TrophyIcon className="w-6 h-6 text-success-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                    Completed Tasks
+                  </p>
+                  <p className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    {stats.completed || 0}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-info-100 dark:bg-info-900/20 rounded-lg">
+                  <ClockIcon className="w-6 h-6 text-info-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                    Active Tasks
+                  </p>
+                  <p className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    {stats.ongoing || 0}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-warning-100 dark:bg-warning-900/20 rounded-lg">
+                  <FireIcon className="w-6 h-6 text-warning-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                    Current Streak
+                  </p>
+                  <p className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    {stats.streak || 0} days
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
+                  <StarIcon className="w-6 h-6 text-primary-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                    Success Rate
+                  </p>
+                  <p className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    {stats.completionRate || 0}%
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Recent Activity */}
+            <div className="lg:col-span-2">
+              <div className="bg-white dark:bg-secondary-800 rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100">
+                    Recent Activity
+                  </h3>
+                  <Link
+                    to="/tasks"
+                    className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                  >
+                    View all tasks
+                  </Link>
+                </div>
+                <div className="space-y-4">
+                  {recentTasks.length > 0 ? (
+                    recentTasks.map((task) => (
+                      <div key={task._id || task.id} className="flex items-center p-4 bg-secondary-50 dark:bg-secondary-700 rounded-lg">
+                        <div className={`w-3 h-3 rounded-full mr-4 ${
+                          task.status === 'completed' ? 'bg-success-500' :
+                          task.status === 'in-progress' ? 'bg-info-500' : 'bg-warning-500'
+                        }`}></div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-secondary-900 dark:text-secondary-100">
+                            {task.title}
+                          </h4>
+                          <p className="text-sm text-secondary-600 dark:text-secondary-400">
+                            {formatTimeAgo(task.updatedAt)}
+                          </p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300' :
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
+                          'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                        }`}>
+                          {task.priority || 'medium'}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <ChartBarIcon className="w-12 h-12 text-secondary-400 mx-auto mb-4" />
+                      <p className="text-secondary-500 dark:text-secondary-400">
+                        No recent activity. Start creating tasks to see your progress!
+                      </p>
+                      <Link
+                        to="/tasks/new"
+                        className="btn btn-primary mt-4"
+                      >
+                        Create Your First Task
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions & Settings */}
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <div className="bg-white dark:bg-secondary-800 rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100 mb-4">
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <Link
+                    to="/tasks/new"
+                    className="flex items-center p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors group"
+                  >
+                    <div className="p-2 bg-primary-100 dark:bg-primary-900/40 rounded-lg mr-3 group-hover:scale-110 transition-transform">
+                      <PencilIcon className="w-4 h-4 text-primary-600" />
+                    </div>
+                    <span className="font-medium text-secondary-900 dark:text-secondary-100">
+                      Create New Task
+                    </span>
+                  </Link>
+                  <Link
+                    to="/analytics"
+                    className="flex items-center p-3 bg-success-50 dark:bg-success-900/20 rounded-lg hover:bg-success-100 dark:hover:bg-success-900/30 transition-colors group"
+                  >
+                    <div className="p-2 bg-success-100 dark:bg-success-900/40 rounded-lg mr-3 group-hover:scale-110 transition-transform">
+                      <ChartBarIcon className="w-4 h-4 text-success-600" />
+                    </div>
+                    <span className="font-medium text-secondary-900 dark:text-secondary-100">
+                      View Analytics
+                    </span>
+                  </Link>
+                  <Link
+                    to="/settings"
+                    className="flex items-center p-3 bg-info-50 dark:bg-info-900/20 rounded-lg hover:bg-info-100 dark:hover:bg-info-900/30 transition-colors group"
+                  >
+                    <div className="p-2 bg-info-100 dark:bg-info-900/40 rounded-lg mr-3 group-hover:scale-110 transition-transform">
+                      <Cog6ToothIcon className="w-4 h-4 text-info-600" />
+                    </div>
+                    <span className="font-medium text-secondary-900 dark:text-secondary-100">
+                      Settings
+                    </span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Danger Zone */}
+              <div className="bg-white dark:bg-secondary-800 rounded-xl shadow-lg p-6 border border-red-200 dark:border-red-800">
+                <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
+                  Danger Zone
+                </h3>
+                <p className="text-sm text-secondary-600 dark:text-secondary-400 mb-4">
+                  Once you delete your account, there is no going back. Please be certain.
+                </p>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="btn btn-danger w-full"
+                >
+                  <TrashIcon className="w-4 h-4 mr-2" />
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* User Profile */}
       <div className="bloc l-bloc py-5" id="bloc-tasks" style={{ 
@@ -379,165 +709,356 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Tasks Section */}
-      <div className="bloc l-bloc py-5 bg-light">
-        <div className="container bloc-lg bloc-no-padding-lg">
+      {/* Edit Profile Modal */}
+      <AnimatePresence>
+        {isEditingProfile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setIsEditingProfile(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100">
+                    Edit Profile
+                  </h3>
+                  <button
+                    onClick={() => setIsEditingProfile(false)}
+                    className="p-2 hover:bg-secondary-100 dark:hover:bg-secondary-700 rounded-lg transition-colors"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
 
-          {/* Task Cards */}
-          <div className="row justify-content-center">
-            <div className="col-12 col-lg-10">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h3 className="fw-bold text-dark mb-0">
-                  <i className="fa fa-tasks text-primary me-2"></i>
-                  My Tasks
-                </h3>
-                <span className="badge bg-primary rounded-pill px-3 py-2">
-                  {tasks.length} {tasks.length === 1 ? 'Task' : 'Tasks'}
-                </span>
-              </div>
-              <div className="d-flex flex-column gap-4">
-                {tasks && tasks.length > 0 ? (
-                  tasks.map(task => {
-                    const dynamicStatus = getTaskStatus(task)
-                    const statusConfig = getStatusConfig(dynamicStatus)
-
-                    return (
-                      <div
-                        key={task._id || task.id}
-                        className={`card shadow-lg border-0 rounded-4 overflow-hidden glass-card border-start border-5 border-${statusConfig.borderClass}`}
-                      >
-                        <div className="card-body p-4">
-                          <div className="d-flex align-items-center mb-3">
-                            <span className={statusConfig.iconClass}></span>
-                            <div>
-                              <h4 className="card-title mb-1 fw-bold">{task.title}</h4>
-                              <small className="text-muted">
-                                <i className="fa fa-calendar-alt me-1"></i>
-                                Due: {new Date(task.due).toISOString().split('T')[0]}
-                              </small>
-                            </div>
-                            <span className={statusConfig.badgeClass}>
-                              <i className={statusConfig.badgeIcon}></i> {statusConfig.badgeText}
-                            </span>
-                          </div>
-                          <p className="card-text text-muted mb-3">
-                            {task.description || 'No description provided.'}
-                          </p>
-                          <div className="mb-3">
-                            {task.tags && task.tags.length > 0 && task.tags.map((tag, index) => (
-                              <span key={index} className="badge bg-secondary me-1">{tag}</span>
-                            ))}
-                            {task.priority === 'high' && (
-                              <span className="badge bg-danger text-light me-1">
-                                <i className="fa fa-arrow-up me-1"></i> High Priority
-                              </span>
-                            )}
-                            {task.priority === 'medium' && (
-                              <span className="badge bg-warning text-dark me-1">
-                                <i className="fa fa-equals me-1"></i> Medium Priority
-                              </span>
-                            )}
-                            {task.priority === 'low' && (
-                              <span className="badge bg-success text-light me-1">
-                                <i className="fa fa-arrow-down me-1"></i> Low Priority
-                              </span>
-                            )}
-                          </div>
-                          {(dynamicStatus === 'in-progress' || dynamicStatus === 'failed') && (
-                            <div className="d-flex justify-content-end gap-2 mt-3">
-                              <Link
-                                to={`/tasks/${task._id || task.id}/edit`}
-                                className="btn btn-primary btn-sm rounded-pill px-3 fw-semibold"
-                                style={{ 
-                                  backgroundColor: '#0d6efd',
-                                  borderColor: '#0d6efd',
-                                  color: 'white'
-                                }}
-                              >
-                                <i className="fa fa-edit me-1"></i>Edit
-                              </Link>
-                              <button
-                                onClick={() => handleDeleteTask(task._id || task.id)}
-                                className="btn btn-danger btn-sm rounded-pill px-3 fw-semibold"
-                                style={{ 
-                                  backgroundColor: '#dc3545',
-                                  borderColor: '#dc3545',
-                                  color: 'white'
-                                }}
-                              >
-                                <i className="fa fa-trash me-1"></i>Delete
-                              </button>
-                              <button
-                                onClick={() => handleCompleteTask(task._id || task.id)}
-                                className="btn btn-success btn-sm rounded-pill px-3 fw-semibold"
-                                style={{ 
-                                  backgroundColor: '#198754',
-                                  borderColor: '#198754',
-                                  color: 'white'
-                                }}
-                              >
-                                <i className="fa fa-check me-1"></i>Done
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })
-                ) : (
-                  <>
-                    <p className="text-center text-muted">
-                      No tasks available. Create a new task to get started!
-                    </p>
-                    <div className="text-center mt-3">
-                      <Link
-                        to="/tasks/new"
-                        className="btn btn-secondary"
-                      >
-                        <i className="fa fa-plus me-1"></i>Create New Task
-                      </Link>
+                <form onSubmit={handleProfileSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.fullname}
+                        onChange={(e) => setProfileForm({ ...profileForm, fullname: e.target.value })}
+                        className="input w-full"
+                        placeholder="Enter your full name"
+                      />
                     </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={profileForm.email}
+                        onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                        className="input w-full"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Role/Job Title
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.role}
+                        onChange={(e) => setProfileForm({ ...profileForm, role: e.target.value })}
+                        className="input w-full"
+                        placeholder="Enter your role"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Company
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.company}
+                        onChange={(e) => setProfileForm({ ...profileForm, company: e.target.value })}
+                        className="input w-full"
+                        placeholder="Enter your company"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.location}
+                        onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
+                        className="input w-full"
+                        placeholder="Enter your location"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Website
+                      </label>
+                      <input
+                        type="url"
+                        value={profileForm.website}
+                        onChange={(e) => setProfileForm({ ...profileForm, website: e.target.value })}
+                        className="input w-full"
+                        placeholder="https://yourwebsite.com"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      value={profileForm.bio}
+                      onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                      className="input w-full h-24 resize-none"
+                      placeholder="Tell us about yourself..."
+                    />
+                  </div>
 
-          {/* Pagination */}
-          {renderPagination()}
-
-          {/* Delete Account Section */}
-          <div className="row justify-content-center mt-5">
-            <div className="col-12 col-md-6 text-center">
-              <div className="card border-danger">
-                <div className="card-body">
-                  <h5 className="card-title text-danger">
-                    <i className="fa fa-exclamation-triangle me-2"></i>
-                    Danger Zone
-                  </h5>
-                  <p className="card-text text-muted">
-                    Once you delete your account, there is no going back. Please be certain.
-                  </p>
-                  <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }}>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingProfile(false)}
+                      className="btn btn-secondary"
+                    >
+                      Cancel
+                    </button>
                     <button
                       type="submit"
-                      className="btn btn-danger"
-                      style={{
-                        backgroundColor: '#dc3545 !important',
-                        borderColor: '#dc3545 !important',
-                        color: 'white !important',
-                        fontWeight: '600'
-                      }}
+                      disabled={isSubmitting}
+                      className="btn btn-primary"
                     >
-                      <i className="fa fa-trash me-2"></i>Delete Account
+                      {isSubmitting ? 'Saving...' : 'Save Changes'}
                     </button>
-                  </form>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Change Avatar Modal */}
+      <AnimatePresence>
+        {isChangingAvatar && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setIsChangingAvatar(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl shadow-xl max-w-lg w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100">
+                    Change Avatar
+                  </h3>
+                  <button
+                    onClick={() => setIsChangingAvatar(false)}
+                    className="p-2 hover:bg-secondary-100 dark:hover:bg-secondary-700 rounded-lg transition-colors"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="text-center mb-6">
+                  <SafeImage
+                    src={selectedAvatar}
+                    fallbackSrc="/img/placeholder-user.png"
+                    className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-secondary-200 dark:border-secondary-600"
+                    alt="Selected avatar"
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 gap-3 mb-6">
+                  {avatarOptions.map((avatar, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedAvatar(avatar)}
+                      className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedAvatar === avatar
+                          ? 'border-primary-500 ring-2 ring-primary-200'
+                          : 'border-secondary-200 dark:border-secondary-600 hover:border-primary-300'
+                      }`}
+                    >
+                      <SafeImage
+                        src={avatar}
+                        fallbackSrc="/img/placeholder-user.png"
+                        className="w-full h-16 object-cover"
+                        alt={`Avatar option ${index + 1}`}
+                      />
+                      {selectedAvatar === avatar && (
+                        <div className="absolute inset-0 bg-primary-500/20 flex items-center justify-center">
+                          <CheckIcon className="w-6 h-6 text-primary-600" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsChangingAvatar(false)}
+                    className="btn btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleAvatarChange(selectedAvatar)}
+                    disabled={isSubmitting}
+                    className="btn btn-primary"
+                  >
+                    {isSubmitting ? 'Updating...' : 'Update Avatar'}
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Change Password Modal */}
+      <AnimatePresence>
+        {isChangingPassword && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setIsChangingPassword(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-secondary-800 rounded-xl shadow-xl max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100">
+                    Change Password
+                  </h3>
+                  <button
+                    onClick={() => setIsChangingPassword(false)}
+                    className="p-2 hover:bg-secondary-100 dark:hover:bg-secondary-700 rounded-lg transition-colors"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                      Current Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.current ? 'text' : 'password'}
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                        className="input w-full pr-10"
+                        placeholder="Enter current password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+                      >
+                        {showPasswords.current ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.new ? 'text' : 'password'}
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                        className="input w-full pr-10"
+                        placeholder="Enter new password"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+                      >
+                        {showPasswords.new ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                      Confirm New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.confirm ? 'text' : 'password'}
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                        className="input w-full pr-10"
+                        placeholder="Confirm new password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+                      >
+                        {showPasswords.confirm ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setIsChangingPassword(false)}
+                      className="btn btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="btn btn-primary"
+                    >
+                      {isSubmitting ? 'Changing...' : 'Change Password'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
