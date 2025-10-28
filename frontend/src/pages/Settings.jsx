@@ -10,8 +10,10 @@ import {
 } from '@heroicons/react/24/outline';
 import { Button } from '../components/ui/Button';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
+  const { user } = useAuth();
   const { theme, setTheme, THEMES } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -42,7 +44,7 @@ const Settings = () => {
                     type="text"
                     className="input"
                     placeholder="Enter your full name"
-                    defaultValue="John Doe"
+                    defaultValue={user?.fullname || ''}
                   />
                 </div>
                 <div>
@@ -53,7 +55,7 @@ const Settings = () => {
                     type="email"
                     className="input"
                     placeholder="Enter your email"
-                    defaultValue="john@example.com"
+                    defaultValue={user?.email || ''}
                   />
                 </div>
                 <div>
@@ -64,7 +66,7 @@ const Settings = () => {
                     type="text"
                     className="input"
                     placeholder="Enter your job title"
-                    defaultValue="Product Manager"
+                    defaultValue={user?.role || ''}
                   />
                 </div>
                 <div>
@@ -75,7 +77,7 @@ const Settings = () => {
                     type="text"
                     className="input"
                     placeholder="Enter your company"
-                    defaultValue="Acme Corp"
+                    defaultValue={user?.company || ''}
                   />
                 </div>
               </div>

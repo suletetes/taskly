@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   PlusIcon, 
@@ -7,40 +7,46 @@ import {
   CalendarIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
+import projectService from '../services/projectService';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Projects = () => {
-  const mockProjects = [
-    {
-      id: 1,
-      name: 'Website Redesign',
-      description: 'Complete redesign of the company website with modern UI/UX',
-      status: 'active',
-      progress: 75,
-      members: 5,
-      dueDate: '2024-02-15',
-      color: 'bg-primary-500'
-    },
-    {
-      id: 2,
-      name: 'Mobile App Development',
-      description: 'Native mobile application for iOS and Android platforms',
-      status: 'active',
-      progress: 45,
-      members: 8,
-      dueDate: '2024-03-30',
-      color: 'bg-success-500'
-    },
-    {
-      id: 3,
-      name: 'API Documentation',
-      description: 'Comprehensive API documentation for developers',
-      status: 'completed',
-      progress: 100,
-      members: 3,
-      dueDate: '2024-01-10',
-      color: 'bg-info-500'
+  const { user } = useAuth();
+  const { showError } = useNotification();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadProjects();
     }
-  ];
+  }, [user]);
+
+  const loadProjects = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const response = await projectService.getUserProjects({
+        limit: 50,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      });
+      const projectsData = response.data?.projects || [];
+      setProjects(Array.isArray(projectsData) ? projectsData : []);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      showError('Failed to load projects. Please try again.');
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // For now, show empty state since we don't have project backend yet
+  const mockProjects = [];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -68,9 +74,16 @@ const Projects = () => {
         </Button>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockProjects.map((project, index) => (
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <LoadingSpinner size="large" />
+        </div>
+      ) : (
+        <>
+          {/* Projects Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project, index) => (
           <motion.div
             key={project.id}
             initial={{ opacity: 0, y: 20 }}
@@ -128,29 +141,31 @@ const Projects = () => {
               </div>
             </div>
           </motion.div>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {mockProjects.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-12"
-        >
-          <div className="w-16 h-16 bg-secondary-100 dark:bg-secondary-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FolderIcon className="w-8 h-8 text-secondary-400" />
+            ))}
           </div>
-          <h3 className="text-lg font-medium text-secondary-900 dark:text-secondary-100 mb-2">
-            No projects found
-          </h3>
-          <p className="text-secondary-600 dark:text-secondary-400 mb-6">
-            Create your first project to get started.
-          </p>
-          <Button leftIcon={<PlusIcon className="w-4 h-4" />}>
-            Create Project
-          </Button>
-        </motion.div>
+
+          {/* Empty State */}
+          {projects.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <div className="w-16 h-16 bg-secondary-100 dark:bg-secondary-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FolderIcon className="w-8 h-8 text-secondary-400" />
+              </div>
+              <h3 className="text-lg font-medium text-secondary-900 dark:text-secondary-100 mb-2">
+                No projects found
+              </h3>
+              <p className="text-secondary-600 dark:text-secondary-400 mb-6">
+                Create your first project to get started.
+              </p>
+              <Button leftIcon={<PlusIcon className="w-4 h-4" />}>
+                Create Project
+              </Button>
+            </motion.div>
+          )}
+        </>
       )}
     </div>
   );

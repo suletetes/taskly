@@ -73,23 +73,13 @@ const Home = () => {
           }));
           setUsers(transformedUsers);
         } else {
-          // Fallback to sample data if API fails
-          setUsers([
-            { id: 1, name: 'John Doe', avatar: '/img/placeholder-user.png', tasksCompleted: 145, role: 'Product Manager' },
-            { id: 2, name: 'Jane Smith', avatar: '/img/placeholder-user.png', tasksCompleted: 238, role: 'Designer' },
-            { id: 3, name: 'Mike Johnson', avatar: '/img/placeholder-user.png', tasksCompleted: 192, role: 'Developer' },
-            { id: 4, name: 'Sarah Wilson', avatar: '/img/placeholder-user.png', tasksCompleted: 167, role: 'Marketing' }
-          ]);
+          // No fallback data - show empty state
+          setUsers([]);
         }
       } catch (error) {
         console.error('Failed to load users:', error);
-        // Fallback to sample data
-        setUsers([
-          { id: 1, name: 'John Doe', avatar: '/img/placeholder-user.png', tasksCompleted: 145, role: 'Product Manager' },
-          { id: 2, name: 'Jane Smith', avatar: '/img/placeholder-user.png', tasksCompleted: 238, role: 'Designer' },
-          { id: 3, name: 'Mike Johnson', avatar: '/img/placeholder-user.png', tasksCompleted: 192, role: 'Developer' },
-          { id: 4, name: 'Sarah Wilson', avatar: '/img/placeholder-user.png', tasksCompleted: 167, role: 'Marketing' }
-        ]);
+        // No fallback data - show empty state
+        setUsers([]);
       } finally {
         setUsersLoading(false);
       }
