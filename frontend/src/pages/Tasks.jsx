@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  PlusIcon, 
+import {
+  PlusIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
   ViewColumnsIcon,
@@ -22,7 +22,7 @@ import TaskFormModal from '../components/task/TaskFormModal';
 const Tasks = () => {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
-  
+
   // State management
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,16 +42,24 @@ const Tasks = () => {
   }, [user]);
 
   const loadTasks = async () => {
-    if (!user) return;
-    
+    if (!user) {
+      console.log('No user found, cannot load tasks');
+      return;
+    }
+
+    console.log('Loading tasks for user:', user);
+    console.log('User ID:', user._id);
+
     try {
       setLoading(true);
-      const response = await taskService.getUserTasks(user._id, {
+      const response = await taskService.getUserTasks(null, {
         limit: 100, // Load more tasks for better UX
         sortBy: 'createdAt',
         sortOrder: 'desc'
       });
+      console.log('Tasks response:', response);
       const tasksData = response.data;
+      console.log('Tasks data:', tasksData);
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
       console.error('Failed to load tasks:', error);
@@ -75,13 +83,13 @@ const Tasks = () => {
 
   const handleTaskSubmit = async (taskData) => {
     setSubmitting(true);
-    
+
     try {
       if (editingTask) {
         // Update existing task
         const response = await taskService.updateTask(editingTask._id, taskData);
         showSuccess('Task updated successfully!');
-        setTasks(prev => (Array.isArray(prev) ? prev : []).map(task => 
+        setTasks(prev => (Array.isArray(prev) ? prev : []).map(task =>
           task._id === editingTask._id ? response.data : task
         ));
       } else {
@@ -90,7 +98,7 @@ const Tasks = () => {
         showSuccess('Task created successfully!');
         setTasks(prev => [response.data, ...(Array.isArray(prev) ? prev : [])]);
       }
-      
+
       setShowTaskModal(false);
       setEditingTask(null);
     } catch (error) {
@@ -103,7 +111,7 @@ const Tasks = () => {
 
   const handleDeleteTask = async (task) => {
     if (!confirm('Are you sure you want to delete this task?')) return;
-    
+
     try {
       await taskService.deleteTask(task._id);
       showSuccess('Task deleted successfully!');
@@ -119,7 +127,7 @@ const Tasks = () => {
       const newStatus = task.status === 'completed' ? 'todo' : 'completed';
       const response = await taskService.updateTaskStatus(task._id, newStatus);
       showSuccess(`Task marked as ${newStatus === 'completed' ? 'completed' : 'incomplete'}!`);
-      setTasks(prev => (Array.isArray(prev) ? prev : []).map(t => 
+      setTasks(prev => (Array.isArray(prev) ? prev : []).map(t =>
         t._id === task._id ? { ...t, status: newStatus } : t
       ));
     } catch (error) {
@@ -155,13 +163,13 @@ const Tasks = () => {
 
   // Filter tasks based on search and filters
   const filteredTasks = (Array.isArray(tasks) ? tasks : []).filter(task => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
     const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
-    
+
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
@@ -241,21 +249,19 @@ const Tasks = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setView('list')}
-              className={`p-2 rounded-lg transition-colors ${
-                view === 'list' 
-                  ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' 
-                  : 'text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
-              }`}
+              className={`p-2 rounded-lg transition-colors ${view === 'list'
+                ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400'
+                : 'text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                }`}
             >
               <ListBulletIcon className="w-4 h-4" />
             </button>
             <button
               onClick={() => setView('board')}
-              className={`p-2 rounded-lg transition-colors ${
-                view === 'board' 
-                  ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' 
-                  : 'text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
-              }`}
+              className={`p-2 rounded-lg transition-colors ${view === 'board'
+                ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400'
+                : 'text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                }`}
             >
               <ViewColumnsIcon className="w-4 h-4" />
             </button>
@@ -270,8 +276,8 @@ const Tasks = () => {
             <ListBulletIcon className="w-8 h-8 text-secondary-400" />
           </div>
           <h3 className="text-lg font-medium text-secondary-900 dark:text-secondary-100 mb-2">
-            {searchTerm || filterStatus !== 'all' || filterPriority !== 'all' 
-              ? 'No tasks match your filters' 
+            {searchTerm || filterStatus !== 'all' || filterPriority !== 'all'
+              ? 'No tasks match your filters'
               : 'No tasks found'
             }
           </h3>
@@ -298,25 +304,23 @@ const Tasks = () => {
                   <div className="flex items-start gap-4">
                     <button
                       onClick={() => handleToggleComplete(task)}
-                      className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                        task.status === 'completed'
-                          ? 'bg-green-500 border-green-500 text-white'
-                          : 'border-secondary-300 dark:border-secondary-600 hover:border-green-500'
-                      }`}
+                      className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${task.status === 'completed'
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : 'border-secondary-300 dark:border-secondary-600 hover:border-green-500'
+                        }`}
                     >
                       {task.status === 'completed' && <CheckIcon className="w-3 h-3" />}
                     </button>
 
                     {/* Task Content */}
                     <div className="flex-1">
-                      <h3 className={`text-lg font-semibold mb-2 ${
-                        task.status === 'completed' 
-                          ? 'line-through text-secondary-500' 
-                          : 'text-secondary-900 dark:text-secondary-100'
-                      }`}>
+                      <h3 className={`text-lg font-semibold mb-2 ${task.status === 'completed'
+                        ? 'line-through text-secondary-500'
+                        : 'text-secondary-900 dark:text-secondary-100'
+                        }`}>
                         {task.title}
                       </h3>
-                      
+
                       {task.description && (
                         <p className="text-secondary-600 dark:text-secondary-400 mb-3">
                           {task.description}

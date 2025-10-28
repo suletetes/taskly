@@ -25,7 +25,8 @@ const taskService = {
       if (priority) params.append('priority', priority)
       if (search) params.append('search', search)
       
-      const response = await apiService.get(`/users/${userId}/tasks?${params}`)
+      // Use the simpler /tasks endpoint that gets tasks for current authenticated user
+      const response = await apiService.get(`/tasks?${params}`)
       return response
     } catch (error) {
       throw this.handleTaskError(error)
