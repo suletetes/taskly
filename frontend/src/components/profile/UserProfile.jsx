@@ -15,132 +15,121 @@ import {
   Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../ui';
+import { useAuth } from '../../context/AuthContext';
+import userService from '../../services/userService';
 
 const UserProfile = ({ userId, isOwnProfile = true, className = '' }) => {
+  const { user: currentUser } = useAuth();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  // Sample user data
+  // Fetch real user data
   useEffect(() => {
-    const sampleUser = {
-      id: userId || 'user-1',
-      name: 'Alex Johnson',
-      email: 'alex.johnson@example.com',
-      avatar: '/img/placeholder-user.png',
-      title: 'Senior Product Manager',
-      company: 'TechCorp Inc.',
-      location: 'San Francisco, CA',
-      timezone: 'PST (UTC-8)',
-      joinDate: new Date('2023-01-15'),
-      bio: 'Passionate product manager with 8+ years of experience building user-centric solutions. Love turning complex problems into simple, elegant experiences.',
-      skills: ['Product Management', 'User Research', 'Data Analysis', 'Agile', 'Leadership'],
-      socialLinks: {
-        linkedin: 'https://linkedin.com/in/alexjohnson',
-        twitter: 'https://twitter.com/alexjohnson',
-        github: 'https://github.com/alexjohnson'
-      },
-      stats: {
-        tasksCompleted: 247,
-        projectsLed: 12,
-        teamMembers: 8,
-        currentStreak: 15,
-        longestStreak: 42,
-        totalXP: 15750,
-        level: 12,
-        achievements: 23
-      },
-      recentActivity: [
-        {
-          id: 1,
-          type: 'task_completed',
-          title: 'Completed "Design user onboarding flow"',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          xp: 25
-        },
-        {
-          id: 2,
-          type: 'achievement_unlocked',
-          title: 'Unlocked "Speed Demon" achievement',
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-          xp: 100
-        },
-        {
-          id: 3,
-          type: 'project_created',
-          title: 'Created project "Mobile App Redesign"',
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          xp: 50
-        },
-        {
-          id: 4,
-          type: 'team_joined',
-          title: 'Joined "Design System Team"',
-          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-          xp: 30
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // If no userId provided, use current user
+        const targetUserId = userId || currentUser?.id || currentUser?._id;
+        
+        if (!targetUserId) {
+          setError('No user ID provided');
+          return;
         }
-      ],
-      achievements: [
-        {
-          id: 1,
-          name: 'Task Master',
-          description: 'Complete 100 tasks',
-          icon: TrophyIcon,
-          rarity: 'rare',
-          unlockedAt: new Date('2024-01-20'),
-          progress: 100
-        },
-        {
-          id: 2,
-          name: 'Speed Demon',
-          description: 'Complete 10 tasks in one day',
-          icon: FireIcon,
-          rarity: 'epic',
-          unlockedAt: new Date('2024-02-01'),
-          progress: 100
-        },
-        {
-          id: 3,
-          name: 'Team Player',
-          description: 'Help 5 teammates',
-          icon: UserIcon,
-          rarity: 'uncommon',
-          unlockedAt: new Date('2024-01-25'),
-          progress: 100
+
+        // If viewing own profile, use current user data
+        if (isOwnProfile && currentUser) {
+          // Get user stats
+          const statsResponse = await userService.getUserStats(targetUserId);
+          const stats = statsResponse.data?.stats || {};
+          
+          setUser({
+            id: currentUser.id || currentUser._id,
+            name: currentUser.fullname || currentUser.username,
+            email: currentUser.email,
+            avatar: currentUser.avatar,
+            title: currentUser.role || 'User',
+            company: currentUser.company || '',
+            location: currentUser.location || '',
+            timezone: currentUser.timezone || '',
+            joinDate: new Date(currentUser.created_at || currentUser.createdAt),
+            bio: currentUser.bio || '',
+            skills: currentUser.skills || [],
+            socialLinks: currentUser.socialLinks || {},
+            stats: {
+              tasksCompleted: stats.completed || 0,
+              projectsLed: stats.projects || 0,
+              teamMembers: stats.teamMembers || 0,
+              currentStreak: stats.streak || 0,
+              longestStreak: stats.longestStreak || 0,
+              totalXP: stats.totalXP || 0,
+              level: stats.level || 1,
+              achievements: stats.achievements || 0
+            },
+            recentActivity: stats.recentActivity || [],
+            achievements: stats.achievements || [],
+            productivityStats: stats.productivityStats || {
+              weeklyData: [],
+              monthlyTrend: []
+            }
+          });
+        } else {
+          // Fetch other user's data
+          const userResponse = await userService.getUser(targetUserId);
+          const userData = userResponse.data;
+          
+          setUser({
+            id: userData.id || userData._id,
+            name: userData.fullname || userData.username,
+            email: userData.email,
+            avatar: userData.avatar,
+            title: userData.role || 'User',
+            company: userData.company || '',
+            location: userData.location || '',
+            timezone: userData.timezone || '',
+            joinDate: new Date(userData.created_at || userData.createdAt),
+            bio: userData.bio || '',
+            skills: userData.skills || [],
+            socialLinks: userData.socialLinks || {},
+            stats: userData.stats || {},
+            recentActivity: userData.recentActivity || [],
+            achievements: userData.achievements || [],
+            productivityStats: userData.productivityStats || {
+              weeklyData: [],
+              monthlyTrend: []
+            }
+          });
         }
-      ],
-      productivityStats: {
-        weeklyData: [
-          { day: 'Mon', tasks: 8, hours: 6.5 },
-          { day: 'Tue', tasks: 12, hours: 8.2 },
-          { day: 'Wed', tasks: 6, hours: 5.1 },
-          { day: 'Thu', tasks: 15, hours: 9.3 },
-          { day: 'Fri', tasks: 10, hours: 7.8 },
-          { day: 'Sat', tasks: 3, hours: 2.1 },
-          { day: 'Sun', tasks: 1, hours: 0.5 }
-        ],
-        monthlyTrend: [
-          { month: 'Jan', completed: 45, created: 52 },
-          { month: 'Feb', completed: 62, created: 58 },
-          { month: 'Mar', completed: 38, created: 41 },
-          { month: 'Apr', completed: 71, created: 69 },
-          { month: 'May', completed: 55, created: 60 }
-        ]
+        
+        setEditForm(user);
+      } catch (err) {
+        setError(err.message || 'Failed to load user data');
+      } finally {
+        setLoading(false);
       }
     };
-    
-    setUser(sampleUser);
-    setEditForm(sampleUser);
-  }, [userId]);
+
+    fetchUserData();
+  }, [userId, currentUser]);
   
   const handleEdit = () => {
     setIsEditing(true);
   };
   
-  const handleSave = () => {
-    setUser(editForm);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      // Update user data via API
+      await userService.updateUser(user.id, editForm);
+      setUser(editForm);
+      setIsEditing(false);
+    } catch (err) {
+      setError('Failed to update user data');
+    }
   };
   
   const handleCancel = () => {

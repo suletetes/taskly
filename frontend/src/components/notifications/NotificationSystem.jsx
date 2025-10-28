@@ -12,8 +12,10 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../ui';
+import { useAuth } from '../../context/AuthContext';
 
 const NotificationSystem = ({ className = '' }) => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [settings, setSettings] = useState({
     email: {
@@ -37,7 +39,7 @@ const NotificationSystem = ({ className = '' }) => {
     }
   });
   const [showSettings, setShowSettings] = useState(false);
-  const [emailAddress, setEmailAddress] = useState('user@example.com');
+  const [emailAddress, setEmailAddress] = useState(user?.email || '');
   const [digestTime, setDigestTime] = useState('09:00');
   
   // Sample notifications

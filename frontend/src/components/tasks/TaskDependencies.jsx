@@ -34,7 +34,7 @@ const TaskDependencies = ({ taskId, dependencies = [], onDependenciesChange }) =
       status: 'in-progress',
       priority: 'medium',
       project: 'Website Redesign',
-      assignee: 'John Doe'
+      assignee: 'User'
     },
     {
       id: 'task-3',
@@ -42,7 +42,7 @@ const TaskDependencies = ({ taskId, dependencies = [], onDependenciesChange }) =
       status: 'todo',
       priority: 'low',
       project: 'API Development',
-      assignee: 'Mike Johnson'
+      assignee: 'User'
     },
     {
       id: 'task-4',

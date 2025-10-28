@@ -17,7 +17,7 @@ const EditProfile = () => {
     newPassword: '',
     confirmPassword: ''
   })
-  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || 'https://res.cloudinary.com/dbdbod1wt/image/upload/v1751666550/placeholder-user_rbr3rs.png')
+  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)

@@ -11,6 +11,9 @@ import {
   CommandLineIcon
 } from '@heroicons/react/24/outline';
 import { Button, Input } from '../ui';
+import taskService from '../../services/taskService';
+import userService from '../../services/userService';
+import projectService from '../../services/projectService';
 
 const GlobalSearch = ({ onClose, isOpen }) => {
   const [query, setQuery] = useState('');
@@ -33,38 +36,90 @@ const GlobalSearch = ({ onClose, isOpen }) => {
   const inputRef = useRef(null);
   const resultsRef = useRef(null);
   
-  // Sample search results
-  const sampleResults = [
-    {
-      id: 1,
-      type: 'task',
-      title: 'Complete project proposal',
-      description: 'Finalize the Q4 project proposal for client review',
-      priority: 'high',
-      status: 'in-progress',
-      tags: ['urgent', 'client'],
-      user: 'John Doe',
-      lastModified: '2 hours ago'
-    },
-    {
-      id: 2,
-      type: 'user',
-      title: 'Sarah Chen',
-      description: 'Product Manager at TechCorp',
-      avatar: '/img/placeholder-user.png',
-      email: 'sarah@techcorp.com',
-      lastActive: '5 minutes ago'
-    },
-    {
-      id: 3,
-      type: 'project',
-      title: 'Website Redesign',
-      description: 'Complete overhaul of company website',
-      progress: 75,
-      team: '8 members',
-      deadline: '2024-02-15'
+  // Perform search across different data types
+  const performSearch = async (searchQuery) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      return;
     }
-  ];
+
+    setIsLoading(true);
+    try {
+      const searchResults = [];
+
+      // Search tasks
+      if (searchFilters.type === 'all' || searchFilters.type === 'tasks') {
+        try {
+          const taskResponse = await taskService.searchTasks(searchQuery);
+          const tasks = taskResponse.data?.tasks || taskResponse.data || [];
+          tasks.forEach(task => {
+            searchResults.push({
+              id: task._id || task.id,
+              type: 'task',
+              title: task.title,
+              description: task.description,
+              priority: task.priority,
+              status: task.status,
+              tags: task.tags || [],
+              user: task.user?.fullname || task.user?.username || 'Unknown',
+              lastModified: new Date(task.updated_at || task.updatedAt).toLocaleDateString()
+            });
+          });
+        } catch (err) {
+          console.error('Task search failed:', err);
+        }
+      }
+
+      // Search users
+      if (searchFilters.type === 'all' || searchFilters.type === 'users') {
+        try {
+          const userResponse = await userService.searchUsers(searchQuery);
+          const users = userResponse.data?.users || userResponse.data || [];
+          users.forEach(user => {
+            searchResults.push({
+              id: user._id || user.id,
+              type: 'user',
+              title: user.fullname || user.username,
+              description: user.role || 'User',
+              avatar: user.avatar,
+              email: user.email,
+              lastActive: new Date(user.last_login || user.lastLogin || user.updated_at).toLocaleDateString()
+            });
+          });
+        } catch (err) {
+          console.error('User search failed:', err);
+        }
+      }
+
+      // Search projects
+      if (searchFilters.type === 'all' || searchFilters.type === 'projects') {
+        try {
+          const projectResponse = await projectService.searchProjects(searchQuery);
+          const projects = projectResponse.data?.projects || projectResponse.data || [];
+          projects.forEach(project => {
+            searchResults.push({
+              id: project._id || project.id,
+              type: 'project',
+              title: project.name,
+              description: project.description,
+              status: project.status,
+              progress: project.progress,
+              lastModified: new Date(project.updated_at || project.updatedAt).toLocaleDateString()
+            });
+          });
+        } catch (err) {
+          console.error('Project search failed:', err);
+        }
+      }
+
+      setResults(searchResults);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const searchOperators = [
     { operator: 'is:', description: 'Filter by status', example: 'is:completed' },
@@ -82,22 +137,17 @@ const GlobalSearch = ({ onClose, isOpen }) => {
   }, [isOpen]);
   
   useEffect(() => {
-    if (query.length > 0) {
-      setIsLoading(true);
-      // Simulate API call
+    if (query.length > 2) {
+      // Debounce search
       const timer = setTimeout(() => {
-        setResults(sampleResults.filter(item => 
-          item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.description.toLowerCase().includes(query.toLowerCase())
-        ));
-        setIsLoading(false);
+        performSearch(query);
       }, 300);
       
       return () => clearTimeout(timer);
     } else {
       setResults([]);
     }
-  }, [query]);
+  }, [query, searchFilters]);
   
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
