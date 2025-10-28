@@ -42,13 +42,7 @@ const Tasks = () => {
   }, [user]);
 
   const loadTasks = async () => {
-    if (!user) {
-      console.log('No user found, cannot load tasks');
-      return;
-    }
-
-    console.log('Loading tasks for user:', user);
-    console.log('User ID:', user._id);
+    if (!user) return;
 
     try {
       setLoading(true);
@@ -57,9 +51,7 @@ const Tasks = () => {
         sortBy: 'createdAt',
         sortOrder: 'desc'
       });
-      console.log('Tasks response:', response);
       const tasksData = response.data;
-      console.log('Tasks data:', tasksData);
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
       console.error('Failed to load tasks:', error);
