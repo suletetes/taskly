@@ -16,7 +16,8 @@ import {
   BoltIcon,
   DevicePhoneMobileIcon,
   CloudIcon,
-  CogIcon
+  CogIcon,
+  FireIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -24,8 +25,6 @@ import SafeImage from '../components/common/SafeImage';
 
 const Home = () => {
   const { user } = useAuth();
-  const [users, setUsers] = useState([]);
-  const [usersLoading, setUsersLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
@@ -54,39 +53,7 @@ const Home = () => {
     }
   ];
 
-  useEffect(() => {
-    // Load real users from API
-    const loadUsers = async () => {
-      try {
-        setUsersLoading(true);
-        const response = await fetch('/api/users/public?limit=4');
-        const data = await response.json();
-        
-        if (data.success && data.data.users) {
-          // Transform the data to match the expected format
-          const transformedUsers = data.data.users.map(user => ({
-            id: user._id,
-            name: user.fullname,
-            avatar: user.avatar || '/img/placeholder-user.png',
-            tasksCompleted: user.stats?.completedTasks || 0,
-            role: user.role || 'User'
-          }));
-          setUsers(transformedUsers);
-        } else {
-          // No fallback data - show empty state
-          setUsers([]);
-        }
-      } catch (error) {
-        console.error('Failed to load users:', error);
-        // No fallback data - show empty state
-        setUsers([]);
-      } finally {
-        setUsersLoading(false);
-      }
-    };
 
-    loadUsers();
-  }, []);
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -541,7 +508,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Users Section */}
+      {/* Productivity Insights Section */}
       <section className="py-24 bg-white dark:bg-secondary-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -552,63 +519,172 @@ const Home = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-bold text-secondary-900 dark:text-secondary-100 mb-6">
-              Join Our Productive
+              Proven Results That
               <span className="block bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
-                Community
+                Drive Success
               </span>
             </h2>
-            <p className="text-xl text-secondary-600 dark:text-secondary-400">
-              See what our power users are accomplishing with Taskly
+            <p className="text-xl text-secondary-600 dark:text-secondary-400 max-w-3xl mx-auto">
+              Join thousands of professionals who have transformed their productivity with Taskly's intelligent task management system
             </p>
           </motion.div>
 
-          {usersLoading ? (
-            <div className="flex justify-center">
-              <LoadingSpinner size="medium" />
-            </div>
-          ) : users && users.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {users.map((user, index) => (
-                <motion.div
-                  key={user.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="group bg-gradient-to-br from-white to-secondary-50 dark:from-secondary-800 dark:to-secondary-900 rounded-2xl p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300 border border-secondary-200 dark:border-secondary-700"
-                >
-                  <div className="relative mb-4">
-                    <SafeImage
-                      src={user.avatar}
-                      fallbackSrc="/img/placeholder-user.png"
-                      className="w-20 h-20 rounded-full mx-auto object-cover border-4 border-white dark:border-secondary-700 shadow-lg group-hover:scale-110 transition-transform duration-300"
-                      alt={user.name}
-                      width="80"
-                      height="80"
-                    />
-                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {user.tasksCompleted}
-                    </div>
-                  </div>
-                  <h3 className="font-bold text-secondary-900 dark:text-secondary-100 mb-1 text-lg">
-                    {user.name}
-                  </h3>
-                  <p className="text-secondary-600 dark:text-secondary-400 text-sm mb-2">
-                    {user.role}
-                  </p>
-                  <p className="text-xs text-secondary-500 dark:text-secondary-500">
-                    {user.tasksCompleted} tasks completed
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center">
-              <p className="text-xl text-secondary-500 dark:text-secondary-400">
-                No users found. Be the first to join Taskly!
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="text-center group"
+            >
+              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <CheckCircleIcon className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">40%</div>
+              <div className="text-secondary-600 dark:text-secondary-400">Increase in Productivity</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-center group"
+            >
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <ClockIcon className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">2.5h</div>
+              <div className="text-secondary-600 dark:text-secondary-400">Time Saved Daily</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="text-center group"
+            >
+              <div className="bg-gradient-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <ChartBarIcon className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">95%</div>
+              <div className="text-secondary-600 dark:text-secondary-400">Task Completion Rate</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="text-center group"
+            >
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <FireIcon className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">30+</div>
+              <div className="text-secondary-600 dark:text-secondary-400">Day Average Streak</div>
+            </motion.div>
+          </div>
+
+          {/* Success Stories */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-white to-secondary-50 dark:from-secondary-800 dark:to-secondary-900 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-secondary-200 dark:border-secondary-700"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mr-4">
+                  <span className="text-white font-bold text-lg">S</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-secondary-900 dark:text-secondary-100">Sarah Chen</h4>
+                  <p className="text-sm text-secondary-600 dark:text-secondary-400">Product Manager</p>
+                </div>
+              </div>
+              <p className="text-secondary-700 dark:text-secondary-300 italic">
+                "Taskly helped me organize my team's workflow and increase our delivery speed by 60%. The analytics feature is a game-changer!"
               </p>
-            </div>
-          )}
+              <div className="flex items-center mt-4 text-sm text-secondary-500 dark:text-secondary-400">
+                <CheckCircleIcon className="w-4 h-4 mr-2 text-emerald-500" />
+                <span>1,247 tasks completed</span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-white to-secondary-50 dark:from-secondary-800 dark:to-secondary-900 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-secondary-200 dark:border-secondary-700"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4">
+                  <span className="text-white font-bold text-lg">M</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-secondary-900 dark:text-secondary-100">Marcus Johnson</h4>
+                  <p className="text-sm text-secondary-600 dark:text-secondary-400">Freelance Developer</p>
+                </div>
+              </div>
+              <p className="text-secondary-700 dark:text-secondary-300 italic">
+                "As a freelancer managing multiple clients, Taskly keeps me organized and helps me meet every deadline. My productivity has never been higher!"
+              </p>
+              <div className="flex items-center mt-4 text-sm text-secondary-500 dark:text-secondary-400">
+                <FireIcon className="w-4 h-4 mr-2 text-orange-500" />
+                <span>45-day streak</span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-white to-secondary-50 dark:from-secondary-800 dark:to-secondary-900 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-secondary-200 dark:border-secondary-700"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-4">
+                  <span className="text-white font-bold text-lg">A</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-secondary-900 dark:text-secondary-100">Alex Rivera</h4>
+                  <p className="text-sm text-secondary-600 dark:text-secondary-400">Marketing Director</p>
+                </div>
+              </div>
+              <p className="text-secondary-700 dark:text-secondary-300 italic">
+                "The visual progress tracking and analytics in Taskly transformed how our marketing team operates. We're more efficient than ever!"
+              </p>
+              <div className="flex items-center mt-4 text-sm text-secondary-500 dark:text-secondary-400">
+                <ChartBarIcon className="w-4 h-4 mr-2 text-purple-500" />
+                <span>98% completion rate</span>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Call to Action */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            viewport={{ once: true }}
+            className="text-center mt-16"
+          >
+            <Link
+              to="/signup"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-2xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Start Your Success Story
+              <ArrowRightIcon className="ml-2 w-5 h-5" />
+            </Link>
+            <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-4">
+              Join over 10,000+ professionals already using Taskly
+            </p>
+          </motion.div>
         </div>
       </section>
 
