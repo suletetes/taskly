@@ -178,12 +178,14 @@ const TaskForm = ({
   }, [formData, validateForm, onSubmit])
 
   return (
-    <div className={`task-form ${className}`}>
-      <div className="task-form-header">
-        <h2>{isEditing ? 'Edit Task' : 'Create New Task'}</h2>
+    <div className={`p-6 ${className}`}>
+      <div className="flex items-center justify-between mb-6 border-b border-secondary-200 dark:border-secondary-700 pb-4">
+        <h2 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100">
+          {isEditing ? 'Edit Task' : 'Create New Task'}
+        </h2>
         <button
           type="button"
-          className="close-btn"
+          className="p-2 text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-300 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-700 transition-colors"
           onClick={onCancel}
           aria-label="Close form"
         >
@@ -200,16 +202,15 @@ const TaskForm = ({
       </div>
 
       {error && (
-        <ErrorMessage
-          message={error}
-          className="form-error"
-        />
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+        </div>
       )}
 
-      <form onSubmit={handleSubmit} className="task-form-content">
-        <div className="form-group">
-          <label htmlFor="title" className="form-label required">
-            Title
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+            Title *
           </label>
           <input
             type="text"
@@ -217,16 +218,20 @@ const TaskForm = ({
             name="title"
             value={formData.title}
             onChange={handleInputChange}
-            className={`form-input ${errors.title ? 'error' : ''}`}
+            className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+              errors.title 
+                ? 'border-red-300 dark:border-red-600' 
+                : 'border-secondary-300 dark:border-secondary-600'
+            }`}
             placeholder="Enter task title..."
             maxLength={200}
             disabled={loading}
           />
-          {errors.title && <span className="error-text">{errors.title}</span>}
+          {errors.title && <span className="text-red-600 dark:text-red-400 text-sm mt-1 block">{errors.title}</span>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="description" className="form-label">
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
             Description
           </label>
           <textarea
@@ -234,21 +239,21 @@ const TaskForm = ({
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            className="form-textarea"
+            className="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Enter task description..."
             rows={4}
             maxLength={1000}
             disabled={loading}
           />
-          <div className="character-count">
+          <div className="text-xs text-secondary-500 dark:text-secondary-400 mt-1 text-right">
             {formData.description.length}/1000
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="due" className="form-label required">
-              Due Date
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="due" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+              Due Date *
             </label>
             <input
               type="date"
@@ -256,46 +261,54 @@ const TaskForm = ({
               name="due"
               value={formData.due}
               onChange={handleInputChange}
-              className={`form-input ${errors.due ? 'error' : ''}`}
+              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                errors.due 
+                  ? 'border-red-300 dark:border-red-600' 
+                  : 'border-secondary-300 dark:border-secondary-600'
+              }`}
               min={format(new Date(), 'yyyy-MM-dd')}
               disabled={loading}
             />
-            {errors.due && <span className="error-text">{errors.due}</span>}
+            {errors.due && <span className="text-red-600 dark:text-red-400 text-sm mt-1 block">{errors.due}</span>}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="priority" className="form-label required">
-              Priority
+          <div>
+            <label htmlFor="priority" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+              Priority *
             </label>
             <select
               id="priority"
               name="priority"
               value={formData.priority}
               onChange={handleInputChange}
-              className={`form-select ${errors.priority ? 'error' : ''}`}
+              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                errors.priority 
+                  ? 'border-red-300 dark:border-red-600' 
+                  : 'border-secondary-300 dark:border-secondary-600'
+              }`}
               disabled={loading}
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </select>
-            {errors.priority && <span className="error-text">{errors.priority}</span>}
+            {errors.priority && <span className="text-red-600 dark:text-red-400 text-sm mt-1 block">{errors.priority}</span>}
           </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="tags" className="form-label">
+        <div>
+          <label htmlFor="tags" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
             Tags
           </label>
-          <div className="tag-input-container">
-            <div className="tag-list">
+          <div className="border border-secondary-300 dark:border-secondary-600 rounded-lg p-2 bg-white dark:bg-secondary-700">
+            <div className="flex flex-wrap gap-2 mb-2">
               {formData.tags.map((tag, index) => (
-                <span key={index} className="tag-item">
+                <span key={index} className="inline-flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 text-sm rounded-full">
                   #{tag}
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="tag-remove"
+                    className="ml-2 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200"
                     aria-label={`Remove tag ${tag}`}
                   >
                     ×
@@ -308,30 +321,30 @@ const TaskForm = ({
                 value={tagInput}
                 onChange={handleTagInputChange}
                 onKeyDown={handleTagInputKeyDown}
-                className="tag-input"
+                className="flex-1 min-w-0 border-none outline-none bg-transparent text-secondary-900 dark:text-secondary-100 placeholder-secondary-500"
                 placeholder="Add tags..."
                 disabled={loading}
               />
             </div>
           </div>
-          <div className="input-help">
+          <div className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
             Press Enter or comma to add tags
           </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="labels" className="form-label">
+        <div>
+          <label htmlFor="labels" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
             Labels
           </label>
-          <div className="label-input-container">
-            <div className="label-list">
+          <div className="border border-secondary-300 dark:border-secondary-600 rounded-lg p-2 bg-white dark:bg-secondary-700">
+            <div className="flex flex-wrap gap-2 mb-2">
               {formData.labels.map((label, index) => (
-                <span key={index} className="label-item">
+                <span key={index} className="inline-flex items-center px-3 py-1 bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 text-sm rounded-full">
                   {label}
                   <button
                     type="button"
                     onClick={() => removeLabel(label)}
-                    className="label-remove"
+                    className="ml-2 text-secondary-600 hover:text-secondary-800 dark:text-secondary-400 dark:hover:text-secondary-200"
                     aria-label={`Remove label ${label}`}
                   >
                     ×
@@ -344,36 +357,36 @@ const TaskForm = ({
                 value={labelInput}
                 onChange={handleLabelInputChange}
                 onKeyDown={handleLabelInputKeyDown}
-                className="label-input"
+                className="flex-1 min-w-0 border-none outline-none bg-transparent text-secondary-900 dark:text-secondary-100 placeholder-secondary-500"
                 placeholder="Add labels..."
                 disabled={loading}
               />
             </div>
           </div>
-          <div className="input-help">
+          <div className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
             Press Enter or comma to add labels
           </div>
         </div>
 
-        <div className="form-actions">
+        <div className="flex justify-end gap-3 pt-6 border-t border-secondary-200 dark:border-secondary-700">
           <button
             type="button"
             onClick={onCancel}
-            className="btn btn-secondary"
+            className="px-4 py-2 border border-secondary-300 dark:border-secondary-600 text-secondary-700 dark:text-secondary-300 rounded-lg hover:bg-secondary-50 dark:hover:bg-secondary-700 transition-colors"
             disabled={loading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
             disabled={loading}
           >
             {loading ? (
-              <>
+              <div className="flex items-center">
                 <LoadingSpinner size="small" />
-                {isEditing ? 'Updating...' : 'Creating...'}
-              </>
+                <span className="ml-2">{isEditing ? 'Updating...' : 'Creating...'}</span>
+              </div>
             ) : (
               isEditing ? 'Update Task' : 'Create Task'
             )}
