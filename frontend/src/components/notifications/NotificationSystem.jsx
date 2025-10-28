@@ -152,7 +152,7 @@ const NotificationSystem = ({ className = '' }) => {
   };
   
   const handleNotificationAction = (action, data) => {
-    console.log('Notification action:', action, data);
+    // Handle notification action
     // Handle different actions based on type
   };
   

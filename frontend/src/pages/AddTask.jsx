@@ -135,9 +135,7 @@ const AddTask = () => {
         tags
       }
 
-      console.log('Creating task with data:', taskData)
       const response = await taskService.createTask(taskData)
-      console.log('Task created successfully:', response)
       
       // Navigate back to profile
       navigate('/profile')

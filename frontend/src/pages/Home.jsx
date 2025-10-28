@@ -381,7 +381,7 @@ const Home = () => {
               <div className="relative z-10">
                 <div className="bg-white dark:bg-secondary-800 rounded-3xl shadow-2xl p-8 border border-secondary-200 dark:border-secondary-700">
                   <SafeImage
-                    src="/img/task--main.jpg"
+                    src="/img/home.png"
                     fallbackSrc="/img/placeholder-user.png"
                     className="w-full h-auto rounded-2xl"
                     alt="Taskly Dashboard Preview"
