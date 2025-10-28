@@ -51,7 +51,7 @@ const Tasks = () => {
         sortBy: 'createdAt',
         sortOrder: 'desc'
       });
-      const tasksData = response.data;
+      const tasksData = response.data.tasks; // Fix: access the tasks array specifically
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
       console.error('Failed to load tasks:', error);
@@ -343,7 +343,7 @@ const Tasks = () => {
                           <div className="flex gap-1">
                             {task.tags.map((tag, tagIndex) => (
                               <span
-                                key={tagIndex}
+                                key={`${task._id}-tag-${tagIndex}`}
                                 className="px-2 py-1 text-xs bg-secondary-100 dark:bg-secondary-700 text-secondary-600 dark:text-secondary-400 rounded"
                               >
                                 {tag}
