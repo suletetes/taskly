@@ -77,16 +77,22 @@ const Tasks = () => {
     setSubmitting(true);
     
     try {
+      // Add user ID to task data for backend validation
+      const taskDataWithUser = {
+        ...taskData,
+        user: user._id
+      };
+
       if (editingTask) {
         // Update existing task
-        const response = await taskService.updateTask(editingTask._id, taskData);
+        const response = await taskService.updateTask(editingTask._id, taskDataWithUser);
         showSuccess('Task updated successfully!');
         setTasks(prev => (Array.isArray(prev) ? prev : []).map(task => 
           task._id === editingTask._id ? response.data : task
         ));
       } else {
         // Create new task
-        const response = await taskService.createTask(taskData);
+        const response = await taskService.createTask(taskDataWithUser);
         showSuccess('Task created successfully!');
         setTasks(prev => [response.data, ...(Array.isArray(prev) ? prev : [])]);
       }
