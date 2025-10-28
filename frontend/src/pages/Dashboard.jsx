@@ -14,9 +14,46 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
+import userService from '../services/userService';
+import taskService from '../services/taskService';
 
 const Dashboard = () => {
   const { user } = useAuth();
+
+  // Helper function to format time ago
+  const formatTimeAgo = (dateString) => {
+    if (!dateString) return 'Unknown';
+    
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    
+    return date.toLocaleDateString();
+  };
+
+  // Helper function to format due date
+  const formatDueDate = (dateString) => {
+    if (!dateString) return 'No due date';
+    
+    const dueDate = new Date(dateString);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (dueDate.toDateString() === today.toDateString()) {
+      return `Today, ${dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    } else if (dueDate.toDateString() === tomorrow.toDateString()) {
+      return `Tomorrow, ${dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    } else {
+      return dueDate.toLocaleDateString();
+    }
+  };
   const [stats, setStats] = useState({
     totalTasks: 0,
     completedTasks: 0,
@@ -28,34 +65,85 @@ const Dashboard = () => {
   const [recentTasks, setRecentTasks] = useState([]);
   const [upcomingTasks, setUpcomingTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate loading data - replace with actual API calls
-    setTimeout(() => {
-      setStats({
-        totalTasks: 24,
-        completedTasks: 18,
-        inProgressTasks: 6,
-        overdueTasks: 2,
-        completionRate: 75,
-        streak: 5
-      });
-      
-      setRecentTasks([
-        { id: 1, title: 'Complete project proposal', status: 'completed', priority: 'high', completedAt: '2 hours ago' },
-        { id: 2, title: 'Review team feedback', status: 'completed', priority: 'medium', completedAt: '4 hours ago' },
-        { id: 3, title: 'Update documentation', status: 'in-progress', priority: 'low', updatedAt: '1 day ago' },
-      ]);
-      
-      setUpcomingTasks([
-        { id: 4, title: 'Client presentation', dueDate: 'Today, 3:00 PM', priority: 'high' },
-        { id: 5, title: 'Code review session', dueDate: 'Tomorrow, 10:00 AM', priority: 'medium' },
-        { id: 6, title: 'Team standup meeting', dueDate: 'Tomorrow, 9:00 AM', priority: 'low' },
-      ]);
-      
-      setLoading(false);
-    }, 1000);
-  }, []);
+    const fetchDashboardData = async () => {
+      if (!user?.id && !user?._id) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const userId = user.id || user._id;
+
+        // Fetch user stats
+        const statsResponse = await userService.getUserStats(userId);
+        const userStats = statsResponse.data?.stats || {};
+
+        // Fetch recent tasks
+        const recentTasksResponse = await taskService.getUserTasks(userId, {
+          page: 1,
+          limit: 5,
+          sortBy: 'updatedAt',
+          sortOrder: 'desc'
+        });
+        const recentTasksData = recentTasksResponse.data?.tasks || recentTasksResponse.data?.items || [];
+
+        // Fetch upcoming tasks (tasks due soon)
+        const upcomingTasksResponse = await taskService.getUserTasks(userId, {
+          page: 1,
+          limit: 5,
+          status: 'in-progress',
+          sortBy: 'due',
+          sortOrder: 'asc'
+        });
+        const upcomingTasksData = upcomingTasksResponse.data?.tasks || upcomingTasksResponse.data?.items || [];
+
+        // Calculate stats
+        const totalTasks = (userStats.completed || 0) + (userStats.ongoing || 0) + (userStats.failed || 0);
+        const completionRate = totalTasks > 0 ? Math.round(((userStats.completed || 0) / totalTasks) * 100) : 0;
+
+        setStats({
+          totalTasks,
+          completedTasks: userStats.completed || 0,
+          inProgressTasks: userStats.ongoing || 0,
+          overdueTasks: userStats.failed || 0,
+          completionRate,
+          streak: userStats.streak || 0
+        });
+
+        // Format recent tasks
+        const formattedRecentTasks = recentTasksData.map(task => ({
+          id: task._id || task.id,
+          title: task.title,
+          status: task.status,
+          priority: task.priority || 'medium',
+          completedAt: task.status === 'completed' ? formatTimeAgo(task.updatedAt) : null,
+          updatedAt: formatTimeAgo(task.updatedAt)
+        }));
+
+        // Format upcoming tasks
+        const formattedUpcomingTasks = upcomingTasksData.map(task => ({
+          id: task._id || task.id,
+          title: task.title,
+          priority: task.priority || 'medium',
+          dueDate: formatDueDate(task.due)
+        }));
+
+        setRecentTasks(formattedRecentTasks);
+        setUpcomingTasks(formattedUpcomingTasks);
+
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {

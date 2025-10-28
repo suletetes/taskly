@@ -87,6 +87,62 @@ const userService = {
     }
   },
 
+  // Get user statistics
+  async getUserStats(userId) {
+    try {
+      const response = await apiService.get(`/users/${userId}/stats`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Get user by ID (alias for getUserById for consistency)
+  async getUser(userId) {
+    return this.getUserById(userId)
+  },
+
+  // Update user (alias for updateProfile for consistency)
+  async updateUser(userId, userData) {
+    try {
+      const response = await apiService.put(`/users/${userId}`, userData)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Delete user
+  async deleteUser(userId) {
+    try {
+      const response = await apiService.delete(`/users/${userId}`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Search users
+  async searchUsers(query, options = {}) {
+    try {
+      const {
+        page = 1,
+        limit = 10
+      } = options
+      
+      const params = new URLSearchParams({
+        search: query,
+        page: page.toString(),
+        limit: limit.toString()
+      })
+      
+      const response = await apiService.get(`/users?${params}`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
   // Handle user service errors
   handleUserError(error) {
     let message = 'A user service error occurred'
