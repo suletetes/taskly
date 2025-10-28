@@ -11,7 +11,7 @@ const createTask = async (req, res) => {
     try {
         // Get userId from params (for /users/:userId/tasks) or from authenticated user (for /tasks)
         const userId = req.params.userId || req.user._id.toString();
-        const { title, due, priority, description, tags } = req.body;
+        const { title, due, priority, description, tags, labels } = req.body;
 
         // Check if the user exists
         const user = await User.findById(userId);
@@ -46,6 +46,7 @@ const createTask = async (req, res) => {
             priority,
             description,
             tags,
+            labels,
             user: userId
         });
 
