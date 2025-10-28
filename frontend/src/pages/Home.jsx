@@ -55,16 +55,47 @@ const Home = () => {
   ];
 
   useEffect(() => {
-    // Simulate loading users for showcase
-    setTimeout(() => {
-      setUsers([
-        { id: 1, name: 'John Doe', avatar: '/img/placeholder-user.png', tasksCompleted: 145, role: 'Product Manager' },
-        { id: 2, name: 'Jane Smith', avatar: '/img/placeholder-user.png', tasksCompleted: 238, role: 'Designer' },
-        { id: 3, name: 'Mike Johnson', avatar: '/img/placeholder-user.png', tasksCompleted: 192, role: 'Developer' },
-        { id: 4, name: 'Sarah Wilson', avatar: '/img/placeholder-user.png', tasksCompleted: 167, role: 'Marketing' }
-      ]);
-      setUsersLoading(false);
-    }, 1000);
+    // Load real users from API
+    const loadUsers = async () => {
+      try {
+        setUsersLoading(true);
+        const response = await fetch('/api/users/public?limit=4');
+        const data = await response.json();
+        
+        if (data.success && data.data.users) {
+          // Transform the data to match the expected format
+          const transformedUsers = data.data.users.map(user => ({
+            id: user._id,
+            name: user.fullname,
+            avatar: user.avatar || '/img/placeholder-user.png',
+            tasksCompleted: user.stats?.completedTasks || 0,
+            role: user.role || 'User'
+          }));
+          setUsers(transformedUsers);
+        } else {
+          // Fallback to sample data if API fails
+          setUsers([
+            { id: 1, name: 'John Doe', avatar: '/img/placeholder-user.png', tasksCompleted: 145, role: 'Product Manager' },
+            { id: 2, name: 'Jane Smith', avatar: '/img/placeholder-user.png', tasksCompleted: 238, role: 'Designer' },
+            { id: 3, name: 'Mike Johnson', avatar: '/img/placeholder-user.png', tasksCompleted: 192, role: 'Developer' },
+            { id: 4, name: 'Sarah Wilson', avatar: '/img/placeholder-user.png', tasksCompleted: 167, role: 'Marketing' }
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to load users:', error);
+        // Fallback to sample data
+        setUsers([
+          { id: 1, name: 'John Doe', avatar: '/img/placeholder-user.png', tasksCompleted: 145, role: 'Product Manager' },
+          { id: 2, name: 'Jane Smith', avatar: '/img/placeholder-user.png', tasksCompleted: 238, role: 'Designer' },
+          { id: 3, name: 'Mike Johnson', avatar: '/img/placeholder-user.png', tasksCompleted: 192, role: 'Developer' },
+          { id: 4, name: 'Sarah Wilson', avatar: '/img/placeholder-user.png', tasksCompleted: 167, role: 'Marketing' }
+        ]);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    loadUsers();
   }, []);
 
   // Auto-rotate testimonials

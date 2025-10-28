@@ -77,22 +77,16 @@ const Tasks = () => {
     setSubmitting(true);
     
     try {
-      // Add user ID to task data for backend validation
-      const taskDataWithUser = {
-        ...taskData,
-        user: user._id
-      };
-
       if (editingTask) {
         // Update existing task
-        const response = await taskService.updateTask(editingTask._id, taskDataWithUser);
+        const response = await taskService.updateTask(editingTask._id, taskData);
         showSuccess('Task updated successfully!');
         setTasks(prev => (Array.isArray(prev) ? prev : []).map(task => 
           task._id === editingTask._id ? response.data : task
         ));
       } else {
-        // Create new task
-        const response = await taskService.createTask(taskDataWithUser);
+        // Create new task - user ID is extracted from auth token by backend
+        const response = await taskService.createTask(taskData);
         showSuccess('Task created successfully!');
         setTasks(prev => [response.data, ...(Array.isArray(prev) ? prev : [])]);
       }
@@ -331,10 +325,10 @@ const Tasks = () => {
 
                       <div className="flex items-center gap-3 mb-2">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(task.priority)}`}>
-                          {task.priority}
+                          {task.priority || 'medium'}
                         </span>
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(task.status)}`}>
-                          {task.status.replace('-', ' ')}
+                          {task.status ? task.status.replace('-', ' ') : 'in-progress'}
                         </span>
                       </div>
 
