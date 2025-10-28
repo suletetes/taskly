@@ -116,7 +116,7 @@ const Tasks = () => {
 
   const handleToggleComplete = async (task) => {
     try {
-      const newStatus = task.status === 'completed' ? 'todo' : 'completed';
+      const newStatus = task.status === 'completed' ? 'in-progress' : 'completed';
       const response = await taskService.updateTaskStatus(task._id, newStatus);
       showSuccess(`Task marked as ${newStatus === 'completed' ? 'completed' : 'incomplete'}!`);
       setTasks(prev => (Array.isArray(prev) ? prev : []).map(t =>
