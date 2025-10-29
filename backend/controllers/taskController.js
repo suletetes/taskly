@@ -11,7 +11,7 @@ const createTask = async (req, res) => {
     try {
         // Get userId from params (for /users/:userId/tasks) or from authenticated user (for /tasks)
         const userId = req.params.userId || req.user._id.toString();
-        const { title, due, priority, description, tags } = req.body;
+        const { title, due, priority, description, tags, labels } = req.body;
 
         // Check if the user exists
         const user = await User.findById(userId);
@@ -46,6 +46,7 @@ const createTask = async (req, res) => {
             priority,
             description,
             tags,
+            labels,
             user: userId
         });
 
@@ -159,7 +160,8 @@ const getTaskById = async (req, res) => {
  */
 const getTasksByUser = async (req, res) => {
     try {
-        const { userId } = req.params;
+        // If no userId in params, use the authenticated user's ID
+        const userId = req.params.userId || req.user._id.toString();
         const page = Math.max(1, parseInt(req.query.page, 10) || 1);
         const perPage = parseInt(req.query.limit, 10) || 8;
         const status = req.query.status;
@@ -168,16 +170,18 @@ const getTasksByUser = async (req, res) => {
         const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
         const search = req.query.search || '';
 
-        // Check if user exists
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'User not found',
-                    code: 'USER_NOT_FOUND'
-                }
-            });
+        // Check if user exists (only if userId was provided in params)
+        if (req.params.userId) {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    error: {
+                        message: 'User not found',
+                        code: 'USER_NOT_FOUND'
+                    }
+                });
+            }
         }
 
         // For public profile viewing, only show completed tasks

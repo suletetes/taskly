@@ -1,196 +1,237 @@
-import React, { Suspense, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-import { NotificationProvider } from './context/NotificationContext'
-import { AnalyticsProvider } from './context/AnalyticsContext'
-import { ErrorProvider } from './context/ErrorContext'
-import ErrorBoundary from './components/common/ErrorBoundary'
-import Header from './components/common/Header'
-import Footer from './components/common/Footer'
-import Preloader from './components/common/Preloader'
-import ScrollToTop from './components/common/ScrollToTop'
-import LoadingSpinner from './components/common/LoadingSpinner'
-import DevelopmentNotice from './components/common/DevelopmentNotice'
-import ProtectedRoute, { GuestRoute } from './components/auth/ProtectedRoute'
-import { registerServiceWorker, trackWebVitals, preloadCriticalResources } from './utils/performanceOptimization'
-import { preloadCriticalResources as seoPreload } from './utils/seoOptimization'
-import { initColorFixes } from './utils/colorFix'
-import './App.css'
-import './styles/colorFixes.css'
-import './styles/textVisibility.css'
+import React, { useEffect, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
-// Lazy load pages for better performance
-const Home = React.lazy(() => import('./pages/Home'))
-const Login = React.lazy(() => import('./pages/Login'))
-const Signup = React.lazy(() => import('./pages/Signup'))
-const Profile = React.lazy(() => import('./pages/Profile'))
-const Users = React.lazy(() => import('./pages/Users'))
-const About = React.lazy(() => import('./pages/About'))
-const NotFound = React.lazy(() => import('./pages/NotFound'))
-const Unauthorized = React.lazy(() => import('./pages/Unauthorized'))
-const TaskDashboard = React.lazy(() => import('./pages/TaskDashboard'))
-const AddTask = React.lazy(() => import('./pages/AddTask'))
-const EditTask = React.lazy(() => import('./pages/EditTask'))
-const EditProfile = React.lazy(() => import('./components/user/EditProfile'))
-const UserProfile = React.lazy(() => import('./pages/UserProfile'))
+// Layout Components
+import Navigation from './components/layout/Navigation';
+import { LoadingSpinner } from './components/ui/LoadingStates';
+import ErrorBoundary from './components/error/ErrorBoundary';
+import OnboardingFlow from './components/onboarding/OnboardingFlow';
 
-// Layout wrapper component to handle conditional rendering
+
+// Context Providers
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { ErrorProvider } from './context/ErrorContext';
+import { AnalyticsProvider } from './context/AnalyticsContext';
+import { AppStateProvider } from './context/AppStateContext';
+
+// Lazy-loaded pages
+const Home = React.lazy(() => import('./pages/Home'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Tasks = React.lazy(() => import('./pages/Tasks'));
+const Projects = React.lazy(() => import('./pages/Projects'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Calendar = React.lazy(() => import('./pages/Calendar'));
+const Teams = React.lazy(() => import('./pages/Teams'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Signup = React.lazy(() => import('./pages/Signup'));
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  return user ? children : <Navigate to="/login" replace />;
+};
+
+// Main App Layout
 const AppLayout = ({ children }) => {
-  return (
-    <div className="page-container">
-      {children}
-      <ScrollToTop />
-    </div>
-  )
-}
+  const { theme } = useTheme();
 
-function App() {
+
+
+  // Apply theme class to document
   useEffect(() => {
-    // Initialize performance optimizations
-    registerServiceWorker()
-    trackWebVitals()
-    preloadCriticalResources()
-    seoPreload()
+    const root = document.documentElement;
 
-    // Fix color contrast issues
-    initColorFixes()
-  }, [])
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else if (theme === 'light') {
+      root.classList.remove('dark');
+    } else {
+      // System theme
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mediaQuery.matches) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  }, [theme]);
 
+  return (
+    <div className="min-h-screen bg-secondary-50 dark:bg-secondary-900 transition-colors duration-200">
+      {/* Desktop Navigation */}
+      <div className="hidden lg:block">
+        <Navigation />
+      </div>
+
+      {/* Main Content */}
+      <main className="lg:ml-64 min-h-screen">
+        {/* Page Content */}
+        <div className="p-4 lg:p-8">
+          <ErrorBoundary>
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <LoadingSpinner size="lg" />
+              </div>
+            }>
+              {children}
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+      </main>
+
+      {/* Toast Notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'var(--color-secondary-800)',
+            color: 'var(--color-secondary-100)',
+            border: '1px solid var(--color-secondary-700)',
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--color-success-500)',
+              secondary: 'white',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--color-error-500)',
+              secondary: 'white',
+            },
+          },
+        }}
+      />
+
+      {/* Onboarding Flow */}
+      <OnboardingFlow />
+    </div>
+  );
+};
+
+// Main App Component
+const App = () => {
   return (
     <ErrorBoundary>
-      <NotificationProvider>
-        <ErrorProvider>
-          <AuthProvider>
-            <AnalyticsProvider>
-              <Router
-                future={{
-                  v7_startTransition: true,
-                  v7_relativeSplatPath: true
-                }}
-              >
-                <ErrorBoundary fallback={(error, retry) => (
-                  <div className="app-error">
-                    <h1>Application Error</h1>
-                    <p>The application encountered an error and needs to be restarted.</p>
-                    <button onClick={retry} className="btn btn-primary">
-                      Restart Application
-                    </button>
-                  </div>
-                )}>
-                  <Preloader />
-                  <DevelopmentNotice />
-                  <AppLayout>
-                    <header>
-                      <Header />
-                    </header>
+      <ThemeProvider>
+        <NotificationProvider>
+          <ErrorProvider>
+            <AuthProvider>
+              <AnalyticsProvider>
+                <AppStateProvider>
+                  <Router future={{ v7_startTransition: true }}>
+                    <div className="App">
+                      <Routes>
+                        {/* Public Routes */}
+                        <Route path="/" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <Home />
+                          </Suspense>
+                        } />
+                        <Route path="/login" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <Login />
+                          </Suspense>
+                        } />
+                        <Route path="/signup" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <Signup />
+                          </Suspense>
+                        } />
 
-                    <main className="main-content">
-                      <ErrorBoundary fallback={(error, retry) => (
-                        <div className="route-error">
-                          <h2>Page Error</h2>
-                          <p>This page encountered an error. Please try again.</p>
-                          <button onClick={retry} className="btn btn-primary">
-                            Retry
-                          </button>
-                        </div>
-                      )}>
-                        <Suspense fallback={
-                          <div className="page-loading">
-                            <LoadingSpinner size="large" message="Loading page..." />
-                          </div>
-                        }>
-                          <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route
-                              path="/login"
-                              element={
-                                <GuestRoute>
-                                  <Login />
-                                </GuestRoute>
-                              }
-                            />
-                            <Route
-                              path="/signup"
-                              element={
-                                <GuestRoute>
-                                  <Signup />
-                                </GuestRoute>
-                              }
-                            />
-                            <Route
-                              path="/profile"
-                              element={
-                                <ProtectedRoute>
-                                  <Profile />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/users"
-                              element={
-                                <ProtectedRoute>
-                                  <Users />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/users/:userId"
-                              element={
-                                <ProtectedRoute>
-                                  <UserProfile />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route path="/about" element={<About />} />
-                            <Route
-                              path="/tasks"
-                              element={
-                                <ProtectedRoute>
-                                  <TaskDashboard />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/tasks/new"
-                              element={
-                                <ProtectedRoute>
-                                  <AddTask />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/tasks/:taskId/edit"
-                              element={
-                                <ProtectedRoute>
-                                  <EditTask />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route
-                              path="/profile/edit"
-                              element={
-                                <ProtectedRoute>
-                                  <EditProfile />
-                                </ProtectedRoute>
-                              }
-                            />
-                            <Route path="/unauthorized" element={<Unauthorized />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </Suspense>
-                      </ErrorBoundary>
-                    </main>
+                        {/* Protected Routes */}
+                        <Route path="/dashboard" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Dashboard />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
 
-                    <Footer />
-                  </AppLayout>
-                </ErrorBoundary>
-              </Router>
-            </AnalyticsProvider>
-          </AuthProvider>
-        </ErrorProvider>
-      </NotificationProvider>
+                        <Route path="/tasks" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Tasks />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Projects />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/analytics" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Analytics />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/profile" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Profile />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/settings" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Settings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/calendar" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/teams" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Teams />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Catch all route - redirect to dashboard if logged in, home if not */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </div>
+                  </Router>
+                </AppStateProvider>
+              </AnalyticsProvider>
+            </AuthProvider>
+          </ErrorProvider>
+        </NotificationProvider>
+      </ThemeProvider>
     </ErrorBoundary>
-  )
-}
+  );
+};
 
-export default App
+export default App;

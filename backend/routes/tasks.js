@@ -22,6 +22,17 @@ import {
 } from '../middleware/validation.js';
 
 /**
+ * @route   GET /api/tasks
+ * @desc    Get all tasks for current authenticated user
+ * @access  Private
+ */
+router.get('/',
+    authenticateToken,
+    validateTaskQuery,
+    getTasksByUser
+);
+
+/**
  * @route   POST /api/tasks
  * @desc    Create a new task for current user
  * @access  Private

@@ -301,6 +301,16 @@ const createTaskSchema = Joi.object({
     .messages({
       'array.max': 'Cannot have more than 10 tags',
       'string.max': 'Each tag cannot exceed 50 characters'
+    }),
+
+  labels: Joi.array()
+    .items(Joi.string().trim().max(50))
+    .max(10)
+    .optional()
+    .default([])
+    .messages({
+      'array.max': 'Cannot have more than 10 labels',
+      'string.max': 'Each label cannot exceed 50 characters'
     })
 });
 
@@ -346,6 +356,15 @@ const updateTaskSchema = Joi.object({
     .messages({
       'array.max': 'Cannot have more than 10 tags',
       'string.max': 'Each tag cannot exceed 50 characters'
+    }),
+
+  labels: Joi.array()
+    .items(Joi.string().trim().max(50))
+    .max(10)
+    .optional()
+    .messages({
+      'array.max': 'Cannot have more than 10 labels',
+      'string.max': 'Each label cannot exceed 50 characters'
     }),
 
   status: Joi.string()

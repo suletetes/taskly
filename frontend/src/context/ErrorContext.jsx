@@ -1,24 +1,42 @@
 import React, { createContext, useContext, useCallback, useEffect } from 'react'
-import { setGlobalErrorHandler } from '../services/api'
-import useErrorHandler from '../hooks/useErrorHandler'
 
 const ErrorContext = createContext()
 
 export const ErrorProvider = ({ children }) => {
-  const { handleError, handleWarning, handleValidationError } = useErrorHandler()
+  // Completely self-contained error handlers
+  const handleError = useCallback((error, options = {}) => {
+    console.error('Error handled by ErrorProvider:', error)
+    
+    // Basic error message extraction without any external dependencies
+    let errorMessage = 'An unexpected error occurred'
+    if (error?.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error?.message) {
+      errorMessage = error.message
+    } else if (typeof error === 'string') {
+      errorMessage = error
+    }
+    
+    console.error('Processed error message:', errorMessage)
+  }, [])
+
+  const handleWarning = useCallback((message, options = {}) => {
+    console.warn('Warning handled by ErrorProvider:', message)
+  }, [])
+
+  const handleValidationError = useCallback((validationErrors, options = {}) => {
+    console.error('Validation error handled by ErrorProvider:', validationErrors)
+  }, [])
 
   // Set up global error handlers
   useEffect(() => {
-    // Set API error handler
-    setGlobalErrorHandler(handleError)
-
     // Global unhandled promise rejection handler
     const handleUnhandledRejection = (event) => {
       console.error('Unhandled promise rejection:', event.reason)
       handleError(event.reason, {
         context: 'Unhandled Promise Rejection'
       })
-      event.preventDefault() // Prevent default browser error handling
+      event.preventDefault()
     }
 
     // Global JavaScript error handler
@@ -40,7 +58,6 @@ export const ErrorProvider = ({ children }) => {
     return () => {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection)
       window.removeEventListener('error', handleGlobalError)
-      setGlobalErrorHandler(null)
     }
   }, [handleError])
 

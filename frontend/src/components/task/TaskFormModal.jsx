@@ -42,15 +42,15 @@ const TaskFormModal = ({
   if (!isOpen) return null
 
   return (
-    <div className={`task-form-modal ${className}`}>
+    <div className={`fixed inset-0 z-50 ${className}`}>
       <div 
-        className="modal-overlay" 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" 
         onClick={handleOverlayClick}
         role="dialog"
         aria-modal="true"
         aria-labelledby="task-form-title"
       >
-        <div className="modal-content">
+        <div className="bg-white dark:bg-secondary-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <TaskForm
             task={task}
             onSubmit={onSubmit}

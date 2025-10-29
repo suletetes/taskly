@@ -1,14 +1,10 @@
 import { useCallback } from 'react'
-import { useNotification } from '../context/NotificationContext'
 
 const useErrorHandler = () => {
-  const { showError, showWarning } = useNotification()
-
   const handleError = useCallback((error, options = {}) => {
     console.error('Error handled by useErrorHandler:', error)
 
     let errorMessage = 'An unexpected error occurred'
-    let shouldRetry = false
 
     // Parse different types of errors
     if (error?.response) {
@@ -22,8 +18,7 @@ const useErrorHandler = () => {
           break
         case 401:
           errorMessage = 'You are not authorized. Please log in again.'
-          // Don't show notification for 401 as it's handled by interceptor
-          return
+          return // Don't show notification for 401 as it's handled by interceptor
         case 403:
           errorMessage = 'You do not have permission to perform this action'
           break
@@ -38,17 +33,14 @@ const useErrorHandler = () => {
           break
         case 429:
           errorMessage = 'Too many requests. Please try again later.'
-          shouldRetry = true
           break
         case 500:
           errorMessage = 'Server error. Please try again later.'
-          shouldRetry = true
           break
         case 502:
         case 503:
         case 504:
           errorMessage = 'Service temporarily unavailable. Please try again later.'
-          shouldRetry = true
           break
         default:
           errorMessage = data?.error?.message || data?.message || `Error ${status}: ${error.response.statusText}`
@@ -56,7 +48,6 @@ const useErrorHandler = () => {
     } else if (error?.request) {
       // Network error
       errorMessage = 'Network error. Please check your connection and try again.'
-      shouldRetry = true
     } else if (error?.message) {
       // JavaScript error
       errorMessage = error.message
@@ -64,21 +55,8 @@ const useErrorHandler = () => {
       errorMessage = error
     }
 
-    // Show notification
-    const notificationOptions = {
-      duration: shouldRetry ? 0 : 5000, // Don't auto-dismiss if retry is available
-      ...options
-    }
-
-    if (shouldRetry && options.onRetry) {
-      notificationOptions.onRetry = options.onRetry
-    }
-
-    if (shouldRetry) {
-      showError(errorMessage, notificationOptions)
-    } else {
-      showError(errorMessage, notificationOptions)
-    }
+    // Just log for now - notification integration can be added later
+    console.error('Processed error:', errorMessage)
 
     // Report to monitoring service if available
     if (window.reportError && error instanceof Error) {
@@ -88,27 +66,29 @@ const useErrorHandler = () => {
         timestamp: new Date().toISOString()
       })
     }
-  }, [showError])
+  }, [])
 
   const handleWarning = useCallback((message, options = {}) => {
-    showWarning(message, options)
-  }, [showWarning])
+    console.warn('Warning:', message)
+  }, [])
 
   const handleValidationError = useCallback((validationErrors, options = {}) => {
+    let errorMessage = 'Validation failed'
+    
     if (Array.isArray(validationErrors)) {
       // Multiple validation errors
-      const errorMessage = validationErrors.map(err => err.message || err).join(', ')
-      showError(`Validation failed: ${errorMessage}`, options)
+      errorMessage = validationErrors.map(err => err.message || err).join(', ')
     } else if (typeof validationErrors === 'object') {
       // Object with field errors
       const errors = Object.values(validationErrors).flat()
-      const errorMessage = errors.join(', ')
-      showError(`Validation failed: ${errorMessage}`, options)
+      errorMessage = errors.join(', ')
     } else {
       // Single validation error
-      showError(`Validation failed: ${validationErrors}`, options)
+      errorMessage = validationErrors
     }
-  }, [showError])
+    
+    console.error('Validation error:', errorMessage)
+  }, [])
 
   return {
     handleError,
