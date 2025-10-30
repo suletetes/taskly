@@ -210,6 +210,20 @@ const App = () => {
                             </AppLayout>
                           </ProtectedRoute>
                         } />
+                        <Route path="/calendar/:view" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/calendar/:view/:date" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
 
                         <Route path="/teams" element={
                           <ProtectedRoute>
