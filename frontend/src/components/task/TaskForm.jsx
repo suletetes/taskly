@@ -422,6 +422,117 @@ const TaskForm = ({
           </div>
         </div>
 
+        {/* Team and Project Assignment */}
+        {(showProjectSelection || showAssignment) && (
+          <div className="space-y-6 p-4 bg-secondary-50 dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700">
+            <h3 className="text-lg font-medium text-secondary-900 dark:text-secondary-100 flex items-center">
+              <UsersIcon className="w-5 h-5 mr-2" />
+              Team Collaboration
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {showProjectSelection && (
+                <div>
+                  <label htmlFor="teamId" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                    Team
+                  </label>
+                  <select
+                    id="teamId"
+                    name="teamId"
+                    value={formData.teamId}
+                    onChange={handleTeamChange}
+                    className="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    disabled={loading}
+                  >
+                    <option value="">No Team</option>
+                    {teams.map(team => (
+                      <option key={team._id} value={team._id}>
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {showProjectSelection && (
+                <div>
+                  <label htmlFor="projectId" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                    Project
+                  </label>
+                  <select
+                    id="projectId"
+                    name="projectId"
+                    value={formData.projectId}
+                    onChange={handleProjectChange}
+                    className="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    disabled={loading}
+                  >
+                    <option value="">No Project</option>
+                    {availableProjects.map(project => (
+                      <option key={project._id} value={project._id}>
+                        {project.name}
+                        {project.team && ` (${project.team.name})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {showAssignment && (
+              <div>
+                <label htmlFor="assignee" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                  Assign To
+                </label>
+                <select
+                  id="assignee"
+                  name="assignee"
+                  value={formData.assignee}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  disabled={loading}
+                >
+                  <option value="">Unassigned</option>
+                  {availableMembers.map(member => (
+                    <option key={member._id} value={member._id}>
+                      {member.name} {member._id === user._id ? '(You)' : ''}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Show selected assignee info */}
+                {formData.assignee && (
+                  <div className="mt-2 flex items-center space-x-2 text-sm text-secondary-600 dark:text-secondary-400">
+                    <UserIcon className="w-4 h-4" />
+                    <span>
+                      Assigned to: {availableMembers.find(m => m._id === formData.assignee)?.name || 'Unknown User'}
+                      {formData.assignee === user._id && ' (You)'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Show context info */}
+            {(formData.teamId || formData.projectId) && (
+              <div className="text-sm text-secondary-600 dark:text-secondary-400 space-y-1">
+                {formData.teamId && (
+                  <div className="flex items-center space-x-2">
+                    <UsersIcon className="w-4 h-4" />
+                    <span>Team: {teams.find(t => t._id === formData.teamId)?.name}</span>
+                  </div>
+                )}
+                {formData.projectId && (
+                  <div className="flex items-center space-x-2">
+                    <FolderIcon className="w-4 h-4" />
+                    <span>Project: {availableProjects.find(p => p._id === formData.projectId)?.name}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <div>
           <label htmlFor="tags" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
             Tags
