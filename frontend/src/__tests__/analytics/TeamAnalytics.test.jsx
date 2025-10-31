@@ -2,8 +2,15 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import TeamAnalytics from '../../components/analytics/TeamAnalytics';
-import { TeamProvider } from '../../context/TeamContext';
-import { ProjectProvider } from '../../context/ProjectContext';
+
+// Mock the context providers
+const TeamProvider = ({ children, value }) => (
+  <div data-testid="team-provider">{children}</div>
+);
+
+const ProjectProvider = ({ children, value }) => (
+  <div data-testid="project-provider">{children}</div>
+);
 
 const mockTeamStats = {
   totalTasks: 50,

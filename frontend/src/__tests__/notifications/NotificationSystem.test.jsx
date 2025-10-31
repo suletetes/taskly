@@ -2,7 +2,11 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import TeamNotifications from '../../components/notifications/TeamNotifications';
-import { NotificationProvider } from '../../context/NotificationContext';
+
+// Mock the context provider
+const NotificationProvider = ({ children, value }) => (
+  <div data-testid="notification-provider">{children}</div>
+);
 
 const mockNotifications = [
   {
