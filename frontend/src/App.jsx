@@ -16,6 +16,8 @@ import { NotificationProvider } from './context/NotificationContext';
 import { ErrorProvider } from './context/ErrorContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { AppStateProvider } from './context/AppStateContext';
+import { TeamProvider, useTeam } from './context/TeamContext';
+import { ProjectProvider } from './context/ProjectContext';
 
 // Lazy-loaded pages
 const Home = React.lazy(() => import('./pages/Home'));
@@ -27,6 +29,11 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const Calendar = React.lazy(() => import('./pages/Calendar'));
 const Teams = React.lazy(() => import('./pages/Teams'));
+const TeamDashboard = React.lazy(() => import('./pages/TeamDashboard'));
+const TeamSettings = React.lazy(() => import('./pages/TeamSettings'));
+const ProjectDashboard = React.lazy(() => import('./pages/ProjectDashboard'));
+const ProjectSettings = React.lazy(() => import('./pages/ProjectSettings'));
+const JoinTeam = React.lazy(() => import('./pages/JoinTeam'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
@@ -43,6 +50,39 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return user ? children : <Navigate to="/login" replace />;
+};
+
+// Team Protected Route Component
+const TeamProtectedRoute = ({ children, teamId, requiredRole = null }) => {
+  const { user, loading } = useAuth();
+  const { currentTeam, canPerformAction } = useTeam();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check if user is member of the team
+  if (teamId && currentTeam?._id !== teamId) {
+    const isMember = currentTeam?.members?.some(member => member.user._id === user._id);
+    if (!isMember) {
+      return <Navigate to="/teams" replace />;
+    }
+  }
+
+  // Check required role if specified
+  if (requiredRole && !canPerformAction(teamId, requiredRole)) {
+    return <Navigate to={`/teams/${teamId}`} replace />;
+  }
+
+  return children;
 };
 
 // Main App Layout
@@ -134,8 +174,10 @@ const App = () => {
             <AuthProvider>
               <AnalyticsProvider>
                 <AppStateProvider>
-                  <Router future={{ v7_startTransition: true }}>
-                    <div className="App">
+                  <TeamProvider>
+                    <ProjectProvider>
+                      <Router future={{ v7_startTransition: true }}>
+                        <div className="App">
                       <Routes>
                         {/* Public Routes */}
                         <Route path="/" element={
@@ -225,6 +267,7 @@ const App = () => {
                           </ProtectedRoute>
                         } />
 
+                        {/* Team Routes */}
                         <Route path="/teams" element={
                           <ProtectedRoute>
                             <AppLayout>
@@ -233,11 +276,77 @@ const App = () => {
                           </ProtectedRoute>
                         } />
 
+                        <Route path="/teams/:teamId" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <TeamDashboard />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/teams/:teamId/settings" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <TeamSettings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/teams/:teamId/analytics" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Analytics />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Project Routes */}
+                        <Route path="/projects/:projectId" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <ProjectDashboard />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects/:projectId/settings" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <ProjectSettings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects/:projectId/tasks" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Tasks />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects/:projectId/analytics" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Analytics />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Public Team Join Route */}
+                        <Route path="/join/:inviteCode" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <JoinTeam />
+                          </Suspense>
+                        } />
+
                         {/* Catch all route - redirect to dashboard if logged in, home if not */}
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Routes>
-                    </div>
-                  </Router>
+                        </div>
+                      </Router>
+                    </ProjectProvider>
+                  </TeamProvider>
                 </AppStateProvider>
               </AnalyticsProvider>
             </AuthProvider>
