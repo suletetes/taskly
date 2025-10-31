@@ -1,9 +1,4 @@
 const request = require('supertest');
-const app = require('../../app');
-const User = require('../../models/User');
-const Task = require('../../models/Task');
-const Team = require('../../models/Team');
-const Project = require('../../models/Project');
 
 describe('Task Routes', () => {
   let user, token, team, project;
