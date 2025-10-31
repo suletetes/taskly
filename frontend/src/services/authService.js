@@ -135,6 +135,101 @@ const authService = {
     return authError
   },
 
+  // Get user's teams
+  async getUserTeams() {
+    try {
+      const response = await apiService.get('/auth/teams')
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Get user's projects
+  async getUserProjects() {
+    try {
+      const response = await apiService.get('/auth/projects')
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Get user's permissions for a specific team
+  async getTeamPermissions(teamId) {
+    try {
+      const response = await apiService.get(`/auth/teams/${teamId}/permissions`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Get user's permissions for a specific project
+  async getProjectPermissions(projectId) {
+    try {
+      const response = await apiService.get(`/auth/projects/${projectId}/permissions`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Update user profile with team/project context
+  async updateUserProfile(userData) {
+    try {
+      const response = await apiService.put('/auth/profile', userData)
+      
+      if (response.success && response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+      }
+      
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Validate team invite code
+  async validateTeamInvite(inviteCode) {
+    try {
+      const response = await apiService.get(`/auth/invites/${inviteCode}/validate`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Join team via invite code
+  async joinTeamByInvite(inviteCode) {
+    try {
+      const response = await apiService.post(`/auth/invites/${inviteCode}/join`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Leave team
+  async leaveTeam(teamId) {
+    try {
+      const response = await apiService.post(`/auth/teams/${teamId}/leave`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Leave project
+  async leaveProject(projectId) {
+    try {
+      const response = await apiService.post(`/auth/projects/${projectId}/leave`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
   // Refresh token (placeholder for future implementation)
   async refreshToken() {
     // This would be implemented if the backend supports token refresh
