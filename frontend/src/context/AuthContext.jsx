@@ -7,7 +7,11 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false, // Set to false initially to prevent blocking
   error: null,
-  backendAvailable: true
+  backendAvailable: true,
+  userTeams: [],
+  userProjects: [],
+  teamPermissions: {},
+  projectPermissions: {}
 }
 
 // Action types
@@ -25,7 +29,11 @@ const AUTH_ACTIONS = {
   UPDATE_USER: 'UPDATE_USER',
   CLEAR_ERROR: 'CLEAR_ERROR',
   SET_LOADING: 'SET_LOADING',
-  SET_BACKEND_UNAVAILABLE: 'SET_BACKEND_UNAVAILABLE'
+  SET_BACKEND_UNAVAILABLE: 'SET_BACKEND_UNAVAILABLE',
+  UPDATE_USER_TEAMS: 'UPDATE_USER_TEAMS',
+  UPDATE_USER_PROJECTS: 'UPDATE_USER_PROJECTS',
+  UPDATE_TEAM_PERMISSIONS: 'UPDATE_TEAM_PERMISSIONS',
+  UPDATE_PROJECT_PERMISSIONS: 'UPDATE_PROJECT_PERMISSIONS'
 }
 
 // Reducer function
@@ -76,7 +84,11 @@ const authReducer = (state, action) => {
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: null
+        error: null,
+        userTeams: [],
+        userProjects: [],
+        teamPermissions: {},
+        projectPermissions: {}
       }
 
     case AUTH_ACTIONS.UPDATE_USER:
@@ -105,7 +117,41 @@ const authReducer = (state, action) => {
         isLoading: false,
         isAuthenticated: false,
         user: null,
-        error: 'Backend server is not available'
+        error: 'Backend server is not available',
+        userTeams: [],
+        userProjects: [],
+        teamPermissions: {},
+        projectPermissions: {}
+      }
+
+    case AUTH_ACTIONS.UPDATE_USER_TEAMS:
+      return {
+        ...state,
+        userTeams: action.payload
+      }
+
+    case AUTH_ACTIONS.UPDATE_USER_PROJECTS:
+      return {
+        ...state,
+        userProjects: action.payload
+      }
+
+    case AUTH_ACTIONS.UPDATE_TEAM_PERMISSIONS:
+      return {
+        ...state,
+        teamPermissions: {
+          ...state.teamPermissions,
+          [action.payload.teamId]: action.payload.permissions
+        }
+      }
+
+    case AUTH_ACTIONS.UPDATE_PROJECT_PERMISSIONS:
+      return {
+        ...state,
+        projectPermissions: {
+          ...state.projectPermissions,
+          [action.payload.projectId]: action.payload.permissions
+        }
       }
 
     default:
@@ -314,6 +360,10 @@ export const AuthProvider = ({ children }) => {
           type: AUTH_ACTIONS.UPDATE_USER,
           payload: currentUser
         })
+        
+        // Also refresh user's teams and projects
+        await refreshUserTeamsAndProjects()
+        
         return currentUser
       } catch (error) {
         console.error('Failed to refresh user data:', error)
@@ -326,6 +376,183 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Refresh user's teams and projects
+  const refreshUserTeamsAndProjects = async () => {
+    if (!state.isAuthenticated || !state.user) return
+
+    try {
+      // Fetch user's teams and projects
+      const [teamsResponse, projectsResponse] = await Promise.all([
+        authService.getUserTeams(),
+        authService.getUserProjects()
+      ])
+
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_USER_TEAMS,
+        payload: teamsResponse.data || []
+      })
+
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_USER_PROJECTS,
+        payload: projectsResponse.data || []
+      })
+
+      // Update permissions for each team and project
+      const teams = teamsResponse.data || []
+      const projects = projectsResponse.data || []
+
+      for (const team of teams) {
+        const member = team.members?.find(m => m.user._id === state.user._id)
+        if (member) {
+          dispatch({
+            type: AUTH_ACTIONS.UPDATE_TEAM_PERMISSIONS,
+            payload: {
+              teamId: team._id,
+              permissions: {
+                role: member.role,
+                canManage: ['owner', 'admin'].includes(member.role),
+                canInvite: ['owner', 'admin'].includes(member.role),
+                canEdit: ['owner', 'admin'].includes(member.role)
+              }
+            }
+          })
+        }
+      }
+
+      for (const project of projects) {
+        const member = project.members?.find(m => m.user._id === state.user._id)
+        if (member) {
+          dispatch({
+            type: AUTH_ACTIONS.UPDATE_PROJECT_PERMISSIONS,
+            payload: {
+              projectId: project._id,
+              permissions: {
+                role: member.role,
+                canManage: ['owner', 'admin'].includes(member.role),
+                canAssign: ['owner', 'admin'].includes(member.role),
+                canEdit: ['owner', 'admin'].includes(member.role)
+              }
+            }
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user teams and projects:', error)
+    }
+  }
+
+  // Check if user has permission for a team action
+  const hasTeamPermission = useCallback((teamId, permission) => {
+    if (!state.isAuthenticated || !teamId) return false
+    
+    const teamPerms = state.teamPermissions[teamId]
+    if (!teamPerms) return false
+
+    switch (permission) {
+      case 'manage':
+      case 'edit':
+        return teamPerms.canManage || teamPerms.canEdit
+      case 'invite':
+        return teamPerms.canInvite
+      case 'view':
+        return true // If user has team permissions, they can view
+      default:
+        return false
+    }
+  }, [state.isAuthenticated, state.teamPermissions])
+
+  // Check if user has permission for a project action
+  const hasProjectPermission = useCallback((projectId, permission) => {
+    if (!state.isAuthenticated || !projectId) return false
+    
+    const projectPerms = state.projectPermissions[projectId]
+    if (!projectPerms) return false
+
+    switch (permission) {
+      case 'manage':
+      case 'edit':
+        return projectPerms.canManage || projectPerms.canEdit
+      case 'assign':
+        return projectPerms.canAssign
+      case 'view':
+        return true // If user has project permissions, they can view
+      default:
+        return false
+    }
+  }, [state.isAuthenticated, state.projectPermissions])
+
+  // Get user's role in a team
+  const getUserTeamRole = useCallback((teamId) => {
+    if (!state.isAuthenticated || !teamId) return null
+    
+    const teamPerms = state.teamPermissions[teamId]
+    return teamPerms?.role || null
+  }, [state.isAuthenticated, state.teamPermissions])
+
+  // Get user's role in a project
+  const getUserProjectRole = useCallback((projectId) => {
+    if (!state.isAuthenticated || !projectId) return null
+    
+    const projectPerms = state.projectPermissions[projectId]
+    return projectPerms?.role || null
+  }, [state.isAuthenticated, state.projectPermissions])
+
+  // Update team membership (called when user joins/leaves teams)
+  const updateTeamMembership = useCallback((teamId, membership) => {
+    if (membership) {
+      // User joined team
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_TEAM_PERMISSIONS,
+        payload: {
+          teamId,
+          permissions: {
+            role: membership.role,
+            canManage: ['owner', 'admin'].includes(membership.role),
+            canInvite: ['owner', 'admin'].includes(membership.role),
+            canEdit: ['owner', 'admin'].includes(membership.role)
+          }
+        }
+      })
+    } else {
+      // User left team - remove permissions
+      const newPermissions = { ...state.teamPermissions }
+      delete newPermissions[teamId]
+      
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_TEAM_PERMISSIONS,
+        payload: newPermissions
+      })
+    }
+  }, [state.teamPermissions])
+
+  // Update project membership (called when user joins/leaves projects)
+  const updateProjectMembership = useCallback((projectId, membership) => {
+    if (membership) {
+      // User joined project
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_PROJECT_PERMISSIONS,
+        payload: {
+          projectId,
+          permissions: {
+            role: membership.role,
+            canManage: ['owner', 'admin'].includes(membership.role),
+            canAssign: ['owner', 'admin'].includes(membership.role),
+            canEdit: ['owner', 'admin'].includes(membership.role)
+          }
+        }
+      })
+    } else {
+      // User left project - remove permissions
+      const newPermissions = { ...state.projectPermissions }
+      delete newPermissions[projectId]
+      
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_PROJECT_PERMISSIONS,
+        payload: newPermissions
+      })
+    }
+  }, [state.projectPermissions])
+
   const value = {
     // State
     user: state.user,
@@ -333,6 +560,10 @@ export const AuthProvider = ({ children }) => {
     isLoading: state.isLoading,
     error: state.error,
     backendAvailable: state.backendAvailable,
+    userTeams: state.userTeams,
+    userProjects: state.userProjects,
+    teamPermissions: state.teamPermissions,
+    projectPermissions: state.projectPermissions,
     
     // Actions
     login,
@@ -342,7 +573,16 @@ export const AuthProvider = ({ children }) => {
     clearError,
     setLoading,
     refreshUser,
-    loadUser
+    loadUser,
+    refreshUserTeamsAndProjects,
+    
+    // Team/Project permissions
+    hasTeamPermission,
+    hasProjectPermission,
+    getUserTeamRole,
+    getUserProjectRole,
+    updateTeamMembership,
+    updateProjectMembership
   }
 
   return (
