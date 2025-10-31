@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
+import { UserIcon, UsersIcon, FolderIcon } from '@heroicons/react/24/outline'
+import { useTeam } from '../../context/TeamContext'
+import { useProject } from '../../context/ProjectContext'
+import { useAuth } from '../../context/AuthContext'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
+import Avatar from '../common/Avatar'
+import Badge from '../common/Badge'
 
 const TaskForm = ({
   task = null,
@@ -9,8 +15,16 @@ const TaskForm = ({
   onCancel,
   loading = false,
   error = null,
-  className = ''
+  className = '',
+  teamId = null,
+  projectId = null,
+  showAssignment = true,
+  showProjectSelection = true
 }) => {
+  const { user } = useAuth()
+  const { teams, currentTeam, fetchTeams } = useTeam()
+  const { projects, currentProject, fetchProjects } = useProject()
+  
   const isEditing = !!task
   
   const [formData, setFormData] = useState({
@@ -19,12 +33,23 @@ const TaskForm = ({
     due: '',
     priority: 'medium',
     tags: [],
-    labels: []
+    labels: [],
+    assignee: '',
+    projectId: projectId || '',
+    teamId: teamId || ''
   })
   
   const [tagInput, setTagInput] = useState('')
   const [labelInput, setLabelInput] = useState('')
   const [errors, setErrors] = useState({})
+
+  // Fetch teams and projects on mount
+  useEffect(() => {
+    if (showAssignment || showProjectSelection) {
+      fetchTeams()
+      fetchProjects()
+    }
+  }, [showAssignment, showProjectSelection, fetchTeams, fetchProjects])
 
   // Initialize form data when task prop changes
   useEffect(() => {
@@ -36,17 +61,22 @@ const TaskForm = ({
         due: dueDate,
         priority: task.priority || 'medium',
         tags: task.tags || [],
-        labels: task.labels || []
+        labels: task.labels || [],
+        assignee: task.assignee?._id || task.assignee || '',
+        projectId: task.project?._id || task.projectId || projectId || '',
+        teamId: task.team?._id || task.teamId || teamId || ''
       })
     } else {
       // Set default due date to today for new tasks
       const today = format(new Date(), 'yyyy-MM-dd')
       setFormData(prev => ({
         ...prev,
-        due: today
+        due: today,
+        projectId: projectId || '',
+        teamId: teamId || ''
       }))
     }
-  }, [task])
+  }, [task, projectId, teamId])
 
   // Validation
   const validateForm = useCallback(() => {
@@ -155,6 +185,99 @@ const TaskForm = ({
     }))
   }, [])
 
+  // Get available team members for assignment
+  const availableMembers = React.useMemo(() => {
+    let members = []
+    
+    // If a specific project is selected, use project members
+    if (formData.projectId) {
+      const project = projects.find(p => p._id === formData.projectId)
+      if (project?.members) {
+        members = project.members.map(m => m.user)
+      }
+    }
+    // If a team is selected but no project, use team members
+    else if (formData.teamId) {
+      const team = teams.find(t => t._id === formData.teamId)
+      if (team?.members) {
+        members = team.members.map(m => m.user)
+      }
+    }
+    
+    // Always include current user as an option
+    if (user && !members.find(m => m._id === user._id)) {
+      members.unshift(user)
+    }
+    
+    return members
+  }, [formData.projectId, formData.teamId, projects, teams, user])
+
+  // Get available projects (filtered by team if team is selected)
+  const availableProjects = React.useMemo(() => {
+    if (formData.teamId) {
+      return projects.filter(p => p.team?._id === formData.teamId)
+    }
+    return projects
+  }, [formData.teamId, projects])
+
+  // Handle project selection change
+  const handleProjectChange = useCallback((e) => {
+    const selectedProjectId = e.target.value
+    setFormData(prev => {
+      const newData = { ...prev, projectId: selectedProjectId }
+      
+      // If project is selected, auto-set the team
+      if (selectedProjectId) {
+        const project = projects.find(p => p._id === selectedProjectId)
+        if (project?.team?._id) {
+          newData.teamId = project.team._id
+        }
+      }
+      
+      // Clear assignee if they're not in the new project/team
+      if (prev.assignee) {
+        const newMembers = selectedProjectId 
+          ? projects.find(p => p._id === selectedProjectId)?.members?.map(m => m.user) || []
+          : newData.teamId 
+          ? teams.find(t => t._id === newData.teamId)?.members?.map(m => m.user) || []
+          : []
+        
+        if (!newMembers.find(m => m._id === prev.assignee) && prev.assignee !== user._id) {
+          newData.assignee = ''
+        }
+      }
+      
+      return newData
+    })
+  }, [projects, teams, user])
+
+  // Handle team selection change
+  const handleTeamChange = useCallback((e) => {
+    const selectedTeamId = e.target.value
+    setFormData(prev => {
+      const newData = { ...prev, teamId: selectedTeamId }
+      
+      // Clear project if it doesn't belong to the selected team
+      if (prev.projectId && selectedTeamId) {
+        const project = projects.find(p => p._id === prev.projectId)
+        if (project?.team?._id !== selectedTeamId) {
+          newData.projectId = ''
+        }
+      }
+      
+      // Clear assignee if they're not in the new team
+      if (prev.assignee && selectedTeamId) {
+        const team = teams.find(t => t._id === selectedTeamId)
+        const teamMembers = team?.members?.map(m => m.user) || []
+        if (!teamMembers.find(m => m._id === prev.assignee) && prev.assignee !== user._id) {
+          newData.assignee = ''
+        }
+      }
+      
+      return newData
+    })
+  }, [projects, teams, user])
+
   // Handle form submission
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault()
@@ -167,7 +290,10 @@ const TaskForm = ({
       ...formData,
       title: formData.title.trim(),
       description: formData.description.trim(),
-      due: new Date(formData.due).toISOString()
+      due: new Date(formData.due).toISOString(),
+      assignee: formData.assignee || null,
+      projectId: formData.projectId || null,
+      teamId: formData.teamId || null
     }
 
     try {
