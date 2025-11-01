@@ -6,4 +6,128 @@ import {
   format, 
   isAfter, 
   isBefore, 
-  isSameDay,\n  startOfDay,\n  endOfDay,\n  getDay,\n  getDaysInMonth,\n  setDate\n} from 'date-fns';\n\n/**\n * Recurring task utilities for generating and managing recurring task instances\n */\n\n// Recurring pattern types\nexport const RECURRING_TYPES = {\n  NONE: 'none',\n  DAILY: 'daily',\n  WEEKLY: 'weekly',\n  MONTHLY: 'monthly',\n  YEARLY: 'yearly',\n  CUSTOM: 'custom'\n};\n\n// End types for recurring patterns\nexport const END_TYPES = {\n  NEVER: 'never',\n  AFTER: 'after',\n  ON: 'on'\n};\n\n// Days of week (Sunday = 0)\nexport const DAYS_OF_WEEK = {\n  SUNDAY: 0,\n  MONDAY: 1,\n  TUESDAY: 2,\n  WEDNESDAY: 3,\n  THURSDAY: 4,\n  FRIDAY: 5,\n  SATURDAY: 6\n};\n\n/**\n * Create a default recurring pattern\n * @returns {Object} Default recurring pattern\n */\nexport const createDefaultRecurringPattern = () => ({\n  type: RECURRING_TYPES.NONE,\n  interval: 1,\n  daysOfWeek: [],\n  dayOfMonth: null,\n  monthOfYear: null,\n  endType: END_TYPES.NEVER,\n  endAfter: 10,\n  endOn: null,\n  exceptions: [],\n  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone\n});\n\n/**\n * Validate a recurring pattern\n * @param {Object} pattern - Recurring pattern to validate\n * @returns {Object} Validation result with isValid and errors\n */\nexport const validateRecurringPattern = (pattern) => {\n  const errors = [];\n  \n  if (!pattern) {\n    errors.push('Pattern is required');\n    return { isValid: false, errors };\n  }\n  \n  // Validate type\n  if (!Object.values(RECURRING_TYPES).includes(pattern.type)) {\n    errors.push('Invalid recurring type');\n  }\n  \n  // Validate interval\n  if (pattern.type !== RECURRING_TYPES.NONE) {\n    if (!pattern.interval || pattern.interval < 1 || pattern.interval > 365) {\n      errors.push('Interval must be between 1 and 365');\n    }\n  }\n  \n  // Validate weekly pattern\n  if (pattern.type === RECURRING_TYPES.WEEKLY) {\n    if (pattern.daysOfWeek && pattern.daysOfWeek.length > 0) {\n      const invalidDays = pattern.daysOfWeek.filter(day => day < 0 || day > 6);\n      if (invalidDays.length > 0) {\n        errors.push('Invalid days of week');\n      }\n    }\n  }\n  \n  // Validate monthly pattern\n  if (pattern.type === RECURRING_TYPES.MONTHLY) {\n    if (pattern.dayOfMonth && (pattern.dayOfMonth < 1 || pattern.dayOfMonth > 31)) {\n      errors.push('Day of month must be between 1 and 31');\n    }\n  }\n  \n  // Validate end conditions\n  if (pattern.endType === END_TYPES.AFTER) {\n    if (!pattern.endAfter || pattern.endAfter < 1 || pattern.endAfter > 999) {\n      errors.push('End after must be between 1 and 999');\n    }\n  }\n  \n  if (pattern.endType === END_TYPES.ON) {\n    if (!pattern.endOn) {\n      errors.push('End date is required when end type is \"on\"');\n    }\n  }\n  \n  return {\n    isValid: errors.length === 0,\n    errors\n  };\n};\n\n/**\n * Generate recurring task instances based on pattern\n * @param {Object} baseTask - Base task to generate instances from\n * @param {Object} pattern - Recurring pattern\n * @param {Object} options - Generation options\n * @returns {Array} Array of task instances\n */\nexport const generateRecurringInstances = (baseTask, pattern, options = {}) => {\n  const {\n    startDate = baseTask.due ? new Date(baseTask.due) : new Date(),\n    endDate = null,\n    maxInstances = 100,\n    includeCompleted = false\n  } = options;\n  \n  // Validate pattern\n  const validation = validateRecurringPattern(pattern);\n  if (!validation.isValid) {\n    throw new Error(`Invalid recurring pattern: ${validation.errors.join(', ')}`);\n  }\n  \n  if (pattern.type === RECURRING_TYPES.NONE) {\n    return [baseTask];\n  }\n  \n  const instances = [];\n  let currentDate = new Date(startDate);\n  let instanceCount = 0;\n  \n  while (instanceCount < maxInstances) {\n    // Check end conditions\n    if (pattern.endType === END_TYPES.AFTER && instanceCount >= pattern.endAfter) {\n      break;\n    }\n    \n    if (pattern.endType === END_TYPES.ON && pattern.endOn) {\n      if (isAfter(currentDate, new Date(pattern.endOn))) {\n        break;\n      }\n    }\n    \n    if (endDate && isAfter(currentDate, endDate)) {\n      break;\n    }\n    \n    // Check if this date is an exception\n    const isException = pattern.exceptions?.some(exception => \n      isSameDay(new Date(exception), currentDate)\n    );\n    \n    if (!isException) {\n      // Create instance\n      const instance = {\n        ...baseTask,\n        _id: `${baseTask._id}-recurring-${instanceCount}`,\n        due: new Date(currentDate).toISOString(),\n        status: instanceCount === 0 ? baseTask.status : 'pending',\n        isRecurring: true,\n        recurringId: baseTask._id,\n        recurringPattern: pattern,\n        instanceNumber: instanceCount,\n        originalDue: baseTask.due\n      };\n      \n      instances.push(instance);\n    }\n    \n    // Calculate next occurrence\n    currentDate = getNextOccurrence(currentDate, pattern);\n    instanceCount++;\n    \n    // Safety check to prevent infinite loops\n    if (instanceCount > 1000) {\n      console.warn('Recurring task generation stopped at 1000 instances to prevent infinite loop');\n      break;\n    }\n  }\n  \n  return instances;\n};\n\n/**\n * Get the next occurrence date based on recurring pattern\n * @param {Date} currentDate - Current date\n * @param {Object} pattern - Recurring pattern\n * @returns {Date} Next occurrence date\n */\nexport const getNextOccurrence = (currentDate, pattern) => {\n  const date = new Date(currentDate);\n  \n  switch (pattern.type) {\n    case RECURRING_TYPES.DAILY:\n      return addDays(date, pattern.interval);\n      \n    case RECURRING_TYPES.WEEKLY:\n      if (pattern.daysOfWeek && pattern.daysOfWeek.length > 0) {\n        return getNextWeeklyOccurrence(date, pattern);\n      }\n      return addWeeks(date, pattern.interval);\n      \n    case RECURRING_TYPES.MONTHLY:\n      return getNextMonthlyOccurrence(date, pattern);\n      \n    case RECURRING_TYPES.YEARLY:\n      return addYears(date, pattern.interval);\n      \n    default:\n      return addDays(date, 1);\n  }\n};\n\n/**\n * Get next weekly occurrence considering specific days of week\n * @param {Date} currentDate - Current date\n * @param {Object} pattern - Recurring pattern\n * @returns {Date} Next weekly occurrence\n */\nconst getNextWeeklyOccurrence = (currentDate, pattern) => {\n  const currentDay = getDay(currentDate);\n  const sortedDays = [...pattern.daysOfWeek].sort();\n  \n  // Find next day in current week\n  const nextDayInWeek = sortedDays.find(day => day > currentDay);\n  \n  if (nextDayInWeek !== undefined) {\n    // Next occurrence is in the same week\n    const daysToAdd = nextDayInWeek - currentDay;\n    return addDays(currentDate, daysToAdd);\n  } else {\n    // Next occurrence is in the next interval week\n    const weeksToAdd = pattern.interval;\n    const nextWeekStart = addWeeks(currentDate, weeksToAdd);\n    const daysToFirstOccurrence = sortedDays[0] - getDay(nextWeekStart);\n    return addDays(nextWeekStart, daysToFirstOccurrence);\n  }\n};\n\n/**\n * Get next monthly occurrence\n * @param {Date} currentDate - Current date\n * @param {Object} pattern - Recurring pattern\n * @returns {Date} Next monthly occurrence\n */\nconst getNextMonthlyOccurrence = (currentDate, pattern) => {\n  let nextDate = addMonths(currentDate, pattern.interval);\n  \n  if (pattern.dayOfMonth) {\n    // Set specific day of month\n    const daysInMonth = getDaysInMonth(nextDate);\n    const targetDay = Math.min(pattern.dayOfMonth, daysInMonth);\n    nextDate = setDate(nextDate, targetDay);\n  }\n  \n  return nextDate;\n};\n\n/**\n * Check if a task is a recurring task\n * @param {Object} task - Task to check\n * @returns {boolean} True if task is recurring\n */\nexport const isRecurringTask = (task) => {\n  return task && task.recurring && task.recurring.type !== RECURRING_TYPES.NONE;\n};\n\n/**\n * Check if a task is a recurring instance\n * @param {Object} task - Task to check\n * @returns {boolean} True if task is a recurring instance\n */\nexport const isRecurringInstance = (task) => {\n  return task && (task.isRecurring || task.recurringId);\n};\n\n/**\n * Get recurring task summary text\n * @param {Object} pattern - Recurring pattern\n * @returns {string} Human-readable summary\n */\nexport const getRecurringSummary = (pattern) => {\n  if (!pattern || pattern.type === RECURRING_TYPES.NONE) {\n    return 'Does not repeat';\n  }\n  \n  let summary = '';\n  \n  // Base frequency\n  switch (pattern.type) {\n    case RECURRING_TYPES.DAILY:\n      summary = pattern.interval === 1 ? 'Daily' : `Every ${pattern.interval} days`;\n      break;\n    case RECURRING_TYPES.WEEKLY:\n      if (pattern.daysOfWeek && pattern.daysOfWeek.length > 0) {\n        const dayNames = pattern.daysOfWeek\n          .sort()\n          .map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day])\n          .join(', ');\n        summary = pattern.interval === 1 \n          ? `Weekly on ${dayNames}`\n          : `Every ${pattern.interval} weeks on ${dayNames}`;\n      } else {\n        summary = pattern.interval === 1 ? 'Weekly' : `Every ${pattern.interval} weeks`;\n      }\n      break;\n    case RECURRING_TYPES.MONTHLY:\n      if (pattern.dayOfMonth) {\n        summary = pattern.interval === 1\n          ? `Monthly on day ${pattern.dayOfMonth}`\n          : `Every ${pattern.interval} months on day ${pattern.dayOfMonth}`;\n      } else {\n        summary = pattern.interval === 1 ? 'Monthly' : `Every ${pattern.interval} months`;\n      }\n      break;\n    case RECURRING_TYPES.YEARLY:\n      summary = pattern.interval === 1 ? 'Yearly' : `Every ${pattern.interval} years`;\n      break;\n    default:\n      summary = 'Custom';\n  }\n  \n  // End condition\n  if (pattern.endType === END_TYPES.AFTER) {\n    summary += `, ${pattern.endAfter} times`;\n  } else if (pattern.endType === END_TYPES.ON && pattern.endOn) {\n    summary += `, until ${format(new Date(pattern.endOn), 'MMM d, yyyy')}`;\n  }\n  \n  return summary;\n};\n\n/**\n * Get all recurring instances for a date range\n * @param {Array} tasks - Array of tasks\n * @param {Date} startDate - Start date of range\n * @param {Date} endDate - End date of range\n * @returns {Array} Array of task instances in the date range\n */\nexport const getRecurringInstancesInRange = (tasks, startDate, endDate) => {\n  const instances = [];\n  \n  tasks.forEach(task => {\n    if (isRecurringTask(task)) {\n      const taskInstances = generateRecurringInstances(task, task.recurring, {\n        startDate: task.due ? new Date(task.due) : startDate,\n        endDate,\n        maxInstances: 1000\n      });\n      \n      // Filter instances within the date range\n      const instancesInRange = taskInstances.filter(instance => {\n        const instanceDate = new Date(instance.due);\n        return instanceDate >= startOfDay(startDate) && instanceDate <= endOfDay(endDate);\n      });\n      \n      instances.push(...instancesInRange);\n    } else if (!isRecurringInstance(task)) {\n      // Include non-recurring tasks that fall within the range\n      if (task.due) {\n        const taskDate = new Date(task.due);\n        if (taskDate >= startOfDay(startDate) && taskDate <= endOfDay(endDate)) {\n          instances.push(task);\n        }\n      }\n    }\n  });\n  \n  return instances.sort((a, b) => new Date(a.due) - new Date(b.due));\n};\n\n/**\n * Add exception date to recurring pattern\n * @param {Object} pattern - Recurring pattern\n * @param {Date} exceptionDate - Date to add as exception\n * @returns {Object} Updated pattern with exception\n */\nexport const addRecurringException = (pattern, exceptionDate) => {\n  const exceptions = pattern.exceptions || [];\n  const exceptionISO = exceptionDate.toISOString();\n  \n  if (!exceptions.some(ex => isSameDay(new Date(ex), exceptionDate))) {\n    exceptions.push(exceptionISO);\n  }\n  \n  return {\n    ...pattern,\n    exceptions: exceptions.sort()\n  };\n};\n\n/**\n * Remove exception date from recurring pattern\n * @param {Object} pattern - Recurring pattern\n * @param {Date} exceptionDate - Date to remove from exceptions\n * @returns {Object} Updated pattern without exception\n */\nexport const removeRecurringException = (pattern, exceptionDate) => {\n  const exceptions = pattern.exceptions || [];\n  \n  return {\n    ...pattern,\n    exceptions: exceptions.filter(ex => !isSameDay(new Date(ex), exceptionDate))\n  };\n};\n\n/**\n * Get the next few occurrences for preview\n * @param {Object} task - Base task\n * @param {Object} pattern - Recurring pattern\n * @param {number} count - Number of occurrences to return\n * @returns {Array} Array of next occurrences\n */\nexport const getNextOccurrences = (task, pattern, count = 5) => {\n  if (!pattern || pattern.type === RECURRING_TYPES.NONE) {\n    return [];\n  }\n  \n  const instances = generateRecurringInstances(task, pattern, {\n    maxInstances: count\n  });\n  \n  return instances.slice(0, count).map(instance => ({\n    date: new Date(instance.due),\n    title: instance.title,\n    priority: instance.priority\n  }));\n};\n\nexport default {\n  RECURRING_TYPES,\n  END_TYPES,\n  DAYS_OF_WEEK,\n  createDefaultRecurringPattern,\n  validateRecurringPattern,\n  generateRecurringInstances,\n  getNextOccurrence,\n  isRecurringTask,\n  isRecurringInstance,\n  getRecurringSummary,\n  getRecurringInstancesInRange,\n  addRecurringException,\n  removeRecurringException,\n  getNextOccurrences\n};
+  isSameDay,
+  startOfDay,
+  endOfDay,
+  getDay,
+  getDaysInMonth,
+  setDate
+} from 'date-fns';
+
+/**
+ * Recurring task utilities for generating and managing recurring task instances
+ */
+
+// Recurring pattern types
+export const RECURRING_TYPES = {
+  NONE: 'none',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  MONTHLY: 'monthly',
+  YEARLY: 'yearly',
+  CUSTOM: 'custom'
+};
+
+// End types for recurring patterns
+export const END_TYPES = {
+  NEVER: 'never',
+  AFTER: 'after',
+  ON: 'on'
+};
+
+// Days of week (Sunday = 0)
+export const DAYS_OF_WEEK = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6
+};
+
+/**
+ * Create a default recurring pattern
+ * @returns {Object} Default recurring pattern
+ */
+export const createDefaultRecurringPattern = () => ({
+  type: RECURRING_TYPES.NONE,
+  interval: 1,
+  daysOfWeek: [],
+  dayOfMonth: null,
+  monthOfYear: null,
+  endType: END_TYPES.NEVER,
+  endAfter: 10,
+  endOn: null,
+  exceptions: [],
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+});
+
+/**
+ * Check if a task is a recurring task
+ * @param {Object} task - Task to check
+ * @returns {boolean} True if task is recurring
+ */
+export const isRecurringTask = (task) => {
+  return task && task.recurring && task.recurring.type !== RECURRING_TYPES.NONE;
+};
+
+/**
+ * Check if a task is a recurring instance
+ * @param {Object} task - Task to check
+ * @returns {boolean} True if task is a recurring instance
+ */
+export const isRecurringInstance = (task) => {
+  return task && (task.isRecurring || task.recurringId);
+};
+
+/**
+ * Get recurring task summary text
+ * @param {Object} pattern - Recurring pattern
+ * @returns {string} Human-readable summary
+ */
+export const getRecurringSummary = (pattern) => {
+  if (!pattern || pattern.type === RECURRING_TYPES.NONE) {
+    return 'Does not repeat';
+  }
+  
+  let summary = '';
+  
+  // Base frequency
+  switch (pattern.type) {
+    case RECURRING_TYPES.DAILY:
+      summary = pattern.interval === 1 ? 'Daily' : `Every ${pattern.interval} days`;
+      break;
+    case RECURRING_TYPES.WEEKLY:
+      if (pattern.daysOfWeek && pattern.daysOfWeek.length > 0) {
+        const dayNames = pattern.daysOfWeek
+          .sort()
+          .map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day])
+          .join(', ');
+        summary = pattern.interval === 1 
+          ? `Weekly on ${dayNames}`
+          : `Every ${pattern.interval} weeks on ${dayNames}`;
+      } else {
+        summary = pattern.interval === 1 ? 'Weekly' : `Every ${pattern.interval} weeks`;
+      }
+      break;
+    case RECURRING_TYPES.MONTHLY:
+      if (pattern.dayOfMonth) {
+        summary = pattern.interval === 1
+          ? `Monthly on day ${pattern.dayOfMonth}`
+          : `Every ${pattern.interval} months on day ${pattern.dayOfMonth}`;
+      } else {
+        summary = pattern.interval === 1 ? 'Monthly' : `Every ${pattern.interval} months`;
+      }
+      break;
+    case RECURRING_TYPES.YEARLY:
+      summary = pattern.interval === 1 ? 'Yearly' : `Every ${pattern.interval} years`;
+      break;
+    default:
+      summary = 'Custom';
+  }
+  
+  // End condition
+  if (pattern.endType === END_TYPES.AFTER) {
+    summary += `, ${pattern.endAfter} times`;
+  } else if (pattern.endType === END_TY
