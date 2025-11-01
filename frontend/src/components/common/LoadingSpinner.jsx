@@ -1,98 +1,34 @@
-import React from 'react'
+import React from 'react';
 
-const LoadingSpinner = ({ 
-  size = 'medium', 
-  message = 'Loading...', 
-  overlay = false,
-  fullScreen = false,
-  color = 'primary',
-  className = ''
-}) => {
-  const sizeClass = {
-    small: 'spinner-small',
-    medium: 'spinner-medium',
-    large: 'spinner-large'
-  }[size]
-
-  const colorClass = {
-    primary: 'spinner-primary',
-    secondary: 'spinner-secondary',
-    success: 'spinner-success',
-    danger: 'spinner-danger',
-    warning: 'spinner-warning',
-    info: 'spinner-info',
-    light: 'spinner-light',
-    dark: 'spinner-dark'
-  }[color]
-
-  const containerClass = [
-    'loading-spinner',
-    overlay && 'loading-overlay',
-    fullScreen && 'loading-fullscreen',
-    className
-  ].filter(Boolean).join(' ')
+const LoadingSpinner = ({ size = 'md', className = '', text = '' }) => {
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12',
+    xl: 'w-16 h-16'
+  };
 
   return (
-    <div className={containerClass}>
-      <div className="loading-content">
-        <div className={`spinner ${sizeClass} ${colorClass}`}>
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-        {message && <p className="loading-message">{message}</p>}
-      </div>
+    <div className={`flex flex-col items-center justify-center ${className}`}>
+      <div
+        className={`
+          ${sizeClasses[size]} 
+          animate-spin 
+          rounded-full 
+          border-2 
+          border-gray-300 
+          border-t-blue-600 
+          dark:border-gray-600 
+          dark:border-t-blue-400
+        `}
+      />
+      {text && (
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          {text}
+        </p>
+      )}
     </div>
-  )
-}
+  );
+};
 
-// Inline spinner for buttons and small spaces
-export const InlineSpinner = ({ size = 'small', color = 'primary' }) => {
-  const sizeClass = {
-    small: 'spinner-small',
-    medium: 'spinner-medium'
-  }[size]
-
-  const colorClass = {
-    primary: 'spinner-primary',
-    secondary: 'spinner-secondary',
-    light: 'spinner-light',
-    dark: 'spinner-dark'
-  }[color]
-
-  return (
-    <div className={`inline-spinner ${sizeClass} ${colorClass}`}>
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  )
-}
-
-// Dots loading animation
-export const DotsLoader = ({ color = 'primary', size = 'medium' }) => {
-  const colorClass = `dots-${color}`
-  const sizeClass = `dots-${size}`
-
-  return (
-    <div className={`dots-loader ${colorClass} ${sizeClass}`}>
-      <div className="dot"></div>
-      <div className="dot"></div>
-      <div className="dot"></div>
-    </div>
-  )
-}
-
-// Pulse loading animation
-export const PulseLoader = ({ color = 'primary', size = 'medium' }) => {
-  const colorClass = `pulse-${color}`
-  const sizeClass = `pulse-${size}`
-
-  return (
-    <div className={`pulse-loader ${colorClass} ${sizeClass}`}>
-      <div className="pulse-circle"></div>
-    </div>
-  )
-}
-
-export default LoadingSpinner
+export default LoadingSpinner;
