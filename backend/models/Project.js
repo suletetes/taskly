@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const projectMemberSchema = new mongoose.Schema({
   user: {
@@ -326,4 +326,5 @@ projectSchema.statics.findOverdue = function() {
   });
 };
 
-module.exports = mongoose.model('Project', projectSchema);
+const Project = mongoose.model('Project', projectSchema);
+export default Project;

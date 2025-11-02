@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const teamMemberSchema = new mongoose.Schema({
   user: {
@@ -212,4 +212,5 @@ teamSchema.statics.findPublic = function() {
   return this.find({ isPrivate: false });
 };
 
-module.exports = mongoose.model('Team', teamSchema);
+const Team = mongoose.model('Team', teamSchema);
+export default Team;

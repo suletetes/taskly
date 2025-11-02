@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const Team = require('../models/Team');
-const Project = require('../models/Project');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import Team from '../models/Team.js';
+import Project from '../models/Project.js';
 
 // Basic authentication middleware
 const auth = async (req, res, next) => {
@@ -260,8 +260,9 @@ const validateOwnershipTransfer = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   auth,
+  auth as authenticateToken, // Alias for compatibility
   teamAuth,
   projectAuth,
   requireRole,
