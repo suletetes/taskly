@@ -90,10 +90,20 @@ router.get('/:id', auth, projectAuth, async (req, res) => {
       });
     }
 
-    res.json(project);
+    res.json({
+      success: true,
+      data: project,
+      message: 'Project fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching project:', error);
-    res.status(500).json({ error: 'Failed to fetch project' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to fetch project',
+        code: 'FETCH_ERROR'
+      }
+    });
   }
 });
 

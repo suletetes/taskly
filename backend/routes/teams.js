@@ -409,10 +409,20 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
       updatedAt: team.updatedAt
     };
 
-    res.json(stats);
+    res.json({
+      success: true,
+      data: stats,
+      message: 'Team statistics fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching team stats:', error);
-    res.status(500).json({ error: 'Failed to fetch team statistics' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to fetch team statistics',
+        code: 'FETCH_ERROR'
+      }
+    });
   }
 });
 
