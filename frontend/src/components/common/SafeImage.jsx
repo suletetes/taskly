@@ -6,6 +6,7 @@ const SafeImage = ({
   alt, 
   className = '', 
   fallback,
+  fallbackSrc, // Accept fallbackSrc prop
   onError,
   onLoad,
   ...props 
@@ -30,10 +31,24 @@ const SafeImage = ({
 
   // If there's an error or no src, show fallback
   if (hasError || !src) {
+    // If fallbackSrc is provided, show that image
+    if (fallbackSrc) {
+      return (
+        <img
+          src={fallbackSrc}
+          alt={alt}
+          className={className}
+          {...props}
+        />
+      );
+    }
+    
+    // If fallback component is provided, show that
     if (fallback) {
       return fallback;
     }
     
+    // Default fallback icon
     return (
       <div className={`flex items-center justify-center bg-gray-200 dark:bg-gray-700 ${className}`}>
         <PhotoIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />

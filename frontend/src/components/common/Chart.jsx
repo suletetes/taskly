@@ -54,7 +54,30 @@ const Chart = ({
     );
   }
 
-  if (!data || data.length === 0) {
+  // Normalize data format - handle both simple array and chart.js format
+  let chartData = [];
+  let chartType = type;
+  
+  if (data && typeof data === 'object') {
+    if (data.data && data.data.labels && data.data.datasets) {
+      // Chart.js format: { type, data: { labels, datasets } }
+      chartType = data.type || type;
+      const labels = data.data.labels;
+      const values = data.data.datasets[0]?.data || [];
+      chartData = labels.map((label, index) => ({
+        label: String(label),
+        value: values[index] || 0
+      }));
+    } else if (Array.isArray(data)) {
+      // Simple array format: [{ label, value }]
+      chartData = data;
+    } else {
+      // Invalid format
+      chartData = [];
+    }
+  }
+
+  if (!chartData || chartData.length === 0) {
     return (
       <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 ${className}`}>
         {title && (
@@ -73,7 +96,7 @@ const Chart = ({
   }
 
   // Simple bar chart implementation
-  const maxValue = Math.max(...data.map(item => item.value || 0));
+  const maxValue = Math.max(...chartData.map(item => item.value || 0));
   
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 ${className}`}>
@@ -84,9 +107,9 @@ const Chart = ({
       )}
       
       <div className="relative" style={{ height: `${height}px` }}>
-        {type === 'bar' && (
+        {(chartType === 'bar' || chartType === 'horizontalBar') && (
           <div className="flex items-end justify-between space-x-2 h-full">
-            {data.map((item, index) => {
+            {chartData.map((item, index) => {
               const barHeight = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
               return (
                 <div key={index} className="flex flex-col items-center flex-1">
@@ -95,7 +118,7 @@ const Chart = ({
                     style={{ height: `${barHeight}%` }}
                     title={`${item.label}: ${item.value}`}
                   />
-                  <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center">
+                  <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center truncate w-full">
                     {item.label}
                   </div>
                 </div>
@@ -104,23 +127,23 @@ const Chart = ({
           </div>
         )}
         
-        {type === 'line' && (
+        {chartType === 'line' && (
           <div className="relative h-full">
             <svg className="w-full h-full">
-              {data.length > 1 && (
+              {chartData.length > 1 && (
                 <polyline
                   fill="none"
                   stroke="rgb(59, 130, 246)"
                   strokeWidth="2"
-                  points={data.map((item, index) => {
-                    const x = (index / (data.length - 1)) * 100;
+                  points={chartData.map((item, index) => {
+                    const x = (index / (chartData.length - 1)) * 100;
                     const y = 100 - (maxValue > 0 ? (item.value / maxValue) * 100 : 0);
                     return `${x}%,${y}%`;
                   }).join(' ')}
                 />
               )}
-              {data.map((item, index) => {
-                const x = (index / (data.length - 1)) * 100;
+              {chartData.map((item, index) => {
+                const x = chartData.length > 1 ? (index / (chartData.length - 1)) * 100 : 50;
                 const y = 100 - (maxValue > 0 ? (item.value / maxValue) * 100 : 0);
                 return (
                   <circle
@@ -137,8 +160,8 @@ const Chart = ({
               })}
             </svg>
             <div className="flex justify-between mt-2">
-              {data.map((item, index) => (
-                <div key={index} className="text-xs text-gray-600 dark:text-gray-400">
+              {chartData.map((item, index) => (
+                <div key={index} className="text-xs text-gray-600 dark:text-gray-400 truncate">
                   {item.label}
                 </div>
               ))}
@@ -146,12 +169,12 @@ const Chart = ({
           </div>
         )}
         
-        {type === 'pie' && (
+        {(chartType === 'pie' || chartType === 'doughnut') && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <ChartBarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Pie chart visualization coming soon
+                {chartType === 'doughnut' ? 'Doughnut' : 'Pie'} chart visualization coming soon
               </p>
             </div>
           </div>
@@ -159,9 +182,9 @@ const Chart = ({
       </div>
       
       {/* Legend */}
-      {data.length > 0 && (
+      {chartData.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
-          {data.map((item, index) => (
+          {chartData.map((item, index) => (
             <div key={index} className="flex items-center">
               <div className="w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded mr-2" />
               <span className="text-gray-600 dark:text-gray-400">

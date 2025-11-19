@@ -344,6 +344,135 @@ const PreferencesStep = ({ onNext, onPrev }) => {
   );
 };
 
+// First Task Step Component
+const FirstTaskStep = ({ onNext, onPrev }) => {
+  const [taskTitle, setTaskTitle] = useState('');
+
+  const handleCreateTask = () => {
+    if (taskTitle.trim()) {
+      // Task will be created in the main app after onboarding
+      localStorage.setItem('firstTask', taskTitle);
+      onNext();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckIcon className="w-10 h-10 text-primary-600" />
+        </div>
+        <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
+          Create Your First Task
+        </h3>
+        <p className="text-secondary-600 dark:text-secondary-400">
+          Start by adding a task you want to accomplish today.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+          What do you want to accomplish?
+        </label>
+        <input
+          type="text"
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
+          placeholder="e.g., Complete project proposal"
+          className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+      </div>
+
+      <div className="bg-primary-50 dark:bg-primary-900/10 rounded-lg p-4">
+        <p className="text-sm text-primary-800 dark:text-primary-200">
+          💡 <strong>Tip:</strong> Keep your tasks specific and actionable. You can add more details like due dates and priorities later!
+        </p>
+      </div>
+
+      <div className="flex gap-3">
+        <Button variant="secondary" onClick={onPrev} className="flex-1">
+          <ArrowLeftIcon className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <Button onClick={handleCreateTask} disabled={!taskTitle.trim()} className="flex-1">
+          Continue
+          <ArrowRightIcon className="w-4 h-4 ml-2" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// Features Step Component
+const FeaturesStep = ({ onNext, onPrev }) => {
+  const features = [
+    {
+      icon: CheckIcon,
+      title: 'Task Management',
+      description: 'Create, organize, and track your tasks with ease'
+    },
+    {
+      icon: ChartBarIcon,
+      title: 'Analytics',
+      description: 'Track your productivity and see your progress over time'
+    },
+    {
+      icon: UsersIcon,
+      title: 'Team Collaboration',
+      description: 'Work together with teams and share projects'
+    },
+    {
+      icon: SparklesIcon,
+      title: 'Smart Calendar',
+      description: 'Visualize your tasks and schedule with calendar views'
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
+          Explore Key Features
+        </h3>
+        <p className="text-secondary-600 dark:text-secondary-400">
+          Here's what you can do with Taskly
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {features.map((feature, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-white dark:bg-secondary-800 rounded-lg p-4 border border-secondary-200 dark:border-secondary-700"
+          >
+            <feature.icon className="w-8 h-8 text-primary-600 mb-3" />
+            <h4 className="font-semibold text-secondary-900 dark:text-secondary-100 mb-1">
+              {feature.title}
+            </h4>
+            <p className="text-sm text-secondary-600 dark:text-secondary-400">
+              {feature.description}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="flex gap-3 mt-8">
+        <Button variant="secondary" onClick={onPrev} className="flex-1">
+          <ArrowLeftIcon className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <Button onClick={onNext} className="flex-1">
+          Continue
+          <ArrowRightIcon className="w-4 h-4 ml-2" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 // Complete Step Component
 const CompleteStep = ({ onComplete }) => (
   <div className="text-center">
@@ -429,6 +558,10 @@ const OnboardingFlow = ({ onComplete }) => {
         return <ProfileStep onNext={handleNext} onPrev={handlePrev} />;
       case 'PreferencesStep':
         return <PreferencesStep onNext={handleNext} onPrev={handlePrev} />;
+      case 'FirstTaskStep':
+        return <FirstTaskStep onNext={handleNext} onPrev={handlePrev} />;
+      case 'FeaturesStep':
+        return <FeaturesStep onNext={handleNext} onPrev={handlePrev} />;
       case 'CompleteStep':
         return <CompleteStep onComplete={handleComplete} />;
       default:
