@@ -40,24 +40,34 @@ router.get('/', auth, async (req, res) => {
       query.team = teamId;
     }
 
-    if (status) {
+    if (status && status !== 'all') {
       query.status = status;
     }
 
-    if (priority) {
+    if (priority && priority !== 'all') {
       query.priority = priority;
     }
 
     const projects = await Project.find(query)
       .populate('team', 'name')
-      .populate('owner', 'name email avatar')
-      .populate('members.user', 'name email avatar')
+      .populate('owner', 'fullname username email avatar')
+      .populate('members.user', 'fullname username email avatar')
       .sort({ createdAt: -1 });
 
-    res.json(projects);
+    res.json({
+      success: true,
+      data: projects,
+      message: 'Projects fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching projects:', error);
-    res.status(500).json({ error: 'Failed to fetch projects' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to fetch projects',
+        code: 'FETCH_ERROR'
+      }
+    });
   }
 });
 

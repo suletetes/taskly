@@ -3,8 +3,23 @@ import User from '../models/User.js';
 import Team from '../models/Team.js';
 import Project from '../models/Project.js';
 
-// Basic authentication middleware
-const auth = async (req, res, next) => {
+// Session-based authentication middleware (for Passport)
+const auth = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  
+  return res.status(401).json({ 
+    success: false,
+    error: {
+      message: 'Not authenticated',
+      code: 'UNAUTHORIZED'
+    }
+  });
+};
+
+// JWT-based authentication middleware (for API tokens if needed)
+const jwtAuth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -262,7 +277,8 @@ const validateOwnershipTransfer = async (req, res, next) => {
 
 export {
   auth,
-  auth as authenticateToken, // Alias for compatibility
+  auth as authenticateToken, // Alias for compatibility - now uses session auth
+  jwtAuth, // JWT-based auth for API tokens
   teamAuth,
   projectAuth,
   requireRole,

@@ -182,7 +182,7 @@ const logout = (req, res) => {
                 });
             }
 
-            res.clearCookie('connect.sid'); // Clear session cookie
+            res.clearCookie('taskly.sid'); // Clear session cookie (matches server.js config)
             res.json({
                 success: true,
                 message: 'Logout successful'

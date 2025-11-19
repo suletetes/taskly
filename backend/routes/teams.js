@@ -27,14 +27,24 @@ router.get('/', auth, async (req, res) => {
         { owner: req.user.id }
       ]
     })
-    .populate('owner', 'name email avatar')
-    .populate('members.user', 'name email avatar')
+    .populate('owner', 'fullname username email avatar')
+    .populate('members.user', 'fullname username email avatar')
     .sort({ createdAt: -1 });
 
-    res.json(teams);
+    res.json({
+      success: true,
+      data: teams,
+      message: 'Teams fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching teams:', error);
-    res.status(500).json({ error: 'Failed to fetch teams' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to fetch teams',
+        code: 'FETCH_ERROR'
+      }
+    });
   }
 });
 
