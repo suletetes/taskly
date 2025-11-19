@@ -158,7 +158,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                       item={{ name: 'All Teams', href: '/teams', icon: UsersIcon }} 
                       isSubItem 
                     />
-                    {teams?.slice(0, 5).map((team) => (
+                    {teams?.filter(t => t && t._id && t.name).slice(0, 5).map((team) => (
                       <NavItem
                         key={team._id}
                         item={{
@@ -203,7 +203,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                       item={{ name: 'All Projects', href: '/projects', icon: FolderIcon }} 
                       isSubItem 
                     />
-                    {projects?.slice(0, 5).map((project) => (
+                    {projects?.filter(p => p && p._id && p.name).slice(0, 5).map((project) => (
                       <NavItem
                         key={project._id}
                         item={{
@@ -342,7 +342,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                         mobile 
                         isSubItem 
                       />
-                      {teams?.slice(0, 3).map((team) => (
+                      {teams?.filter(t => t && t._id && t.name).slice(0, 3).map((team) => (
                         <NavItem
                           key={team._id}
                           item={{
