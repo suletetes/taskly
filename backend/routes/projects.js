@@ -76,12 +76,18 @@ router.get('/:id', auth, projectAuth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate('team', 'name members')
-      .populate('owner', 'name email avatar')
-      .populate('members.user', 'name email avatar lastActive')
+      .populate('owner', 'fullname username email avatar')
+      .populate('members.user', 'fullname username email avatar lastActive')
       .populate('tasks');
 
     if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Project not found',
+          code: 'PROJECT_NOT_FOUND'
+        }
+      });
     }
 
     res.json(project);

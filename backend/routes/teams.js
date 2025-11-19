@@ -52,15 +52,25 @@ router.get('/', auth, async (req, res) => {
 router.get('/:id', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id)
-      .populate('owner', 'name email avatar')
-      .populate('members.user', 'name email avatar lastActive')
+      .populate('owner', 'fullname username email avatar')
+      .populate('members.user', 'fullname username email avatar lastActive')
       .populate('projects');
 
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
-    res.json(team);
+    res.json({
+      success: true,
+      data: team,
+      message: 'Team fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching team:', error);
     res.status(500).json({ error: 'Failed to fetch team' });

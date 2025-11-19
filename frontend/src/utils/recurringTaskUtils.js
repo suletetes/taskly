@@ -130,4 +130,9 @@ export const getRecurringSummary = (pattern) => {
   // End condition
   if (pattern.endType === END_TYPES.AFTER) {
     summary += `, ${pattern.endAfter} times`;
-  } else if (pattern.endType === END_TY
+  } else if (pattern.endType === END_TYPES.ON && pattern.endOn) {
+    summary += `, until ${format(new Date(pattern.endOn), 'MMM d, yyyy')}`;
+  }
+  
+  return summary;
+};
