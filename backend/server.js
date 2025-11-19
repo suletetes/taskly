@@ -39,26 +39,38 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
       process.env.CLIENT_URL,
       process.env.PRODUCTION_CLIENT_URL,
       process.env.CORS_ORIGIN
     ].filter(Boolean);
     
-    // In development, allow localhost
+    // In development, be more permissive
     if (process.env.NODE_ENV !== 'production') {
-      allowedOrigins.push('http://localhost:3000', 'http://127.0.0.1:3000');
+      // Allow all localhost and 127.0.0.1 origins in development
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return callback(null, true);
+      }
     }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
+      // In development, allow anyway but log warning
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`CORS allowing origin in development: ${origin}`);
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
+        callback(new Error('Not allowed by CORS'));
+      }
     }
   },
   credentials: true, // This is crucial for session cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['set-cookie'],
   preflightContinue: false,
   optionsSuccessStatus: 200
 };

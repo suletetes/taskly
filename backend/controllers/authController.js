@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import passport from 'passport';
 import { hashPassword } from '../utils/password.js';
+import { sendEmail } from '../config/email.js';
+import { welcomeEmail } from '../utils/emailTemplates.js';
 
 /**
  * Register a new user
@@ -41,6 +43,20 @@ const register = async (req, res) => {
         });
 
         await newUser.save();
+
+        // Send welcome email (non-blocking)
+        try {
+            const emailTemplate = welcomeEmail(newUser.fullname, newUser.email);
+            await sendEmail({
+                to: newUser.email,
+                subject: emailTemplate.subject,
+                html: emailTemplate.html
+            });
+            console.log('✅ Welcome email sent to:', newUser.email);
+        } catch (emailError) {
+            // Don't fail registration if email fails
+            console.error('⚠️  Failed to send welcome email:', emailError.message);
+        }
 
         // Auto-login after registration
         req.logIn(newUser, (err) => {

@@ -331,7 +331,7 @@ const deleteUser = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const userId = req.user._id; // Get from authenticated user
-        const { fullname, username, email, avatar } = req.body;
+        const { fullname, username, email, avatar, bio, timezone, jobTitle, company, onboarding } = req.body;
 
         // Find the user
         const user = await User.findById(userId);
@@ -350,6 +350,20 @@ const updateProfile = async (req, res) => {
         if (username !== undefined) user.username = username;
         if (email !== undefined) user.email = email;
         if (avatar !== undefined) user.avatar = avatar;
+        if (bio !== undefined) user.bio = bio;
+        if (timezone !== undefined) user.timezone = timezone;
+        if (jobTitle !== undefined) user.jobTitle = jobTitle;
+        if (company !== undefined) user.company = company;
+        
+        // Update onboarding status
+        if (onboarding !== undefined) {
+            if (onboarding.completed !== undefined) user.onboarding.completed = onboarding.completed;
+            if (onboarding.currentStep !== undefined) user.onboarding.currentStep = onboarding.currentStep;
+            if (onboarding.completedSteps !== undefined) user.onboarding.completedSteps = onboarding.completedSteps;
+            if (onboarding.completed && !user.onboarding.completedAt) {
+                user.onboarding.completedAt = new Date();
+            }
+        }
 
         await user.save();
 
