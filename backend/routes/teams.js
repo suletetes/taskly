@@ -73,7 +73,13 @@ router.get('/:id', auth, teamAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching team:', error);
-    res.status(500).json({ error: 'Failed to fetch team' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to fetch team',
+        code: 'FETCH_ERROR'
+      }
+    });
   }
 });
 
@@ -82,7 +88,14 @@ router.post('/', auth, validateTeam, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: errors.array()
+        }
+      });
     }
 
     const { name, description, isPrivate = false } = req.body;
@@ -97,7 +110,13 @@ router.post('/', auth, validateTeam, async (req, res) => {
     });
 
     if (existingTeam) {
-      return res.status(400).json({ error: 'Team name already exists' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Team name already exists',
+          code: 'DUPLICATE_TEAM'
+        }
+      });
     }
 
     // Generate invite code
@@ -117,13 +136,23 @@ router.post('/', auth, validateTeam, async (req, res) => {
     });
 
     await team.save();
-    await team.populate('owner', 'name email avatar');
-    await team.populate('members.user', 'name email avatar');
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
 
-    res.status(201).json(team);
+    res.status(201).json({
+      success: true,
+      data: team,
+      message: 'Team created successfully'
+    });
   } catch (error) {
     console.error('Error creating team:', error);
-    res.status(500).json({ error: 'Failed to create team' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to create team',
+        code: 'CREATE_ERROR'
+      }
+    });
   }
 });
 
@@ -132,37 +161,66 @@ router.put('/:id', auth, teamAuth, validateTeam, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: errors.array()
+        }
+      });
     }
 
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     // Check if user has permission to update team
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions to update team' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to update team',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     const { name, description, isPrivate } = req.body;
     
     team.name = name;
-    team.description = description;
-    team.isPrivate = isPrivate;
+    team.description = descr
+
     team.updatedAt = new Date();
 
-    await team.save();
-    await team.populate('owner', 'name email avatar');
-    await team.populate('members.user', 'name email avatar');
+    awave();
+    await team.populate('owner', 'fullname username 
+    await team.p');
 
-    res.json(team);
-  } catch (error) {
-    console.error('Error updating team:', error);
-    res.status(500).json({ error: 'Failed to update team' });
+    r.json({
+
+      data: team,
+      message: 'Team updated successfully'
+    });
+  } cor) {
+ror);
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to update team',
+        code: 'UPDATE_ERROR'
+     }
+   ;
   }
-});
+}); })  team:', eratingrror upd'Er(e.erro consol   tch (erracess: true,suc      esl avatare emainamername us 'fullers.user',pulate('membotar');il avaemaam.sait teate;ive = isPrvateam.isPri    tion;ipt
 
 // DELETE /api/teams/:id - Delete team
 router.delete('/:id', auth, teamAuth, async (req, res) => {

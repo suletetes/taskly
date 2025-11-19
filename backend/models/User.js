@@ -57,6 +57,34 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "UTC",
     },
+    jobTitle: {
+        type: String,
+        default: "",
+    },
+    company: {
+        type: String,
+        default: "",
+    },
+    
+    // Onboarding tracking
+    onboarding: {
+        completed: {
+            type: Boolean,
+            default: false,
+        },
+        currentStep: {
+            type: Number,
+            default: 0,
+        },
+        completedSteps: {
+            type: [Number],
+            default: [],
+        },
+        completedAt: {
+            type: Date,
+            default: null,
+        },
+    },
     
     // User preferences
     preferences: {
