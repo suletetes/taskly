@@ -31,7 +31,8 @@ const TeamDashboardPage = () => {
     if (teamId) {
       fetchTeam(teamId);
     }
-  }, [teamId, fetchTeam]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId]);
 
   const handleCreateProject = () => {
     navigate(`/teams/${teamId}/projects/new`);

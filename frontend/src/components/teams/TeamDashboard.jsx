@@ -52,10 +52,11 @@ const TeamDashboard = ({ teamId }) => {
     if (teamId) {
       fetchTeam(teamId);
       fetchTeamStats(teamId);
-      fetchTeamActivity(teamId, { limit: 10 });
+      // fetchTeamActivity(teamId, { limit: 10 }); // TODO: Implement activity endpoint
       fetchProjects({ teamId });
     }
-  }, [teamId, fetchTeam, fetchTeamStats, fetchTeamActivity, fetchProjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId]);
 
   // Process dashboard data
   useEffect(() => {

@@ -20,7 +20,8 @@ const Teams = () => {
     if (user) {
       fetchTeams();
     }
-  }, [user, fetchTeams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleTeamClick = (team) => {
     navigate(`/teams/${team._id}`);
