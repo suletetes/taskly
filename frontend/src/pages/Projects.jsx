@@ -25,7 +25,8 @@ const Projects = () => {
     if (user) {
       fetchProjects();
     }
-  }, [user, fetchProjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleProjectClick = (project) => {
     navigate(`/projects/${project._id}`);

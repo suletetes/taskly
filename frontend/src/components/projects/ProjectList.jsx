@@ -42,7 +42,8 @@ const ProjectList = ({ teamId, onProjectSelect, onCreateProject, showCreateButto
     } else {
       fetchProjects();
     }
-  }, [teamId, fetchProjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId]);
 
   // Filter and sort projects
   const processedProjects = React.useMemo(() => {
