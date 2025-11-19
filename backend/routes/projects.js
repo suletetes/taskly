@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import Project from '../models/Project.js';
+import Team from '../models/Team.js';
+import Task from '../models/Task.js';
+import { auth, teamAuth, projectAuth } from '../middleware/auth.js';
+import { body, validationResult } from 'express-validator';
+
 const router = express.Router();
-const Project = require('../models/Project');
-const Team = require('../models/Team');
-const Task = require('../models/Task');
-const { auth, teamAuth, projectAuth } = require('../middleware/auth');
-const { body, validationResult } = require('express-validator');
 
 // Validation middleware
 const validateProject = [
@@ -484,4 +485,4 @@ router.post('/:id/archive', auth, projectAuth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
