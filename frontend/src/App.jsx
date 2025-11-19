@@ -17,7 +17,9 @@ import { ErrorProvider } from './context/ErrorContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { AppStateProvider } from './context/AppStateContext';
 import { TeamProvider, useTeam } from './context/TeamContext';
+import { TaskProvider } from './context/TaskContext';
 import { ProjectProvider } from './context/ProjectContext';
+import { CalendarProvider } from './context/CalendarContext';
 
 // Lazy-loaded pages
 const Home = React.lazy(() => import('./pages/Home'));
@@ -175,9 +177,11 @@ const App = () => {
               <AnalyticsProvider>
                 <AppStateProvider>
                   <TeamProvider>
-                    <ProjectProvider>
-                      <Router future={{ v7_startTransition: true }}>
-                        <div className="App">
+                    <TaskProvider>
+                      <ProjectProvider>
+                        <CalendarProvider>
+                          <Router future={{ v7_startTransition: true }}>
+                            <div className="App">
                       <Routes>
                         {/* Public Routes */}
                         <Route path="/" element={
@@ -344,8 +348,10 @@ const App = () => {
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Routes>
                         </div>
-                      </Router>
-                    </ProjectProvider>
+                          </Router>
+                        </CalendarProvider>
+                      </ProjectProvider>
+                    </TaskProvider>
                   </TeamProvider>
                 </AppStateProvider>
               </AnalyticsProvider>
