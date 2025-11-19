@@ -201,4 +201,77 @@ const ProjectList = ({ teamId, onProjectSelect, onCreateProject, showCreateButto
               onChange={(value) => handleFilterChange('priority', value)}
             />
             {!teamId && (
-   
+              <FilterDropdown
+                label="Team"
+                value={filters.teamId || 'all'}
+                options={teamOptions}
+                onChange={(value) => handleFilterChange('teamId', value)}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* View Mode Toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-lg transition-colors ${
+              viewMode === 'grid'
+                ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-600'
+                : 'text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-700'
+            }`}
+          >
+            <ViewColumnsIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-lg transition-colors ${
+              viewMode === 'list'
+                ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-600'
+                : 'text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-700'
+            }`}
+          >
+            <ListBulletIcon className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Projects Grid/List */}
+      {processedProjects.length > 0 ? (
+        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+          <AnimatePresence>
+            {processedProjects.map((project, index) => (
+              <motion.div
+                key={project._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <ProjectCard
+                  project={project}
+                  onClick={handleProjectClick}
+                  viewMode={viewMode}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      ) : (
+        <EmptyState
+          icon={ChartBarIcon}
+          title="No projects found"
+          description={
+            filters.search || filters.status !== 'all' || filters.priority !== 'all'
+              ? 'Try adjusting your filters to see more projects.'
+              : 'Create your first project to get started.'
+          }
+          action={showCreateButton ? handleCreateProject : undefined}
+          actionLabel={showCreateButton ? 'Create Project' : undefined}
+        />
+      )}
+    </div>
+  );
+};
+
+export default ProjectList;
