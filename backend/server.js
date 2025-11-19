@@ -105,12 +105,18 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import taskRoutes from './routes/tasks.js';
 import uploadRoutes from './routes/upload.js';
+import teamRoutes from './routes/teams.js';
+import projectRoutes from './routes/projects.js';
+import calendarRoutes from './routes/calendar.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 app.get('/api/health', (req, res) => {
   const healthCheck = {
