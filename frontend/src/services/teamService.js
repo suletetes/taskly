@@ -15,11 +15,24 @@ class TeamService {
   async getTeams() {
     try {
       const response = await api.get(this.baseURL);
-      return {
-        success: true,
-        data: response.data,
-        message: 'Teams fetched successfully'
-      };
+      
+      // Handle both response formats
+      const responseData = response.data;
+      if (responseData.success !== undefined) {
+        // Backend returns { success, data, message }
+        return {
+          success: responseData.success,
+          data: responseData.data || [],
+          message: responseData.message || 'Teams fetched successfully'
+        };
+      } else {
+        // Fallback for direct data response
+        return {
+          success: true,
+          data: Array.isArray(responseData) ? responseData : [],
+          message: 'Teams fetched successfully'
+        };
+      }
     } catch (error) {
       return this.handleError(error, 'Failed to fetch teams');
     }
@@ -37,12 +50,26 @@ class TeamService {
       }
 
       const response = await api.get(`${this.baseURL}/${teamId}`);
-      return {
-        success: true,
-        data: response.data,
-        message: 'Team fetched successfully'
-      };
+      
+      // Handle both response formats
+      const responseData = response.data;
+      if (responseData.success !== undefined) {
+        // Backend returns { success, data, message }
+        return {
+          success: responseData.success,
+          data: responseData.data,
+          message: responseData.message || 'Team fetched successfully'
+        };
+      } else {
+        // Fallback for direct data response
+        return {
+          success: true,
+          data: responseData,
+          message: 'Team fetched successfully'
+        };
+      }
     } catch (error) {
+      console.error('❌ [TeamService] Error:', error.message);
       return this.handleError(error, 'Failed to fetch team');
     }
   }
@@ -524,7 +551,16 @@ class TeamService {
     if (error.response) {
       // Server responded with error status
       statusCode = error.response.status;
-      message = error.response.data?.error || error.response.data?.message || defaultMessage;
+      // Handle new error format { success, error: { message, code } }
+      if (error.response.data?.error?.message) {
+        message = error.response.data.error.message;
+      } else if (error.response.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response.data?.error) {
+        message = error.response.data.error;
+      } else {
+        message = defaultMessage;
+      }
       
       // Handle validation errors
       if (error.response.data?.errors && Array.isArray(error.response.data.errors)) {
@@ -542,7 +578,7 @@ class TeamService {
 
     return {
       success: false,
-      data: null,
+      data: [],
       message,
       statusCode,
       error: error.message || defaultMessage

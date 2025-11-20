@@ -27,11 +27,23 @@ class ProjectService {
       const url = params.toString() ? `${this.baseURL}?${params.toString()}` : this.baseURL;
       const response = await api.get(url);
       
-      return {
-        success: true,
-        data: response.data,
-        message: 'Projects fetched successfully'
-      };
+      // Handle both response formats
+      const responseData = response.data;
+      if (responseData.success !== undefined) {
+        // Backend returns { success, data, message }
+        return {
+          success: responseData.success,
+          data: responseData.data || [],
+          message: responseData.message || 'Projects fetched successfully'
+        };
+      } else {
+        // Fallback for direct data response
+        return {
+          success: true,
+          data: Array.isArray(responseData) ? responseData : [],
+          message: 'Projects fetched successfully'
+        };
+      }
     } catch (error) {
       return this.handleError(error, 'Failed to fetch projects');
     }
@@ -49,12 +61,26 @@ class ProjectService {
       }
 
       const response = await api.get(`${this.baseURL}/${projectId}`);
-      return {
-        success: true,
-        data: response.data,
-        message: 'Project fetched successfully'
-      };
+      
+      // Handle both response formats
+      const responseData = response.data;
+      if (responseData.success !== undefined) {
+        // Backend returns { success, data, message }
+        return {
+          success: responseData.success,
+          data: responseData.data,
+          message: responseData.message || 'Project fetched successfully'
+        };
+      } else {
+        // Fallback for direct data response
+        return {
+          success: true,
+          data: responseData,
+          message: 'Project fetched successfully'
+        };
+      }
     } catch (error) {
+      console.error('❌ [ProjectService] Error:', error.message);
       return this.handleError(error, 'Failed to fetch project');
     }
   }
@@ -655,7 +681,16 @@ class ProjectService {
 
     if (error.response) {
       statusCode = error.response.status;
-      message = error.response.data?.error || error.response.data?.message || defaultMessage;
+      // Handle new error format { success, error: { message, code } }
+      if (error.response.data?.error?.message) {
+        message = error.response.data.error.message;
+      } else if (error.response.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response.data?.error) {
+        message = error.response.data.error;
+      } else {
+        message = defaultMessage;
+      }
       
       if (error.response.data?.errors && Array.isArray(error.response.data.errors)) {
         message = error.response.data.errors.map(err => err.msg).join(', ');
@@ -670,7 +705,7 @@ class ProjectService {
 
     return {
       success: false,
-      data: null,
+      data: [],
       message,
       statusCode,
       error: error.message || defaultMessage
