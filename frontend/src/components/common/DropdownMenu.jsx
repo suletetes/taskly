@@ -65,7 +65,7 @@ const DropdownMenu = ({
             className={`absolute z-50 mt-2 min-w-[200px] bg-white dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg shadow-lg overflow-hidden ${alignmentClasses[align]}`}
           >
             <div className="py-1">
-              {items.map((item, index) => {
+              {items && Array.isArray(items) && items.map((item, index) => {
                 if (item.divider) {
                   return (
                     <div

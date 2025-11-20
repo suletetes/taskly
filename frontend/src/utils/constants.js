@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-  TIMEOUT: 10000,
+  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  TIMEOUT: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
   RETRY_ATTEMPTS: 2,
   RETRY_DELAY: 1000
 }
@@ -24,8 +24,38 @@ export const TASK_PRIORITY = {
 // Pagination Constants
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
-  DEFAULT_LIMIT: 10,
+  DEFAULT_LIMIT: parseInt(import.meta.env.VITE_ITEMS_PER_PAGE) || 10,
   MAX_LIMIT: 100
+}
+
+// Team & Project Configuration
+export const TEAM_CONFIG = {
+  MAX_MEMBERS: parseInt(import.meta.env.VITE_MAX_TEAM_MEMBERS) || 50,
+  MAX_PROJECTS: parseInt(import.meta.env.VITE_MAX_PROJECTS_PER_TEAM) || 10,
+  INVITE_CODE_LENGTH: 16
+}
+
+export const PROJECT_CONFIG = {
+  MAX_MEMBERS: parseInt(import.meta.env.VITE_MAX_PROJECT_MEMBERS) || 20,
+  MAX_TASKS: 1000,
+  MAX_MILESTONES: 20
+}
+
+// File Upload Configuration
+export const FILE_CONFIG = {
+  MAX_SIZE: parseInt(import.meta.env.VITE_MAX_FILE_SIZE) || 5242880, // 5MB
+  ALLOWED_TYPES: (import.meta.env.VITE_ALLOWED_FILE_TYPES || 'image/jpeg,image/png,image/gif,image/webp').split(','),
+  MAX_FILES: 10
+}
+
+// Feature Flags
+export const FEATURES = {
+  TEAMS: import.meta.env.VITE_ENABLE_TEAMS === 'true',
+  PROJECTS: import.meta.env.VITE_ENABLE_PROJECTS === 'true',
+  CALENDAR: import.meta.env.VITE_ENABLE_CALENDAR === 'true',
+  ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
+  NOTIFICATIONS: import.meta.env.VITE_ENABLE_NOTIFICATIONS === 'true',
+  DARK_MODE: import.meta.env.VITE_ENABLE_DARK_MODE === 'true'
 }
 
 // Local Storage Keys
@@ -105,6 +135,11 @@ export const ROUTES = {
   PROFILE: '/profile',
   USERS: '/users',
   TASKS: '/tasks',
+  CALENDAR: '/calendar',
+  TEAMS: '/teams',
+  PROJECTS: '/projects',
+  ANALYTICS: '/analytics',
+  SETTINGS: '/settings',
   ABOUT: '/about'
 }
 
