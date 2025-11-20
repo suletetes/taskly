@@ -1,6 +1,7 @@
 import express from 'express';
 import Team from '../models/Team.js';
 import User from '../models/User.js';
+import Task from '../models/Task.js';
 import { auth, teamAuth } from '../middleware/auth.js';
 import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
@@ -656,7 +657,6 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
     }
 
     // Get all tasks for team projects
-    const Task = require('../models/Task');
     const projectIds = team.projects ? team.projects.map(p => p._id) : [];
     
     const allTasks = await Task.find({ project: { $in: projectIds } });
