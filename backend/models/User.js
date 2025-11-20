@@ -216,6 +216,16 @@ const userSchema = new mongoose.Schema({
             default: ['read', 'create'],
         },
     }],
+    
+    // Password reset fields
+    resetPasswordToken: {
+        type: String,
+        default: undefined,
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: undefined,
+    },
 });
 
 // Pre-save hook for unique username validation and updated_at

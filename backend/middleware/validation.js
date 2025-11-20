@@ -194,6 +194,7 @@ const updateProfileSchema = Joi.object({
     .min(2)
     .max(50)
     .optional()
+    .allow('')
     .messages({
       'string.min': 'Full name must be at least 2 characters long',
       'string.max': 'Full name cannot exceed 50 characters'
@@ -221,9 +222,44 @@ const updateProfileSchema = Joi.object({
   avatar: Joi.string()
     .uri()
     .optional()
+    .allow('')
     .messages({
       'string.uri': 'Avatar must be a valid URL'
-    })
+    }),
+
+  bio: Joi.string()
+    .max(500)
+    .optional()
+    .allow('')
+    .messages({
+      'string.max': 'Bio cannot exceed 500 characters'
+    }),
+
+  jobTitle: Joi.string()
+    .max(100)
+    .optional()
+    .allow('')
+    .messages({
+      'string.max': 'Job title cannot exceed 100 characters'
+    }),
+
+  company: Joi.string()
+    .max(100)
+    .optional()
+    .allow('')
+    .messages({
+      'string.max': 'Company name cannot exceed 100 characters'
+    }),
+
+  timezone: Joi.string()
+    .optional()
+    .allow(''),
+
+  onboarding: Joi.object({
+    completed: Joi.boolean().optional(),
+    currentStep: Joi.number().optional(),
+    completedSteps: Joi.array().items(Joi.number()).optional()
+  }).optional()
 });
 
 // Password change validation schema
