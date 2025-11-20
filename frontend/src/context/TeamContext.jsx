@@ -394,10 +394,12 @@ export const TeamProvider = ({ children }) => {
       if (result.success) {
         dispatch({
           type: ActionTypes.SET_TEAMS,
-          payload: { teams: result.data, total: result.data.length }
+          payload: { teams: result.data || [], total: (result.data || []).length }
         });
         return result;
       } else {
+        // Set loading to false on error
+        setLoading('teams', false);
         if (showErrors) {
           setError('teams', result.message);
           showNotification({
@@ -405,10 +407,17 @@ export const TeamProvider = ({ children }) => {
             message: result.message
           });
         }
+        // Set empty teams array on error
+        dispatch({
+          type: ActionTypes.SET_TEAMS,
+          payload: { teams: [], total: 0 }
+        });
         return result;
       }
     } catch (error) {
       const errorMessage = 'Failed to fetch teams';
+      // Set loading to false on error
+      setLoading('teams', false);
       if (showErrors) {
         setError('teams', errorMessage);
         showNotification({
@@ -416,6 +425,11 @@ export const TeamProvider = ({ children }) => {
           message: errorMessage
         });
       }
+      // Set empty teams array on error
+      dispatch({
+        type: ActionTypes.SET_TEAMS,
+        payload: { teams: [], total: 0 }
+      });
       return { success: false, message: errorMessage };
     }
   }, [setLoading, setError, showNotification]);
@@ -967,12 +981,14 @@ export const TeamProvider = ({ children }) => {
     return permissions[role]?.includes(action) || permissions[role]?.includes('all');
   }, [getUserRoleInTeam]);
 
-  // Auto-fetch teams when user changes
-  useEffect(() => {
-    if (user && state.teams.length === 0) {
-      fetchTeams({ showLoading: true, showErrors: false });
-    }
-  }, [user, fetchTeams, state.teams.length]);
+  // Auto-fetch teams when user changes (disabled to prevent infinite loops)
+  // Teams are fetched manually from the Teams page
+  // useEffect(() => {
+  //   if (user && state.teams.length === 0) {
+  //     fetchTeams({ showLoading: true, showErrors: false });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [user]);
 
   // Context value
   const contextValue = {

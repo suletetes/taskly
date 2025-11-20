@@ -60,12 +60,14 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
     { id: 'danger', label: 'Danger Zone', icon: ExclamationTriangleIcon }
   ];
 
-  // Load team data when modal opens
+  // Load team data when modal opens (only if not already loaded)
   useEffect(() => {
-    if (isOpen && teamId) {
+    if (isOpen && teamId && (!currentTeam || currentTeam._id !== teamId)) {
+      console.log('⚙️ [TeamSettings] Fetching team');
       fetchTeam(teamId);
     }
-  }, [isOpen, teamId, fetchTeam]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, teamId]);
 
   // Update form data when team loads
   useEffect(() => {
