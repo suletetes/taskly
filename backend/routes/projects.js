@@ -112,7 +112,14 @@ router.post('/', auth, validateProject, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: errors.array()
+        }
+      });
     }
 
     const { name, description, teamId, startDate, endDate, priority = 'medium', status = 'planning' } = req.body;
@@ -120,17 +127,35 @@ router.post('/', auth, validateProject, async (req, res) => {
     // Verify team exists and user has permission
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions to create project in this team' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to create project in this team',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     // Validate dates
     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      return res.status(400).json({ error: 'Start date cannot be after end date' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Start date cannot be after end date',
+          code: 'INVALID_DATE_RANGE'
+        }
+      });
     }
 
     const project = new Project({
@@ -157,13 +182,23 @@ router.post('/', auth, validateProject, async (req, res) => {
     await team.save();
 
     await project.populate('team', 'name');
-    await project.populate('owner', 'name email avatar');
-    await project.populate('members.user', 'name email avatar');
+    await project.populate('owner', 'fullname username email avatar');
+    await project.populate('members.user', 'fullname username email avatar');
 
-    res.status(201).json(project);
+    res.status(201).json({
+      success: true,
+      data: project,
+      message: 'Project created successfully'
+    });
   } catch (error) {
     console.error('Error creating project:', error);
-    res.status(500).json({ error: 'Failed to create project' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to create project',
+        code: 'CREATE_ERROR'
+      }
+    });
   }
 });
 
@@ -172,25 +207,50 @@ router.put('/:id', auth, projectAuth, validateProject, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: errors.array()
+        }
+      });
     }
 
     const project = await Project.findById(req.params.id);
     if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Project not found',
+          code: 'PROJECT_NOT_FOUND'
+        }
+      });
     }
 
     // Check if user has permission to update project
     const userMember = project.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['manager'].includes(userMember.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions to update project' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to update project',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     const { name, description, startDate, endDate, priority, status } = req.body;
 
     // Validate dates
     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      return res.status(400).json({ error: 'Start date cannot be after end date' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Start date cannot be after end date',
+          code: 'INVALID_DATE_RANGE'
+        }
+      });
     }
 
     project.name = name;
@@ -203,13 +263,23 @@ router.put('/:id', auth, projectAuth, validateProject, async (req, res) => {
 
     await project.save();
     await project.populate('team', 'name');
-    await project.populate('owner', 'name email avatar');
-    await project.populate('members.user', 'name email avatar');
+    await project.populate('owner', 'fullname username email avatar');
+    await project.populate('members.user', 'fullname username email avatar');
 
-    res.json(project);
+    res.json({
+      success: true,
+      data: project,
+      message: 'Project updated successfully'
+    });
   } catch (error) {
     console.error('Error updating project:', error);
-    res.status(500).json({ error: 'Failed to update project' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to update project',
+        code: 'UPDATE_ERROR'
+      }
+    });
   }
 });
 
@@ -218,7 +288,13 @@ router.delete('/:id', auth, projectAuth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Project not found',
+          code: 'PROJECT_NOT_FOUND'
+        }
+      });
     }
 
     // Only project owner or team owner can delete project
@@ -227,7 +303,13 @@ router.delete('/:id', auth, projectAuth, async (req, res) => {
     const isProjectOwner = project.owner.toString() === req.user.id;
 
     if (!isProjectOwner && !isTeamOwner) {
-      return res.status(403).json({ error: 'Insufficient permissions to delete project' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to delete project',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     // Remove project from team
@@ -236,14 +318,23 @@ router.delete('/:id', auth, projectAuth, async (req, res) => {
       await team.save();
     }
 
-    // Delete associated tasks (optional - you might want to keep them)
+    // Delete associated tasks
     await Task.deleteMany({ project: req.params.id });
 
     await Project.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Project deleted successfully' });
+    res.json({ 
+      success: true,
+      message: 'Project deleted successfully' 
+    });
   } catch (error) {
     console.error('Error deleting project:', error);
-    res.status(500).json({ error: 'Failed to delete project' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to delete project',
+        code: 'DELETE_ERROR'
+      }
+    });
   }
 });
 

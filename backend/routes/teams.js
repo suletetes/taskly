@@ -72,7 +72,7 @@ router.get('/:id', auth, teamAuth, async (req, res) => {
       message: 'Team fetched successfully'
     });
   } catch (error) {
-    console.error('Error fetching team:', error);
+    console.error('Error fetching team:', error.message);
     res.status(500).json({ 
       success: false,
       error: {
@@ -197,49 +197,74 @@ router.put('/:id', auth, teamAuth, validateTeam, async (req, res) => {
     const { name, description, isPrivate } = req.body;
     
     team.name = name;
-    team.description = descr
-
+    team.description = description;
+    team.isPrivate = isPrivate;
     team.updatedAt = new Date();
 
-    awave();
-    await team.populate('owner', 'fullname username 
-    await team.p');
+    await team.save();
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
 
-    r.json({
-
+    res.json({
+      success: true,
       data: team,
       message: 'Team updated successfully'
     });
-  } cor) {
-ror);
+  } catch (error) {
+    console.error('Error updating team:', error);
     res.status(500).json({ 
       success: false,
       error: {
         message: 'Failed to update team',
         code: 'UPDATE_ERROR'
-     }
-   ;
+      }
+    });
   }
-}); })  team:', eratingrror upd'Er(e.erro consol   tch (erracess: true,suc      esl avatare emainamername us 'fullers.user',pulate('membotar');il avaemaam.sait teate;ive = isPrvateam.isPri    tion;ipt
+});
 
 // DELETE /api/teams/:id - Delete team
 router.delete('/:id', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     // Only owner can delete team
     if (team.owner.toString() !== req.user.id) {
-      return res.status(403).json({ error: 'Only team owner can delete team' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Only team owner can delete team',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
+    // Delete all projects in this team
+    const Project = (await import('../models/Project.js')).default;
+    await Project.deleteMany({ team: req.params.id });
+
     await Team.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Team deleted successfully' });
+    res.json({ 
+      success: true,
+      message: 'Team deleted successfully' 
+    });
   } catch (error) {
     console.error('Error deleting team:', error);
-    res.status(500).json({ error: 'Failed to delete team' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to delete team',
+        code: 'DELETE_ERROR'
+      }
+    });
   }
 });
 
@@ -251,18 +276,37 @@ router.post('/:id/members', auth, teamAuth, [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: errors.array()
+        }
+      });
     }
 
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     // Check if user has permission to add members
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions to add members' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to add members',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     const { userId, role = 'member' } = req.body;
@@ -270,13 +314,25 @@ router.post('/:id/members', auth, teamAuth, [
     // Check if user exists
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'User not found',
+          code: 'USER_NOT_FOUND'
+        }
+      });
     }
 
     // Check if user is already a member
     const existingMember = team.members.find(m => m.user.toString() === userId);
     if (existingMember) {
-      return res.status(400).json({ error: 'User is already a team member' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'User is already a team member',
+          code: 'DUPLICATE_MEMBER'
+        }
+      });
     }
 
     team.members.push({
@@ -286,12 +342,23 @@ router.post('/:id/members', auth, teamAuth, [
     });
 
     await team.save();
-    await team.populate('members.user', 'name email avatar');
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
 
-    res.json(team);
+    res.json({
+      success: true,
+      data: team,
+      message: 'Member added successfully'
+    });
   } catch (error) {
     console.error('Error adding team member:', error);
-    res.status(500).json({ error: 'Failed to add team member' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to add team member',
+        code: 'ADD_MEMBER_ERROR'
+      }
+    });
   }
 });
 
@@ -300,18 +367,37 @@ router.put('/:id/members/:userId', auth, teamAuth, validateMemberRole, async (re
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: errors.array()
+        }
+      });
     }
 
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     // Check if user has permission to update member roles
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions to update member roles' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to update member roles',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     const { role } = req.body;
@@ -320,24 +406,47 @@ router.put('/:id/members/:userId', auth, teamAuth, validateMemberRole, async (re
     // Find member to update
     const memberToUpdate = team.members.find(m => m.user.toString() === userId);
     if (!memberToUpdate) {
-      return res.status(404).json({ error: 'Member not found in team' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Member not found in team',
+          code: 'MEMBER_NOT_FOUND'
+        }
+      });
     }
 
     // Prevent changing owner role
     if (memberToUpdate.role === 'owner' || role === 'owner') {
-      return res.status(400).json({ error: 'Cannot change owner role' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Cannot change owner role',
+          code: 'INVALID_OPERATION'
+        }
+      });
     }
 
     memberToUpdate.role = role;
     team.updatedAt = new Date();
 
     await team.save();
-    await team.populate('members.user', 'name email avatar');
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
 
-    res.json(team);
+    res.json({
+      success: true,
+      data: team,
+      message: 'Member role updated successfully'
+    });
   } catch (error) {
     console.error('Error updating member role:', error);
-    res.status(500).json({ error: 'Failed to update member role' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to update member role',
+        code: 'UPDATE_ROLE_ERROR'
+      }
+    });
   }
 });
 
@@ -346,7 +455,13 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     const { userId } = req.params;
@@ -356,30 +471,67 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
     const isRemovingSelf = userId === req.user.id;
     
     if (!isRemovingSelf && (!userMember || !['owner', 'admin'].includes(userMember.role))) {
-      return res.status(403).json({ error: 'Insufficient permissions to remove members' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to remove members',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     // Find member to remove
     const memberToRemove = team.members.find(m => m.user.toString() === userId);
     if (!memberToRemove) {
-      return res.status(404).json({ error: 'Member not found in team' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Member not found in team',
+          code: 'MEMBER_NOT_FOUND'
+        }
+      });
     }
 
     // Prevent removing owner
     if (memberToRemove.role === 'owner') {
-      return res.status(400).json({ error: 'Cannot remove team owner' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'Cannot remove team owner',
+          code: 'INVALID_OPERATION'
+        }
+      });
+    }
+
+    // Remove member from all projects in this team
+    const Project = (await import('../models/Project.js')).default;
+    const teamProjects = await Project.find({ team: req.params.id });
+    for (const project of teamProjects) {
+      project.members = project.members.filter(m => m.user.toString() !== userId);
+      await project.save();
     }
 
     team.members = team.members.filter(m => m.user.toString() !== userId);
     team.updatedAt = new Date();
 
     await team.save();
-    await team.populate('members.user', 'name email avatar');
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
 
-    res.json(team);
+    res.json({
+      success: true,
+      data: team,
+      message: 'Member removed successfully'
+    });
   } catch (error) {
     console.error('Error removing team member:', error);
-    res.status(500).json({ error: 'Failed to remove team member' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to remove team member',
+        code: 'REMOVE_MEMBER_ERROR'
+      }
+    });
   }
 });
 
@@ -390,13 +542,25 @@ router.post('/join/:inviteCode', auth, async (req, res) => {
 
     const team = await Team.findOne({ inviteCode });
     if (!team) {
-      return res.status(404).json({ error: 'Invalid invite code' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Invalid invite code',
+          code: 'INVALID_INVITE_CODE'
+        }
+      });
     }
 
     // Check if user is already a member
     const existingMember = team.members.find(m => m.user.toString() === req.user.id);
     if (existingMember) {
-      return res.status(400).json({ error: 'You are already a member of this team' });
+      return res.status(400).json({ 
+        success: false,
+        error: {
+          message: 'You are already a member of this team',
+          code: 'ALREADY_MEMBER'
+        }
+      });
     }
 
     team.members.push({
@@ -406,13 +570,23 @@ router.post('/join/:inviteCode', auth, async (req, res) => {
     });
 
     await team.save();
-    await team.populate('owner', 'name email avatar');
-    await team.populate('members.user', 'name email avatar');
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
 
-    res.json(team);
+    res.json({
+      success: true,
+      data: team,
+      message: 'Successfully joined team'
+    });
   } catch (error) {
     console.error('Error joining team:', error);
-    res.status(500).json({ error: 'Failed to join team' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to join team',
+        code: 'JOIN_TEAM_ERROR'
+      }
+    });
   }
 });
 
@@ -421,13 +595,25 @@ router.post('/:id/regenerate-invite', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     // Check if user has permission to regenerate invite code
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions to regenerate invite code' });
+      return res.status(403).json({ 
+        success: false,
+        error: {
+          message: 'Insufficient permissions to regenerate invite code',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        }
+      });
     }
 
     team.inviteCode = crypto.randomBytes(8).toString('hex');
@@ -435,10 +621,20 @@ router.post('/:id/regenerate-invite', auth, teamAuth, async (req, res) => {
 
     await team.save();
 
-    res.json({ inviteCode: team.inviteCode });
+    res.json({ 
+      success: true,
+      data: { inviteCode: team.inviteCode },
+      message: 'Invite code regenerated successfully'
+    });
   } catch (error) {
     console.error('Error regenerating invite code:', error);
-    res.status(500).json({ error: 'Failed to regenerate invite code' });
+    res.status(500).json({ 
+      success: false,
+      error: {
+        message: 'Failed to regenerate invite code',
+        code: 'REGENERATE_ERROR'
+      }
+    });
   }
 });
 
@@ -447,10 +643,16 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id)
       .populate('projects')
-      .populate('members.user', 'name email avatar');
+      .populate('members.user', 'fullname username email avatar lastActive');
 
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: {
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
+      });
     }
 
     // Calculate team statistics
