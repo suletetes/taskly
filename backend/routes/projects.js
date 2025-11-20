@@ -493,7 +493,7 @@ router.get('/:id/tasks', auth, projectAuth, async (req, res) => {
 
     const tasks = await Task.find(query)
       .populate('assignee', 'name email avatar')
-      .populate('createdBy', 'name email avatar')
+      .populate('user', 'name email avatar')
       .sort({ createdAt: -1 });
 
     res.json(tasks);
@@ -568,7 +568,11 @@ router.get('/:id/stats', auth, projectAuth, async (req, res) => {
       updatedAt: project.updatedAt
     };
 
-    res.json(stats);
+    res.json({
+      success: true,
+      data: stats,
+      message: 'Project statistics fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching project stats:', error);
     res.status(500).json({ error: 'Failed to fetch project statistics' });

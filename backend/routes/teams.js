@@ -655,12 +655,27 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
       });
     }
 
+    // Get all tasks for team projects
+    const Task = require('../models/Task');
+    const projectIds = team.projects ? team.projects.map(p => p._id) : [];
+    
+    const allTasks = await Task.find({ project: { $in: projectIds } });
+    const completedTasks = allTasks.filter(t => t.status === 'completed').length;
+    const overdueTasks = allTasks.filter(t => {
+      return t.status !== 'completed' && new Date(t.due) < new Date();
+    }).length;
+
     // Calculate team statistics
     const stats = {
       memberCount: team.members.length,
       projectCount: team.projects ? team.projects.length : 0,
+      activeProjects: team.projects ? team.projects.filter(p => p.status === 'active').length : 0,
+      completedProjects: team.projects ? team.projects.filter(p => p.status === 'completed').length : 0,
+      taskCount: allTasks.length,
+      completedTasks: completedTasks,
+      overdueTasks: overdueTasks,
       activeMembers: team.members.filter(m => {
-        const lastActive = m.user.lastActive;
+        const lastActive = m.user?.lastActive;
         if (!lastActive) return false;
         const daysSinceActive = (Date.now() - new Date(lastActive)) / (1000 * 60 * 60 * 24);
         return daysSinceActive <= 7; // Active in last 7 days

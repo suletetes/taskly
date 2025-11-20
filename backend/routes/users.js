@@ -9,7 +9,9 @@ import {
     updateProfile,
     changePassword,
     uploadAvatar,
-    deleteCurrentUser
+    deleteCurrentUser,
+    requestPasswordReset,
+    resetPassword
 } from '../controllers/userController.js';
 
 import { authenticateToken } from '../middleware/auth.js';
@@ -30,6 +32,20 @@ import {
     getUserProductivityStats,
     getTaskStatusSummary
 } from '../controllers/taskController.js';
+
+/**
+ * @route   POST /api/users/forgot-password
+ * @desc    Request password reset
+ * @access  Public
+ */
+router.post('/forgot-password', requestPasswordReset);
+
+/**
+ * @route   POST /api/users/reset-password/:token
+ * @desc    Reset password with token
+ * @access  Public
+ */
+router.post('/reset-password/:token', resetPassword);
 
 /**
  * @route   GET /api/users/public
