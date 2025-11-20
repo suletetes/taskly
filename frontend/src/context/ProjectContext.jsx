@@ -449,10 +449,12 @@ export const ProjectProvider = ({ children }) => {
       if (result.success) {
         dispatch({
           type: ActionTypes.SET_PROJECTS,
-          payload: { projects: result.data, total: result.data.length }
+          payload: { projects: result.data || [], total: (result.data || []).length }
         });
         return result;
       } else {
+        // Set loading to false on error
+        setLoading('projects', false);
         if (showErrors) {
           setError('projects', result.message);
           showNotification({
@@ -460,10 +462,17 @@ export const ProjectProvider = ({ children }) => {
             message: result.message
           });
         }
+        // Set empty projects array on error
+        dispatch({
+          type: ActionTypes.SET_PROJECTS,
+          payload: { projects: [], total: 0 }
+        });
         return result;
       }
     } catch (error) {
       const errorMessage = 'Failed to fetch projects';
+      // Set loading to false on error
+      setLoading('projects', false);
       if (showErrors) {
         setError('projects', errorMessage);
         showNotification({
@@ -471,6 +480,11 @@ export const ProjectProvider = ({ children }) => {
           message: errorMessage
         });
       }
+      // Set empty projects array on error
+      dispatch({
+        type: ActionTypes.SET_PROJECTS,
+        payload: { projects: [], total: 0 }
+      });
       return { success: false, message: errorMessage };
     }
   }, [setLoading, setError, showNotification]);
@@ -1090,12 +1104,14 @@ export const ProjectProvider = ({ children }) => {
     return permissions[role]?.includes(action) || permissions[role]?.includes('all');
   }, [getUserRoleInProject]);
 
-  // Auto-fetch projects when user changes
-  useEffect(() => {
-    if (user && state.projects.length === 0) {
-      fetchProjects({}, { showLoading: true, showErrors: false });
-    }
-  }, [user, fetchProjects, state.projects.length]);
+  // Auto-fetch projects when user changes (disabled to prevent infinite loops)
+  // Projects are fetched manually from the Projects page
+  // useEffect(() => {
+  //   if (user && state.projects.length === 0) {
+  //     fetchProjects({}, { showLoading: true, showErrors: false });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [user]);
 
   // Context value
   const contextValue = {
