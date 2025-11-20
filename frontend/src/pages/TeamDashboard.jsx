@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,9 +26,12 @@ const TeamDashboardPage = () => {
     fetchTeam,
     canPerformAction 
   } = useTeam();
+  
+  const fetchedRef = useRef(null);
 
   useEffect(() => {
-    if (teamId) {
+    if (teamId && fetchedRef.current !== teamId && (!currentTeam || currentTeam._id !== teamId)) {
+      fetchedRef.current = teamId;
       fetchTeam(teamId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,10 +101,18 @@ const TeamDashboardPage = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          {canPerformAction(teamId, 'create_projects') && (
+          {canPerformAction(teamId, 'create_projects') ? (
             <Button
               onClick={handleCreateProject}
               leftIcon={<PlusIcon className="w-4 h-4" />}
+            >
+              New Project
+            </Button>
+          ) : (
+            <Button
+              disabled
+              leftIcon={<PlusIcon className="w-4 h-4" />}
+              title="You don't have permission to create projects"
             >
               New Project
             </Button>
@@ -115,11 +126,20 @@ const TeamDashboardPage = () => {
             Analytics
           </Button>
 
-          {canPerformAction(teamId, 'manage_team_settings') && (
+          {canPerformAction(teamId, 'manage_team_settings') ? (
             <Button
               variant="secondary"
               onClick={handleTeamSettings}
               leftIcon={<Cog6ToothIcon className="w-4 h-4" />}
+            >
+              Settings
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              disabled
+              leftIcon={<Cog6ToothIcon className="w-4 h-4" />}
+              title="You don't have permission to manage team settings"
             >
               Settings
             </Button>

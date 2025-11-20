@@ -47,16 +47,16 @@ const TeamDashboard = ({ teamId }) => {
     recentActivity: []
   });
 
-  // Fetch team data on mount
+  // Fetch team stats and projects (team is already fetched by page)
   useEffect(() => {
-    if (teamId) {
-      fetchTeam(teamId);
+    if (teamId && currentTeam) {
+      console.log('📊 [TeamDashboard Component] Fetching stats and projects');
       fetchTeamStats(teamId);
       // fetchTeamActivity(teamId, { limit: 10 }); // TODO: Implement activity endpoint
       fetchProjects({ teamId });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamId]);
+  }, [teamId, currentTeam?._id]);
 
   // Process dashboard data
   useEffect(() => {
