@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useProject } from '../../context/ProjectContext';
+import { useTeam } from '../../context/TeamContext';
 import { useNotification } from '../../context/NotificationContext';
 import Modal from '../common/Modal';
 import { Button } from '../ui/Button';
 
 const CreateProjectModal = ({ isOpen, onClose, teamId = null }) => {
   const { createProject } = useProject();
+  const { teams, fetchTeams } = useTeam();
   const { showSuccess, showError } = useNotification();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,8 +17,16 @@ const CreateProjectModal = ({ isOpen, onClose, teamId = null }) => {
     status: 'active',
     priority: 'medium',
     dueDate: '',
-    team: teamId || ''
+    teamId: teamId || ''
   });
+  const [errors, setErrors] = useState({});
+
+  // Fetch teams if no teamId is provided
+  useEffect(() => {
+    if (isOpen && !teamId && teams.length === 0) {
+      fetchTeams();
+    }
+  }, [isOpen, teamId, teams.length, fetchTeams]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,13 +34,37 @@ const CreateProjectModal = ({ isOpen, onClose, teamId = null }) => {
       ...prev,
       [name]: value
     }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Project name is required';
+    } else if (formData.name.length > 100) {
+      newErrors.name = 'Project name must be less than 100 characters';
+    }
+    
+    if (!formData.teamId) {
+      newErrors.teamId = 'Please select a team';
+    }
+    
+    if (formData.description && formData.description.length > 1000) {
+      newErrors.description = 'Description must be less than 1000 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name.trim()) {
-      showError('Project name is required');
+    if (!validateForm()) {
       return;
     }
 
@@ -47,7 +81,7 @@ const CreateProjectModal = ({ isOpen, onClose, teamId = null }) => {
           status: 'active',
           priority: 'medium',
           dueDate: '',
-          team: teamId || ''
+          teamId: teamId || ''
         });
       } else {
         showError(result.message || 'Failed to create project');
@@ -74,10 +108,49 @@ const CreateProjectModal = ({ isOpen, onClose, teamId = null }) => {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            maxLength={100}
+            className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 ${
+              errors.name 
+                ? 'border-red-500 focus:ring-red-500' 
+                : 'border-secondary-300 dark:border-secondary-600 focus:ring-primary-500'
+            }`}
             placeholder="Enter project name"
           />
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+          )}
         </div>
+
+        {/* Team Selection (only if teamId not provided) */}
+        {!teamId && (
+          <div>
+            <label htmlFor="teamId" className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+              Team *
+            </label>
+            <select
+              id="teamId"
+              name="teamId"
+              value={formData.teamId}
+              onChange={handleChange}
+              required
+              className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 ${
+                errors.teamId 
+                  ? 'border-red-500 focus:ring-red-500' 
+                  : 'border-secondary-300 dark:border-secondary-600 focus:ring-primary-500'
+              }`}
+            >
+              <option value="">Select a team</option>
+              {teams.map((team) => (
+                <option key={team._id} value={team._id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+            {errors.teamId && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.teamId}</p>
+            )}
+          </div>
+        )}
 
         {/* Description */}
         <div>
@@ -90,9 +163,20 @@ const CreateProjectModal = ({ isOpen, onClose, teamId = null }) => {
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full px-4 py-2 border border-secondary-300 dark:border-secondary-600 rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            maxLength={1000}
+            className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100 focus:outline-none focus:ring-2 ${
+              errors.description 
+                ? 'border-red-500 focus:ring-red-500' 
+                : 'border-secondary-300 dark:border-secondary-600 focus:ring-primary-500'
+            }`}
             placeholder="Enter project description"
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+          )}
+          <p className="mt-1 text-xs text-secondary-500 dark:text-secondary-400">
+            {formData.description.length}/1000 characters
+          </p>
         </div>
 
         {/* Status and Priority */}
