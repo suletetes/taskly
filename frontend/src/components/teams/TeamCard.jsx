@@ -164,7 +164,7 @@ const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
                   <EllipsisVerticalIcon className="w-4 h-4" />
                 </button>
               }
-              options={menuOptions}
+              items={menuOptions}
               align="right"
             />
           </div>
@@ -223,7 +223,7 @@ const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
                 <EllipsisVerticalIcon className="w-4 h-4" />
               </button>
             }
-            options={menuOptions}
+            items={menuOptions}
             align="right"
           />
         </div>
