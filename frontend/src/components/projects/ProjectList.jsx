@@ -35,15 +35,8 @@ const ProjectList = ({ teamId, onProjectSelect, onCreateProject, showCreateButto
   const [sortBy, setSortBy] = useState('name'); // 'name', 'created', 'progress', 'dueDate'
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
-  // Fetch projects on mount
-  useEffect(() => {
-    if (teamId) {
-      fetchProjects({ teamId });
-    } else {
-      fetchProjects();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamId]);
+  // Projects are fetched by the page component, not here
+  // This component only displays the projects passed as props
 
   // Filter and sort projects
   const processedProjects = React.useMemo(() => {

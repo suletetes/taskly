@@ -74,13 +74,17 @@ const ProjectSettings = ({ projectId, onClose }) => {
     }
   }, [currentProject]);
 
-  // Fetch project and teams on mount
+  // Fetch project and teams on mount (only if not already loaded)
   useEffect(() => {
-    if (projectId) {
+    if (projectId && (!currentProject || currentProject._id !== projectId)) {
+      console.log('⚙️ [ProjectSettings] Fetching project');
       fetchProject(projectId);
     }
-    fetchTeams();
-  }, [projectId, fetchProject, fetchTeams]);
+    if (teams.length === 0) {
+      fetchTeams();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
