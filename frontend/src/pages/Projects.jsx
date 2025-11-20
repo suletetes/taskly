@@ -14,15 +14,18 @@ import { useNotification } from '../context/NotificationContext';
 import ProjectList from '../components/projects/ProjectList';
 import CreateProjectModal from '../components/projects/CreateProjectModal';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
 
 const Projects = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { projects, loading, fetchProjects } = useProject();
+  const { projects, loading, errors, fetchProjects } = useProject();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !hasFetched) {
+      setHasFetched(true);
       fetchProjects();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,12 +68,22 @@ const Projects = () => {
         </Button>
       </div>
 
+      {/* Error Message */}
+      {errors.projects && (
+        <ErrorMessage 
+          message={errors.projects} 
+          onRetry={fetchProjects}
+        />
+      )}
+
       {/* Projects List */}
-      <ProjectList 
-        projects={projects}
-        onProjectSelect={handleProjectClick}
-        onCreateProject={handleCreateProject}
-      />
+      {!loading.projects && !errors.projects && (
+        <ProjectList 
+          projects={projects}
+          onProjectSelect={handleProjectClick}
+          onCreateProject={handleCreateProject}
+        />
+      )}
 
       {/* Create Project Modal */}
       <CreateProjectModal

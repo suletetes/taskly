@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,12 +26,16 @@ const ProjectDashboardPage = () => {
     fetchProject,
     canPerformAction 
   } = useProject();
+  
+  const fetchedRef = useRef(null);
 
   useEffect(() => {
-    if (projectId) {
+    if (projectId && fetchedRef.current !== projectId && (!currentProject || currentProject._id !== projectId)) {
+      fetchedRef.current = projectId;
       fetchProject(projectId);
     }
-  }, [projectId, fetchProject]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   const handleCreateTask = () => {
     navigate(`/projects/${projectId}/tasks/new`);
@@ -101,10 +105,18 @@ const ProjectDashboardPage = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          {canPerformAction(projectId, 'create_tasks') && (
+          {canPerformAction(projectId, 'create_tasks') ? (
             <Button
               onClick={handleCreateTask}
               leftIcon={<PlusIcon className="w-4 h-4" />}
+            >
+              New Task
+            </Button>
+          ) : (
+            <Button
+              disabled
+              leftIcon={<PlusIcon className="w-4 h-4" />}
+              title="You don't have permission to create tasks"
             >
               New Task
             </Button>
@@ -126,11 +138,20 @@ const ProjectDashboardPage = () => {
             Analytics
           </Button>
 
-          {canPerformAction(projectId, 'manage_project_settings') && (
+          {canPerformAction(projectId, 'manage_project_settings') ? (
             <Button
               variant="secondary"
               onClick={handleProjectSettings}
               leftIcon={<Cog6ToothIcon className="w-4 h-4" />}
+            >
+              Settings
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              disabled
+              leftIcon={<Cog6ToothIcon className="w-4 h-4" />}
+              title="You don't have permission to manage project settings"
             >
               Settings
             </Button>
