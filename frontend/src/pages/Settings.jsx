@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   UserIcon,
@@ -11,11 +11,55 @@ import {
 import { Button } from '../components/ui/Button';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
+import userService from '../services/userService';
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { theme, setTheme, THEMES } = useTheme();
+  const { showSuccess, showError } = useNotification();
   const [activeTab, setActiveTab] = useState('profile');
+  const [loading, setLoading] = useState(false);
+  
+  const [profileForm, setProfileForm] = useState({
+    fullname: '',
+    email: '',
+    jobTitle: '',
+    company: '',
+    bio: ''
+  });
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        fullname: user.fullname || '',
+        email: user.email || '',
+        jobTitle: user.jobTitle || '',
+        company: user.company || '',
+        bio: user.bio || ''
+      });
+    }
+  }, [user]);
+
+  const handleProfileChange = (e) => {
+    setProfileForm({
+      ...profileForm,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSaveProfile = async () => {
+    setLoading(true);
+    try {
+      await userService.updateProfile(profileForm);
+      await updateUser(); // Refresh user data in context
+      showSuccess('Profile updated successfully!');
+    } catch (error) {
+      showError(error.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: UserIcon },
@@ -42,9 +86,11 @@ const Settings = () => {
                   </label>
                   <input
                     type="text"
+                    name="fullname"
                     className="input"
                     placeholder="Enter your full name"
-                    defaultValue={user?.fullname || ''}
+                    value={profileForm.fullname}
+                    onChange={handleProfileChange}
                   />
                 </div>
                 <div>
@@ -53,9 +99,11 @@ const Settings = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     className="input"
                     placeholder="Enter your email"
-                    defaultValue={user?.email || ''}
+                    value={profileForm.email}
+                    onChange={handleProfileChange}
                   />
                 </div>
                 <div>
@@ -64,9 +112,11 @@ const Settings = () => {
                   </label>
                   <input
                     type="text"
+                    name="jobTitle"
                     className="input"
                     placeholder="Enter your job title"
-                    defaultValue={user?.role || ''}
+                    value={profileForm.jobTitle}
+                    onChange={handleProfileChange}
                   />
                 </div>
                 <div>
@@ -75,15 +125,32 @@ const Settings = () => {
                   </label>
                   <input
                     type="text"
+                    name="company"
                     className="input"
                     placeholder="Enter your company"
-                    defaultValue={user?.company || ''}
+                    value={profileForm.company}
+                    onChange={handleProfileChange}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">
+                    Bio
+                  </label>
+                  <textarea
+                    name="bio"
+                    className="input"
+                    placeholder="Tell us about yourself"
+                    rows="3"
+                    value={profileForm.bio}
+                    onChange={handleProfileChange}
                   />
                 </div>
               </div>
             </div>
             <div className="flex justify-end">
-              <Button>Save Changes</Button>
+              <Button onClick={handleSaveProfile} disabled={loading}>
+                {loading ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
           </div>
         );

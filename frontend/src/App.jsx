@@ -38,6 +38,8 @@ const ProjectSettings = React.lazy(() => import('./pages/ProjectSettings'));
 const JoinTeam = React.lazy(() => import('./pages/JoinTeam'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
+const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -197,6 +199,16 @@ const App = () => {
                         <Route path="/signup" element={
                           <Suspense fallback={<LoadingSpinner size="lg" />}>
                             <Signup />
+                          </Suspense>
+                        } />
+                        <Route path="/forgot-password" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <ForgotPassword />
+                          </Suspense>
+                        } />
+                        <Route path="/reset-password/:token" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <ResetPassword />
                           </Suspense>
                         } />
 
