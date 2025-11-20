@@ -235,7 +235,7 @@ const generateTasksForUsers = (users) => {
     const tasks = [];
     
     users.forEach((user, userIndex) => {
-        const numTasks = getRandomNumber(3, 8); // Each user gets 3-8 tasks
+        const numTasks = getRandomNumber(8, 15); // Each user gets 8-15 tasks
         
         for (let i = 0; i < numTasks; i++) {
             const template = getRandomItem(taskTemplates);
@@ -552,8 +552,8 @@ const createProjects = async (teams, users) => {
 
 // Assign some tasks to projects
 const assignTasksToProjects = async (tasks, projects, users) => {
-    // Assign 40% of tasks to projects
-    const numTasksToAssign = Math.floor(tasks.length * 0.4);
+    // Assign 70% of tasks to projects
+    const numTasksToAssign = Math.floor(tasks.length * 0.7);
     const shuffledTasks = [...tasks].sort(() => 0.5 - Math.random()).slice(0, numTasksToAssign);
     
     for (const task of shuffledTasks) {

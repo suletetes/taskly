@@ -222,7 +222,7 @@ const updateProfileSchema = Joi.object({
   avatar: Joi.string()
     .uri()
     .optional()
-    .allow('')
+    .allow('', null)
     .messages({
       'string.uri': 'Avatar must be a valid URL'
     }),
@@ -230,7 +230,7 @@ const updateProfileSchema = Joi.object({
   bio: Joi.string()
     .max(500)
     .optional()
-    .allow('')
+    .allow('', null)
     .messages({
       'string.max': 'Bio cannot exceed 500 characters'
     }),
@@ -238,7 +238,7 @@ const updateProfileSchema = Joi.object({
   jobTitle: Joi.string()
     .max(100)
     .optional()
-    .allow('')
+    .allow('', null)
     .messages({
       'string.max': 'Job title cannot exceed 100 characters'
     }),
@@ -246,21 +246,21 @@ const updateProfileSchema = Joi.object({
   company: Joi.string()
     .max(100)
     .optional()
-    .allow('')
+    .allow('', null)
     .messages({
       'string.max': 'Company name cannot exceed 100 characters'
     }),
 
   timezone: Joi.string()
     .optional()
-    .allow(''),
+    .allow('', null),
 
   onboarding: Joi.object({
     completed: Joi.boolean().optional(),
     currentStep: Joi.number().optional(),
     completedSteps: Joi.array().items(Joi.number()).optional()
   }).optional()
-});
+}).unknown(true); // Allow unknown fields to pass through
 
 // Password change validation schema
 const changePasswordSchema = Joi.object({
