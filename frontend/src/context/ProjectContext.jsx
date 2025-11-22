@@ -163,6 +163,9 @@ function projectReducer(state, action) {
       };
 
     case ActionTypes.UPDATE_PROJECT:
+      if (!action.payload?.project?._id) {
+        return state;
+      }
       return {
         ...state,
         projects: state.projects.map(project =>
@@ -688,23 +691,21 @@ export const ProjectProvider = ({ children }) => {
     try {
       const result = await projectService.updateMemberRole(projectId, userId, role);
       
-      if (result.success) {
-        dispatch({
-          type: ActionTypes.UPDATE_PROJECT,
-          payload: { project: result.data }
-        });
+      if (result.success && result.data) {
+        // Refresh the project to get updated member list
+        await fetchProject(projectId, { showLoading: false });
         
         showNotification({
           type: 'success',
-          message: result.message
+          message: result.message || 'Member role updated successfully'
         });
         
         return result;
       } else {
-        setError('operations', result.message);
+        setError('operations', result.message || 'Failed to update member role');
         showNotification({
           type: 'error',
-          message: result.message
+          message: result.message || 'Failed to update member role'
         });
         return result;
       }
@@ -1082,27 +1083,42 @@ export const ProjectProvider = ({ children }) => {
   }, [state.projects, state.filters]);
 
   // Get user role in project
-  const getUserRoleInProject = useCallback((projectId, userId = user?.id) => {
+  const getUserRoleInProject = useCallback((projectId, userId = user?._id || user?.id) => {
     const project = state.projects.find(p => p._id === projectId);
     if (!project) return null;
     
-    const member = project.members?.find(m => m.user._id === userId || m.user === userId);
+    // Check multiple ID formats for compatibility
+    const member = project.members?.find(m => {
+      const memberId = m.user?._id || m.user?.id || m.user;
+      return memberId === userId || memberId === user?._id || memberId === user?.id;
+    });
+    
     return member?.role || null;
   }, [state.projects, user]);
 
   // Check if user can perform action
-  const canPerformAction = useCallback((projectId, action, userId = user?.id) => {
+  const canPerformAction = useCallback((projectId, action, userId = user?._id || user?.id) => {
+    // First check if user is the project owner
+    const project = state.projects.find(p => p._id === projectId);
+    if (project) {
+      const ownerId = project.owner?._id || project.owner?.id || project.owner;
+      const currentUserId = userId || user?._id || user?.id;
+      if (ownerId === currentUserId) {
+        return true; // Owner has all permissions
+      }
+    }
+    
     const role = getUserRoleInProject(projectId, userId);
     if (!role) return false;
     
     const permissions = {
       manager: ['all'],
-      contributor: ['manage_tasks', 'view', 'create_tasks', 'update_tasks'],
-      viewer: ['view']
+      contributor: ['manage_tasks', 'view', 'create_tasks', 'update_tasks', 'view_project', 'add_comments'],
+      viewer: ['view', 'view_project']
     };
     
     return permissions[role]?.includes(action) || permissions[role]?.includes('all');
-  }, [getUserRoleInProject]);
+  }, [getUserRoleInProject, user, state.projects]);
 
   // Auto-fetch projects when user changes (disabled to prevent infinite loops)
   // Projects are fetched manually from the Projects page

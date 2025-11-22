@@ -146,9 +146,9 @@ const ProjectList = ({ teamId, onProjectSelect, onCreateProject, showCreateButto
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 truncate">
             Projects
           </h2>
           <p className="text-secondary-600 dark:text-secondary-400 mt-1">
@@ -158,7 +158,7 @@ const ProjectList = ({ teamId, onProjectSelect, onCreateProject, showCreateButto
         {showCreateButton && (
           <button
             onClick={handleCreateProject}
-            className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+            className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors shadow-sm whitespace-nowrap flex-shrink-0"
           >
             <PlusIcon className="w-4 h-4 mr-2" />
             New Project

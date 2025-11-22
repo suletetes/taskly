@@ -97,12 +97,16 @@ const ProjectSettings = ({ projectId, onClose }) => {
   const handleSaveProject = async () => {
     try {
       const updateData = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
         startDate: formData.startDate ? new Date(formData.startDate) : null,
         endDate: formData.endDate ? new Date(formData.endDate) : null,
+        priority: formData.priority,
+        status: formData.status,
         budget: formData.budget ? parseFloat(formData.budget) : null
       };
       
+      // Don't send teamId in update (it can't be changed)
       await updateProject(projectId, updateData);
     } catch (error) {
       console.error('Failed to update project:', error);
@@ -410,23 +414,23 @@ const ProjectSettings = ({ projectId, onClose }) => {
         </div>
 
         <div className="space-y-3">
-          {currentProject.members?.map((member) => (
+          {currentProject.members?.filter(member => member.user).map((member) => (
             <div
-              key={member.user._id}
+              key={member.user._id || member.user.id}
               className="flex items-center justify-between p-3 bg-secondary-50 dark:bg-secondary-700 rounded-lg"
             >
               <div className="flex items-center space-x-3">
                 <Avatar
-                  src={member.user.avatar}
-                  name={member.user.name}
+                  src={member.user?.avatar}
+                  name={member.user?.name || 'Unknown'}
                   size="md"
                 />
                 <div>
                   <p className="font-medium text-secondary-900 dark:text-secondary-100">
-                    {member.user.name}
+                    {member.user?.name || 'Unknown User'}
                   </p>
                   <p className="text-sm text-secondary-600 dark:text-secondary-400">
-                    {member.user.email}
+                    {member.user?.email || 'No email'}
                   </p>
                 </div>
               </div>
@@ -434,21 +438,22 @@ const ProjectSettings = ({ projectId, onClose }) => {
                 {canManageMembers ? (
                   <select
                     value={member.role}
-                    onChange={(e) => handleUpdateMemberRole(member.user._id, e.target.value)}
+                    onChange={(e) => handleUpdateMemberRole(member.user?._id || member.user?.id, e.target.value)}
                     className="text-sm border border-secondary-300 dark:border-secondary-600 rounded-md px-2 py-1 bg-white dark:bg-secondary-600 text-secondary-900 dark:text-secondary-100"
                   >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                    <option value="owner">Owner</option>
+                    <option value="manager">Manager</option>
+                    <option value="contributor">Contributor</option>
+                    <option value="viewer">Viewer</option>
+                    <option value="viewer">Viewer</option>
                   </select>
                 ) : (
                   <Badge variant="secondary" size="sm">
                     {member.role}
                   </Badge>
                 )}
-                {canManageMembers && member.user._id !== user._id && (
+                {canManageMembers && (member.user?._id || member.user?.id) !== (user?._id || user?.id) && (
                   <button
-                    onClick={() => handleRemoveMember(member.user._id)}
+                    onClick={() => handleRemoveMember(member.user?._id || member.user?.id)}
                     className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     <TrashIcon className="w-4 h-4" />

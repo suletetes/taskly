@@ -44,16 +44,16 @@ const ProjectCard = ({ project, onClick, className = '' }) => {
       className={`bg-white dark:bg-secondary-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-secondary-200 dark:border-secondary-700 cursor-pointer transition-all ${className}`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center flex-1">
-          <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/20 rounded-lg flex items-center justify-center mr-3">
+      <div className="flex items-start justify-between mb-4 gap-3">
+        <div className="flex items-center flex-1 min-w-0">
+          <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/20 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
             <FolderIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100 truncate">
+            <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100 truncate mb-1">
               {project.name}
             </h3>
-            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-1 ${getStatusColor(project.status)}`}>
+            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
               {project.status}
             </span>
           </div>
