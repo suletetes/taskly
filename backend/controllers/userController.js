@@ -582,18 +582,19 @@ const requestPasswordReset = async (req, res) => {
         // Send email with reset link
         const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
         
-        // Import email service
-        const { sendEmail } = await import('../config/email.js');
+        // Import Resend email service
+        const { sendEmail } = await import('../config/resend.js');
         const { passwordResetEmail } = await import('../utils/emailTemplates.js');
         
-        const emailSent = await sendEmail(
-            user.email,
-            'Password Reset Request',
-            passwordResetEmail(user.fullname, resetUrl)
-        );
+        const emailTemplate = passwordResetEmail(user.fullname, resetUrl);
+        const emailResult = await sendEmail({
+            to: user.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html
+        });
 
-        if (!emailSent) {
-            console.warn('Email service not configured, but reset token generated');
+        if (!emailResult.success) {
+            console.warn('Email service error, but reset token generated:', emailResult.error);
         }
 
         res.json({
