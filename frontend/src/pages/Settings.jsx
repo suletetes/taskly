@@ -51,8 +51,13 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      await userService.updateProfile(profileForm);
-      await updateUser(); // Refresh user data in context
+      const response = await userService.updateProfile(profileForm);
+      
+      // Update local state immediately
+      if (response.success && response.data?.user) {
+        updateUser(response.data.user);
+      }
+      
       showSuccess('Profile updated successfully!');
     } catch (error) {
       showError(error.message || 'Failed to update profile');
