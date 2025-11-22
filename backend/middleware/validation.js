@@ -77,10 +77,11 @@ const registerSchema = Joi.object({
   avatar: Joi.string()
     .uri()
     .optional()
+    .allow('', null)
     .messages({
       'string.uri': 'Avatar must be a valid URL'
     })
-});
+}).unknown(false);
 
 const loginSchema = Joi.object({
   username: Joi.string()

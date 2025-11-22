@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import passport from 'passport';
 import { hashPassword } from '../utils/password.js';
-import { sendEmail } from '../config/email.js';
+import { sendEmail } from '../config/resend.js';
 import { welcomeEmail } from '../utils/emailTemplates.js';
 
 /**

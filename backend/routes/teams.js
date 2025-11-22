@@ -185,6 +185,71 @@ router.delete('/:id', auth, teamAuth, async (req, res) => {
   }
 });
 
+// POST /api/teams/:id/invite - Send invite to user (alternative to direct add)
+router.post('/:id/invite', auth, teamAuth, [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('role').optional().isIn(['admin', 'member']).withMessage('Role must be admin or member')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return badRequestResponse(res, 'Validation failed', errors.array());
+    }
+
+    const team = await Team.findById(req.params.id);
+    if (!team) {
+      return notFoundResponse(res, 'Team not found');
+    }
+
+    // Check if user has permission to invite members
+    const userMember = team.members.find(m => m.user.toString() === req.user.id);
+    if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
+      return forbiddenResponse(res, 'Insufficient permissions to invite members');
+    }
+
+    const { email, role = 'member' } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return notFoundResponse(res, 'User not found with that email');
+    }
+
+    // Check if user is already a member
+    const existingMember = team.members.find(m => m.user.toString() === user._id);
+    if (existingMember) {
+      return conflictResponse(res, 'User is already a team member');
+    }
+
+    // Check team member limit
+    if (team.members.length >= (process.env.TEAM_MAX_MEMBERS || 50)) {
+      return badRequestResponse(res, `Team has reached maximum member limit of ${process.env.TEAM_MAX_MEMBERS || 50}`);
+    }
+
+    // Add user to team
+    team.members.push({
+      user: user._id,
+      role,
+      joinedAt: new Date()
+    });
+
+    await team.save();
+    await team.populate('owner', 'fullname username email avatar');
+    await team.populate('members.user', 'fullname username email avatar');
+
+    // TODO: Send invitation email via Resend
+    // const { sendEmail } = await import('../config/resend.js');
+    // const { teamInviteEmail } = await import('../utils/emailTemplates.js');
+    // const emailTemplate = teamInviteEmail(req.user.fullname, team.name, inviteLink, email);
+    // await sendEmail({ to: email, subject: emailTemplate.subject, html: emailTemplate.html });
+
+    return successResponse(res, team, 'Invitation sent successfully');
+  } catch (error) {
+    console.error('Error sending invite:', error);
+    return errorResponse(res, 'Failed to send invite', 'INVITE_ERROR', 500);
+  }
+});
+
 // POST /api/teams/:id/members - Add member to team
 router.post('/:id/members', auth, teamAuth, [
   body('userId').isMongoId().withMessage('Valid user ID is required'),
