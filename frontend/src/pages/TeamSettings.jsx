@@ -114,7 +114,11 @@ const TeamSettingsPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <TeamSettings teamId={teamId} />
+        <TeamSettings 
+          teamId={teamId} 
+          isOpen={true} 
+          onClose={() => navigate(`/teams/${teamId}`)} 
+        />
       </motion.div>
     </div>
   );

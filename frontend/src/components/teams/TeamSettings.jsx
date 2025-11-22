@@ -262,8 +262,8 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                         <textarea
                           value={teamData.description}
                           onChange={(e) => setTeamData({ ...teamData, description: e.target.value })}
-                          rows={3}
-                          className="input-field"
+                          rows={4}
+                          className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-secondary-700 dark:text-white resize-none"
                           placeholder="Describe your team's purpose..."
                           disabled={!canPerformAction(teamId, 'manage_settings')}
                         />
@@ -388,49 +388,76 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                       Invite Code
                     </h3>
                     
-                    <div className="bg-secondary-50 dark:bg-secondary-800 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-medium text-secondary-700 dark:text-secondary-300">
-                          Team Invite Code
-                        </span>
-                        <button
-                          onClick={() => setShowInviteCode(!showInviteCode)}
-                          className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
-                        >
-                          {showInviteCode ? (
-                            <>
-                              <EyeSlashIcon className="w-4 h-4 inline mr-1" />
-                              Hide
-                            </>
-                          ) : (
-                            <>
-                              <EyeIcon className="w-4 h-4 inline mr-1" />
-                              Show
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <code className="flex-1 px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded font-mono text-sm">
-                          {showInviteCode ? currentTeam.inviteCode : '••••••••'}
-                        </code>
-                        <button
-                          onClick={copyInviteCode}
-                          className="btn-secondary"
-                          title="Copy to clipboard"
-                        >
-                          <ClipboardDocumentIcon className="w-4 h-4" />
-                        </button>
-                        {canPerformAction(teamId, 'manage_settings') && (
+                    <div className="bg-secondary-50 dark:bg-secondary-800 rounded-lg p-4 space-y-4">
+                      {/* Invite Code */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-secondary-700 dark:text-secondary-300">
+                            Invite Code
+                          </span>
                           <button
-                            onClick={handleRegenerateInviteCode}
-                            className="btn-secondary"
-                            title="Regenerate code"
+                            onClick={() => setShowInviteCode(!showInviteCode)}
+                            className="text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center"
                           >
-                            Regenerate
+                            {showInviteCode ? (
+                              <>
+                                <EyeSlashIcon className="w-4 h-4 mr-1" />
+                                Hide
+                              </>
+                            ) : (
+                              <>
+                                <EyeIcon className="w-4 h-4 mr-1" />
+                                Show
+                              </>
+                            )}
                           </button>
-                        )}
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <code className="flex-1 px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded font-mono text-sm">
+                            {showInviteCode ? currentTeam.inviteCode : '••••••••'}
+                          </code>
+                          <button
+                            onClick={copyInviteCode}
+                            className="px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded hover:bg-secondary-50 dark:hover:bg-secondary-600 transition-colors"
+                            title="Copy code"
+                          >
+                            <ClipboardDocumentIcon className="w-4 h-4" />
+                          </button>
+                          {canPerformAction(teamId, 'manage_settings') && (
+                            <button
+                              onClick={handleRegenerateInviteCode}
+                              className="px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded hover:bg-secondary-50 dark:hover:bg-secondary-600 transition-colors text-sm"
+                            >
+                              Regenerate
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Invite URL */}
+                      <div>
+                        <span className="text-sm font-medium text-secondary-700 dark:text-secondary-300 block mb-2">
+                          Invite Link
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            readOnly
+                            value={`${window.location.origin}/join-team?code=${currentTeam.inviteCode}`}
+                            className="flex-1 px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded text-sm text-secondary-600 dark:text-secondary-400"
+                          />
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${window.location.origin}/join-team?code=${currentTeam.inviteCode}`);
+                              toast.success('Invite link copied!');
+                            }}
+                            className="px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded hover:bg-secondary-50 dark:hover:bg-secondary-600 transition-colors"
+                            title="Copy link"
+                          >
+                            <ClipboardDocumentIcon className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -464,7 +491,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                           <select
                             value={inviteRole}
                             onChange={(e) => setInviteRole(e.target.value)}
-                            className="input-field"
+                            className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-secondary-700 dark:text-white"
                           >
                             <option value="member">Member</option>
                             <option value="admin">Admin</option>

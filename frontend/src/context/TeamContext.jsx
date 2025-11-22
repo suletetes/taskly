@@ -959,27 +959,42 @@ export const TeamProvider = ({ children }) => {
   }, [state.teams, state.filters]);
 
   // Get user role in team
-  const getUserRoleInTeam = useCallback((teamId, userId = user?.id) => {
+  const getUserRoleInTeam = useCallback((teamId, userId = user?._id || user?.id) => {
     const team = state.teams.find(t => t._id === teamId);
     if (!team) return null;
     
-    const member = team.members?.find(m => m.user._id === userId || m.user === userId);
+    // Check multiple ID formats for compatibility
+    const member = team.members?.find(m => {
+      const memberId = m.user?._id || m.user?.id || m.user;
+      return memberId === userId || memberId === user?._id || memberId === user?.id;
+    });
+    
     return member?.role || null;
   }, [state.teams, user]);
 
   // Check if user can perform action
-  const canPerformAction = useCallback((teamId, action, userId = user?.id) => {
+  const canPerformAction = useCallback((teamId, action, userId = user?._id || user?.id) => {
+    // First check if user is the team owner
+    const team = state.teams.find(t => t._id === teamId);
+    if (team) {
+      const ownerId = team.owner?._id || team.owner?.id || team.owner;
+      const currentUserId = userId || user?._id || user?.id;
+      if (ownerId === currentUserId) {
+        return true; // Owner has all permissions
+      }
+    }
+    
     const role = getUserRoleInTeam(teamId, userId);
     if (!role) return false;
     
     const permissions = {
       owner: ['all'],
-      admin: ['manage_members', 'manage_projects', 'manage_settings', 'invite_members'],
-      member: ['view', 'create_projects']
+      admin: ['manage_members', 'manage_projects', 'manage_settings', 'manage_team_settings', 'invite_members', 'edit_team', 'view_team_analytics'],
+      member: ['view', 'create_projects', 'view_team', 'view_team_members']
     };
     
     return permissions[role]?.includes(action) || permissions[role]?.includes('all');
-  }, [getUserRoleInTeam]);
+  }, [getUserRoleInTeam, user, state.teams]);
 
   // Auto-fetch teams when user changes (disabled to prevent infinite loops)
   // Teams are fetched manually from the Teams page
