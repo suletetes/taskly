@@ -5,6 +5,7 @@ import Task from '../models/Task.js';
 import { auth, teamAuth } from '../middleware/auth.js';
 import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
+import { successResponse, errorResponse, createdResponse, notFoundResponse, forbiddenResponse, badRequestResponse, conflictResponse } from '../utils/response.js';
 
 const router = express.Router();
 
@@ -32,20 +33,10 @@ router.get('/', auth, async (req, res) => {
     .populate('members.user', 'fullname username email avatar')
     .sort({ createdAt: -1 });
 
-    res.json({
-      success: true,
-      data: teams,
-      message: 'Teams fetched successfully'
-    });
+    return successResponse(res, teams, 'Teams fetched successfully');
   } catch (error) {
     console.error('Error fetching teams:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to fetch teams',
-        code: 'FETCH_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to fetch teams', 'FETCH_ERROR', 500);
   }
 });
 
@@ -58,29 +49,13 @@ router.get('/:id', auth, teamAuth, async (req, res) => {
       .populate('projects');
 
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
-    res.json({
-      success: true,
-      data: team,
-      message: 'Team fetched successfully'
-    });
+    return successResponse(res, team, 'Team fetched successfully');
   } catch (error) {
     console.error('Error fetching team:', error.message);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to fetch team',
-        code: 'FETCH_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to fetch team', 'FETCH_ERROR', 500);
   }
 });
 
@@ -89,14 +64,7 @@ router.post('/', auth, validateTeam, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Validation failed',
-          code: 'VALIDATION_ERROR',
-          details: errors.array()
-        }
-      });
+      return badRequestResponse(res, 'Validation failed', errors.array());
     }
 
     const { name, description, isPrivate = false } = req.body;
@@ -111,17 +79,25 @@ router.post('/', auth, validateTeam, async (req, res) => {
     });
 
     if (existingTeam) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Team name already exists',
-          code: 'DUPLICATE_TEAM'
-        }
-      });
+      return conflictResponse(res, 'Team name already exists');
     }
 
-    // Generate invite code
-    const inviteCode = crypto.randomBytes(8).toString('hex');
+    // Generate unique invite code
+    let inviteCode;
+    let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    while (!isUnique && attempts < maxAttempts) {
+      inviteCode = crypto.randomBytes(8).toString('hex');
+      const existingTeam = await Team.findOne({ inviteCode });
+      isUnique = !existingTeam;
+      attempts++;
+    }
+
+    if (!isUnique) {
+      return errorResponse(res, 'Failed to generate unique invite code', 'INVITE_CODE_ERROR', 500);
+    }
 
     const team = new Team({
       name,
@@ -140,20 +116,10 @@ router.post('/', auth, validateTeam, async (req, res) => {
     await team.populate('owner', 'fullname username email avatar');
     await team.populate('members.user', 'fullname username email avatar');
 
-    res.status(201).json({
-      success: true,
-      data: team,
-      message: 'Team created successfully'
-    });
+    return createdResponse(res, team, 'Team created successfully');
   } catch (error) {
     console.error('Error creating team:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to create team',
-        code: 'CREATE_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to create team', 'CREATE_ERROR', 500);
   }
 });
 
@@ -162,37 +128,18 @@ router.put('/:id', auth, teamAuth, validateTeam, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Validation failed',
-          code: 'VALIDATION_ERROR',
-          details: errors.array()
-        }
-      });
+      return badRequestResponse(res, 'Validation failed', errors.array());
     }
 
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
     // Check if user has permission to update team
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ 
-        success: false,
-        error: {
-          message: 'Insufficient permissions to update team',
-          code: 'INSUFFICIENT_PERMISSIONS'
-        }
-      });
+      return forbiddenResponse(res, 'Insufficient permissions to update team');
     }
 
     const { name, description, isPrivate } = req.body;
@@ -206,20 +153,10 @@ router.put('/:id', auth, teamAuth, validateTeam, async (req, res) => {
     await team.populate('owner', 'fullname username email avatar');
     await team.populate('members.user', 'fullname username email avatar');
 
-    res.json({
-      success: true,
-      data: team,
-      message: 'Team updated successfully'
-    });
+    return successResponse(res, team, 'Team updated successfully');
   } catch (error) {
     console.error('Error updating team:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to update team',
-        code: 'UPDATE_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to update team', 'UPDATE_ERROR', 500);
   }
 });
 
@@ -228,24 +165,12 @@ router.delete('/:id', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
     // Only owner can delete team
     if (team.owner.toString() !== req.user.id) {
-      return res.status(403).json({ 
-        success: false,
-        error: {
-          message: 'Only team owner can delete team',
-          code: 'INSUFFICIENT_PERMISSIONS'
-        }
-      });
+      return forbiddenResponse(res, 'Only team owner can delete team');
     }
 
     // Delete all projects in this team
@@ -253,19 +178,10 @@ router.delete('/:id', auth, teamAuth, async (req, res) => {
     await Project.deleteMany({ team: req.params.id });
 
     await Team.findByIdAndDelete(req.params.id);
-    res.json({ 
-      success: true,
-      message: 'Team deleted successfully' 
-    });
+    return successResponse(res, null, 'Team deleted successfully');
   } catch (error) {
     console.error('Error deleting team:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to delete team',
-        code: 'DELETE_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to delete team', 'DELETE_ERROR', 500);
   }
 });
 
@@ -277,37 +193,18 @@ router.post('/:id/members', auth, teamAuth, [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Validation failed',
-          code: 'VALIDATION_ERROR',
-          details: errors.array()
-        }
-      });
+      return badRequestResponse(res, 'Validation failed', errors.array());
     }
 
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
     // Check if user has permission to add members
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ 
-        success: false,
-        error: {
-          message: 'Insufficient permissions to add members',
-          code: 'INSUFFICIENT_PERMISSIONS'
-        }
-      });
+      return forbiddenResponse(res, 'Insufficient permissions to add members');
     }
 
     const { userId, role = 'member' } = req.body;
@@ -315,25 +212,18 @@ router.post('/:id/members', auth, teamAuth, [
     // Check if user exists
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'User not found',
-          code: 'USER_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'User not found');
     }
 
     // Check if user is already a member
     const existingMember = team.members.find(m => m.user.toString() === userId);
     if (existingMember) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'User is already a team member',
-          code: 'DUPLICATE_MEMBER'
-        }
-      });
+      return conflictResponse(res, 'User is already a team member');
+    }
+
+    // Check team member limit
+    if (team.members.length >= team.settings.maxMembers) {
+      return badRequestResponse(res, `Team has reached maximum member limit of ${team.settings.maxMembers}`);
     }
 
     team.members.push({
@@ -346,20 +236,10 @@ router.post('/:id/members', auth, teamAuth, [
     await team.populate('owner', 'fullname username email avatar');
     await team.populate('members.user', 'fullname username email avatar');
 
-    res.json({
-      success: true,
-      data: team,
-      message: 'Member added successfully'
-    });
+    return successResponse(res, team, 'Member added successfully');
   } catch (error) {
     console.error('Error adding team member:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to add team member',
-        code: 'ADD_MEMBER_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to add team member', 'ADD_MEMBER_ERROR', 500);
   }
 });
 
@@ -368,37 +248,18 @@ router.put('/:id/members/:userId', auth, teamAuth, validateMemberRole, async (re
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Validation failed',
-          code: 'VALIDATION_ERROR',
-          details: errors.array()
-        }
-      });
+      return badRequestResponse(res, 'Validation failed', errors.array());
     }
 
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
-    // Check if user has permission to update member roles
+    // Check if user has permission to update member roles (only owner can change roles)
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
-    if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ 
-        success: false,
-        error: {
-          message: 'Insufficient permissions to update member roles',
-          code: 'INSUFFICIENT_PERMISSIONS'
-        }
-      });
+    if (!userMember || userMember.role !== 'owner') {
+      return forbiddenResponse(res, 'Only team owner can update member roles');
     }
 
     const { role } = req.body;
@@ -407,24 +268,22 @@ router.put('/:id/members/:userId', auth, teamAuth, validateMemberRole, async (re
     // Find member to update
     const memberToUpdate = team.members.find(m => m.user.toString() === userId);
     if (!memberToUpdate) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Member not found in team',
-          code: 'MEMBER_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Member not found in team');
     }
 
     // Prevent changing owner role
-    if (memberToUpdate.role === 'owner' || role === 'owner') {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Cannot change owner role',
-          code: 'INVALID_OPERATION'
-        }
-      });
+    if (memberToUpdate.role === 'owner') {
+      return badRequestResponse(res, 'Cannot change owner role');
+    }
+
+    // Prevent promoting to owner
+    if (role === 'owner') {
+      return badRequestResponse(res, 'Cannot promote member to owner role');
+    }
+
+    // Prevent self-demotion
+    if (userId === req.user.id && role !== memberToUpdate.role) {
+      return badRequestResponse(res, 'Cannot change your own role');
     }
 
     memberToUpdate.role = role;
@@ -434,20 +293,10 @@ router.put('/:id/members/:userId', auth, teamAuth, validateMemberRole, async (re
     await team.populate('owner', 'fullname username email avatar');
     await team.populate('members.user', 'fullname username email avatar');
 
-    res.json({
-      success: true,
-      data: team,
-      message: 'Member role updated successfully'
-    });
+    return successResponse(res, team, 'Member role updated successfully');
   } catch (error) {
     console.error('Error updating member role:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to update member role',
-        code: 'UPDATE_ROLE_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to update member role', 'UPDATE_ROLE_ERROR', 500);
   }
 });
 
@@ -456,13 +305,7 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
     const { userId } = req.params;
@@ -472,36 +315,24 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
     const isRemovingSelf = userId === req.user.id;
     
     if (!isRemovingSelf && (!userMember || !['owner', 'admin'].includes(userMember.role))) {
-      return res.status(403).json({ 
-        success: false,
-        error: {
-          message: 'Insufficient permissions to remove members',
-          code: 'INSUFFICIENT_PERMISSIONS'
-        }
-      });
+      return forbiddenResponse(res, 'Insufficient permissions to remove members');
     }
 
     // Find member to remove
     const memberToRemove = team.members.find(m => m.user.toString() === userId);
     if (!memberToRemove) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Member not found in team',
-          code: 'MEMBER_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Member not found in team');
     }
 
     // Prevent removing owner
     if (memberToRemove.role === 'owner') {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'Cannot remove team owner',
-          code: 'INVALID_OPERATION'
-        }
-      });
+      return badRequestResponse(res, 'Cannot remove team owner');
+    }
+
+    // Prevent removing last owner (safety check)
+    const ownerCount = team.members.filter(m => m.role === 'owner').length;
+    if (ownerCount === 0) {
+      return badRequestResponse(res, 'Team must have at least one owner');
     }
 
     // Remove member from all projects in this team
@@ -512,6 +343,7 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
       await project.save();
     }
 
+    // Remove member from team
     team.members = team.members.filter(m => m.user.toString() !== userId);
     team.updatedAt = new Date();
 
@@ -519,20 +351,10 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
     await team.populate('owner', 'fullname username email avatar');
     await team.populate('members.user', 'fullname username email avatar');
 
-    res.json({
-      success: true,
-      data: team,
-      message: 'Member removed successfully'
-    });
+    return successResponse(res, team, 'Member removed successfully');
   } catch (error) {
     console.error('Error removing team member:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to remove team member',
-        code: 'REMOVE_MEMBER_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to remove team member', 'REMOVE_MEMBER_ERROR', 500);
   }
 });
 
@@ -543,25 +365,13 @@ router.post('/join/:inviteCode', auth, async (req, res) => {
 
     const team = await Team.findOne({ inviteCode });
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Invalid invite code',
-          code: 'INVALID_INVITE_CODE'
-        }
-      });
+      return notFoundResponse(res, 'Invalid invite code');
     }
 
     // Check if user is already a member
     const existingMember = team.members.find(m => m.user.toString() === req.user.id);
     if (existingMember) {
-      return res.status(400).json({ 
-        success: false,
-        error: {
-          message: 'You are already a member of this team',
-          code: 'ALREADY_MEMBER'
-        }
-      });
+      return conflictResponse(res, 'You are already a member of this team');
     }
 
     team.members.push({
@@ -574,20 +384,10 @@ router.post('/join/:inviteCode', auth, async (req, res) => {
     await team.populate('owner', 'fullname username email avatar');
     await team.populate('members.user', 'fullname username email avatar');
 
-    res.json({
-      success: true,
-      data: team,
-      message: 'Successfully joined team'
-    });
+    return successResponse(res, team, 'Successfully joined team');
   } catch (error) {
     console.error('Error joining team:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to join team',
-        code: 'JOIN_TEAM_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to join team', 'JOIN_TEAM_ERROR', 500);
   }
 });
 
@@ -596,46 +396,41 @@ router.post('/:id/regenerate-invite', auth, teamAuth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
     // Check if user has permission to regenerate invite code
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return res.status(403).json({ 
-        success: false,
-        error: {
-          message: 'Insufficient permissions to regenerate invite code',
-          code: 'INSUFFICIENT_PERMISSIONS'
-        }
-      });
+      return forbiddenResponse(res, 'Insufficient permissions to regenerate invite code');
     }
 
-    team.inviteCode = crypto.randomBytes(8).toString('hex');
+    // Generate unique invite code
+    let inviteCode;
+    let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    while (!isUnique && attempts < maxAttempts) {
+      inviteCode = crypto.randomBytes(8).toString('hex');
+      const existingTeam = await Team.findOne({ inviteCode });
+      isUnique = !existingTeam;
+      attempts++;
+    }
+
+    if (!isUnique) {
+      return errorResponse(res, 'Failed to generate unique invite code', 'INVITE_CODE_ERROR', 500);
+    }
+
+    team.inviteCode = inviteCode;
     team.updatedAt = new Date();
 
     await team.save();
 
-    res.json({ 
-      success: true,
-      data: { inviteCode: team.inviteCode },
-      message: 'Invite code regenerated successfully'
-    });
+    return successResponse(res, { inviteCode: team.inviteCode }, 'Invite code regenerated successfully');
   } catch (error) {
     console.error('Error regenerating invite code:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to regenerate invite code',
-        code: 'REGENERATE_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to regenerate invite code', 'REGENERATE_ERROR', 500);
   }
 });
 
@@ -647,13 +442,7 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
       .populate('members.user', 'fullname username email avatar lastActive');
 
     if (!team) {
-      return res.status(404).json({ 
-        success: false,
-        error: {
-          message: 'Team not found',
-          code: 'TEAM_NOT_FOUND'
-        }
-      });
+      return notFoundResponse(res, 'Team not found');
     }
 
     // Get all tasks for team projects
@@ -684,20 +473,10 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
       updatedAt: team.updatedAt
     };
 
-    res.json({
-      success: true,
-      data: stats,
-      message: 'Team statistics fetched successfully'
-    });
+    return successResponse(res, stats, 'Team statistics fetched successfully');
   } catch (error) {
     console.error('Error fetching team stats:', error);
-    res.status(500).json({ 
-      success: false,
-      error: {
-        message: 'Failed to fetch team statistics',
-        code: 'FETCH_ERROR'
-      }
-    });
+    return errorResponse(res, 'Failed to fetch team statistics', 'FETCH_ERROR', 500);
   }
 });
 
