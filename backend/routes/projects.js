@@ -5,6 +5,7 @@ import Task from '../models/Task.js';
 import { auth, teamAuth, projectAuth } from '../middleware/auth.js';
 import { body, validationResult } from 'express-validator';
 import { successResponse, errorResponse, createdResponse, notFoundResponse, forbiddenResponse, badRequestResponse, conflictResponse } from '../utils/response.js';
+import { getProjectProgress, getProjectDetails } from '../controllers/projectController.js';
 
 const router = express.Router();
 
@@ -72,6 +73,9 @@ router.get('/', auth, async (req, res) => {
     return errorResponse(res, 'Failed to fetch projects', 'FETCH_ERROR', 500);
   }
 });
+
+// GET /api/projects/:id/progress - Get project progress
+router.get('/:id/progress', auth, getProjectProgress);
 
 // GET /api/projects/:id - Get specific project
 router.get('/:id', auth, projectAuth, async (req, res) => {
@@ -193,6 +197,58 @@ router.put('/:id', auth, projectAuth, validateProjectUpdate, async (req, res) =>
     await project.populate('members.user', 'fullname username email avatar');
 
     return successResponse(res, project, 'Project updated successfully');
+  } catch (error) {
+    console.error('Error updating project:', error);
+    return errorResponse(res, 'Failed to update project', 'UPDATE_ERROR', 500);
+  }
+});
+
+// POST /api/projects/:id/archive - Archive project
+router.post('/:id/archive', auth, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return notFoundResponse(res, 'Project not found');
+    }
+
+    // Check if user has permission to archive project
+    const userMember = project.members.find(m => m.user.toString() === req.user.id);
+    if (!userMember || !['manager'].includes(userMember.role)) {
+      if (project.owner.toString() !== req.user.id) {
+        return forbiddenResponse(res, 'Insufficient permissions to archive project');
+      }
+    }
+
+    project.archivedAt = new Date();
+    await project.save();
+
+    return successResponse(res, project, 'Project archived successfully');
+  } catch (error) {
+    console.error('Error archiving project:', error);
+    return errorResponse(res, 'Failed to archive project', 'ARCHIVE_ERROR', 500);
+  }
+});
+
+// POST /api/projects/:id/unarchive - Unarchive project
+router.post('/:id/unarchive', auth, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return notFoundResponse(res, 'Project not found');
+    }
+
+    // Check if user has permission to unarchive project
+    const userMember = project.members.find(m => m.user.toString() === req.user.id);
+    if (!userMember || !['manager'].includes(userMember.role)) {
+      if (project.owner.toString() !== req.user.id) {
+        return forbiddenResponse(res, 'Insufficient permissions to unarchive project');
+      }
+    }
+
+    project.archivedAt = null;
+    await project.save();
+
+    return successResponse(res, project, 'Project unarchived successfully');
   } catch (error) {
     console.error('Error updating project:', error);
     return errorResponse(res, 'Failed to update project', 'UPDATE_ERROR', 500);
