@@ -33,6 +33,51 @@ router.get('/',
 );
 
 /**
+ * @route   GET /api/projects/:projectId/tasks
+ * @desc    Get filtered tasks for a project
+ * @access  Private
+ */
+router.get('/project/:projectId', authenticateToken, async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { status, priority, assignee } = req.query;
+        
+        // Build query
+        const query = { project: projectId };
+        
+        if (status && status !== 'all') {
+            query.status = status;
+        }
+        
+        if (priority && priority !== 'all') {
+            query.priority = priority;
+        }
+        
+        if (assignee && assignee !== 'all') {
+            query.assignee = assignee;
+        }
+        
+        const Task = (await import('../models/Task.js')).default;
+        const tasks = await Task.find(query)
+            .populate('user', 'fullname username avatar')
+            .populate('assignee', 'fullname username avatar')
+            .sort({ due: 1 });
+        
+        res.json({
+            success: true,
+            data: tasks,
+            message: 'Tasks fetched successfully'
+        });
+    } catch (error) {
+        console.error('Error fetching filtered tasks:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch tasks'
+        });
+    }
+});
+
+/**
  * @route   POST /api/tasks
  * @desc    Create a new task for current user
  * @access  Private

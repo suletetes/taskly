@@ -6,6 +6,8 @@ import { auth, teamAuth } from '../middleware/auth.js';
 import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
 import { successResponse, errorResponse, createdResponse, notFoundResponse, forbiddenResponse, badRequestResponse, conflictResponse } from '../utils/response.js';
+import { searchUsersForTeam } from '../controllers/searchController.js';
+import { sendInvitation, getTeamInvitations } from '../controllers/invitationController.js';
 
 const router = express.Router();
 
@@ -38,6 +40,85 @@ router.get('/', auth, async (req, res) => {
     console.error('Error fetching teams:', error);
     return errorResponse(res, 'Failed to fetch teams', 'FETCH_ERROR', 500);
   }
+});
+
+// GET /api/teams/:teamId/search-users - Search users for team
+router.get('/:teamId/search-users', auth, searchUsersForTeam);
+
+// GET /api/teams/:teamId/members - Get team members with enhanced details
+router.get('/:teamId/members', auth, async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const team = await Team.findById(teamId)
+      .populate({
+        path: 'members.user',
+        select: 'fullname username email avatar bio lastActive'
+      });
+
+    if (!team) {
+      return notFoundResponse(res, 'Team not found');
+    }
+
+    // Check if user is team member
+    const userMember = team.members.find(m => m.user._id.toString() === req.user.id);
+    if (!userMember) {
+      return errorResponse(res, 'You are not a member of this team', 'UNAUTHORIZED', 403);
+    }
+
+    // Enhance member data with task counts
+    const enhancedMembers = await Promise.all(
+      team.members.map(async (member) => {
+        const taskCount = await Task.countDocuments({
+          assignee: member.user._id,
+          project: { $in: team.projects || [] }
+        });
+
+        const completedTaskCount = await Task.countDocuments({
+          assignee: member.user._id,
+          project: { $in: team.projects || [] },
+          status: 'completed'
+        });
+
+        return {
+          user: member.user,
+          role: member.role,
+          joinedAt: member.joinedAt,
+          permissions: member.permissions,
+          taskCount,
+          completedTaskCount,
+          completionRate: taskCount > 0 ? Math.round((completedTaskCount / taskCount) * 100) : 0
+        };
+      })
+    );
+
+    return successResponse(res, {
+      members: enhancedMembers,
+      memberCount: team.members.length
+    }, 'Team members fetched successfully');
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    return errorResponse(res, 'Failed to fetch team members', 'FETCH_ERROR', 500);
+  }
+});
+
+// POST /api/teams/:teamId/invitations - Send invitation
+router.post('/:teamId/invitations', auth, [
+  body('userId').isMongoId().withMessage('Valid user ID is required'),
+  body('role').optional().isIn(['admin', 'member']).withMessage('Role must be admin or member'),
+  body('message').optional().isLength({ max: 500 }).withMessage('Message must be less than 500 characters')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return badRequestResponse(res, 'Validation failed', errors.array());
+  }
+  const { teamId } = req.params;
+  await sendInvitation({ ...req, params: { teamId } }, res);
+});
+
+// GET /api/teams/:teamId/invitations - Get team invitations
+router.get('/:teamId/invitations', auth, async (req, res) => {
+  const { teamId } = req.params;
+  await getTeamInvitations({ ...req, params: { teamId } }, res);
 });
 
 // GET /api/teams/:id - Get specific team
