@@ -5,6 +5,8 @@ import Task from "../models/Task.js";
 import User from "../models/User.js";
 import Team from "../models/Team.js";
 import Project from "../models/Project.js";
+import Invitation from "../models/Invitation.js";
+import Notification from "../models/Notification.js";
 
 // MongoDB connection
 const connectDB = async () => {
@@ -533,6 +535,85 @@ const assignTasksToProjects = async (tasks, projects, users) => {
     }
 };
 
+// Create sample invitations
+const createInvitations = async (teams, users) => {
+    const invitations = [];
+    
+    for (const team of teams) {
+        // Create 2-3 pending invitations per team
+        const invitationCount = getRandomNumber(2, 3);
+        const teamMembers = team.members.map(m => m.user.toString());
+        
+        for (let i = 0; i < invitationCount; i++) {
+            let invitee;
+            // Make sure invitee is not already a team member
+            do {
+                invitee = getRandomItem(users);
+            } while (teamMembers.includes(invitee._id.toString()));
+            
+            const inviter = getRandomItem(team.members);
+            
+            invitations.push({
+                team: team._id,
+                inviter: inviter.user,
+                invitee: invitee._id,
+                role: getRandomItem(['member', 'admin']),
+                message: `Join our team ${team.name}! We're working on exciting projects.`,
+                status: 'pending',
+                createdAt: getRandomDate(getRandomNumber(-30, -1)),
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            });
+        }
+    }
+    
+    const createdInvitations = await Invitation.insertMany(invitations);
+    return createdInvitations;
+};
+
+// Create sample notifications
+const createNotifications = async (users, invitations) => {
+    const notifications = [];
+    
+    // Create invitation received notifications
+    for (const invitation of invitations) {
+        notifications.push({
+            recipient: invitation.invitee,
+            type: 'invitation_received',
+            title: `Invited to team`,
+            message: `You've been invited to join a team`,
+            data: {
+                invitationId: invitation._id,
+                teamId: invitation.team,
+                inviterId: invitation.inviter
+            },
+            read: false,
+            createdAt: invitation.createdAt
+        });
+    }
+    
+    // Create some task assignment notifications
+    const tasks = await Task.find().limit(10);
+    for (const task of tasks) {
+        if (task.assignee) {
+            notifications.push({
+                recipient: task.assignee,
+                type: 'task_assigned',
+                title: 'Task assigned to you',
+                message: `You've been assigned: ${task.title}`,
+                data: {
+                    taskId: task._id,
+                    projectId: task.project
+                },
+                read: Math.random() > 0.5,
+                createdAt: getRandomDate(getRandomNumber(-30, 0))
+            });
+        }
+    }
+    
+    const createdNotifications = await Notification.insertMany(notifications);
+    return createdNotifications;
+};
+
 // Main seed function
 const seedDB = async () => {
     try {
@@ -543,6 +624,8 @@ const seedDB = async () => {
         await Project.deleteMany({});
         await Team.deleteMany({});
         await User.deleteMany({});
+        await Invitation.deleteMany({});
+        await Notification.deleteMany({});
         console.log("✅ Existing collections cleared.");
 
         // Create users
@@ -576,6 +659,14 @@ const seedDB = async () => {
         await assignTasksToProjects(createdTasks, projects, createdUsers);
         console.log(`✅ Tasks assigned to projects.`);
 
+        // Create invitations
+        const invitations = await createInvitations(teams, createdUsers);
+        console.log(`✅ ${invitations.length} invitations created.`);
+
+        // Create notifications
+        const notifications = await createNotifications(createdUsers, invitations);
+        console.log(`✅ ${notifications.length} notifications created.`);
+
         // Calculate and update team statistics
         console.log("\n📊 Calculating team statistics...");
         for (const team of teams) {
@@ -600,6 +691,8 @@ const seedDB = async () => {
         console.log(`   • ${createdTasks.length} tasks created`);
         console.log(`   • ${teams.length} teams created with detailed stats`);
         console.log(`   • ${projects.length} projects created with detailed stats`);
+        console.log(`   • ${invitations.length} invitations created`);
+        console.log(`   • ${notifications.length} notifications created`);
         
         console.log(`\n🔐 Sample Login Credentials:`);
         console.log(`   Email: john@example.com | Password: password123`);
