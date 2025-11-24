@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Avatar from '../common/Avatar';
-import { useApi } from '../../hooks/useApi';
+import api from '../../services/api';
 
 const UserSearch = ({ teamId, onUserSelect, onClose }) => {
   const [query, setQuery] = useState('');
@@ -12,7 +12,6 @@ const UserSearch = ({ teamId, onUserSelect, onClose }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const { api } = useApi();
 
   // Debounce search query
   useEffect(() => {

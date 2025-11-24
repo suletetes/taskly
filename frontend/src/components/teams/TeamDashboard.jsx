@@ -7,7 +7,7 @@ import {
   ClockIcon,
   UserPlusIcon
 } from '@heroicons/react/24/outline';
-import { useApi } from '../../hooks/useApi';
+import api from '../../services/api';
 import StatCard from '../common/StatCard';
 import TeamMembersList from './TeamMembersList';
 
@@ -17,7 +17,6 @@ const TeamDashboard = ({ teamId }) => {
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { api } = useApi();
 
   useEffect(() => {
     fetchDashboardData();

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Avatar from '../common/Avatar';
-import { useApi } from '../../hooks/useApi';
+import api from '../../services/api';
 
 const InvitationModal = ({ isOpen, onClose, user, team }) => {
   const [role, setRole] = useState('member');
@@ -10,7 +10,6 @@ const InvitationModal = ({ isOpen, onClose, user, team }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
-  const { api } = useApi();
 
   const handleSendInvitation = async () => {
     setLoading(true);
