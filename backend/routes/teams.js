@@ -116,10 +116,7 @@ router.post('/:teamId/invitations', auth, [
 });
 
 // GET /api/teams/:teamId/invitations - Get team invitations
-router.get('/:teamId/invitations', auth, async (req, res) => {
-  const { teamId } = req.params;
-  await getTeamInvitations({ ...req, params: { teamId } }, res);
-});
+router.get('/:teamId/invitations', auth, getTeamInvitations);
 
 // GET /api/teams/:id - Get specific team
 router.get('/:id', auth, teamAuth, async (req, res) => {

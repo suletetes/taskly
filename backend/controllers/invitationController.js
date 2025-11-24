@@ -152,10 +152,20 @@ export const getTeamInvitations = async (req, res) => {
       return notFoundResponse(res, 'Team not found');
     }
 
-    // Check if user has permission to view team invitations
-    const userMember = team.members.find(m => m.user.toString() === req.user.id);
-    if (!userMember || !['owner', 'admin'].includes(userMember.role)) {
-      return forbiddenResponse(res, 'Insufficient permissions to view team invitations');
+    // Check if user is a team member
+    const userMember = team.members.find(m => {
+      const memberId = typeof m.user === 'object' ? m.user._id.toString() : m.user.toString();
+      return memberId === req.user.id;
+    });
+    if (!userMember) {
+      console.error(`User ${req.user.id} not found in team ${teamId}. Team members:`, team.members.map(m => typeof m.user === 'object' ? m.user._id.toString() : m.user.toString()));
+      return forbiddenResponse(res, 'You are not a member of this team');
+    }
+    
+    // All team members can view pending invitations
+    // Only owners and admins can view all invitations
+    if (!['owner', 'admin'].includes(userMember.role) && status && status !== 'pending') {
+      return forbiddenResponse(res, 'Members can only view pending invitations');
     }
 
     // Validate pagination
@@ -255,7 +265,7 @@ export const acceptInvitation = async (req, res) => {
 
     // Create in-app notification for team owner
     try {
-      const invitee = await User.findById(userId);
+      const invitee = await User.findById(req.user.id);
       await Notification.createNotification(
         team.owner,
         'invitation_accepted',
@@ -264,7 +274,7 @@ export const acceptInvitation = async (req, res) => {
         {
           invitationId: invitation._id,
           teamId: team._id,
-          userId: userId
+          userId: req.user.id
         }
       );
     } catch (notificationError) {
