@@ -1,355 +1,402 @@
 # Taskly Backend API
 
-A robust Node.js/Express backend API for the Taskly task management application with MongoDB, session-based authentication, and comprehensive security features.
+Express.js REST API server for Taskly task management platform. Provides authentication, task management, team collaboration, and analytics endpoints.
 
-## 🚀 Features
+## 🚀 Quick Start
 
-- **RESTful API** with Express.js
-- **MongoDB** database with Mongoose ODM
-- **Session-based Authentication** with Passport.js
-- **Image Upload** with Cloudinary integration
-- **Security Middleware** (Helmet, Rate Limiting, CORS)
-- **Data Validation** and sanitization
-- **Comprehensive Error Handling**
-- **Production-ready** with PM2 support
+### Prerequisites
+- Node.js 16+
+- MongoDB 4.4+
+- npm or yarn
 
-## 📋 Prerequisites
+### Installation
 
-- Node.js (v16 or higher)
-- MongoDB (v4.4 or higher)
-- npm or yarn package manager
-
-## 🛠️ Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd taskly/backend
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Configuration**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update the `.env` file with your configuration:
-   ```env
-   NODE_ENV=development
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/taskly
-   JWT_SECRET=your-super-secret-jwt-key
-   CLIENT_URL=http://localhost:3000
-   CLOUDINARY_CLOUD_NAME=your-cloud-name
-   CLOUDINARY_API_KEY=your-api-key
-   CLOUDINARY_API_SECRET=your-api-secret
-   ```
-
-4. **Start MongoDB**
-   ```bash
-   # Using MongoDB service
-   sudo systemctl start mongod
-   
-   # Or using Docker
-   docker run -d -p 27017:27017 --name mongodb mongo:latest
-   ```
-
-5. **Seed the database (optional)**
-   ```bash
-   npm run seed
-   ```
-
-## 🚀 Running the Application
-
-### Development Mode
 ```bash
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# Seed database with sample data
+npm run seed
+
+# Start development server
 npm run dev
 ```
-The server will start on `http://localhost:5000` with hot reloading.
 
-### Production Mode
-```bash
-npm run prod
+Server will run on `http://localhost:5000`
+
+## 📋 Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/taskly
+
+# Session
+SESSION_SECRET=your-secret-key-change-in-production
+SESSION_MAX_AGE=604800000
+
+# Server
+NODE_ENV=development
+PORT=5000
+
+# File Upload (Cloudinary)
+CLOUDINARY_NAME=your-cloudinary-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Email (Resend)
+RESEND_API_KEY=your-resend-key
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
+CLIENT_URL=http://localhost:3000
+
+# Team Settings
+TEAM_MAX_MEMBERS=50
 ```
 
-### Using PM2 (Recommended for Production)
-```bash
-# Install PM2 globally
-npm install -g pm2
+## 📁 Project Structure
 
-# Start the application
-npm run pm2:start
-
-# View logs
-npm run pm2:logs
-
-# Restart the application
-npm run pm2:restart
-
-# Stop the application
-npm run pm2:stop
+```
+backend/
+├── config/              # Configuration files
+│   ├── passport.js      # Passport authentication setup
+│   └── resend.js        # Email service configuration
+├── controllers/         # Route controllers
+│   ├── authController.js
+│   ├── userController.js
+│   ├── taskController.js
+│   ├── teamController.js
+│   ├── projectController.js
+│   ├── invitationController.js
+│   ├── notificationController.js
+│   └── searchController.js
+├── middleware/          # Express middleware
+│   ├── auth.js          # Authentication middleware
+│   ├── validation.js    # Input validation
+│   ├── security.js      # Security middleware
+│   └── errorHandler.js  # Error handling
+├── models/              # MongoDB schemas
+│   ├── User.js
+│   ├── Task.js
+│   ├── Team.js
+│   ├── Project.js
+│   ├── Invitation.js
+│   └── Notification.js
+├── routes/              # API routes
+│   ├── auth.js
+│   ├── users.js
+│   ├── tasks.js
+│   ├── teams.js
+│   ├── projects.js
+│   ├── invitations.js
+│   ├── notifications.js
+│   ├── search.js
+│   ├── calendar.js
+│   └── upload.js
+├── utils/               # Utility functions
+│   ├── response.js      # Response formatting
+│   ├── password.js      # Password hashing
+│   ├── permissions.js   # Permission checks
+│   ├── emailTemplates.js
+│   └── dataPopulation.js
+├── seeds/               # Database seed data
+│   ├── seed.js
+│   ├── userSeed.js
+│   └── comprehensiveSeed.js
+├── tests/               # Test files
+│   ├── integration.test.js
+│   ├── email.test.js
+│   └── upload.test.js
+├── server.js            # Express app setup
+└── package.json
 ```
 
-## 📚 API Documentation
+## 🔐 Authentication
 
-### Base URL
-- Development: `http://localhost:5000/api`
-- Production: `https://your-api-domain.com/api`
+Taskly uses session-based authentication with Passport.js:
 
-### Authentication Endpoints
+### Login Flow
+1. User sends credentials to `POST /api/auth/login`
+2. Passport validates credentials against database
+3. Session is created and stored in MongoDB
+4. Session cookie is sent to client
+5. Client includes cookie in subsequent requests
 
-#### POST `/auth/login`
-Authenticate user and create session.
+### Protected Routes
+All routes except `/auth/register`, `/auth/login`, and `/auth/logout` require authentication.
 
-**Request Body:**
-```json
-{
-  "username": "string",
-  "password": "string"
-}
+Use the `auth` middleware to protect routes:
+```javascript
+router.get('/protected', auth, controller);
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "_id": "string",
-      "username": "string",
-      "fullname": "string",
-      "email": "string",
-      "avatar": "string",
-      "stats": {
-        "completed": 0,
-        "ongoing": 0,
-        "failed": 0,
-        "completionRate": 0,
-        "streak": 0,
-        "avgTime": "0 hrs"
-      }
-    }
-  },
-  "message": "Login successful"
-}
-```
+## 📚 API Endpoints
 
-#### POST `/auth/signup`
-Register a new user account.
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/logout` - Logout user
+- `GET /api/auth/me` - Get current user profile
 
-#### GET `/auth/me`
-Get current authenticated user profile.
+### Users
+- `GET /api/users` - Get all users (paginated)
+- `GET /api/users/:id` - Get user profile
+- `PUT /api/users/:id` - Update user profile
+- `DELETE /api/users/:id` - Delete user account
+- `POST /api/users/:id/avatar` - Upload avatar
+- `GET /api/users/:id/stats` - Get user statistics
 
-#### POST `/auth/logout`
-Logout user and destroy session.
+### Tasks
+- `GET /api/tasks` - Get all tasks (paginated, filtered)
+- `POST /api/tasks` - Create new task
+- `GET /api/tasks/:id` - Get task details
+- `PUT /api/tasks/:id` - Update task
+- `DELETE /api/tasks/:id` - Delete task
+- `PATCH /api/tasks/:id/status` - Update task status
 
-### User Endpoints
+### Teams
+- `GET /api/teams` - Get all user's teams
+- `POST /api/teams` - Create new team
+- `GET /api/teams/:id` - Get team details
+- `PUT /api/teams/:id` - Update team
+- `DELETE /api/teams/:id` - Delete team
+- `GET /api/teams/:id/stats` - Get team statistics
+- `GET /api/teams/:id/members` - Get team members
+- `GET /api/teams/:id/invitations` - Get team invitations
+- `POST /api/teams/:id/members` - Add member to team
+- `DELETE /api/teams/:id/members/:userId` - Remove member from team
 
-#### GET `/users`
-Get paginated list of users (authenticated).
+### Projects
+- `GET /api/projects` - Get all projects
+- `POST /api/projects` - Create new project
+- `GET /api/projects/:id` - Get project details
+- `PUT /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
+- `GET /api/projects/:id/stats` - Get project statistics
 
-#### GET `/users/public`
-Get paginated list of users (public access).
+### Invitations
+- `POST /api/teams/:teamId/invitations` - Send team invitation
+- `GET /api/users/invitations` - Get user's invitations
+- `POST /api/invitations/:id/accept` - Accept invitation
+- `POST /api/invitations/:id/deny` - Deny invitation
+- `DELETE /api/invitations/:id` - Cancel invitation
 
-#### GET `/users/:userId`
-Get user profile by ID.
+### Notifications
+- `GET /api/notifications` - Get user notifications
+- `PATCH /api/notifications/:id/read` - Mark notification as read
+- `DELETE /api/notifications/:id` - Delete notification
 
-#### GET `/users/:userId/tasks`
-Get user's tasks with filtering and pagination.
+### Search
+- `GET /api/search/users` - Search users
+- `GET /api/teams/:teamId/search-users` - Search team users
 
-#### GET `/users/:userId/stats`
-Get user's productivity statistics.
+## 🗄️ Database Models
 
-### Task Endpoints
-
-#### GET `/tasks`
-Get authenticated user's tasks.
-
-#### POST `/tasks`
-Create a new task.
-
-**Request Body:**
-```json
-{
-  "title": "string",
-  "description": "string",
-  "due": "2024-12-31",
-  "priority": "low|medium|high",
-  "tags": ["string"]
-}
-```
-
-#### GET `/tasks/:taskId`
-Get task by ID.
-
-#### PUT `/tasks/:taskId`
-Update task by ID.
-
-#### DELETE `/tasks/:taskId`
-Delete task by ID.
-
-#### PATCH `/tasks/:taskId/status`
-Update task status.
-
-### Upload Endpoints
-
-#### POST `/upload/avatar`
-Upload user avatar image to Cloudinary.
-
-**Request:** Multipart form data with `avatar` file field.
-
-#### DELETE `/upload/avatar`
-Delete user avatar image.
-
-### Health Check
-
-#### GET `/health`
-Get API health status.
-
-## 🗄️ Database Schema
-
-### User Model
+### User
 ```javascript
 {
   fullname: String,
   username: String (unique),
   email: String (unique),
   password: String (hashed),
-  avatar: String,
-  avatarPublicId: String,
-  stats: {
-    completed: Number,
-    failed: Number,
-    ongoing: Number,
-    completionRate: Number,
-    streak: Number,
-    avgTime: String
-  },
-  created_at: Date,
-  updated_at: Date
-}
-```
-
-### Task Model
-```javascript
-{
-  title: String,
-  description: String,
-  due: Date,
-  priority: String (low|medium|high),
-  status: String (in-progress|completed|failed),
-  tags: [String],
-  labels: [String],
-  user: ObjectId (ref: User),
+  avatar: String (URL),
+  bio: String,
+  jobTitle: String,
+  company: String,
+  timezone: String,
+  isAdmin: Boolean,
   createdAt: Date,
   updatedAt: Date
 }
 ```
 
-## 🔒 Security Features
+### Task
+```javascript
+{
+  title: String,
+  description: String,
+  due: Date,
+  priority: String (low/medium/high),
+  status: String (in-progress/completed/failed),
+  user: ObjectId (User),
+  project: ObjectId (Project),
+  tags: [String],
+  labels: [String],
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-- **Helmet.js** - Security headers
-- **Rate Limiting** - Prevent abuse
-- **CORS** - Cross-origin resource sharing
-- **Data Sanitization** - MongoDB injection prevention
-- **Session Security** - HttpOnly, Secure cookies
-- **Password Hashing** - bcrypt with salt rounds
-- **Input Validation** - Comprehensive request validation
+### Team
+```javascript
+{
+  name: String,
+  description: String,
+  owner: ObjectId (User),
+  members: [{
+    user: ObjectId (User),
+    role: String (owner/admin/member),
+    joinedAt: Date
+  }],
+  projects: [ObjectId (Project)],
+  inviteCode: String,
+  isPrivate: Boolean,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
 ## 🧪 Testing
 
+### Run Tests
 ```bash
-# Run tests
+# Run all tests
 npm test
 
-# Run tests with coverage
-npm run test:coverage
+# Run specific test file
+npm test -- tests/integration.test.js
 
-# Run linting
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
+# Run with coverage
+npm test -- --coverage
 ```
 
-## 📦 Production Deployment
+### Test Files
+- `tests/integration.test.js` - Integration tests
+- `tests/email.test.js` - Email service tests
+- `tests/upload.test.js` - File upload tests
 
-### Environment Setup
-1. Copy `.env.production` and update with production values
-2. Set `NODE_ENV=production`
-3. Configure MongoDB connection string
-4. Set up Cloudinary credentials
-5. Configure CORS origins
+## 🌱 Database Seeding
 
-### Docker Deployment
-```dockerfile
-# Dockerfile example
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 5000
-CMD ["npm", "start"]
-```
-
-### PM2 Deployment
+### Seed Sample Data
 ```bash
-# Production deployment with PM2
-NODE_ENV=production pm2 start ecosystem.config.js
+npm run seed
 ```
 
-## 📊 Monitoring
+Creates:
+- 5 sample users
+- 3 sample teams
+- 4 sample projects
+- 30+ sample tasks
 
-- **Health Check**: `/api/health`
-- **PM2 Monitoring**: `pm2 monit`
-- **Logs**: `pm2 logs taskly-backend`
-- **Performance**: Built-in Express performance monitoring
+### Test Credentials
+```
+Username: johndoe
+Password: password123
+```
 
-## 🔧 Configuration
+## 🔒 Security Features
 
-### Environment Variables
+- **Password Hashing**: bcryptjs with salt rounds
+- **Session Management**: Secure session storage in MongoDB
+- **CORS**: Configured for frontend origin
+- **Rate Limiting**: Applied to auth endpoints
+- **Input Validation**: Express-validator and Joi
+- **Helmet**: Security headers
+- **Sanitization**: Input sanitization middleware
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `NODE_ENV` | Environment mode | development | No |
-| `PORT` | Server port | 5000 | No |
-| `MONGODB_URI` | MongoDB connection string | - | Yes |
-| `JWT_SECRET` | JWT signing secret | - | Yes |
-| `CLIENT_URL` | Frontend URL | - | Yes |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | - | No |
-| `CLOUDINARY_API_KEY` | Cloudinary API key | - | No |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | - | No |
+## 🚀 Deployment
 
-## 🤝 Contributing
+### Build for Production
+```bash
+npm run build
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Run linting and tests
-6. Submit a pull request
+### Start Production Server
+```bash
+NODE_ENV=production npm start
+```
+
+### Docker
+```bash
+docker build -t taskly-backend .
+docker run -p 5000:5000 taskly-backend
+```
+
+## 📊 Performance
+
+- **Database Indexing**: Indexes on frequently queried fields
+- **Pagination**: All list endpoints support pagination
+- **Caching**: Session caching in MongoDB
+- **Lazy Loading**: Related data populated on demand
+
+## 🐛 Troubleshooting
+
+### MongoDB Connection Error
+```
+Error: connect ECONNREFUSED 127.0.0.1:27017
+```
+- Ensure MongoDB is running
+- Check MONGODB_URI in .env
+- Verify database credentials
+
+### Authentication Issues
+```
+Error: Not authenticated
+```
+- Ensure session middleware is configured
+- Check session storage in MongoDB
+- Verify CORS credentials setting
+
+### Email Service Error
+```
+Error: Failed to send email
+```
+- Check RESEND_API_KEY in .env
+- Verify email template syntax
+- Check email recipient address
+
+## 📝 API Response Format
+
+All responses follow a consistent format:
+
+### Success Response
+```json
+{
+  "success": true,
+  "data": { /* response data */ },
+  "message": "Operation successful"
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Error description",
+    "code": "ERROR_CODE"
+  }
+}
+```
+
+## 🔄 Recent Fixes
+
+- Fixed undefined variable in invitation acceptance
+- Added team statistics endpoint
+- Fixed session cookie handling for cross-origin requests
+- Improved team member permission checks
+- Enhanced error handling for 403 Forbidden responses
+
+See [LATEST_FIXES.md](../LATEST_FIXES.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT License - see LICENSE file for details
 
-## 🆘 Support
+## 🤝 Contributing
 
-For support and questions:
-- Create an issue on GitHub
-- Check the API documentation
-- Review the logs for error details
+1. Create feature branch
+2. Make changes
+3. Run tests
+4. Submit pull request
 
-## 🔄 Changelog
+---
 
-### v1.0.0
-- Initial release
-- Complete task management API
-- Session-based authentication
-- Cloudinary image upload
-- Production-ready configuration
+**Last Updated**: November 24, 2025
+**Version**: 1.0.0
