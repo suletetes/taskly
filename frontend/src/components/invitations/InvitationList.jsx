@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import InvitationCard from './InvitationCard';
-import { useApi } from '../../hooks/useApi';
+import api from '../../services/api';
 
 const InvitationList = () => {
   const [invitations, setInvitations] = useState([]);
@@ -10,7 +10,6 @@ const InvitationList = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const { api } = useApi();
 
   useEffect(() => {
     fetchInvitations();

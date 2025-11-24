@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, ClockIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import { useApi } from '../../hooks/useApi';
+import api from '../../services/api';
 import Avatar from '../common/Avatar';
 
 const ProjectProgress = ({ projectId, onArchive }) => {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { api } = useApi();
 
   useEffect(() => {
     fetchProgress();
