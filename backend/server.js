@@ -120,6 +120,9 @@ import uploadRoutes from './routes/upload.js';
 import teamRoutes from './routes/teams.js';
 import projectRoutes from './routes/projects.js';
 import calendarRoutes from './routes/calendar.js';
+import searchRoutes from './routes/search.js';
+import invitationRoutes from './routes/invitations.js';
+import notificationRoutes from './routes/notifications.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -129,6 +132,9 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/invitations', invitationRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => {
   const healthCheck = {
