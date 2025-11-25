@@ -28,25 +28,37 @@ const TeamDashboard = ({ teamId }) => {
     try {
       // Fetch team statistics
       const statsResponse = await api.get(`/teams/${teamId}/stats`);
+      console.log('📊 [TeamDashboard] Stats response:', statsResponse.data);
       if (statsResponse.data.success) {
         setStats(statsResponse.data.data);
       }
 
       // Fetch team members
       const membersResponse = await api.get(`/teams/${teamId}/members`);
+      console.log('👥 [TeamDashboard] Members response:', membersResponse.data);
       if (membersResponse.data.success) {
-        setMembers(membersResponse.data.data.members);
+        // Handle both response formats
+        const membersData = membersResponse.data.data?.members || membersResponse.data.data || [];
+        console.log('👥 [TeamDashboard] Members data:', membersData);
+        setMembers(membersData);
       }
 
       // Fetch pending invitations
-      const invitationsResponse = await api.get(`/teams/${teamId}/invitations`, {
-        params: { status: 'pending' }
-      });
-      if (invitationsResponse.data.success) {
-        setPendingInvitations(invitationsResponse.data.data.invitations);
+      try {
+        const invitationsResponse = await api.get(`/teams/${teamId}/invitations`, {
+          params: { status: 'pending' }
+        });
+        console.log('📨 [TeamDashboard] Invitations response:', invitationsResponse.data);
+        if (invitationsResponse.data.success) {
+          const invitationsData = invitationsResponse.data.data?.invitations || invitationsResponse.data.data || [];
+          setPendingInvitations(invitationsData);
+        }
+      } catch (invErr) {
+        console.log('📨 [TeamDashboard] No invitations endpoint or error:', invErr.message);
+        setPendingInvitations([]);
       }
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      console.error('❌ [TeamDashboard] Error fetching dashboard data:', err);
       setError('Failed to load team dashboard');
     } finally {
       setLoading(false);

@@ -18,7 +18,8 @@ const initialState = {
     stats: false,
     activity: false,
     invitations: false,
-    operations: false
+    operations: false,
+    validateInvite: false
   },
   errors: {
     teams: null,
@@ -27,7 +28,8 @@ const initialState = {
     stats: null,
     activity: null,
     invitations: null,
-    operations: null
+    operations: null,
+    validateInvite: null
   },
   filters: {
     search: '',
@@ -741,6 +743,54 @@ export const TeamProvider = ({ children }) => {
     }
   }, [setLoading, setError, showNotification]);
 
+  // Validate invite code (returns team info without joining)
+  const validateInviteCode = useCallback(async (inviteCode) => {
+    setLoading('validateInvite', true);
+    clearError('validateInvite');
+    
+    try {
+      const result = await teamService.validateInviteCode(inviteCode);
+      setLoading('validateInvite', false);
+      
+      if (result.success) {
+        return result.data;
+      } else {
+        setError('validateInvite', result.message);
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const errorMessage = error.message || 'Invalid invite code';
+      setLoading('validateInvite', false);
+      setError('validateInvite', errorMessage);
+      throw new Error(errorMessage);
+    }
+  }, [setLoading, setError, clearError]);
+
+  // Join team by invite code (alias for joinTeam with better return)
+  const joinTeamByInviteCode = useCallback(async (inviteCode) => {
+    setLoading('operations', true);
+    
+    try {
+      const result = await teamService.joinTeam(inviteCode);
+      
+      if (result.success) {
+        dispatch({
+          type: ActionTypes.ADD_TEAM,
+          payload: { team: result.data }
+        });
+        
+        return { success: true, teamId: result.data._id };
+      } else {
+        setError('operations', result.message);
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const errorMessage = error.message || 'Failed to join team';
+      setError('operations', errorMessage);
+      throw new Error(errorMessage);
+    }
+  }, [setLoading, setError]);
+
   // Leave team
   const leaveTeam = useCallback(async (teamId) => {
     setLoading('operations', true);
@@ -1023,6 +1073,8 @@ export const TeamProvider = ({ children }) => {
     updateTeamMemberRole,
     removeTeamMember,
     joinTeam,
+    validateInviteCode,
+    joinTeamByInviteCode,
     leaveTeam,
     regenerateInviteCode,
     sendInvitations,

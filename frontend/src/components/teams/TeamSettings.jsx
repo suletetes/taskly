@@ -249,7 +249,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                           type="text"
                           value={teamData.name}
                           onChange={(e) => setTeamData({ ...teamData, name: e.target.value })}
-                          className="input-field"
+                          className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500"
                           required
                           disabled={!canPerformAction(teamId, 'manage_settings')}
                         />
@@ -263,7 +263,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                           value={teamData.description}
                           onChange={(e) => setTeamData({ ...teamData, description: e.target.value })}
                           rows={4}
-                          className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-secondary-700 dark:text-white resize-none"
+                          className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500 resize-none"
                           placeholder="Describe your team's purpose..."
                           disabled={!canPerformAction(teamId, 'manage_settings')}
                         />
@@ -444,12 +444,12 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                           <input
                             type="text"
                             readOnly
-                            value={`${window.location.origin}/join-team?code=${currentTeam.inviteCode}`}
+                            value={`${window.location.origin}/join/${currentTeam.inviteCode}`}
                             className="flex-1 px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded text-sm text-secondary-600 dark:text-secondary-400"
                           />
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/join-team?code=${currentTeam.inviteCode}`);
+                              navigator.clipboard.writeText(`${window.location.origin}/join/${currentTeam.inviteCode}`);
                               toast.success('Invite link copied!');
                             }}
                             className="px-3 py-2 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 rounded hover:bg-secondary-50 dark:hover:bg-secondary-600 transition-colors"
@@ -478,7 +478,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                             value={inviteEmails}
                             onChange={(e) => setInviteEmails(e.target.value)}
                             rows={3}
-                            className="input-field"
+                            className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500 resize-none"
                             placeholder="user1@example.com, user2@example.com"
                             required
                           />
@@ -491,7 +491,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                           <select
                             value={inviteRole}
                             onChange={(e) => setInviteRole(e.target.value)}
-                            className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-secondary-700 dark:text-white"
+                            className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white"
                           >
                             <option value="member">Member</option>
                             <option value="admin">Admin</option>
@@ -506,7 +506,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                             value={inviteMessage}
                             onChange={(e) => setInviteMessage(e.target.value)}
                             rows={2}
-                            className="input-field"
+                            className="w-full px-4 py-3 border border-secondary-300 dark:border-secondary-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500 resize-none"
                             placeholder="Add a personal message to the invitation..."
                           />
                         </div>
