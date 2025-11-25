@@ -49,10 +49,16 @@ const TeamDashboard = ({ teamId }) => {
           params: { status: 'pending' }
         });
         console.log('📨 [TeamDashboard] Invitations response:', invitationsResponse.data);
-        if (invitationsResponse.data.success) {
-          const invitationsData = invitationsResponse.data.data?.invitations || invitationsResponse.data.data || [];
-          setPendingInvitations(invitationsData);
+        // Handle multiple response formats
+        let invitationsData = [];
+        if (Array.isArray(invitationsResponse.data)) {
+          // Direct array response
+          invitationsData = invitationsResponse.data;
+        } else if (invitationsResponse.data.success) {
+          // Wrapped response format
+          invitationsData = invitationsResponse.data.data?.invitations || invitationsResponse.data.data || [];
         }
+        setPendingInvitations(invitationsData);
       } catch (invErr) {
         console.log('📨 [TeamDashboard] No invitations endpoint or error:', invErr.message);
         setPendingInvitations([]);
