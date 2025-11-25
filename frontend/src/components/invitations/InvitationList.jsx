@@ -28,13 +28,27 @@ const InvitationList = () => {
         }
       });
 
+      console.log('📨 [InvitationList] Response:', response.data);
+      
       if (response.data.success) {
-        setInvitations(response.data.data.invitations);
-        setTotalPages(response.data.data.pagination.pages);
+        const invitationsData = response.data.data?.invitations || response.data.data || [];
+        const paginationData = response.data.data?.pagination || { pages: 1 };
+        
+        setInvitations(Array.isArray(invitationsData) ? invitationsData : []);
+        setTotalPages(paginationData.pages || 1);
+      } else {
+        setInvitations([]);
+        setTotalPages(0);
       }
     } catch (err) {
       console.error('Error fetching invitations:', err);
-      setError('Failed to load invitations');
+      // Don't show error if it's just empty - show empty state instead
+      if (err.response?.status === 404) {
+        setInvitations([]);
+        setTotalPages(0);
+      } else {
+        setError('Failed to load invitations');
+      }
     } finally {
       setLoading(false);
     }

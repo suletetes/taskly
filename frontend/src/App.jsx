@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 // Layout Components
@@ -183,7 +183,7 @@ const App = () => {
                     <TaskProvider>
                       <ProjectProvider>
                         <CalendarProvider>
-                          <Router future={{ v7_startTransition: true }}>
+                          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                             <div className="App">
                       <Routes>
                         {/* Public Routes */}

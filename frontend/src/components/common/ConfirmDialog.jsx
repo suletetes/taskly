@@ -11,8 +11,11 @@ const ConfirmDialog = ({
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   type = 'warning', // 'warning', 'danger', 'info'
+  confirmVariant, // alias for type
   loading = false
 }) => {
+  // Support both 'type' and 'confirmVariant' props
+  const effectiveType = confirmVariant || type;
   const typeStyles = {
     warning: {
       icon: 'text-yellow-600',
@@ -31,7 +34,7 @@ const ConfirmDialog = ({
     }
   };
 
-  const styles = typeStyles[type] || typeStyles.warning;
+  const styles = typeStyles[effectiveType] || typeStyles.warning;
 
   const handleConfirm = async () => {
     if (onConfirm) {
