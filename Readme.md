@@ -2,7 +2,7 @@
 
 A full-stack task management application designed for individuals and teams. Taskly provides real-time synchronization, comprehensive analytics, and an intuitive interface for organizing work efficiently.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 16+ and npm
@@ -55,7 +55,7 @@ The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000/api
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 taskly/
@@ -79,7 +79,7 @@ taskly/
 └── Readme.md           # This file
 ```
 
-## 🔑 Key Features
+## Key Features
 
 - **Task Management**: Create, edit, delete, and organize tasks with priority levels and due dates
 - **Team Collaboration**: Invite team members, manage permissions, and collaborate in real-time
@@ -89,7 +89,7 @@ taskly/
 - **Responsive Design**: Mobile-first approach with dark/light mode support
 - **Secure Authentication**: Session-based authentication with Passport.js
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 - **Runtime**: Node.js
@@ -109,12 +109,12 @@ taskly/
 - **Animations**: Framer Motion
 - **Icons**: Heroicons
 
-## 📚 Documentation
+## Documentation
 
 - [Backend README](./backend/README.md) - Backend setup and API documentation
 - [Frontend README](./frontend/README.md) - Frontend setup and component documentation
 
-## 🔐 Authentication
+## Authentication
 
 Taskly uses session-based authentication with Passport.js:
 
@@ -129,7 +129,7 @@ Username: johndoe
 Password: password123
 ```
 
-## 🗄️ Database
+## Database
 
 ### Seeding Data
 To populate the database with sample data:
@@ -145,7 +145,7 @@ This creates:
 - 4 sample projects
 - 30+ sample tasks
 
-## 🚀 Deployment
+## Deployment
 
 ### Production Build
 
@@ -183,7 +183,7 @@ VITE_API_URL=https://api.yourdomain.com/api
 VITE_APP_NAME=Taskly
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### 401 Unauthorized Errors
 - Ensure you're logged in
@@ -205,7 +205,7 @@ VITE_APP_NAME=Taskly
 - Restart frontend dev server
 - Check that backend is running on port 5000
 
-## 📝 API Documentation
+## API Documentation
 
 The API uses RESTful conventions with JSON responses. All protected endpoints require authentication.
 
@@ -239,25 +239,25 @@ http://localhost:5000/api
 
 See [Backend README](./backend/README.md) for complete API documentation.
 
-## 🤝 Contributing
+## Contributing
 
 1. Create a feature branch (`git checkout -b feature/amazing-feature`)
 2. Commit your changes (`git commit -m 'Add amazing feature'`)
 3. Push to the branch (`git push origin feature/amazing-feature`)
 4. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙋 Support
+## Support
 
 For issues, questions, or suggestions:
 1. Check existing issues on GitHub
 2. Create a new issue with detailed description
 3. Contact the development team
 
-## 🎯 Roadmap
+## Roadmap
 
 - [ ] Mobile app (React Native)
 - [ ] Advanced filtering and search
@@ -267,7 +267,7 @@ For issues, questions, or suggestions:
 - [ ] Offline mode support
 - [ ] Real-time collaboration features
 
-## 📊 Project Stats
+## Project Stats
 
 - **Frontend**: React + Vite + Tailwind CSS
 - **Backend**: Node.js + Express + MongoDB

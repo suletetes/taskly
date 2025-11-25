@@ -2,7 +2,7 @@
 
 Express.js REST API server for Taskly task management platform. Provides authentication, task management, team collaboration, and analytics endpoints.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 16+
@@ -28,7 +28,7 @@ npm run dev
 
 Server will run on `http://localhost:5000`
 
-## 📋 Environment Variables
+## Environment Variables
 
 Create a `.env` file in the backend directory:
 
@@ -60,7 +60,7 @@ CLIENT_URL=http://localhost:3000
 TEAM_MAX_MEMBERS=50
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 backend/
@@ -117,7 +117,7 @@ backend/
 └── package.json
 ```
 
-## 🔐 Authentication
+## Authentication
 
 Taskly uses session-based authentication with Passport.js:
 
@@ -136,7 +136,7 @@ Use the `auth` middleware to protect routes:
 router.get('/protected', auth, controller);
 ```
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
@@ -196,7 +196,7 @@ router.get('/protected', auth, controller);
 - `GET /api/search/users` - Search users
 - `GET /api/teams/:teamId/search-users` - Search team users
 
-## 🗄️ Database Models
+## Database Models
 
 ### User
 ```javascript
@@ -252,7 +252,7 @@ router.get('/protected', auth, controller);
 }
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
@@ -271,7 +271,7 @@ npm test -- --coverage
 - `tests/email.test.js` - Email service tests
 - `tests/upload.test.js` - File upload tests
 
-## 🌱 Database Seeding
+## Database Seeding
 
 ### Seed Sample Data
 ```bash
@@ -290,7 +290,7 @@ Username: johndoe
 Password: password123
 ```
 
-## 🔒 Security Features
+## Security Features
 
 - **Password Hashing**: bcryptjs with salt rounds
 - **Session Management**: Secure session storage in MongoDB
@@ -300,7 +300,7 @@ Password: password123
 - **Helmet**: Security headers
 - **Sanitization**: Input sanitization middleware
 
-## 🚀 Deployment
+## Deployment
 
 ### Build for Production
 ```bash
@@ -318,14 +318,14 @@ docker build -t taskly-backend .
 docker run -p 5000:5000 taskly-backend
 ```
 
-## 📊 Performance
+## Performance
 
 - **Database Indexing**: Indexes on frequently queried fields
 - **Pagination**: All list endpoints support pagination
 - **Caching**: Session caching in MongoDB
 - **Lazy Loading**: Related data populated on demand
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### MongoDB Connection Error
 ```
@@ -351,7 +351,7 @@ Error: Failed to send email
 - Verify email template syntax
 - Check email recipient address
 
-## 📝 API Response Format
+## API Response Format
 
 All responses follow a consistent format:
 
@@ -375,7 +375,7 @@ All responses follow a consistent format:
 }
 ```
 
-## 🔄 Recent Fixes
+## Recent Fixes
 
 - Fixed undefined variable in invitation acceptance
 - Added team statistics endpoint
@@ -385,11 +385,11 @@ All responses follow a consistent format:
 
 See [LATEST_FIXES.md](../LATEST_FIXES.md) for details.
 
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details
 
-## 🤝 Contributing
+## Contributing
 
 1. Create feature branch
 2. Make changes

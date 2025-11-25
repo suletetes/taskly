@@ -2,7 +2,7 @@
 
 Modern React + Vite application for Taskly task management platform. Features real-time task management, team collaboration, and comprehensive analytics with a beautiful, responsive UI.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 16+
@@ -23,7 +23,7 @@ npm run dev
 
 Application will run on `http://localhost:3000`
 
-## 📋 Environment Variables
+## Environment Variables
 
 Create a `.env` file in the frontend directory:
 
@@ -60,7 +60,7 @@ VITE_ENABLE_SERVICE_WORKER=false
 VITE_ENABLE_PWA=true
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 frontend/
@@ -106,7 +106,7 @@ frontend/
 └── package.json
 ```
 
-## 🎨 Technology Stack
+## Technology Stack
 
 - **React 18**: UI library
 - **Vite**: Build tool and dev server
@@ -117,7 +117,7 @@ frontend/
 - **React Context API**: State management
 - **Heroicons**: Icon library
 
-## 🏃 Available Scripts
+## Available Scripts
 
 ```bash
 # Development
@@ -141,7 +141,7 @@ npm run lint:fix        # Fix linting issues
 npm run type-check      # Check TypeScript types
 ```
 
-## 🔐 Authentication
+## Authentication
 
 ### Login Flow
 1. User enters credentials on login page
@@ -171,7 +171,7 @@ Public routes:
 - Session persisted across page refreshes
 - Logout clears session and redirects to login
 
-## 🎯 Key Features
+## Key Features
 
 ### Task Management
 - Create, edit, delete tasks
@@ -209,7 +209,7 @@ Public routes:
 - Smooth animations
 - Accessible UI components
 
-## 🎨 Styling
+## Styling
 
 ### Tailwind CSS
 - Utility-first CSS framework
@@ -235,7 +235,7 @@ blue (info)
 ### Dark Mode
 Toggle dark mode in settings or use system preference.
 
-## 🔄 State Management
+## State Management
 
 ### Context Providers
 - **AuthContext**: User authentication state
@@ -261,7 +261,7 @@ function MyComponent() {
 }
 ```
 
-## 🌐 API Integration
+## API Integration
 
 ### API Client Setup
 ```javascript
@@ -291,7 +291,7 @@ const response = await api.put('/tasks/123', { title: 'Updated' })
 await api.delete('/tasks/123')
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
@@ -307,7 +307,7 @@ npm run test
 - React Testing Library: Component testing
 - Playwright: E2E testing
 
-## 🚀 Production Build
+## Production Build
 
 ### Build for Production
 ```bash
@@ -330,7 +330,7 @@ npm run build
 # Examples: Vercel, Netlify, AWS S3, etc.
 ```
 
-## 🔒 Security
+## Security
 
 - **HTTPS Only**: Use HTTPS in production
 - **Secure Cookies**: Session cookies are httpOnly
@@ -339,7 +339,7 @@ npm run build
 - **XSS Protection**: React escapes content by default
 - **CSRF Protection**: Session-based authentication
 
-## 📱 Browser Support
+## Browser Support
 
 - Chrome (latest)
 - Firefox (latest)
@@ -347,7 +347,7 @@ npm run build
 - Edge (latest)
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### 401 Unauthorized Errors
 - Ensure you're logged in
@@ -383,7 +383,7 @@ rm -rf node_modules/.vite
 npm run build
 ```
 
-## 📊 Performance Optimization
+## Performance Optimization
 
 - **Code Splitting**: Automatic with Vite
 - **Lazy Loading**: React.lazy for route components
@@ -391,7 +391,7 @@ npm run build
 - **Caching**: Browser caching for static assets
 - **Minification**: Automatic in production build
 
-## 🔄 Recent Fixes
+## Recent Fixes
 
 - Fixed session cookie handling for cross-origin requests
 - Separated 401 and 403 error handling
@@ -400,18 +400,18 @@ npm run build
 
 See [LATEST_FIXES.md](../LATEST_FIXES.md) for details.
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [React Documentation](https://react.dev)
 - [Vite Documentation](https://vitejs.dev)
 - [Tailwind CSS Documentation](https://tailwindcss.com)
 - [Axios Documentation](https://axios-http.com)
 
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details
 
-## 🤝 Contributing
+## Contributing
 
 1. Create feature branch
 2. Make changes
