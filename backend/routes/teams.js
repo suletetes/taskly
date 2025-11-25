@@ -501,6 +501,37 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
   }
 });
 
+// GET /api/teams/invite/:inviteCode/info - Get team info by invite code (without joining)
+router.get('/invite/:inviteCode/info', auth, async (req, res) => {
+  try {
+    const { inviteCode } = req.params;
+
+    const team = await Team.findOne({ inviteCode })
+      .populate('owner', 'fullname username avatar');
+    
+    if (!team) {
+      return notFoundResponse(res, 'Invalid invite code');
+    }
+
+    // Return basic team info without sensitive data
+    const teamInfo = {
+      _id: team._id,
+      name: team.name,
+      description: team.description,
+      memberCount: team.members.length,
+      projectCount: team.projects ? team.projects.length : 0,
+      owner: team.owner,
+      isPrivate: team.isPrivate,
+      createdAt: team.createdAt
+    };
+
+    return successResponse(res, teamInfo, 'Team info fetched successfully');
+  } catch (error) {
+    console.error('Error fetching team info:', error);
+    return errorResponse(res, 'Failed to fetch team info', 'FETCH_ERROR', 500);
+  }
+});
+
 // POST /api/teams/join/:inviteCode - Join team with invite code
 router.post('/join/:inviteCode', auth, async (req, res) => {
   try {

@@ -73,8 +73,8 @@ const Teams = () => {
         <>
           {teams.length > 0 ? (
             <TeamList 
-              teams={teams} 
-              onTeamClick={handleTeamClick}
+              onTeamSelect={handleTeamClick}
+              onCreateTeam={handleCreateTeam}
             />
           ) : (
             <motion.div

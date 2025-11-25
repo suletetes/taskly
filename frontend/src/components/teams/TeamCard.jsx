@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   UsersIcon,
@@ -17,12 +18,18 @@ import { useAuth } from '../../context/AuthContext';
 import Avatar from '../common/Avatar';
 import Badge from '../common/Badge';
 import DropdownMenu from '../common/DropdownMenu';
+import ConfirmDialog from '../common/ConfirmDialog';
+import InvitationModal from './InvitationModal';
 import { formatDistanceToNow } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
 const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { getUserRoleInTeam, canPerformAction } = useTeam();
+  const { getUserRoleInTeam, canPerformAction, leaveTeam } = useTeam();
   const [showMenu, setShowMenu] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const userRole = getUserRoleInTeam(team._id);
   const memberCount = team.members?.length || 0;
@@ -34,30 +41,45 @@ const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
   // Get recent members (last 3)
   const recentMembers = team.members?.slice(0, 3) || [];
 
+  // Handle leave team
+  const handleLeaveTeam = async () => {
+    try {
+      const result = await leaveTeam(team._id);
+      if (result.success) {
+        toast.success('You have left the team');
+        setShowLeaveConfirm(false);
+      } else {
+        toast.error(result.error || 'Failed to leave team');
+      }
+    } catch (error) {
+      toast.error('Failed to leave team');
+    }
+  };
+
   // Menu options based on user permissions
   const menuOptions = [
     {
       label: 'View Dashboard',
       icon: ChartBarIcon,
-      onClick: () => onClick?.(team),
+      onClick: () => navigate(`/teams/${team._id}`),
       show: true
     },
     {
       label: 'Team Settings',
       icon: Cog6ToothIcon,
-      onClick: () => {/* Handle settings */},
+      onClick: () => navigate(`/teams/${team._id}/settings`),
       show: canPerformAction(team._id, 'manage_settings')
     },
     {
       label: 'Invite Members',
       icon: UserGroupIcon,
-      onClick: () => {/* Handle invite */},
+      onClick: () => setShowInviteModal(true),
       show: canPerformAction(team._id, 'invite_members')
     },
     {
       label: 'Leave Team',
       icon: ArrowRightIcon,
-      onClick: () => {/* Handle leave */},
+      onClick: () => setShowLeaveConfirm(true),
       show: userRole && userRole !== 'owner',
       className: 'text-red-600 dark:text-red-400'
     }
@@ -295,6 +317,25 @@ const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
           {formatDistanceToNow(new Date(team.createdAt))} ago
         </span>
       </div>
+
+      {/* Leave Team Confirmation */}
+      <ConfirmDialog
+        isOpen={showLeaveConfirm}
+        onClose={() => setShowLeaveConfirm(false)}
+        onConfirm={handleLeaveTeam}
+        title="Leave Team"
+        message={`Are you sure you want to leave "${team.name}"? You will lose access to all team projects and tasks.`}
+        confirmText="Leave Team"
+        confirmVariant="danger"
+      />
+
+      {/* Invite Members Modal */}
+      <InvitationModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        teamId={team._id}
+        teamName={team.name}
+      />
     </motion.div>
   );
 };

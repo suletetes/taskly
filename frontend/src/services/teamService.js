@@ -265,6 +265,32 @@ class TeamService {
   }
 
   /**
+   * Validate invite code and get team info without joining
+   * @param {string} inviteCode - Team invite code
+   * @returns {Promise<Object>} Team info
+   */
+  async validateInviteCode(inviteCode) {
+    try {
+      if (!inviteCode || inviteCode.trim().length === 0) {
+        throw new Error('Invite code is required');
+      }
+
+      // Try to get team info by invite code
+      const response = await api.get(`${this.baseURL}/invite/${inviteCode.trim()}/info`);
+      
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: 'Invite code is valid'
+      };
+    } catch (error) {
+      // If the endpoint doesn't exist, try joining and catching the error
+      // This is a fallback for when the validate endpoint isn't available
+      return this.handleError(error, 'Invalid or expired invite code');
+    }
+  }
+
+  /**
    * Join a team using invite code
    * @param {string} inviteCode - Team invite code
    * @returns {Promise<Object>} Team data
@@ -279,7 +305,7 @@ class TeamService {
       
       return {
         success: true,
-        data: response.data,
+        data: response.data.data || response.data,
         message: 'Successfully joined team'
       };
     } catch (error) {
