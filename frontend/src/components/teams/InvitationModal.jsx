@@ -1,22 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Avatar from '../common/Avatar';
 import api from '../../services/api';
 
-const InvitationModal = ({ isOpen, onClose, user, team }) => {
+// This modal supports two modes:
+// 1. Direct user invitation (when user prop is provided)
+// 2. User search mode (when teamId is provided without user)
+const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
   const [role, setRole] = useState('member');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Search mode state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  // Determine which team ID to use
+  const effectiveTeamId = team?._id || teamId;
+  const effectiveTeamName = team?.name || teamName;
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchQuery('');
+      setSearchResults([]);
+      setSelectedUser(null);
+      setSuccess(false);
+      setError(null);
+      setRole('member');
+      setMessage('');
+    }
+  }, [isOpen]);
+
+  // Search for users
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const response = await api.get(`/teams/${effectiveTeamId}/search-users`, {
+        params: { q: query }
+      });
+      if (response.data.success) {
+        setSearchResults(response.data.data || []);
+      }
+    } catch (err) {
+      console.error('Error searching users:', err);
+    } finally {
+      setSearching(false);
+    }
+  };
 
   const handleSendInvitation = async () => {
+    const targetUser = user || selectedUser;
+    if (!targetUser) {
+      setError('Please select a user to invite');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post(`/teams/${team._id}/invitations`, {
-        userId: user._id,
+      const response = await api.post(`/teams/${effectiveTeamId}/invitations`, {
+        userId: targetUser._id,
         role,
         message: message || undefined
       });
@@ -28,11 +83,13 @@ const InvitationModal = ({ isOpen, onClose, user, team }) => {
           setSuccess(false);
           setRole('member');
           setMessage('');
+          setSelectedUser(null);
+          setSearchQuery('');
         }, 2000);
       }
     } catch (err) {
       console.error('Error sending invitation:', err);
-      setError(err.response?.data?.message || 'Failed to send invitation');
+      setError(err.response?.data?.error?.message || err.response?.data?.message || 'Failed to send invitation');
     } finally {
       setLoading(false);
     }
@@ -40,18 +97,21 @@ const InvitationModal = ({ isOpen, onClose, user, team }) => {
 
   if (!isOpen) return null;
 
+  const targetUser = user || selectedUser;
+  const isSearchMode = !user;
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white dark:bg-secondary-800 rounded-lg shadow-xl max-w-md w-full"
+        className="bg-white dark:bg-secondary-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-secondary-200 dark:border-secondary-700">
           <h2 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100">
-            Invite to Team
+            Invite to {effectiveTeamName || 'Team'}
           </h2>
           <button
             onClick={onClose}
@@ -62,7 +122,7 @@ const InvitationModal = ({ isOpen, onClose, user, team }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {success ? (
             <div className="text-center py-8">
               <motion.div
@@ -76,47 +136,90 @@ const InvitationModal = ({ isOpen, onClose, user, team }) => {
                 Invitation Sent!
               </h3>
               <p className="text-secondary-600 dark:text-secondary-400">
-                {user.fullname} will receive an invitation to join {team.name}
+                {targetUser?.fullname} will receive an invitation to join {effectiveTeamName}
               </p>
             </div>
           ) : (
             <>
-              {/* User Preview */}
-              <div className="flex items-center space-x-4 p-4 bg-secondary-50 dark:bg-secondary-900 rounded-lg">
-                <Avatar
-                  src={user.avatar}
-                  name={user.fullname}
-                  size="lg"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-secondary-900 dark:text-secondary-100">
-                    {user.fullname}
-                  </h3>
-                  <p className="text-sm text-secondary-500 dark:text-secondary-400">
-                    @{user.username}
-                  </p>
-                  <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
-                    {user.email}
-                  </p>
+              {/* Search Mode - User Search */}
+              {isSearchMode && !selectedUser && (
+                <div>
+                  <label className="block text-sm font-medium text-secondary-900 dark:text-secondary-100 mb-2">
+                    Search Users
+                  </label>
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      placeholder="Search by name or username..."
+                      className="w-full pl-10 pr-4 py-2 bg-secondary-50 dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-secondary-900 dark:text-secondary-100"
+                    />
+                  </div>
+                  
+                  {/* Search Results */}
+                  {searching && (
+                    <div className="mt-2 text-center text-secondary-500">Searching...</div>
+                  )}
+                  {searchResults.length > 0 && (
+                    <div className="mt-2 max-h-48 overflow-y-auto space-y-2">
+                      {searchResults.map((searchUser) => (
+                        <button
+                          key={searchUser._id}
+                          onClick={() => setSelectedUser(searchUser)}
+                          className="w-full flex items-center space-x-3 p-3 bg-secondary-50 dark:bg-secondary-900 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors text-left"
+                        >
+                          <Avatar src={searchUser.avatar} name={searchUser.fullname} size="sm" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-secondary-900 dark:text-secondary-100 truncate">
+                              {searchUser.fullname}
+                            </p>
+                            <p className="text-xs text-secondary-500 dark:text-secondary-400">
+                              @{searchUser.username}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {searchQuery.length >= 2 && !searching && searchResults.length === 0 && (
+                    <div className="mt-2 text-center text-secondary-500 dark:text-secondary-400">
+                      No users found
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
-              {/* Team Preview */}
-              <div className="flex items-center space-x-4 p-4 bg-secondary-50 dark:bg-secondary-900 rounded-lg">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-semibold">
-                    {team.name.charAt(0).toUpperCase()}
-                  </span>
+              {/* User Preview (when user is selected or provided) */}
+              {targetUser && (
+                <div className="flex items-center space-x-4 p-4 bg-secondary-50 dark:bg-secondary-900 rounded-lg">
+                  <Avatar
+                    src={targetUser.avatar}
+                    name={targetUser.fullname}
+                    size="lg"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-secondary-900 dark:text-secondary-100">
+                      {targetUser.fullname}
+                    </h3>
+                    <p className="text-sm text-secondary-500 dark:text-secondary-400">
+                      @{targetUser.username}
+                    </p>
+                    <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
+                      {targetUser.email}
+                    </p>
+                  </div>
+                  {isSearchMode && (
+                    <button
+                      onClick={() => setSelectedUser(null)}
+                      className="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-300"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-secondary-900 dark:text-secondary-100">
-                    {team.name}
-                  </h3>
-                  <p className="text-sm text-secondary-500 dark:text-secondary-400 truncate">
-                    {team.description || 'No description'}
-                  </p>
-                </div>
-              </div>
+              )}
 
               {/* Role Selection */}
               <div>
@@ -178,8 +281,8 @@ const InvitationModal = ({ isOpen, onClose, user, team }) => {
             </button>
             <button
               onClick={handleSendInvitation}
-              disabled={loading}
-              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+              disabled={loading || !targetUser}
+              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {loading ? (
                 <>

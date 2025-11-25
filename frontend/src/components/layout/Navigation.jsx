@@ -16,13 +16,14 @@ import {
   FolderIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  PlusIcon
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTeam } from '../../context/TeamContext';
 import { useProject } from '../../context/ProjectContext';
+import NotificationBell from '../notifications/NotificationBell';
 
 const Navigation = ({ onSearchOpen, onQuickAction }) => {
   const { user } = useAuth();
@@ -43,6 +44,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
     { name: 'Teams', href: '/teams', icon: UsersIcon },
     { name: 'Projects', href: '/projects', icon: FolderIcon },
+    { name: 'Invitations', href: '/invitations', icon: EnvelopeIcon },
     { name: 'Settings', href: '/settings', icon: CogIcon },
   ];
 
@@ -248,6 +250,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
               >
                 {getThemeLabel()}
               </Button>
+              <NotificationBell />
             </div>
             
             {user && (
@@ -284,6 +287,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
           </div>
           
           <div className="flex items-center space-x-2">
+            <NotificationBell />
             <Button
               variant="ghost"
               size="sm"

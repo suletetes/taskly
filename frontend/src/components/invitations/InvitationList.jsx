@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-hot-toast';
 import InvitationCard from './InvitationCard';
 import api from '../../services/api';
 
@@ -45,9 +46,11 @@ const InvitationList = () => {
       if (response.data.success) {
         // Remove invitation from list
         setInvitations(invitations.filter(inv => inv._id !== invitationId));
+        toast.success('Invitation accepted! You have joined the team.');
       }
     } catch (err) {
       console.error('Error accepting invitation:', err);
+      toast.error(err.response?.data?.error?.message || 'Failed to accept invitation');
     }
   };
 
@@ -57,9 +60,11 @@ const InvitationList = () => {
       if (response.data.success) {
         // Remove invitation from list
         setInvitations(invitations.filter(inv => inv._id !== invitationId));
+        toast.success('Invitation denied');
       }
     } catch (err) {
       console.error('Error denying invitation:', err);
+      toast.error(err.response?.data?.error?.message || 'Failed to deny invitation');
     }
   };
 
