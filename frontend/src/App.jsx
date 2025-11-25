@@ -36,6 +36,7 @@ const TeamSettings = React.lazy(() => import('./pages/TeamSettings'));
 const ProjectDashboard = React.lazy(() => import('./pages/ProjectDashboard'));
 const ProjectSettings = React.lazy(() => import('./pages/ProjectSettings'));
 const JoinTeam = React.lazy(() => import('./pages/JoinTeam'));
+const Invitations = React.lazy(() => import('./pages/Invitations'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
@@ -279,6 +280,15 @@ const App = () => {
                           <ProtectedRoute>
                             <AppLayout>
                               <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Invitations Route */}
+                        <Route path="/invitations" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Invitations />
                             </AppLayout>
                           </ProtectedRoute>
                         } />

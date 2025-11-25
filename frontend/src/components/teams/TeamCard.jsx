@@ -14,7 +14,6 @@ import {
   UserGroupIcon
 } from '@heroicons/react/24/outline';
 import { useTeam } from '../../context/TeamContext';
-import { useAuth } from '../../context/AuthContext';
 import Avatar from '../common/Avatar';
 import Badge from '../common/Badge';
 import DropdownMenu from '../common/DropdownMenu';
@@ -25,9 +24,7 @@ import { toast } from 'react-hot-toast';
 
 const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { getUserRoleInTeam, canPerformAction, leaveTeam } = useTeam();
-  const [showMenu, setShowMenu] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
