@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { XMarkIcon, CheckCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Avatar from '../common/Avatar';
@@ -100,10 +101,11 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
   const targetUser = user || selectedUser;
   const isSearchMode = !user;
 
-  return (
+  const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
       onClick={(e) => {
+        e.stopPropagation();
         // Only close if clicking the backdrop, not the modal content
         if (e.target === e.currentTarget) {
           onClose();
@@ -115,7 +117,7 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-secondary-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+        className="bg-white dark:bg-secondary-800 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-secondary-200 dark:border-secondary-700">
@@ -294,7 +296,7 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
             <button
               onClick={handleSendInvitation}
               disabled={loading || !targetUser}
-              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {loading ? (
                 <>
@@ -310,6 +312,9 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
       </motion.div>
     </div>
   );
+
+  // Use portal to render at document body level to avoid z-index issues
+  return createPortal(modalContent, document.body);
 };
 
 export default InvitationModal;

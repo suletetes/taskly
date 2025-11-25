@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const Modal = ({ 
@@ -46,20 +47,29 @@ const Modal = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       <div 
         className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0"
         onClick={handleOverlayClick}
       >
         {/* Overlay */}
-        <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (closeOnOverlayClick) onClose();
+          }}
+        />
         
         {/* Modal */}
-        <div className={`
-          relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 
-          text-left shadow-xl transition-all w-full ${sizeClasses[size]} ${className}
-        `}>
+        <div 
+          className={`
+            relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 
+            text-left shadow-xl transition-all w-full ${sizeClasses[size]} ${className}
+          `}
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           {(title || showCloseButton) && (
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
@@ -88,6 +98,9 @@ const Modal = ({
       </div>
     </div>
   );
+
+  // Use portal to render modal at document body level
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal;
