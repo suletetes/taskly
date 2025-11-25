@@ -7,6 +7,10 @@ import Badge from '../common/Badge';
 const TeamMembersList = ({ members, onRemoveMember }) => {
   // Handle case where members might be undefined or not an array
   const memberList = Array.isArray(members) ? members : [];
+  
+  console.log('🧑‍🤝‍🧑 [TeamMembersList] Received members:', members);
+  console.log('🧑‍🤝‍🧑 [TeamMembersList] memberList:', memberList);
+  console.log('🧑‍🤝‍🧑 [TeamMembersList] memberList.length:', memberList.length);
 
   return (
     <div className="bg-white dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700 p-6">
@@ -18,14 +22,17 @@ const TeamMembersList = ({ members, onRemoveMember }) => {
         {memberList.length > 0 ? (
           memberList.map((member, index) => {
             // Handle both populated user objects and user IDs
-            const userId = typeof member.user === 'object' ? member.user._id : member.user;
-            const userFullname = typeof member.user === 'object' ? member.user.fullname : 'Unknown';
-            const userUsername = typeof member.user === 'object' ? member.user.username : 'unknown';
-            const userAvatar = typeof member.user === 'object' ? member.user.avatar : null;
+            const userObj = member.user || member;
+            const userId = typeof userObj === 'object' ? (userObj._id || userObj.id) : userObj;
+            const userFullname = typeof userObj === 'object' ? (userObj.fullname || userObj.name || 'Unknown') : 'Unknown';
+            const userUsername = typeof userObj === 'object' ? (userObj.username || 'unknown') : 'unknown';
+            const userAvatar = typeof userObj === 'object' ? userObj.avatar : null;
+
+            console.log('🧑 [TeamMembersList] Rendering member:', { userId, userFullname, userUsername, member });
 
             return (
               <motion.div
-                key={userId}
+                key={userId || `member-${index}`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}

@@ -35,11 +35,24 @@ const TeamDashboard = ({ teamId }) => {
 
       // Fetch team members
       const membersResponse = await api.get(`/teams/${teamId}/members`);
-      console.log('👥 [TeamDashboard] Members response:', membersResponse.data);
+      console.log('👥 [TeamDashboard] Full members response:', membersResponse.data);
       if (membersResponse.data.success) {
-        // Handle both response formats
-        const membersData = membersResponse.data.data?.members || membersResponse.data.data || [];
-        console.log('👥 [TeamDashboard] Members data:', membersData);
+        // The API returns { success: true, data: { members: [...], memberCount: N } }
+        const responseData = membersResponse.data.data;
+        let membersData = [];
+        
+        if (Array.isArray(responseData)) {
+          // Direct array
+          membersData = responseData;
+        } else if (responseData?.members && Array.isArray(responseData.members)) {
+          // Nested members array
+          membersData = responseData.members;
+        } else if (typeof responseData === 'object') {
+          // Maybe the data itself is the members object
+          membersData = Object.values(responseData).find(v => Array.isArray(v)) || [];
+        }
+        
+        console.log('👥 [TeamDashboard] Extracted members:', membersData);
         setMembers(membersData);
       }
 

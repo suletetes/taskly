@@ -315,24 +315,28 @@ const TeamCard = ({ team, viewMode = 'grid', onClick, className = '' }) => {
         </span>
       </div>
 
-      {/* Leave Team Confirmation */}
-      <ConfirmDialog
-        isOpen={showLeaveConfirm}
-        onClose={() => setShowLeaveConfirm(false)}
-        onConfirm={handleLeaveTeam}
-        title="Leave Team"
-        message={`Are you sure you want to leave "${team.name}"? You will lose access to all team projects and tasks.`}
-        confirmText="Leave Team"
-        confirmVariant="danger"
-      />
+      {/* Leave Team Confirmation - Rendered via Portal */}
+      {showLeaveConfirm && (
+        <ConfirmDialog
+          isOpen={showLeaveConfirm}
+          onClose={() => setShowLeaveConfirm(false)}
+          onConfirm={handleLeaveTeam}
+          title="Leave Team"
+          message={`Are you sure you want to leave "${team.name}"? You will lose access to all team projects and tasks.`}
+          confirmText="Leave Team"
+          confirmVariant="danger"
+        />
+      )}
 
-      {/* Invite Members Modal */}
-      <InvitationModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        teamId={team._id}
-        teamName={team.name}
-      />
+      {/* Invite Members Modal - Rendered via Portal */}
+      {showInviteModal && (
+        <InvitationModal
+          isOpen={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          teamId={team._id}
+          teamName={team.name}
+        />
+      )}
     </motion.div>
   );
 };
