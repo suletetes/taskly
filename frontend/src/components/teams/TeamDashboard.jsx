@@ -19,7 +19,10 @@ const TeamDashboard = ({ teamId }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchDashboardData();
+    if (teamId) {
+      fetchDashboardData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamId]);
 
   const fetchDashboardData = async () => {
@@ -36,25 +39,31 @@ const TeamDashboard = ({ teamId }) => {
       // Fetch team members
       const membersResponse = await api.get(`/teams/${teamId}/members`);
       console.log('👥 [TeamDashboard] Full members response:', membersResponse.data);
-      if (membersResponse.data.success) {
-        // The API returns { success: true, data: { members: [...], memberCount: N } }
+      console.log('👥 [TeamDashboard] Response has success?:', membersResponse.data.success);
+      console.log('👥 [TeamDashboard] Response.data.data:', membersResponse.data.data);
+      
+      // Handle different response formats
+      let membersData = [];
+      
+      if (membersResponse.data.success && membersResponse.data.data) {
+        // Wrapped in success
         const responseData = membersResponse.data.data;
-        let membersData = [];
-        
         if (Array.isArray(responseData)) {
-          // Direct array
           membersData = responseData;
-        } else if (responseData?.members && Array.isArray(responseData.members)) {
-          // Nested members array
+        } else if (responseData.members && Array.isArray(responseData.members)) {
           membersData = responseData.members;
-        } else if (typeof responseData === 'object') {
-          // Maybe the data itself is the members object
-          membersData = Object.values(responseData).find(v => Array.isArray(v)) || [];
         }
-        
-        console.log('👥 [TeamDashboard] Extracted members:', membersData);
-        setMembers(membersData);
+      } else if (membersResponse.data.members && Array.isArray(membersResponse.data.members)) {
+        // Direct response with members property
+        membersData = membersResponse.data.members;
+      } else if (Array.isArray(membersResponse.data)) {
+        // Direct array
+        membersData = membersResponse.data;
       }
+      
+      console.log('👥 [TeamDashboard] Extracted members:', membersData);
+      console.log('👥 [TeamDashboard] Setting members state with:', membersData.length, 'items');
+      setMembers(membersData);
 
       // Fetch pending invitations
       try {
@@ -70,8 +79,12 @@ const TeamDashboard = ({ teamId }) => {
         } else if (invitationsResponse.data.success) {
           // Wrapped response format
           invitationsData = invitationsResponse.data.data?.invitations || invitationsResponse.data.data || [];
+        } else if (invitationsResponse.data.invitations) {
+          // Direct object with invitations property
+          invitationsData = invitationsResponse.data.invitations;
         }
-        setPendingInvitations(invitationsData);
+        console.log('📨 [TeamDashboard] Extracted invitations:', invitationsData);
+        setPendingInvitations(Array.isArray(invitationsData) ? invitationsData : []);
       } catch (invErr) {
         console.log('📨 [TeamDashboard] No invitations endpoint or error:', invErr.message);
         setPendingInvitations([]);
@@ -180,6 +193,7 @@ const TeamDashboard = ({ teamId }) => {
           transition={{ delay: 0.5 }}
           className="lg:col-span-2"
         >
+          {console.log('👥 [TeamDashboard] Passing members to TeamMembersList:', members, 'length:', members.length)}
           <TeamMembersList members={members} />
         </motion.div>
 

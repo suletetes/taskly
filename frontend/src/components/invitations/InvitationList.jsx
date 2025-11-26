@@ -30,16 +30,26 @@ const InvitationList = () => {
 
       console.log('📨 [InvitationList] Response:', response.data);
       
+      // Handle different response formats
+      let invitationsData = [];
+      let paginationData = { pages: 1 };
+      
       if (response.data.success) {
-        const invitationsData = response.data.data?.invitations || response.data.data || [];
-        const paginationData = response.data.data?.pagination || { pages: 1 };
-        
-        setInvitations(Array.isArray(invitationsData) ? invitationsData : []);
-        setTotalPages(paginationData.pages || 1);
-      } else {
-        setInvitations([]);
-        setTotalPages(0);
+        // Wrapped in success
+        invitationsData = response.data.data?.invitations || response.data.data || [];
+        paginationData = response.data.data?.pagination || { pages: 1 };
+      } else if (response.data.invitations) {
+        // Direct response with invitations property
+        invitationsData = response.data.invitations;
+        paginationData = response.data.pagination || { pages: 1 };
+      } else if (Array.isArray(response.data)) {
+        // Direct array
+        invitationsData = response.data;
       }
+      
+      console.log('📨 [InvitationList] Extracted invitations:', invitationsData);
+      setInvitations(Array.isArray(invitationsData) ? invitationsData : []);
+      setTotalPages(paginationData.pages || 1);
     } catch (err) {
       console.error('Error fetching invitations:', err);
       // Don't show error if it's just empty - show empty state instead
