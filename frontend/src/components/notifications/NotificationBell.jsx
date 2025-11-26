@@ -84,7 +84,7 @@ const NotificationBell = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="fixed lg:absolute right-4 lg:right-0 top-16 lg:top-auto lg:mt-2 w-80 sm:w-96 bg-white dark:bg-secondary-800 rounded-lg shadow-lg border border-secondary-200 dark:border-secondary-700 overflow-hidden z-[100]"
+            className="fixed lg:absolute right-4 lg:right-0 top-16 lg:top-auto lg:mt-2 w-80 sm:w-96 bg-white dark:bg-secondary-800 rounded-lg shadow-xl border border-secondary-200 dark:border-secondary-700 overflow-hidden z-[9999]"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-secondary-200 dark:border-secondary-700">

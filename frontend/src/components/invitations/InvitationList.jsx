@@ -74,7 +74,16 @@ const InvitationList = () => {
       }
     } catch (err) {
       console.error('Error accepting invitation:', err);
-      toast.error(err.response?.data?.error?.message || 'Failed to accept invitation');
+      const errorMessage = err.response?.data?.error?.message || 'Failed to accept invitation';
+      
+      // If invitation was already accepted or is no longer pending, refresh the list
+      if (err.response?.status === 400 || err.response?.status === 409) {
+        toast.error(errorMessage);
+        // Refresh invitations to get current state
+        fetchInvitations();
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -88,7 +97,16 @@ const InvitationList = () => {
       }
     } catch (err) {
       console.error('Error denying invitation:', err);
-      toast.error(err.response?.data?.error?.message || 'Failed to deny invitation');
+      const errorMessage = err.response?.data?.error?.message || 'Failed to deny invitation';
+      
+      // If invitation was already processed or is no longer pending, refresh the list
+      if (err.response?.status === 400 || err.response?.status === 409) {
+        toast.error(errorMessage);
+        // Refresh invitations to get current state
+        fetchInvitations();
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
