@@ -56,14 +56,14 @@ const Profile = () => {
   const [isChangingAvatar, setIsChangingAvatar] = useState(false)
   const [selectedAvatar, setSelectedAvatar] = useState('')
   const [avatarOptions] = useState([
-    '/img/avatars/avatar-1.jpg',
-    '/img/avatars/avatar-2.jpg',
-    '/img/avatars/avatar-3.jpg',
-    '/img/avatars/avatar-4.jpg',
-    '/img/avatars/avatar-5.jpg',
-    '/img/avatars/avatar-6.jpg',
-    '/img/avatars/avatar-7.jpg',
-    '/img/avatars/avatar-8.jpg'
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jasmine',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Max',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie'
   ])
   
   // Password change state
@@ -312,8 +312,8 @@ const Profile = () => {
               <div className="relative group">
                 <div className="relative">
                   <SafeImage
-                    src={currentUser.avatar?.startsWith('http') ? currentUser.avatar : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${currentUser.avatar}`}
-                    fallbackSrc={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`}
+                    src={currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}
+                    fallbackSrc="https://api.dicebear.com/7.x/avataaars/svg?seed=default"
                     className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover"
                     alt="Profile avatar"
                   />
@@ -746,9 +746,9 @@ const Profile = () => {
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-secondary-800 rounded-xl shadow-xl max-w-lg w-full"
+              className="bg-white dark:bg-secondary-800 rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
@@ -766,37 +766,119 @@ const Profile = () => {
 
                 <div className="text-center mb-6">
                   <SafeImage
-                    src={selectedAvatar}
-                    fallbackSrc="/img/placeholder-user.png"
+                    src={selectedAvatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}
+                    fallbackSrc="https://api.dicebear.com/7.x/avataaars/svg?seed=default"
                     className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-secondary-200 dark:border-secondary-600"
                     alt="Selected avatar"
                   />
                 </div>
 
-                <div className="grid grid-cols-4 gap-3 mb-6">
-                  {avatarOptions.map((avatar, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedAvatar(avatar)}
-                      className={`relative rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedAvatar === avatar
-                          ? 'border-primary-500 ring-2 ring-primary-200'
-                          : 'border-secondary-200 dark:border-secondary-600 hover:border-primary-300'
-                      }`}
+                {/* Upload Custom Avatar */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-3">
+                    Upload Custom Avatar
+                  </label>
+                  <div className="border-2 border-dashed border-secondary-300 dark:border-secondary-600 rounded-lg p-6 text-center hover:border-primary-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setIsSubmitting(true);
+                          setError(null);
+                          try {
+                            const formData = new FormData();
+                            formData.append('avatar', file);
+                            
+                            // Upload to Cloudinary via /api/upload/avatar
+                            const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/upload/avatar`, {
+                              method: 'POST',
+                              headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                              },
+                              body: formData
+                            });
+                            
+                            const uploadData = await uploadResponse.json();
+                            
+                            if (uploadData.success && uploadData.data?.avatarUrl) {
+                              setSelectedAvatar(uploadData.data.avatarUrl);
+                              await updateUser();
+                              setIsChangingAvatar(false);
+                              setSuccessMessage('Avatar uploaded successfully!');
+                              setTimeout(() => setSuccessMessage(''), 3000);
+                            } else {
+                              throw new Error(uploadData.error?.message || 'Upload failed');
+                            }
+                          } catch (err) {
+                            setError(err.message || 'Failed to upload avatar');
+                          } finally {
+                            setIsSubmitting(false);
+                          }
+                        }
+                      }}
+                      className="hidden"
+                      id="avatar-upload"
+                      disabled={isSubmitting}
+                    />
+                    <label
+                      htmlFor="avatar-upload"
+                      className="cursor-pointer flex flex-col items-center"
                     >
-                      <SafeImage
-                        src={avatar}
-                        fallbackSrc="/img/placeholder-user.png"
-                        className="w-full h-16 object-cover"
-                        alt={`Avatar option ${index + 1}`}
-                      />
-                      {selectedAvatar === avatar && (
-                        <div className="absolute inset-0 bg-primary-500/20 flex items-center justify-center">
-                          <CheckIcon className="w-6 h-6 text-primary-600" />
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                      <PhotoIcon className="w-12 h-12 text-secondary-400 mb-2" />
+                      <span className="text-sm font-medium text-secondary-700 dark:text-secondary-300">
+                        {isSubmitting ? 'Uploading...' : 'Click to upload or drag and drop'}
+                      </span>
+                      <span className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
+                        PNG, JPG, GIF up to 5MB
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-secondary-200 dark:border-secondary-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-secondary-800 text-secondary-500">
+                      Or choose from presets
+                    </span>
+                  </div>
+                </div>
+
+                {/* Preset Avatars */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-3">
+                    Select Preset Avatar
+                  </label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {avatarOptions.map((avatar, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedAvatar(avatar)}
+                        className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                          selectedAvatar === avatar
+                            ? 'border-primary-500 ring-2 ring-primary-200'
+                            : 'border-secondary-200 dark:border-secondary-600 hover:border-primary-300'
+                        }`}
+                      >
+                        <SafeImage
+                          src={avatar}
+                          fallbackSrc="https://api.dicebear.com/7.x/avataaars/svg?seed=default"
+                          className="w-full h-16 object-cover"
+                          alt={`Avatar option ${index + 1}`}
+                        />
+                        {selectedAvatar === avatar && (
+                          <div className="absolute inset-0 bg-primary-500/20 flex items-center justify-center">
+                            <CheckIcon className="w-6 h-6 text-primary-600" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3">

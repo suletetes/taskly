@@ -140,24 +140,42 @@ const AppLayout = ({ children }) => {
 
       {/* Toast Notifications */}
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           duration: 4000,
           style: {
-            background: 'var(--color-secondary-800)',
-            color: 'var(--color-secondary-100)',
-            border: '1px solid var(--color-secondary-700)',
+            background: '#1f2937',
+            color: '#f9fafb',
+            border: '1px solid #374151',
+            padding: '16px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
+            borderRadius: '8px',
+            maxWidth: '500px',
           },
           success: {
+            duration: 3000,
+            style: {
+              background: '#059669',
+              color: '#ffffff',
+              border: '1px solid #10b981',
+            },
             iconTheme: {
-              primary: 'var(--color-success-500)',
-              secondary: 'white',
+              primary: '#ffffff',
+              secondary: '#059669',
             },
           },
           error: {
+            duration: 5000,
+            style: {
+              background: '#dc2626',
+              color: '#ffffff',
+              border: '1px solid #ef4444',
+            },
             iconTheme: {
-              primary: 'var(--color-error-500)',
-              secondary: 'white',
+              primary: '#ffffff',
+              secondary: '#dc2626',
             },
           },
         }}

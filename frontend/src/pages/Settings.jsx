@@ -51,7 +51,9 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      const response = await userService.updateProfile(profileForm);
+      // Remove avatar from profile update (avatar is updated separately)
+      const { avatar, ...profileData } = profileForm;
+      const response = await userService.updateProfile(profileData);
       
       // Update local state immediately
       if (response.success && response.data?.user) {
