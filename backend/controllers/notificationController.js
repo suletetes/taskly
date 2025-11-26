@@ -54,6 +54,10 @@ export const getUserNotifications = async (req, res) => {
  */
 export const getUnreadCount = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      return errorResponse(res, 'User not authenticated', 'AUTH_ERROR', 401);
+    }
+    
     const unreadCount = await Notification.getUnreadCount(req.user.id);
     return successResponse(res, { unreadCount }, 'Unread count fetched successfully');
   } catch (error) {

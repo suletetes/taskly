@@ -220,12 +220,15 @@ const updateProfileSchema = Joi.object({
       'string.email': 'Please provide a valid email address'
     }),
 
-  avatar: Joi.string()
-    .uri()
+  avatar: Joi.alternatives()
+    .try(
+      Joi.string().uri(),
+      Joi.string().allow(''),
+      Joi.allow(null)
+    )
     .optional()
-    .allow('', null)
     .messages({
-      'string.uri': 'Avatar must be a valid URL'
+      'alternatives.match': 'Avatar must be a valid URL or empty'
     }),
 
   bio: Joi.string()
