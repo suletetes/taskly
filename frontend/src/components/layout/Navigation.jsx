@@ -44,6 +44,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
     { name: 'Teams', href: '/teams', icon: UsersIcon },
     { name: 'Projects', href: '/projects', icon: FolderIcon },
+    { name: 'Find Users', href: '/find-users', icon: UsersIcon },
     { name: 'Invitations', href: '/invitations', icon: EnvelopeIcon },
     { name: 'Settings', href: '/settings', icon: CogIcon },
   ];
