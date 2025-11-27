@@ -782,32 +782,18 @@ const Profile = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          setIsSubmitting(true);
-                          setError(null);
-                          try {
-                            const formData = new FormData();
-                            formData.append('avatar', file);
-                            
-                            // Upload to Cloudinary via /api/upload/avatar using userService
-                            const uploadData = await userService.uploadAvatarFile(formData);
-                            
-                            if (uploadData.success && uploadData.data?.avatarUrl) {
-                              setSelectedAvatar(uploadData.data.avatarUrl);
-                              await updateUser();
-                              setIsChangingAvatar(false);
-                              setSuccessMessage('Avatar uploaded successfully!');
-                              setTimeout(() => setSuccessMessage(''), 3000);
-                            } else {
-                              throw new Error(uploadData.error?.message || 'Upload failed');
-                            }
-                          } catch (err) {
-                            setError(err.message || 'Failed to upload avatar');
-                          } finally {
-                            setIsSubmitting(false);
-                          }
+                          // Show preview immediately
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setSelectedAvatar(reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                          
+                          // Store file for upload
+                          e.target.uploadFile = file;
                         }
                       }}
                       className="hidden"
@@ -820,7 +806,7 @@ const Profile = () => {
                     >
                       <PhotoIcon className="w-12 h-12 text-secondary-400 mb-2" />
                       <span className="text-sm font-medium text-secondary-700 dark:text-secondary-300">
-                        {isSubmitting ? 'Uploading...' : 'Click to upload or drag and drop'}
+                        Click to upload or drag and drop
                       </span>
                       <span className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
                         PNG, JPG, GIF up to 5MB
@@ -881,7 +867,40 @@ const Profile = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={() => handleAvatarChange(selectedAvatar)}
+                    onClick={async () => {
+                      const fileInput = document.getElementById('avatar-upload');
+                      const file = fileInput?.uploadFile;
+                      
+                      // If a file was selected, upload it
+                      if (file) {
+                        setIsSubmitting(true);
+                        setError(null);
+                        try {
+                          const formData = new FormData();
+                          formData.append('avatar', file);
+                          
+                          // Upload to Cloudinary
+                          const uploadData = await userService.uploadAvatarFile(formData);
+                          
+                          if (uploadData.success && uploadData.data?.avatarUrl) {
+                            setSelectedAvatar(uploadData.data.avatarUrl);
+                            await updateUser();
+                            setIsChangingAvatar(false);
+                            setSuccessMessage('Avatar uploaded successfully!');
+                            setTimeout(() => setSuccessMessage(''), 3000);
+                          } else {
+                            throw new Error(uploadData.error?.message || 'Upload failed');
+                          }
+                        } catch (err) {
+                          setError(err.message || 'Failed to upload avatar');
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      } else {
+                        // No file selected, just update with preset avatar
+                        handleAvatarChange(selectedAvatar);
+                      }
+                    }}
                     disabled={isSubmitting}
                     className="btn btn-primary"
                   >
