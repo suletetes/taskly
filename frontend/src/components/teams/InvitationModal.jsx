@@ -59,7 +59,10 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
       if (response.data.success) {
         const users = response.data.data?.users || response.data.data || [];
         console.log('🔍 [InvitationModal] Extracted users:', users);
+        console.log('🔍 [InvitationModal] Users is array?', Array.isArray(users));
+        console.log('🔍 [InvitationModal] Users length:', users.length);
         setSearchResults(users);
+        console.log('🔍 [InvitationModal] Search results state updated');
       } else {
         console.log('🔍 [InvitationModal] Response not successful:', response.data);
       }
