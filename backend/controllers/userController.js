@@ -1,5 +1,7 @@
 import User from '../models/User.js';
 import Task from '../models/Task.js';
+import Team from '../models/Team.js';
+import Invitation from '../models/Invitation.js';
 import { calculateProductivityStats } from '../utils/productivityStats.js';
 import { comparePassword, hashPassword } from '../utils/password.js';
 
@@ -678,6 +680,150 @@ const resetPassword = async (req, res) => {
     }
 };
 
+/**
+ * Discover users for team invitations with pagination and search
+ * Excludes current user and optionally team members
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const discoverUsers = async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+        const search = req.query.q || '';
+        const teamId = req.query.teamId;
+
+        // Build exclusion list
+        let excludeIds = [currentUserId];
+
+        // If teamId provided, exclude team members
+        if (teamId) {
+            try {
+                const team = await Team.findById(teamId);
+                if (team) {
+                    const teamMemberIds = team.members.map(m => m.user.toString());
+                    excludeIds = [...new Set([...excludeIds, ...teamMemberIds])];
+                }
+            } catch (error) {
+                console.error('Error fetching team members for exclusion:', error);
+                // Continue with search even if team fetch fails
+            }
+        }
+
+        // Build search query
+        let searchQuery = {
+            _id: { $nin: excludeIds }
+        };
+
+        if (search && search.trim().length >= 2) {
+            const searchRegex = new RegExp(search.trim(), 'i');
+            searchQuery.$or = [
+                { fullname: searchRegex },
+                { username: searchRegex },
+                { email: searchRegex }
+            ];
+        }
+
+        // Get total count
+        const total = await User.countDocuments(searchQuery);
+        const totalPages = Math.ceil(total / limit);
+
+        // Fetch users
+        const users = await User.find(searchQuery)
+            .select('fullname username email avatar bio isOnline lastActive')
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ fullname: 1 })
+            .lean();
+
+        // If teamId provided, check invitation status for each user
+        let usersWithStatus = users;
+        if (teamId) {
+            usersWithStatus = await Promise.all(users.map(async (user) => {
+                const status = await getUserInvitationStatus(user._id.toString(), teamId);
+                return {
+                    ...user,
+                    invitationStatus: status
+                };
+            }));
+        }
+
+        res.json({
+            success: true,
+            data: {
+                users: usersWithStatus,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    pages: totalPages,
+                    hasNextPage: page < totalPages,
+                    hasPreviousPage: page > 1
+                }
+            },
+            message: 'Users discovered successfully'
+        });
+
+    } catch (error) {
+        console.error('Error discovering users:', error);
+        res.status(500).json({
+            success: false,
+            error: {
+                message: 'Failed to discover users',
+                code: 'USER_DISCOVERY_ERROR'
+            }
+        });
+    }
+};
+
+/**
+ * Helper function to check user invitation status for a team
+ * @param {String} userId - User ID to check
+ * @param {String} teamId - Team ID to check against
+ * @returns {String} Status: 'available', 'member', 'pending', or 'invited'
+ */
+const getUserInvitationStatus = async (userId, teamId) => {
+    try {
+        // Check if user is already a team member
+        const team = await Team.findById(teamId);
+        if (team) {
+            const isMember = team.members.some(m => m.user.toString() === userId);
+            if (isMember) {
+                return 'member';
+            }
+        }
+
+        // Check if there's a pending invitation
+        const pendingInvitation = await Invitation.findOne({
+            team: teamId,
+            user: userId,
+            status: 'pending'
+        });
+
+        if (pendingInvitation) {
+            return 'pending';
+        }
+
+        // Check if there's an accepted/rejected invitation (recently invited)
+        const recentInvitation = await Invitation.findOne({
+            team: teamId,
+            user: userId,
+            status: { $in: ['accepted', 'rejected'] },
+            updatedAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } // Last 7 days
+        });
+
+        if (recentInvitation) {
+            return 'invited';
+        }
+
+        return 'available';
+    } catch (error) {
+        console.error('Error checking invitation status:', error);
+        return 'available'; // Default to available on error
+    }
+};
+
 export {
     getUserById,
     getAllUsers,
@@ -689,4 +835,6 @@ export {
     deleteCurrentUser,
     requestPasswordReset,
     resetPassword,
+    discoverUsers,
+    getUserInvitationStatus,
 };
