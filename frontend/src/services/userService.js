@@ -77,7 +77,21 @@ const userService = {
     }
   },
 
-  // Upload avatar
+  // Upload avatar file to Cloudinary
+  async uploadAvatarFile(formData) {
+    try {
+      const response = await apiService.post('/upload/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Upload avatar (update avatar URL)
   async uploadAvatar(avatarData) {
     try {
       const response = await apiService.put('/users/profile/avatar', avatarData)
@@ -137,6 +151,36 @@ const userService = {
       })
       
       const response = await apiService.get(`/users?${params}`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Discover users for team invitations
+  async discoverUsers(query, page = 1, limit = 20, teamId = null) {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString()
+      })
+      
+      if (query) params.append('q', query)
+      if (teamId) params.append('teamId', teamId)
+      
+      const response = await apiService.get(`/users/discover?${params}`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Check invitation status for a user and team
+  async checkInvitationStatus(userId, teamId) {
+    try {
+      const response = await apiService.get(`/users/${userId}/invitation-status`, {
+        params: { teamId }
+      })
       return response
     } catch (error) {
       throw this.handleUserError(error)

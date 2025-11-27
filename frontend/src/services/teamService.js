@@ -387,6 +387,42 @@ class TeamService {
   }
 
   /**
+   * Send team invitation to a specific user
+   * @param {string} teamId - Team ID
+   * @param {string} userId - User ID to invite
+   * @param {string} role - Role to assign (admin or member)
+   * @param {string} message - Optional invitation message
+   * @returns {Promise<Object>} Invitation result
+   */
+  async sendInvitation(teamId, userId, role = 'member', message = '') {
+    try {
+      if (!teamId || !userId) {
+        throw new Error('Team ID and User ID are required');
+      }
+
+      if (!['admin', 'member'].includes(role)) {
+        throw new Error('Role must be admin or member');
+      }
+
+      const payload = {
+        userId,
+        role,
+        message: message?.trim() || undefined
+      };
+
+      const response = await api.post(`${this.baseURL}/${teamId}/invitations`, payload);
+      
+      return {
+        success: true,
+        data: response.data,
+        message: 'Invitation sent successfully'
+      };
+    } catch (error) {
+      return this.handleError(error, 'Failed to send invitation');
+    }
+  },
+
+  /**
    * Send team invitation via email
    * @param {string} teamId - Team ID
    * @param {Array<string>} emails - Array of email addresses
