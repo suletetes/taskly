@@ -791,16 +791,8 @@ const Profile = () => {
                             const formData = new FormData();
                             formData.append('avatar', file);
                             
-                            // Upload to Cloudinary via /api/upload/avatar
-                            const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/upload/avatar`, {
-                              method: 'POST',
-                              headers: {
-                                'Authorization': `Bearer ${localStorage.getItem('token')}`
-                              },
-                              body: formData
-                            });
-                            
-                            const uploadData = await uploadResponse.json();
+                            // Upload to Cloudinary via /api/upload/avatar using userService
+                            const uploadData = await userService.uploadAvatarFile(formData);
                             
                             if (uploadData.success && uploadData.data?.avatarUrl) {
                               setSelectedAvatar(uploadData.data.avatarUrl);
