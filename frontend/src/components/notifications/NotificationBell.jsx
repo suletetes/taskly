@@ -49,11 +49,12 @@ const NotificationBell = () => {
 
   const handleNotificationClick = (notification) => {
     setIsOpen(false);
+    navigate('/settings?tab=notifications');
   };
 
   const handleViewAll = () => {
     setIsOpen(false);
-    navigate('/notifications');
+    navigate('/settings?tab=notifications');
   };
 
   const recentNotifications = notifications.slice(0, 5);

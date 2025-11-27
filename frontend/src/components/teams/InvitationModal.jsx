@@ -40,22 +40,33 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
 
   // Search for users
   const handleSearch = async (query) => {
+    console.log('🔍 [InvitationModal] Search initiated:', { query, effectiveTeamId });
     setSearchQuery(query);
     if (query.length < 2) {
+      console.log('🔍 [InvitationModal] Query too short, clearing results');
       setSearchResults([]);
       return;
     }
 
     setSearching(true);
     try {
+      console.log('🔍 [InvitationModal] Making API call to:', `/teams/${effectiveTeamId}/search-users`);
       const response = await api.get(`/teams/${effectiveTeamId}/search-users`, {
         params: { q: query }
       });
+      console.log('🔍 [InvitationModal] API Response:', response.data);
+      
       if (response.data.success) {
-        setSearchResults(response.data.data || []);
+        const users = response.data.data?.users || response.data.data || [];
+        console.log('🔍 [InvitationModal] Extracted users:', users);
+        setSearchResults(users);
+      } else {
+        console.log('🔍 [InvitationModal] Response not successful:', response.data);
       }
     } catch (err) {
-      console.error('Error searching users:', err);
+      console.error('❌ [InvitationModal] Error searching users:', err);
+      console.error('❌ [InvitationModal] Error response:', err.response?.data);
+      setError('Failed to search users');
     } finally {
       setSearching(false);
     }
