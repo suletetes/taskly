@@ -11,7 +11,8 @@ import {
     uploadAvatar,
     deleteCurrentUser,
     requestPasswordReset,
-    resetPassword
+    resetPassword,
+    discoverUsers
 } from '../controllers/userController.js';
 
 import { authenticateToken } from '../middleware/auth.js';
@@ -55,6 +56,16 @@ router.post('/reset-password/:token', resetPassword);
 router.get('/public', 
     validateUserQuery, 
     getAllUsers
+);
+
+/**
+ * @route   GET /api/users/discover
+ * @desc    Discover users for team invitations with pagination and search
+ * @access  Private
+ */
+router.get('/discover', 
+    authenticateToken, 
+    discoverUsers
 );
 
 /**

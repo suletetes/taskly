@@ -12,18 +12,29 @@ const router = express.Router();
  */
 router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
   try {
+    console.log('📤 [Upload Avatar] Request received from user:', req.user._id);
+    console.log('📤 [Upload Avatar] File:', req.file ? 'Present' : 'Missing');
+    
     if (!req.file) {
+      console.log('❌ [Upload Avatar] No file in request');
       return res.status(400).json({
         success: false,
         error: {
-          message: 'No file uploaded',
+          message: 'No file uploaded. Please select an image file.',
           code: 'NO_FILE'
         }
       });
     }
 
+    console.log('📤 [Upload Avatar] File details:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+
     // Get the uploaded file info from Cloudinary
     const { secure_url, public_id } = req.file;
+    console.log('✅ [Upload Avatar] Cloudinary upload successful:', { secure_url, public_id });
 
     // Update user's avatar in database
     const user = await User.findById(req.user._id);
@@ -62,12 +73,47 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
     });
 
   } catch (error) {
-    console.error('Avatar upload error:', error);
-    res.status(500).json({
+    console.error('❌ [Upload Avatar] Error:', error);
+    console.error('❌ [Upload Avatar] Error stack:', error.stack);
+    console.error('❌ [Upload Avatar] Error message:', error.message);
+    
+    // Enhanced error handling with specific messages
+    let userMessage = 'Failed to upload avatar. Please try again.';
+    let statusCode = 500;
+    
+    // File size error
+    if (error.code === 'LIMIT_FILE_SIZE' || error.message?.includes('File too large')) {
+      userMessage = 'File size exceeds the 5MB limit. Please choose a smaller image.';
+      statusCode = 400;
+    }
+    // Invalid file type
+    else if (error.message?.includes('Only image files') || error.message?.includes('Invalid image')) {
+      userMessage = 'Invalid file type. Please upload a JPG, PNG, GIF, or WebP image.';
+      statusCode = 400;
+    }
+    // Cloudinary API errors
+    else if (error.http_code) {
+      if (error.http_code === 401 || error.http_code === 403) {
+        userMessage = 'Image upload service authentication failed. Please contact support.';
+        console.error('❌ [Cloudinary] Authentication error - check credentials');
+      } else if (error.http_code === 413) {
+        userMessage = 'File size exceeds the 5MB limit. Please choose a smaller image.';
+        statusCode = 400;
+      } else if (error.http_code >= 500) {
+        userMessage = 'Image upload service is temporarily unavailable. Please try again later.';
+      }
+    }
+    // Network errors
+    else if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
+      userMessage = 'Network error occurred. Please check your connection and try again.';
+      statusCode = 503;
+    }
+    
+    res.status(statusCode).json({
       success: false,
       error: {
-        message: 'Failed to upload avatar',
-        code: 'UPLOAD_ERROR'
+        message: userMessage,
+        code: error.code || 'UPLOAD_ERROR'
       }
     });
   }
