@@ -43,8 +43,17 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
       sizeInMB: (req.file.size / (1024 * 1024)).toFixed(2)
     });
 
+    console.log('📤 [Upload Avatar] Full req.file object:', req.file);
+
     // Get the uploaded file info from Cloudinary
-    const { secure_url, public_id, format, width, height, bytes } = req.file;
+    // When using multer-storage-cloudinary, the data is in different properties
+    const secure_url = req.file.path; // Cloudinary URL is in 'path'
+    const public_id = req.file.filename; // Public ID is in 'filename'
+    const format = req.file.format;
+    const width = req.file.width;
+    const height = req.file.height;
+    const bytes = req.file.size;
+    
     console.log('✅ [Upload Avatar] Cloudinary upload successful:', {
       secure_url,
       public_id,

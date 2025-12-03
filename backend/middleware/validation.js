@@ -351,6 +351,42 @@ const createTaskSchema = Joi.object({
     .messages({
       'array.max': 'Cannot have more than 10 labels',
       'string.max': 'Each label cannot exceed 50 characters'
+    }),
+
+  assignee: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Assignee must be a valid user ID',
+      'string.length': 'Assignee must be a valid user ID'
+    }),
+
+  projectId: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Project ID must be a valid MongoDB ID',
+      'string.length': 'Project ID must be a valid MongoDB ID'
+    }),
+
+  teamId: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Team ID must be a valid MongoDB ID',
+      'string.length': 'Team ID must be a valid MongoDB ID'
     })
 });
 
