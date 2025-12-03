@@ -34,7 +34,7 @@ const TeamSelectionModal = ({ isOpen, onClose, user, teams, onSendInvitation }) 
       }, 2000);
     } catch (err) {
       console.error('Error sending invitation:', err);
-      setError(err.response?.data?.error?.message || 'Failed to send invitation');
+      setError(err.message || err.response?.data?.error?.message || 'Failed to send invitation');
     } finally {
       setLoading(false);
     }

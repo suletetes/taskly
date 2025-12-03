@@ -420,7 +420,7 @@ class TeamService {
     } catch (error) {
       return this.handleError(error, 'Failed to send invitation');
     }
-  },
+  }
 
   /**
    * Send team invitation via email
