@@ -187,28 +187,66 @@ const TaskForm = ({
 
   // Get available team members for assignment
   const availableMembers = React.useMemo(() => {
+    console.log('👥 [TaskForm] ========== CALCULATING AVAILABLE MEMBERS ==========');
+    console.log('👥 [TaskForm] Form data:', {
+      projectId: formData.projectId,
+      teamId: formData.teamId,
+      assignee: formData.assignee
+    });
+    console.log('👥 [TaskForm] Context data:', {
+      projectsCount: projects.length,
+      teamsCount: teams.length,
+      hasUser: !!user
+    });
+    console.log('👥 [TaskForm] All projects:', projects);
+    console.log('👥 [TaskForm] All teams:', teams);
+    console.log('👥 [TaskForm] Current user:', user);
+    
     let members = []
     
     // If a specific project is selected, use project members
     if (formData.projectId) {
+      console.log('👥 [TaskForm] Project selected, finding project...');
       const project = projects.find(p => p._id === formData.projectId)
+      console.log('👥 [TaskForm] Found project:', project);
+      console.log('👥 [TaskForm] Project members:', project?.members);
+      
       if (project?.members) {
         members = project.members.map(m => m.user)
+        console.log('👥 [TaskForm] Mapped project members:', members);
+      } else {
+        console.log('❌ [TaskForm] Project has no members or members not populated');
       }
     }
     // If a team is selected but no project, use team members
     else if (formData.teamId) {
+      console.log('👥 [TaskForm] Team selected (no project), finding team...');
       const team = teams.find(t => t._id === formData.teamId)
+      console.log('👥 [TaskForm] Found team:', team);
+      console.log('👥 [TaskForm] Team members:', team?.members);
+      
       if (team?.members) {
         members = team.members.map(m => m.user)
+        console.log('👥 [TaskForm] Mapped team members:', members);
+      } else {
+        console.log('❌ [TaskForm] Team has no members or members not populated');
       }
+    } else {
+      console.log('⚠️ [TaskForm] No team or project selected');
     }
     
     // Always include current user as an option
     if (user && !members.find(m => m._id === user._id)) {
+      console.log('👥 [TaskForm] Adding current user to members list');
       members.unshift(user)
+    } else if (user) {
+      console.log('👥 [TaskForm] Current user already in members list');
+    } else {
+      console.log('❌ [TaskForm] No current user available');
     }
     
+    console.log('✅ [TaskForm] Final available members:', members);
+    console.log('👥 [TaskForm] ========== CALCULATION COMPLETE ==========');
     return members
   }, [formData.projectId, formData.teamId, projects, teams, user])
 
@@ -495,7 +533,7 @@ const TaskForm = ({
                   <option value="">Unassigned</option>
                   {availableMembers.map(member => (
                     <option key={member._id} value={member._id}>
-                      {member.name} {member._id === user._id ? '(You)' : ''}
+                      {member.fullname || member.name || member.username || 'Unknown User'} {member._id === user._id ? '(You)' : ''}
                     </option>
                   ))}
                 </select>
@@ -505,7 +543,7 @@ const TaskForm = ({
                   <div className="mt-2 flex items-center space-x-2 text-sm text-secondary-600 dark:text-secondary-400">
                     <UserIcon className="w-4 h-4" />
                     <span>
-                      Assigned to: {availableMembers.find(m => m._id === formData.assignee)?.name || 'Unknown User'}
+                      Assigned to: {availableMembers.find(m => m._id === formData.assignee)?.fullname || availableMembers.find(m => m._id === formData.assignee)?.name || availableMembers.find(m => m._id === formData.assignee)?.username || 'Unknown User'}
                       {formData.assignee === user._id && ' (You)'}
                     </span>
                   </div>
