@@ -868,35 +868,70 @@ const Profile = () => {
                   </button>
                   <button
                     onClick={async () => {
+                      console.log('📤 [Profile] ========== AVATAR UPLOAD STARTED ==========');
                       const fileInput = document.getElementById('avatar-upload');
                       const file = fileInput?.uploadFile;
                       
+                      console.log('📤 [Profile] File input element:', fileInput ? 'Found' : 'Not found');
+                      console.log('📤 [Profile] File from input:', file ? 'Present' : 'Missing');
+                      
                       // If a file was selected, upload it
                       if (file) {
+                        console.log('📤 [Profile] File details:', {
+                          name: file.name,
+                          type: file.type,
+                          size: file.size,
+                          sizeInMB: (file.size / (1024 * 1024)).toFixed(2),
+                          lastModified: new Date(file.lastModified).toISOString()
+                        });
+                        
                         setIsSubmitting(true);
                         setError(null);
                         try {
+                          console.log('📤 [Profile] Creating FormData...');
                           const formData = new FormData();
                           formData.append('avatar', file);
                           
+                          console.log('📤 [Profile] FormData created, entries:');
+                          for (let pair of formData.entries()) {
+                            console.log('  -', pair[0], ':', pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]);
+                          }
+                          
                           // Upload to Cloudinary
+                          console.log('📤 [Profile] Calling userService.uploadAvatarFile...');
                           const uploadData = await userService.uploadAvatarFile(formData);
                           
+                          console.log('📤 [Profile] Upload response:', {
+                            success: uploadData.success,
+                            hasData: !!uploadData.data,
+                            hasAvatarUrl: !!uploadData.data?.avatarUrl,
+                            avatarUrl: uploadData.data?.avatarUrl,
+                            error: uploadData.error
+                          });
+                          
                           if (uploadData.success && uploadData.data?.avatarUrl) {
+                            console.log('✅ [Profile] Upload successful, updating avatar...');
                             setSelectedAvatar(uploadData.data.avatarUrl);
                             await updateUser();
                             setIsChangingAvatar(false);
                             setSuccessMessage('Avatar uploaded successfully!');
                             setTimeout(() => setSuccessMessage(''), 3000);
+                            console.log('✅ [Profile] Avatar updated successfully');
                           } else {
+                            console.log('❌ [Profile] Upload failed:', uploadData.error?.message || 'Unknown error');
                             throw new Error(uploadData.error?.message || 'Upload failed');
                           }
                         } catch (err) {
+                          console.error('❌ [Profile] Upload error:', err);
+                          console.error('❌ [Profile] Error message:', err.message);
+                          console.error('❌ [Profile] Error stack:', err.stack);
                           setError(err.message || 'Failed to upload avatar');
                         } finally {
                           setIsSubmitting(false);
+                          console.log('📤 [Profile] ========== AVATAR UPLOAD ENDED ==========');
                         }
                       } else {
+                        console.log('📤 [Profile] No file selected, using preset avatar');
                         // No file selected, just update with preset avatar
                         handleAvatarChange(selectedAvatar);
                       }
