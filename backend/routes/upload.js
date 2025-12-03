@@ -12,11 +12,19 @@ const router = express.Router();
  */
 router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
   try {
+    console.log('📤 [Upload Avatar] ========== NEW UPLOAD REQUEST ==========');
     console.log('📤 [Upload Avatar] Request received from user:', req.user._id);
+    console.log('📤 [Upload Avatar] Request headers:', {
+      'content-type': req.headers['content-type'],
+      'content-length': req.headers['content-length']
+    });
     console.log('📤 [Upload Avatar] File:', req.file ? 'Present' : 'Missing');
+    console.log('📤 [Upload Avatar] Body keys:', Object.keys(req.body));
     
     if (!req.file) {
       console.log('❌ [Upload Avatar] No file in request');
+      console.log('❌ [Upload Avatar] Request body:', req.body);
+      console.log('❌ [Upload Avatar] Request files:', req.files);
       return res.status(400).json({
         success: false,
         error: {
@@ -27,18 +35,30 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
     }
 
     console.log('📤 [Upload Avatar] File details:', {
+      fieldname: req.file.fieldname,
       originalname: req.file.originalname,
+      encoding: req.file.encoding,
       mimetype: req.file.mimetype,
-      size: req.file.size
+      size: req.file.size,
+      sizeInMB: (req.file.size / (1024 * 1024)).toFixed(2)
     });
 
     // Get the uploaded file info from Cloudinary
-    const { secure_url, public_id } = req.file;
-    console.log('✅ [Upload Avatar] Cloudinary upload successful:', { secure_url, public_id });
+    const { secure_url, public_id, format, width, height, bytes } = req.file;
+    console.log('✅ [Upload Avatar] Cloudinary upload successful:', {
+      secure_url,
+      public_id,
+      format,
+      dimensions: `${width}x${height}`,
+      bytes,
+      sizeInMB: (bytes / (1024 * 1024)).toFixed(2)
+    });
 
     // Update user's avatar in database
+    console.log('📤 [Upload Avatar] Fetching user from database...');
     const user = await User.findById(req.user._id);
     if (!user) {
+      console.log('❌ [Upload Avatar] User not found in database');
       return res.status(404).json({
         success: false,
         error: {
@@ -48,29 +68,45 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
       });
     }
 
+    console.log('📤 [Upload Avatar] User found:', {
+      id: user._id,
+      fullname: user.fullname,
+      currentAvatar: user.avatar ? 'Has avatar' : 'No avatar'
+    });
+
     // Delete old avatar from Cloudinary if it exists and is a Cloudinary URL
     if (user.avatar && user.avatar.includes('cloudinary.com')) {
       try {
+        console.log('📤 [Upload Avatar] Deleting old avatar from Cloudinary...');
         const oldPublicId = user.avatar.split('/').pop().split('.')[0];
+        console.log('📤 [Upload Avatar] Old public ID:', oldPublicId);
         await deleteImage(`taskly/avatars/${oldPublicId}`);
+        console.log('✅ [Upload Avatar] Old avatar deleted successfully');
       } catch (error) {
-        console.warn('Could not delete old avatar:', error.message);
+        console.warn('⚠️ [Upload Avatar] Could not delete old avatar:', error.message);
       }
     }
 
     // Update user avatar
+    console.log('📤 [Upload Avatar] Updating user avatar in database...');
     user.avatar = secure_url;
     user.avatarPublicId = public_id;
     await user.save();
+    console.log('✅ [Upload Avatar] User avatar updated in database');
 
-    res.json({
+    const response = {
       success: true,
       data: {
         avatar: secure_url,
         publicId: public_id
       },
       message: 'Avatar uploaded successfully'
-    });
+    };
+
+    console.log('✅ [Upload Avatar] Sending success response:', response);
+    console.log('📤 [Upload Avatar] ========== UPLOAD COMPLETE ==========');
+    
+    res.json(response);
 
   } catch (error) {
     console.error('❌ [Upload Avatar] Error:', error);
