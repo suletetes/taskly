@@ -344,7 +344,7 @@ const UserProfile = () => {
                           </p>
                           <div className="mb-3">
                             {task.tags && task.tags.length > 0 && task.tags.map((tag, index) => (
-                              <span key={index} className="badge bg-secondary me-1">{tag}</span>
+                              <span key={`${task._id}-tag-${tag}-${index}`} className="badge bg-secondary me-1">{tag}</span>
                             ))}
                             {task.priority === 'high' && (
                               <span className="badge bg-danger text-light me-1">
