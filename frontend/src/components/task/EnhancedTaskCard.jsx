@@ -345,7 +345,7 @@ const EnhancedTaskCard = ({
         <div className="flex flex-wrap gap-1">
           {tags.slice(0, 3).map((tag, index) => (
             <span
-              key={`tag-${index}`}
+              key={`tag-${_id}-${tag}-${index}`}
               className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full"
             >
               #{tag}
@@ -353,7 +353,7 @@ const EnhancedTaskCard = ({
           ))}
           {labels.slice(0, 2).map((label, index) => (
             <span
-              key={`label-${index}`}
+              key={`label-${_id}-${label}-${index}`}
               className="px-2 py-1 bg-secondary-100 dark:bg-secondary-700 text-secondary-700 dark:text-secondary-300 text-xs rounded-full"
             >
               {label}

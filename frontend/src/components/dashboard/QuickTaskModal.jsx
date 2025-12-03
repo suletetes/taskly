@@ -206,7 +206,7 @@ const QuickTaskModal = ({ isOpen, onClose, onSubmit }) => {
                       <div className="flex flex-wrap gap-2">
                         {formData.tags.map((tag, index) => (
                           <motion.span
-                            key={index}
+                            key={`tag-${tag}-${index}`}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-300"

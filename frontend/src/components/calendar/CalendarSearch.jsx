@@ -399,7 +399,7 @@ const CalendarSearch = ({
                 </div>
                 {searchResults.smartActions.map((action, index) => (
                   <SearchResultItem
-                    key={`action-${index}`}
+                    key={`action-${action.description}-${index}`}
                     icon={<LightBulbIcon className="w-4 h-4" />}
                     title={action.description}
                     subtitle={`Try: "${query}"`}
@@ -452,7 +452,7 @@ const CalendarSearch = ({
                   const resultIndex = searchResults.smartActions.length + searchResults.tasks.length + index;
                   return (
                     <SearchResultItem
-                      key={`date-${index}`}
+                      key={`date-${dateStr}`}
                       icon={<CalendarIcon className="w-4 h-4" />}
                       title={dateUtils.formatDisplayDate(new Date(dateStr))}
                       subtitle="Navigate to this date"

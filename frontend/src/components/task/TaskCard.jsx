@@ -254,12 +254,12 @@ const TaskCard = ({
       {(tags.length > 0 || labels.length > 0) && (
         <div className="task-tags">
           {tags.map((tag, index) => (
-            <span key={`tag-${index}`} className="task-tag">
+            <span key={`tag-${_id}-${tag}-${index}`} className="task-tag">
               #{tag}
             </span>
           ))}
           {labels.map((label, index) => (
-            <span key={`label-${index}`} className="task-label">
+            <span key={`label-${_id}-${label}-${index}`} className="task-label">
               {label}
             </span>
           ))}
