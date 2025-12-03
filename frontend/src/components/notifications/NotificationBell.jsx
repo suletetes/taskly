@@ -48,11 +48,18 @@ const NotificationBell = () => {
   }, []);
 
   const handleNotificationClick = (notification) => {
+    console.log('🔔 NotificationBell: handleNotificationClick called', {
+      notificationId: notification._id,
+      notificationType: notification.type,
+      notificationData: notification.data
+    });
     setIsOpen(false);
-    navigate('/settings?tab=notifications');
+    console.log('🔔 NotificationBell: Dropdown closed, navigation handled by NotificationItem');
+    // Navigation is handled by NotificationItem component
   };
 
   const handleViewAll = () => {
+    console.log('🔔 NotificationBell: View All clicked - navigating to settings');
     setIsOpen(false);
     navigate('/settings?tab=notifications');
   };
