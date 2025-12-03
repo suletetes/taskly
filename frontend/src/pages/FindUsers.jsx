@@ -30,8 +30,21 @@ const FindUsers = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   
+  // Initial load - fetch all users
+  useEffect(() => {
+    console.log('🔍 [FindUsers] Component mounted, fetching initial users');
+    fetchUsers(1, '');
+  }, []);
+  
   // Debounce search
   useEffect(() => {
+    if (searchQuery === '') {
+      // If search is cleared, fetch immediately
+      setCurrentPage(1);
+      fetchUsers(1, '');
+      return;
+    }
+    
     const timer = setTimeout(() => {
       setCurrentPage(1); // Reset to first page on new search
       fetchUsers(1, searchQuery);
@@ -42,11 +55,19 @@ const FindUsers = () => {
   
   // Fetch users when page or team changes
   useEffect(() => {
-    fetchUsers(currentPage, searchQuery);
+    if (currentPage > 1 || selectedTeam) {
+      fetchUsers(currentPage, searchQuery);
+    }
   }, [currentPage, selectedTeam]);
   
   const fetchUsers = async (page, query) => {
     try {
+      console.log('🔍 [FindUsers] Fetching users with params:', {
+        page,
+        query,
+        selectedTeam: selectedTeam?.name || 'none'
+      });
+      
       setLoading(true);
       setError(null);
       
@@ -57,23 +78,42 @@ const FindUsers = () => {
         teamId: selectedTeam?._id || undefined
       };
       
+      console.log('🔍 [FindUsers] API request params:', params);
+      
       const response = await api.get('/users/discover', { params });
       
-      if (response.data.success) {
-        setUsers(response.data.data.users);
-        setTotalPages(response.data.data.pagination.pages);
+      console.log('🔍 [FindUsers] API response:', {
+        success: response.success,
+        userCount: response.data?.users?.length || 0,
+        totalPages: response.data?.pagination?.pages || 0,
+        currentPage: response.data?.pagination?.page || 0
+      });
+      
+      if (response.success) {
+        setUsers(response.data.users);
+        setTotalPages(response.data.pagination.pages);
         
         // Build invitation statuses map
         const statuses = {};
-        response.data.data.users.forEach(u => {
+        response.data.users.forEach(u => {
           if (u.invitationStatus) {
             statuses[u._id] = u.invitationStatus;
           }
         });
         setInvitationStatuses(statuses);
+        
+        console.log('🔍 [FindUsers] State updated:', {
+          usersCount: response.data.users.length,
+          totalPages: response.data.pagination.pages,
+          invitationStatuses: Object.keys(statuses).length
+        });
+      } else {
+        console.error('🔍 [FindUsers] API returned success: false');
+        setError('Failed to load users');
       }
     } catch (err) {
-      console.error('Error fetching users:', err);
+      console.error('🔍 [FindUsers] Error fetching users:', err);
+      console.error('🔍 [FindUsers] Error response:', err.response?.data);
       setError(err.response?.data?.error?.message || 'Failed to load users');
     } finally {
       setLoading(false);
@@ -103,7 +143,7 @@ const FindUsers = () => {
         message
       });
       
-      if (response.data.success) {
+      if (response.success) {
         // Update invitation status
         setInvitationStatuses(prev => ({
           ...prev,
@@ -114,12 +154,38 @@ const FindUsers = () => {
         setIsTeamModalOpen(false);
         setSelectedUser(null);
         
-        // Refresh users list
+        // Refresh users list to update the UI
         fetchUsers(currentPage, searchQuery);
       }
     } catch (err) {
       console.error('Error sending invitation:', err);
-      throw err;
+      
+      // Extract error message
+      const errorMessage = err.response?.data?.error?.message || err.message || 'Failed to send invitation';
+      
+      // If user is already a member, update the status and close modal
+      if (err.response?.data?.error?.code === 'CONFLICT') {
+        setInvitationStatuses(prev => ({
+          ...prev,
+          [selectedUser._id]: 'member'
+        }));
+        
+        // Close modal
+        setIsTeamModalOpen(false);
+        setSelectedUser(null);
+        
+        // Show error message
+        setError(errorMessage);
+        
+        // Refresh users list to update the UI
+        fetchUsers(currentPage, searchQuery);
+        
+        // Clear error after 5 seconds
+        setTimeout(() => setError(null), 5000);
+      } else {
+        // For other errors, re-throw to be handled by the modal
+        throw new Error(errorMessage);
+      }
     }
   };
   

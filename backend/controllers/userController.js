@@ -688,11 +688,24 @@ const resetPassword = async (req, res) => {
  */
 const discoverUsers = async (req, res) => {
     try {
+        console.log('🔍 [Backend] Discover users request:', {
+            userId: req.user._id,
+            query: req.query
+        });
+        
         const currentUserId = req.user._id;
         const page = Math.max(1, parseInt(req.query.page, 10) || 1);
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
         const search = req.query.q || '';
         const teamId = req.query.teamId;
+
+        console.log('🔍 [Backend] Parsed params:', {
+            currentUserId,
+            page,
+            limit,
+            search,
+            teamId
+        });
 
         // Build exclusion list
         let excludeIds = [currentUserId];
@@ -704,6 +717,7 @@ const discoverUsers = async (req, res) => {
                 if (team) {
                     const teamMemberIds = team.members.map(m => m.user.toString());
                     excludeIds = [...new Set([...excludeIds, ...teamMemberIds])];
+                    console.log('🔍 [Backend] Excluding team members:', teamMemberIds.length);
                 }
             } catch (error) {
                 console.error('Error fetching team members for exclusion:', error);
@@ -725,9 +739,13 @@ const discoverUsers = async (req, res) => {
             ];
         }
 
+        console.log('🔍 [Backend] MongoDB query:', JSON.stringify(searchQuery, null, 2));
+
         // Get total count
         const total = await User.countDocuments(searchQuery);
         const totalPages = Math.ceil(total / limit);
+
+        console.log('🔍 [Backend] Total users found:', total, 'pages:', totalPages);
 
         // Fetch users
         const users = await User.find(searchQuery)
@@ -737,9 +755,17 @@ const discoverUsers = async (req, res) => {
             .sort({ fullname: 1 })
             .lean();
 
+        console.log('🔍 [Backend] Users fetched:', users.length);
+        console.log('🔍 [Backend] Sample user:', users[0] ? {
+            id: users[0]._id,
+            fullname: users[0].fullname,
+            email: users[0].email
+        } : 'No users');
+
         // If teamId provided, check invitation status for each user
         let usersWithStatus = users;
         if (teamId) {
+            console.log('🔍 [Backend] Checking invitation statuses for team:', teamId);
             usersWithStatus = await Promise.all(users.map(async (user) => {
                 const status = await getUserInvitationStatus(user._id.toString(), teamId);
                 return {
@@ -749,7 +775,7 @@ const discoverUsers = async (req, res) => {
             }));
         }
 
-        res.json({
+        const response = {
             success: true,
             data: {
                 users: usersWithStatus,
@@ -763,10 +789,19 @@ const discoverUsers = async (req, res) => {
                 }
             },
             message: 'Users discovered successfully'
+        };
+
+        console.log('🔍 [Backend] Sending response:', {
+            success: response.success,
+            userCount: response.data.users.length,
+            pagination: response.data.pagination
         });
 
+        res.json(response);
+
     } catch (error) {
-        console.error('Error discovering users:', error);
+        console.error('🔍 [Backend] Error discovering users:', error);
+        console.error('🔍 [Backend] Error stack:', error.stack);
         res.status(500).json({
             success: false,
             error: {
