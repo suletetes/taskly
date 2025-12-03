@@ -911,8 +911,17 @@ const Profile = () => {
                           
                           if (uploadData.success && uploadData.data?.avatarUrl) {
                             console.log('✅ [Profile] Upload successful, updating avatar...');
-                            setSelectedAvatar(uploadData.data.avatarUrl);
+                            const newAvatarUrl = uploadData.data.avatarUrl;
+                            
+                            // Update local state immediately
+                            setSelectedAvatar(newAvatarUrl);
+                            
+                            // Update profile with new avatar URL
+                            await userService.updateProfile({ avatar: newAvatarUrl });
+                            
+                            // Refresh user data from server
                             await updateUser();
+                            
                             setIsChangingAvatar(false);
                             setSuccessMessage('Avatar uploaded successfully!');
                             setTimeout(() => setSuccessMessage(''), 3000);

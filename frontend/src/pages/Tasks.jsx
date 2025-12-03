@@ -95,7 +95,24 @@ const Tasks = () => {
       setEditingTask(null);
     } catch (error) {
       console.error('Failed to save task:', error);
-      showError('Failed to save task. Please try again.');
+      
+      // Extract detailed error message
+      let errorMessage = 'Failed to save task. Please try again.';
+      
+      if (error.response?.data?.error) {
+        const apiError = error.response.data.error;
+        
+        // If there are validation details, show them
+        if (apiError.details && Array.isArray(apiError.details) && apiError.details.length > 0) {
+          errorMessage = apiError.details.map(d => d.message).join(', ');
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      showError(errorMessage);
     } finally {
       setSubmitting(false);
     }
