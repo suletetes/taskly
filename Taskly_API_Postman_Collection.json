@@ -848,7 +848,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"New Task\",\n  \"description\": \"Task description\",\n  \"due\": \"2024-12-31\",\n  \"priority\": \"high\",\n  \"tags\": [\"work\", \"urgent\"],\n  \"labels\": [\"feature\"]\n}"
+              "raw": "{\n  \"title\": \"New Task\",\n  \"description\": \"Task description\",\n  \"due\": \"2024-12-31\",\n  \"priority\": \"high\",\n  \"tags\": [\"work\", \"urgent\"],\n  \"labels\": [\"feature\"],\n  \"assignee\": \"{{userId}}\",\n  \"projectId\": \"{{projectId}}\",\n  \"teamId\": \"{{teamId}}\"\n}"
             },
             "url": {
               "raw": "http://localhost:5000/api/tasks",
@@ -856,7 +856,8 @@
               "host": ["localhost"],
               "port": "5000",
               "path": ["api", "tasks"]
-            }
+            },
+            "description": "Create a new task. Optional fields: assignee (user ID), projectId, teamId. The task will be assigned to the authenticated user by default if no assignee is specified."
           }
         },
         {
