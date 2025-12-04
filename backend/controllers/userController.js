@@ -34,6 +34,10 @@ const getUserById = async (req, res) => {
 
         // Fetch paginated tasks
         const rawTasks = await Task.find({ user: userId })
+            .populate('assignee', 'fullname username email avatar')
+            .populate('user', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name')
             .skip((page - 1) * perPage)
             .limit(perPage)
             .sort({ due: 1 });

@@ -136,7 +136,11 @@ const getTaskById = async (req, res) => {
     try {
         const { taskId } = req.params;
 
-        const task = await Task.findById(taskId).populate('user', 'fullname username email');
+        const task = await Task.findById(taskId)
+            .populate('user', 'fullname username email avatar')
+            .populate('assignee', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name');
         if (!task) {
             return res.status(404).json({
                 success: false,
@@ -261,6 +265,10 @@ const getTasksByUser = async (req, res) => {
 
         // Fetch paginated tasks
         const rawTasks = await Task.find(filterQuery)
+            .populate('assignee', 'fullname username email avatar')
+            .populate('user', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name')
             .skip((page - 1) * perPage)
             .limit(perPage)
             .sort(sortObject);
