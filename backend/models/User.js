@@ -316,9 +316,8 @@ userSchema.methods.updateDailyStats = function(date, tasksCompleted = 0, timeSpe
 };
 
 // Indexes for search performance
+// Note: username and email already have unique indexes from schema definition
 userSchema.index({ fullname: 1 });
-userSchema.index({ username: 1 });
-userSchema.index({ email: 1 });
 userSchema.index({ fullname: 'text', username: 'text', email: 'text' });
 
 const User = mongoose.model("User", userSchema);

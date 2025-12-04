@@ -81,9 +81,10 @@ const teamSchema = new mongoose.Schema({
 });
 
 // Indexes
+// Indexes for query performance
+// Note: inviteCode already has unique index from schema definition
 teamSchema.index({ owner: 1 });
 teamSchema.index({ 'members.user': 1 });
-teamSchema.index({ inviteCode: 1 });
 teamSchema.index({ name: 1, owner: 1 });
 
 // Virtual for member count
