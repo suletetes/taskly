@@ -4,7 +4,7 @@ Automated testing and deployment workflows for Taskly.
 
 ## Current Setup
 
-### ✅ Active Workflows (No Secrets Required)
+###  Active Workflows (No Secrets Required)
 
 These workflows run automatically on every push and pull request:
 
@@ -167,11 +167,11 @@ git commit -m "Your message [skip ci]"
 
 ## Next Steps
 
-1. ✅ Workflows are running automatically
-2. ⏳ Add deployment when infrastructure is ready
-3. ⏳ Add environment-specific secrets
-4. ⏳ Configure custom domains
-5. ⏳ Setup monitoring and alerts
+1. Workflows are running automatically
+2. Add deployment when infrastructure is ready
+3. Add environment-specific secrets
+4. Configure custom domains
+5. Setup monitoring and alerts
 
 ## Support
 

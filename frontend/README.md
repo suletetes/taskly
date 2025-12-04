@@ -519,8 +519,4 @@ For issues and questions:
 - Check documentation
 - Review browser console for errors
 - Verify API connectivity
-- Contact development team
 
-## License
-
-MIT License - See LICENSE file for details

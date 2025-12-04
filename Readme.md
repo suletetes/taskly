@@ -2,8 +2,6 @@
 
 A full-stack task management application designed for individuals and teams, featuring real-time synchronization, team collaboration, and comprehensive productivity analytics.
 
-![Taskly](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## Features
 
@@ -390,35 +388,10 @@ For more troubleshooting, see:
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- React team for the amazing framework
-- MongoDB team for the database
-- Cloudinary for file storage
-- Resend for email service
-- All open-source contributors
-
-## Support
-
-For support, email support@yourdomain.com or open an issue on GitHub.
-
-## Roadmap
-
-- [ ] Mobile app (React Native)
-- [ ] Desktop app (Electron)
-- [ ] Advanced analytics dashboard
-- [ ] Integration with third-party tools (Slack, Google Calendar)
-- [ ] AI-powered task suggestions
-- [ ] Voice commands
-- [ ] Offline mode with sync
 
 ## Authors
 
-- Your Name - Suleiman Abdulkadir
+- Suleiman Abdulkadir
 
 ## Links
 

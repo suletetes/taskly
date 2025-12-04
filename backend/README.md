@@ -450,8 +450,4 @@ echo $MONGODB_URI
 For issues and questions:
 - Check existing documentation
 - Review error logs
-- Contact development team
-
-
-
 
