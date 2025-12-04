@@ -453,8 +453,8 @@ router.get('/:id/tasks', auth, projectAuth, async (req, res) => {
     }
 
     const tasks = await Task.find(query)
-      .populate('assignee', 'name email avatar')
-      .populate('user', 'name email avatar')
+      .populate('assignee', 'fullname username email avatar')
+      .populate('user', 'fullname username email avatar')
       .sort({ createdAt: -1 });
 
     res.json(tasks);
