@@ -63,7 +63,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async ({ to, subject, html }) => {
   if (!process.env.RESEND_API_KEY) {
-    console.warn('⚠️  Resend API key not configured');
+    console.warn('   Resend API key not configured');
     return { success: false, message: 'Email service not configured' };
   }
 
@@ -75,7 +75,7 @@ export const sendEmail = async ({ to, subject, html }) => {
       html,
     });
 
-    console.log('✅ Email sent via Resend:', data.id);
+    console.log('  Email sent via Resend:', data.id);
     return { success: true, id: data.id };
   } catch (error) {
     console.error('❌ Resend error:', error);

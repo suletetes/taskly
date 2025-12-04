@@ -17,7 +17,7 @@ export const integrationTests = {
       // Test getting users with pagination
       const usersResponse = await userService.getUsers(1, 5)
       results.getUsers = usersResponse && usersResponse.data
-      console.log('✅ User service - getUsers working')
+      console.log('  User service - getUsers working')
     } catch (error) {
       console.error('❌ User service - getUsers failed:', error.message)
     }
@@ -26,7 +26,7 @@ export const integrationTests = {
       // Test search functionality
       const searchResponse = await userService.searchUsers('test', 1, 5)
       results.searchUsers = searchResponse && searchResponse.data
-      console.log('✅ User service - searchUsers working')
+      console.log('  User service - searchUsers working')
     } catch (error) {
       console.error('❌ User service - searchUsers failed:', error.message)
     }
@@ -45,7 +45,7 @@ export const integrationTests = {
     }
 
     if (!userId) {
-      console.warn('⚠️ No userId provided for task service tests')
+      console.warn('  No userId provided for task service tests')
       return results
     }
 
@@ -53,7 +53,7 @@ export const integrationTests = {
       // Test getting user tasks
       const tasksResponse = await taskService.getUserTasks(userId, { page: 1, limit: 5 })
       results.getUserTasks = tasksResponse && tasksResponse.data
-      console.log('✅ Task service - getUserTasks working')
+      console.log('  Task service - getUserTasks working')
     } catch (error) {
       console.error('❌ Task service - getUserTasks failed:', error.message)
     }
@@ -74,7 +74,7 @@ export const integrationTests = {
       if (token) {
         // This would typically make a request to validate the token
         results.checkToken = true
-        console.log('✅ Auth service - token validation working')
+        console.log('  Auth service - token validation working')
       }
     } catch (error) {
       console.error('❌ Auth service - token validation failed:', error.message)
@@ -96,7 +96,7 @@ export const integrationTests = {
       await userService.getUserById('invalid-id-12345')
     } catch (error) {
       results.userServiceErrors = error instanceof Error && error.message
-      console.log('✅ User service error handling working:', error.message)
+      console.log('  User service error handling working:', error.message)
     }
 
     try {
@@ -104,7 +104,7 @@ export const integrationTests = {
       await taskService.getTask('invalid-task-id-12345')
     } catch (error) {
       results.taskServiceErrors = error instanceof Error && error.message
-      console.log('✅ Task service error handling working:', error.message)
+      console.log('  Task service error handling working:', error.message)
     }
 
     return results
@@ -143,7 +143,7 @@ export const integrationTests = {
       localStorage.removeItem(testKey)
       
       results.localStorage = retrieved && retrieved.test === true
-      console.log('✅ localStorage integration working')
+      console.log('  localStorage integration working')
     } catch (error) {
       console.error('❌ localStorage integration failed:', error.message)
     }
@@ -166,11 +166,11 @@ export const integrationTests = {
       results.headers = true // Headers are set in api service
       results.interceptors = true // Interceptors are configured
       
-      console.log('✅ API configuration verified')
+      console.log(' API configuration verified')
       console.log('   Base URL:', results.baseURL)
       console.log('   Token present:', !!token)
     } catch (error) {
-      console.error('❌ API configuration failed:', error.message)
+      console.error(' API configuration failed:', error.message)
     }
 
     return results

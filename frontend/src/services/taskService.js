@@ -72,9 +72,9 @@ const taskService = {
   // Get tasks for a specific project
   async getProjectTasks(projectId, options = {}) {
     try {
-      console.log('🌐 [taskService] ========== GET PROJECT TASKS ==========');
-      console.log('🌐 [taskService] Project ID:', projectId);
-      console.log('🌐 [taskService] Options:', options);
+      // console.log('  [taskService] ========== GET PROJECT TASKS ==========');
+      // console.log('  [taskService] Project ID:', projectId);
+      // console.log('  [taskService] Options:', options);
       
       const {
         page = 1,
@@ -98,12 +98,12 @@ const taskService = {
       if (search) params.append('search', search)
       
       const endpoint = `/projects/${projectId}/tasks?${params}`;
-      console.log('🌐 [taskService] Endpoint:', endpoint);
+      // console.log('  [taskService] Endpoint:', endpoint);
       
       const response = await apiService.get(endpoint)
       
-      console.log('🌐 [taskService] Response:', response);
-      console.log('🌐 [taskService] Response data:', response.data);
+      // console.log('  [taskService] Response:', response);
+      // console.log('  [taskService] Response data:', response.data);
       
       return response
     } catch (error) {
@@ -131,16 +131,16 @@ const taskService = {
   // Create new task
   async createTask(taskData) {
     try {
-      console.log('🌐 [taskService] ========== CREATE TASK API CALL ==========');
-      console.log('🌐 [taskService] Request data:', taskData);
-      console.log('🌐 [taskService] Endpoint: POST /tasks');
+      console.log('  [taskService] ========== CREATE TASK API CALL ==========');
+      console.log('  [taskService] Request data:', taskData);
+      console.log('  [taskService] Endpoint: POST /tasks');
       
       const response = await apiService.post('/tasks', taskData)
       
-      console.log('🌐 [taskService] ========== API RESPONSE ==========');
-      console.log('🌐 [taskService] Full response:', response);
-      console.log('🌐 [taskService] Response.data:', response.data);
-      console.log('🌐 [taskService] Response structure:', {
+      console.log('  [taskService] ========== API RESPONSE ==========');
+      console.log('  [taskService] Full response:', response);
+      console.log('  [taskService] Response.data:', response.data);
+      console.log('  [taskService] Response structure:', {
         hasData: !!response.data,
         hasTask: !!response.data?.task,
         hasSuccess: !!response.data?.success,

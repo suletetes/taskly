@@ -30,7 +30,7 @@ console.log(`✓ EMAIL_FROM configured: ${hasEmailFrom ? '✅ YES' : '❌ NO'}`)
 console.log(`✓ CLIENT_URL configured: ${hasClientUrl ? '✅ YES' : '❌ NO'}`);
 
 if (!hasApiKey || !hasEmailFrom) {
-  console.log('\n⚠️  Email service not fully configured. Skipping send tests.\n');
+  console.log('\n   Email service not fully configured. Skipping send tests.\n');
 } else {
   console.log('\n✅ All environment variables configured\n');
 }
@@ -210,5 +210,5 @@ if (hasApiKey && hasEmailFrom) {
     console.log('\n');
   })();
 } else {
-  console.log('\n⚠️  Skipping send tests - API key not configured\n');
+  console.log('\n   Skipping send tests - API key not configured\n');
 }

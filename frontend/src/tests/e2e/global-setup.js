@@ -88,10 +88,10 @@ async function createTestUser(page) {
     if (registerResponse.ok()) {
       console.log('✅ Test user created successfully');
     } else {
-      console.warn('⚠️ Failed to create test user, tests may fail');
+      console.warn('  Failed to create test user, tests may fail');
     }
   } catch (error) {
-    console.warn('⚠️ Error setting up test user:', error.message);
+    console.warn('  Error setting up test user:', error.message);
   }
 }
 
@@ -108,7 +108,7 @@ async function seedTestData(page) {
     });
     
     if (!loginResponse.ok()) {
-      console.warn('⚠️ Could not login test user for seeding data');
+      console.warn('  Could not login test user for seeding data');
       return;
     }
     
@@ -170,7 +170,7 @@ async function seedTestData(page) {
     
     console.log('✅ Test data seeded successfully');
   } catch (error) {
-    console.warn('⚠️ Error seeding test data:', error.message);
+    console.warn('  Error seeding test data:', error.message);
   }
 }
 

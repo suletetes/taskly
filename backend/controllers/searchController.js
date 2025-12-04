@@ -95,7 +95,7 @@ export const searchUsersForTeam = async (req, res) => {
     const { teamId } = req.params;
     const { q, page = 1, limit = 10 } = req.query;
 
-    console.log('🔍 [searchUsersForTeam] Request:', { teamId, q, page, limit, userId: req.user.id });
+    console.log('  [searchUsersForTeam] Request:', { teamId, q, page, limit, userId: req.user.id });
 
     // Validate team exists
     const team = await Team.findById(teamId);
@@ -104,7 +104,7 @@ export const searchUsersForTeam = async (req, res) => {
       return notFoundResponse(res, 'Team not found');
     }
 
-    console.log('🔍 [searchUsersForTeam] Team found:', { name: team.name, membersCount: team.members.length });
+    console.log('  [searchUsersForTeam] Team found:', { name: team.name, membersCount: team.members.length });
 
     // Check if user has permission to search in team
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
@@ -127,8 +127,8 @@ export const searchUsersForTeam = async (req, res) => {
 
     // Get team member IDs
     const teamMemberIds = team.members.map(m => m.user.toString());
-    console.log('🔍 [searchUsersForTeam] Team member IDs:', teamMemberIds);
-    console.log('🔍 [searchUsersForTeam] Excluding IDs:', [...teamMemberIds, req.user.id]);
+    console.log('  [searchUsersForTeam] Team member IDs:', teamMemberIds);
+    console.log('  [searchUsersForTeam] Excluding IDs:', [...teamMemberIds, req.user.id]);
 
     // Build search query
     const searchRegex = new RegExp(q.trim(), 'i');
@@ -153,19 +153,19 @@ export const searchUsersForTeam = async (req, res) => {
         { email: searchRegex }
       ]
     }).select('fullname username email').lean();
-    console.log('🔍 [searchUsersForTeam] All users matching search (before exclusion):', allMatchingUsers.length);
-    console.log('🔍 [searchUsersForTeam] Matching users:', allMatchingUsers.map(u => ({ id: u._id.toString(), fullname: u.fullname, username: u.username })));
+    console.log('  [searchUsersForTeam] All users matching search (before exclusion):', allMatchingUsers.length);
+    console.log('  [searchUsersForTeam] Matching users:', allMatchingUsers.map(u => ({ id: u._id.toString(), fullname: u.fullname, username: u.username })));
 
     // Execute search
-    console.log('🔍 [searchUsersForTeam] Executing search with query:', searchQuery);
+    console.log('  [searchUsersForTeam] Executing search with query:', searchQuery);
     const users = await User.find(searchQuery)
       .select('fullname username email avatar bio isOnline lastActive')
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .lean();
 
-    console.log('🔍 [searchUsersForTeam] Found users:', users.length);
-    console.log('🔍 [searchUsersForTeam] Users:', users.map(u => ({ id: u._id, fullname: u.fullname, username: u.username })));
+    console.log('  [searchUsersForTeam] Found users:', users.length);
+    console.log('  [searchUsersForTeam] Users:', users.map(u => ({ id: u._id, fullname: u.fullname, username: u.username })));
 
     // Get total count for pagination
     const total = await User.countDocuments(searchQuery);

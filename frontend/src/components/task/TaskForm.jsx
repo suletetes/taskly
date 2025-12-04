@@ -232,7 +232,7 @@ const TaskForm = ({
         console.log('❌ [TaskForm] Team has no members or members not populated');
       }
     } else {
-      console.log('⚠️ [TaskForm] No team or project selected');
+      console.log('  [TaskForm] No team or project selected');
     }
     
     // Always include current user as an option

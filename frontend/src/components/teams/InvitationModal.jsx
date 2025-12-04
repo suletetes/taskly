@@ -40,31 +40,31 @@ const InvitationModal = ({ isOpen, onClose, user, team, teamId, teamName }) => {
 
   // Search for users
   const handleSearch = async (query) => {
-    console.log('🔍 [InvitationModal] Search initiated:', { query, effectiveTeamId });
+    console.log('  [InvitationModal] Search initiated:', { query, effectiveTeamId });
     setSearchQuery(query);
     if (query.length < 2) {
-      console.log('🔍 [InvitationModal] Query too short, clearing results');
+      console.log('  [InvitationModal] Query too short, clearing results');
       setSearchResults([]);
       return;
     }
 
     setSearching(true);
     try {
-      console.log('🔍 [InvitationModal] Making API call to:', `/teams/${effectiveTeamId}/search-users`);
+      console.log('  [InvitationModal] Making API call to:', `/teams/${effectiveTeamId}/search-users`);
       const response = await api.get(`/teams/${effectiveTeamId}/search-users`, {
         params: { q: query }
       });
-      console.log('🔍 [InvitationModal] API Response:', response.data);
+      console.log('  [InvitationModal] API Response:', response.data);
       
       if (response.data.success) {
         const users = response.data.data?.users || response.data.data || [];
-        console.log('🔍 [InvitationModal] Extracted users:', users);
-        console.log('🔍 [InvitationModal] Users is array?', Array.isArray(users));
-        console.log('🔍 [InvitationModal] Users length:', users.length);
+        console.log('  [InvitationModal] Extracted users:', users);
+        console.log('  [InvitationModal] Users is array?', Array.isArray(users));
+        console.log('  [InvitationModal] Users length:', users.length);
         setSearchResults(users);
-        console.log('🔍 [InvitationModal] Search results state updated');
+        console.log('  [InvitationModal] Search results state updated');
       } else {
-        console.log('🔍 [InvitationModal] Response not successful:', response.data);
+        console.log('  [InvitationModal] Response not successful:', response.data);
       }
     } catch (err) {
       console.error('❌ [InvitationModal] Error searching users:', err);

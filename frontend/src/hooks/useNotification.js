@@ -22,7 +22,7 @@ export const useNotification = () => {
         alert(`Error: ${message}`);
         break;
       case 'warning':
-        console.warn(`⚠️ ${logMessage}`);
+        console.warn(`  ${logMessage}`);
         break;
       case 'info':
       default:

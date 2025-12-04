@@ -54,6 +54,14 @@ const teamSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  archived: {
+    type: Boolean,
+    default: false
+  },
+  archivedAt: {
+    type: Date,
+    default: null
+  },
   settings: {
     allowMemberInvites: { type: Boolean, default: true },
     requireApprovalForJoin: { type: Boolean, default: false },

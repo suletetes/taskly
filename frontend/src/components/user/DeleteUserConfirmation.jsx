@@ -54,7 +54,7 @@ const DeleteUserConfirmation = ({ user, onConfirm, onCancel, onSuccess }) => {
     <div className="modal-overlay">
       <div className="modal-content delete-confirmation">
         <div className="delete-header">
-          <div className="delete-icon">⚠️</div>
+          <div className="delete-icon"> </div>
           <h3>Delete User Account</h3>
         </div>
 
@@ -83,7 +83,7 @@ const DeleteUserConfirmation = ({ user, onConfirm, onCancel, onSuccess }) => {
           </div>
 
           <div className="danger-notice">
-            <strong>⚠️ This action cannot be undone!</strong>
+            <strong>  This action cannot be undone!</strong>
           </div>
         </div>
 

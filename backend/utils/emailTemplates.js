@@ -260,7 +260,7 @@ export const passwordResetEmail = (userName, resetLink) => {
 
             <div class="highlight">
               <p style="margin: 0;">
-                <strong>⚠️ Security Notice:</strong><br>
+                <strong>  Security Notice:</strong><br>
                 This link will expire in 1 hour for security reasons.<br>
                 If you didn't request this reset, please ignore this email.
               </p>

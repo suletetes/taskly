@@ -37,7 +37,7 @@ async function cleanupTestData(page) {
     });
     
     if (!loginResponse.ok()) {
-      console.warn('⚠️ Could not login test user for cleanup');
+      console.warn('  Could not login test user for cleanup');
       return;
     }
     
@@ -83,7 +83,7 @@ async function cleanupTestData(page) {
     
     console.log('✅ Test data cleanup completed');
   } catch (error) {
-    console.warn('⚠️ Error during test data cleanup:', error.message);
+    console.warn('  Error during test data cleanup:', error.message);
   }
 }
 
@@ -100,7 +100,7 @@ async function cleanupTestUser(page) {
     });
     
     if (!loginResponse.ok()) {
-      console.warn('⚠️ Could not login test user for deletion');
+      console.warn('  Could not login test user for deletion');
       return;
     }
     
@@ -115,7 +115,7 @@ async function cleanupTestUser(page) {
     
     console.log('✅ Test user account deleted');
   } catch (error) {
-    console.warn('⚠️ Error deleting test user:', error.message);
+    console.warn('  Error deleting test user:', error.message);
   }
 }
 

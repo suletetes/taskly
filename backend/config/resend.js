@@ -22,7 +22,7 @@ const getResendClient = () => {
 export const sendEmail = async ({ to, subject, html, text }) => {
   // Check if Resend API key is configured
   if (!process.env.RESEND_API_KEY) {
-    console.warn('⚠️  Resend API key not configured. Email functionality disabled.');
+    console.warn('   Resend API key not configured. Email functionality disabled.');
     return { 
       success: false, 
       message: 'Email service not configured',
@@ -47,14 +47,14 @@ export const sendEmail = async ({ to, subject, html, text }) => {
       text: text || html.replace(/<[^>]*>/g, ''), // Strip HTML for text version if not provided
     });
 
-    console.log('✅ Email sent via Resend:', data.id);
+    console.log(' Email sent via Resend:', data.id);
     return { 
       success: true, 
       id: data.id,
       message: 'Email sent successfully'
     };
   } catch (error) {
-    console.error('❌ Resend error:', error.message);
+    console.error(' Resend error:', error.message);
     
     // Log full error in development
     if (process.env.NODE_ENV === 'development') {

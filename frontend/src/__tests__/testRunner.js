@@ -54,7 +54,7 @@ class TestRunner {
       
       console.log('✅ Unit tests completed');
     } catch (error) {
-      console.log('⚠️  Unit tests had issues:', error.message);
+      console.log('   Unit tests had issues:', error.message);
       this.results.errors.push(`Unit tests: ${error.message}`);
     }
   }
@@ -75,7 +75,7 @@ class TestRunner {
       
       console.log('✅ Integration tests completed');
     } catch (error) {
-      console.log('⚠️  Integration tests had issues:', error.message);
+      console.log('   Integration tests had issues:', error.message);
       this.results.errors.push(`Integration tests: ${error.message}`);
     }
   }
@@ -90,7 +90,7 @@ class TestRunner {
       console.log(`   - Average render time: ${performanceResults.avgRenderTime}ms`);
       console.log(`   - Memory usage: ${performanceResults.memoryUsage}MB`);
     } catch (error) {
-      console.log('⚠️  Performance tests had issues:', error.message);
+      console.log('   Performance tests had issues:', error.message);
       this.results.errors.push(`Performance tests: ${error.message}`);
     }
   }
@@ -135,7 +135,7 @@ class TestRunner {
       
       console.log('✅ Coverage report generated');
     } catch (error) {
-      console.log('⚠️  Coverage generation had issues:', error.message);
+      console.log('   Coverage generation had issues:', error.message);
     }
   }
 
@@ -161,7 +161,7 @@ class TestRunner {
     if (successRate >= 80) {
       console.log('🎉 Great job! Test suite is in good shape.');
     } else if (successRate >= 60) {
-      console.log('⚠️  Test suite needs some attention.');
+      console.log('   Test suite needs some attention.');
     } else {
       console.log('🚨 Test suite requires immediate attention.');
     }

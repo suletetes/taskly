@@ -202,7 +202,7 @@ const UserList = () => {
             )}
           </div>
           <button type="submit" className="search-btn" disabled={searchLoading}>
-            {searchLoading ? <InlineSpinner size="small" /> : '🔍'}
+            {searchLoading ? <InlineSpinner size="small" /> : ' '}
           </button>
         </form>
       </div>

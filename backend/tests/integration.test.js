@@ -73,7 +73,7 @@ const TEST_USER = 'Test User';
     if (emailConfigured) {
       console.log('   ✅ Email service ready');
     } else {
-      console.log('   ⚠️  Email service not configured');
+      console.log('      Email service not configured');
     }
     
     console.log('3. User requests password reset...');

@@ -11,22 +11,22 @@ import { validateEnvironment, logConfiguration } from './utils/envValidation.js'
 dotenv.config();
 
 // Validate environment variables before starting
-console.log('\n🔍 Validating environment configuration...');
+console.log('\n  Validating environment configuration...');
 const envValidation = validateEnvironment();
 
 if (!envValidation.isValid) {
-  console.error('\n❌ Environment validation failed:');
+  console.error('\n Environment validation failed:');
   envValidation.errors.forEach(error => console.error(`  - ${error}`));
   console.error('\nPlease set the required environment variables in your .env file and restart the server.\n');
   process.exit(1);
 }
 
 if (envValidation.warnings.length > 0) {
-  console.warn('\n⚠️  Environment warnings:');
+  console.warn('\n  Environment warnings:');
   envValidation.warnings.forEach(warning => console.warn(`  - ${warning}`));
 }
 
-console.log('✅ Environment validation passed\n');
+console.log(' Environment validation passed\n');
 
 // Log configuration (safe version)
 logConfiguration();

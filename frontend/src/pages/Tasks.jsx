@@ -26,10 +26,10 @@ const Tasks = () => {
   const { projectId } = useParams();
   const location = useLocation();
 
-  console.log('🔍 [Tasks] ========== COMPONENT RENDER ==========');
-  console.log('🔍 [Tasks] URL params:', { projectId });
-  console.log('🔍 [Tasks] Location:', location.pathname);
-  console.log('🔍 [Tasks] User:', user ? { id: user._id, username: user.username } : 'No user');
+  // console.log('  [Tasks] ========== COMPONENT RENDER ==========');
+  // console.log('  [Tasks] URL params:', { projectId });
+  // console.log('  [Tasks] Location:', location.pathname);
+  // console.log('  [Tasks] User:', user ? { id: user._id, username: user.username } : 'No user');
 
   // State management
   const [tasks, setTasks] = useState([]);
@@ -44,19 +44,19 @@ const Tasks = () => {
 
   // Load tasks on component mount and when user or projectId changes
   useEffect(() => {
-    console.log('🔄 [Tasks] useEffect triggered - user:', !!user, 'projectId:', projectId);
+    // console.log('🔄 [Tasks] useEffect triggered - user:', !!user, 'projectId:', projectId);
     if (user) {
       loadTasks();
     }
   }, [user, projectId]);
 
   const loadTasks = async () => {
-    console.log('📥 [Tasks] ========== LOADING TASKS ==========');
-    console.log('📥 [Tasks] User check:', !!user);
-    console.log('📥 [Tasks] Project ID:', projectId);
+    // console.log('  [Tasks] ========== LOADING TASKS ==========');
+    // console.log('  [Tasks] User check:', !!user);
+    // console.log('  [Tasks] Project ID:', projectId);
     
     if (!user) {
-      console.log('❌ [Tasks] No user found, skipping load');
+      // console.log('❌ [Tasks] No user found, skipping load');
       return;
     }
 
@@ -65,26 +65,30 @@ const Tasks = () => {
       
       let response;
       if (projectId) {
-        console.log('📥 [Tasks] Loading tasks for project:', projectId);
+        // console.log('  [Tasks] Loading tasks for project:', projectId);
         response = await taskService.getProjectTasks(projectId, {
           limit: 100,
           sortBy: 'createdAt',
           sortOrder: 'desc'
         });
-        console.log('📥 [Tasks] Project tasks response:', response);
+        // console.log('  [Tasks] Project tasks response:', response);
       } else {
-        console.log('📥 [Tasks] Loading all user tasks');
+        // console.log('  [Tasks] Loading all user tasks');
         response = await taskService.getUserTasks(null, {
           limit: 100,
           sortBy: 'createdAt',
           sortOrder: 'desc'
         });
-        console.log('📥 [Tasks] User tasks response:', response);
+        // console.log('  [Tasks] User tasks response:', response);
       }
       
-      const tasksData = response.data.tasks || response.data;
-      console.log('📥 [Tasks] Tasks data:', tasksData);
-      console.log('📥 [Tasks] Tasks count:', Array.isArray(tasksData) ? tasksData.length : 'Not an array');
+      // apiService.get() returns response.data directly
+      // For project tasks: backend sends array directly, so response is the array
+      // For user tasks: backend sends {tasks: [...], ...}, so response.tasks is the array
+      const tasksData = Array.isArray(response) ? response : (response.tasks || response.data || []);
+      // console.log('  [Tasks] Tasks data:', tasksData);
+      // console.log('  [Tasks] Tasks count:', Array.isArray(tasksData) ? tasksData.length : 'Not an array');
+      // console.log('  [Tasks] First task sample:', tasksData[0]);
       
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
@@ -98,7 +102,7 @@ const Tasks = () => {
       setTasks([]);
     } finally {
       setLoading(false);
-      console.log('✅ [Tasks] Loading complete');
+      // console.log('✅ [Tasks] Loading complete');
     }
   };
 

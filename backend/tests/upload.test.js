@@ -31,7 +31,7 @@ console.log(`✓ CLOUDINARY_API_KEY configured: ${hasApiKey ? '✅ YES' : '❌ N
 console.log(`✓ CLOUDINARY_API_SECRET configured: ${hasApiSecret ? '✅ YES' : '❌ NO'}`);
 
 if (!hasCloudName || !hasApiKey || !hasApiSecret) {
-  console.log('\n⚠️  Cloudinary not fully configured. Skipping upload tests.\n');
+  console.log('\n   Cloudinary not fully configured. Skipping upload tests.\n');
   process.exit(0);
 }
 

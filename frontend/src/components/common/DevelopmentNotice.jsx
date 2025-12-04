@@ -40,7 +40,7 @@ const DevelopmentNotice = () => {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-        <div style={{ color: '#856404', fontSize: '20px' }}>⚠️</div>
+        <div style={{ color: '#856404', fontSize: '20px' }}> </div>
         <div style={{ flex: 1 }}>
           <h4 style={{ margin: '0 0 8px 0', color: '#856404', fontSize: '16px' }}>
             Development Mode
