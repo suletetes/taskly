@@ -13,15 +13,7 @@ const createTask = async (req, res) => {
         const userId = req.params.userId || req.user._id.toString();
         const { title, due, priority, description, tags, labels, assignee, projectId, teamId } = req.body;
 
-        console.log('🔧 [createTask] Creating task with data:', {
-            title,
-            due,
-            priority,
-            assignee,
-            projectId,
-            teamId,
-            createdBy: userId
-        });
+
 
         // Check if the user exists
         const user = await User.findById(userId);
@@ -63,21 +55,17 @@ const createTask = async (req, res) => {
         // Add optional fields if provided
         if (assignee) {
             taskData.assignee = assignee;
-            console.log('🔧 [createTask] Assignee set to:', assignee);
         }
         if (projectId) {
             taskData.project = projectId;
-            console.log('🔧 [createTask] Project set to:', projectId);
         }
         if (teamId) {
             taskData.team = teamId;
-            console.log('🔧 [createTask] Team set to:', teamId);
         }
 
         const newTask = new Task(taskData);
 
         await newTask.save();
-        console.log('✅ [createTask] Task saved successfully:', newTask._id);
 
         // Save the task to the user's list of tasks
         user.tasks.push(newTask._id);
@@ -90,12 +78,7 @@ const createTask = async (req, res) => {
             .populate('team', 'name')
             .populate('user', 'fullname username email avatar');
 
-        console.log('✅ [createTask] Task populated:', {
-            id: populatedTask._id,
-            assignee: populatedTask.assignee,
-            project: populatedTask.project,
-            team: populatedTask.team
-        });
+
 
         res.status(201).json({
             success: true,
