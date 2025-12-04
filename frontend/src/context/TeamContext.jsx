@@ -384,7 +384,6 @@ export const TeamProvider = ({ children }) => {
 
   // Fetch all teams
   const fetchTeams = useCallback(async (options = {}) => {
-    //console.e.log('🏢 [TeamContext] ========== FETCHING TEAMS ==========');
     const { showLoading = true, showErrors = true } = options;
     
     if (showLoading) {
@@ -392,50 +391,15 @@ export const TeamProvider = ({ children }) => {
     }
     
     try {
-      //console.e.log('🏢 [TeamContext] Calling teamService.getTeams()...');
       const result = await teamService.getTeams();
-      
-      //console.e.log('🏢 [TeamContext] Teams fetch result:', {
-        success: result.success,
-        dataType: typeof result.data,
-        teamsCount: result.data?.length || 0
-      });
-      //console.e.log('🏢 [TeamContext] Full result:', result);
-      //console.e.log('🏢 [TeamContext] Teams data:', result.data);
       
       if (result.success) {
         const teams = result.data || [];
-        //console.e.log('✅ [TeamContext] Setting teams in state:', teams);
-        
-        // Log each team's member structure
-        teams.forEach((team, index) => {
-          //console.e.log(`🏢 [TeamContext] Team ${index + 1}:`, {
-            id: team._id,
-            name: team.name,
-            membersCount: team.members?.length || 0,
-            hasMembers: !!team.members,
-            members: team.members
-          });
-          
-          if (team.members && team.members.length > 0) {
-            //console.e.log(`🏢 [TeamContext] Team "${team.name}" members:`, team.members);
-            team.members.forEach((member, mIndex) => {
-              //console.e.log(`  Member ${mIndex + 1}:`, {
-                hasUser: !!member.user,
-                userType: typeof member.user,
-                userId: typeof member.user === 'object' ? member.user?._id : member.user,
-                userName: member.user?.fullname || member.user?.name,
-                role: member.role
-              });
-            });
-          }
-        });
         
         dispatch({
           type: ActionTypes.SET_TEAMS,
           payload: { teams, total: teams.length }
         });
-        //console.e.log('🏢 [TeamContext] ========== TEAMS FETCH COMPLETE ==========');
         return result;
       } else {
         // Set loading to false on error
