@@ -320,7 +320,11 @@ const TaskForm = ({
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault()
     
+    console.log('📝 [TaskForm] ========== FORM SUBMISSION ==========');
+    console.log('📝 [TaskForm] Raw form data:', formData);
+    
     if (!validateForm()) {
+      console.log('❌ [TaskForm] Form validation failed');
       return
     }
 
@@ -334,12 +338,24 @@ const TaskForm = ({
       teamId: formData.teamId || null
     }
 
+    console.log('📝 [TaskForm] Prepared submit data:', submitData);
+    console.log('📝 [TaskForm] Assignment details:', {
+      assigneeId: submitData.assignee,
+      assigneeName: availableMembers.find(m => m._id === submitData.assignee)?.fullname || 'Unassigned',
+      projectId: submitData.projectId,
+      projectName: availableProjects.find(p => p._id === submitData.projectId)?.name || 'No Project',
+      teamId: submitData.teamId,
+      teamName: teams.find(t => t._id === submitData.teamId)?.name || 'No Team'
+    });
+
     try {
+      console.log('📝 [TaskForm] Calling onSubmit...');
       await onSubmit(submitData)
+      console.log('✅ [TaskForm] onSubmit completed successfully');
     } catch (error) {
-      console.error('Form submission error:', error)
+      console.error('❌ [TaskForm] Form submission error:', error)
     }
-  }, [formData, validateForm, onSubmit])
+  }, [formData, validateForm, onSubmit, availableMembers, availableProjects, teams])
 
   return (
     <div className={`p-6 ${className}`}>

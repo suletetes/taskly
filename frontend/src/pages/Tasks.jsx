@@ -76,25 +76,69 @@ const Tasks = () => {
   const handleTaskSubmit = async (taskData) => {
     setSubmitting(true);
 
+    console.log('📋 [Tasks] ========== TASK SUBMISSION ==========');
+    console.log('📋 [Tasks] Task data being submitted:', taskData);
+
     try {
       if (editingTask) {
         // Update existing task
+        console.log('📋 [Tasks] Updating existing task:', editingTask._id);
         const response = await taskService.updateTask(editingTask._id, taskData);
+        console.log('📋 [Tasks] Update response:', response);
+        
+        const updatedTask = response.data.task || response.data;
+        console.log('📋 [Tasks] Updated task:', updatedTask);
+        
         showSuccess('Task updated successfully!');
         setTasks(prev => (Array.isArray(prev) ? prev : []).map(task =>
-          task._id === editingTask._id ? response.data : task
+          task._id === editingTask._id ? updatedTask : task
         ));
       } else {
         // Create new task - user ID is extracted from auth token by backend
+        console.log('📋 [Tasks] Creating new task');
         const response = await taskService.createTask(taskData);
+        console.log('📋 [Tasks] ========== CREATE RESPONSE ==========');
+        console.log('📋 [Tasks] Full response:', response);
+        console.log('📋 [Tasks] Response.data:', response.data);
+        console.log('📋 [Tasks] Response.data.task:', response.data?.task);
+        
+        // Handle both response formats: { data: task } or { data: { task: task } }
+        const newTask = response.data.task || response.data;
+        console.log('📋 [Tasks] New task extracted:', newTask);
+        console.log('📋 [Tasks] Task details:', {
+          id: newTask._id,
+          title: newTask.title,
+          priority: newTask.priority,
+          status: newTask.status,
+          assignee: newTask.assignee,
+          project: newTask.project,
+          team: newTask.team,
+          tags: newTask.tags,
+          due: newTask.due
+        });
+        
         showSuccess('Task created successfully!');
-        setTasks(prev => [response.data, ...(Array.isArray(prev) ? prev : [])]);
+        setTasks(prev => {
+          const updated = [newTask, ...(Array.isArray(prev) ? prev : [])];
+          console.log('📋 [Tasks] Updated tasks list:', {
+            previousCount: prev.length,
+            newCount: updated.length,
+            newTaskId: newTask._id
+          });
+          return updated;
+        });
       }
 
       setShowTaskModal(false);
       setEditingTask(null);
+      console.log('✅ [Tasks] Task submission completed successfully');
     } catch (error) {
-      console.error('Failed to save task:', error);
+      console.error('❌ [Tasks] Failed to save task:', error);
+      console.error('❌ [Tasks] Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       
       // Extract detailed error message
       let errorMessage = 'Failed to save task. Please try again.';
@@ -354,13 +398,24 @@ const Tasks = () => {
                         </div>
                       )}
 
+                      {task.assignee && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <svg className="w-4 h-4 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm text-secondary-600 dark:text-secondary-400">
+                            Assigned to: {task.assignee.fullname || task.assignee.username || 'Unknown'}
+                          </span>
+                        </div>
+                      )}
+
                       {task.tags && task.tags.length > 0 && (
                         <div className="flex items-center gap-1 mt-2">
                           <TagIcon className="w-4 h-4 text-secondary-400" />
                           <div className="flex gap-1">
                             {task.tags.map((tag, tagIndex) => (
                               <span
-                                key={`${task._id}-tag-${tagIndex}`}
+                                key={`${task._id}-tag-${tag}-${tagIndex}`}
                                 className="px-2 py-1 text-xs bg-secondary-100 dark:bg-secondary-700 text-secondary-600 dark:text-secondary-400 rounded"
                               >
                                 {tag}
