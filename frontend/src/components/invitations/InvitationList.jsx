@@ -28,7 +28,7 @@ const InvitationList = () => {
         }
       });
 
-      console.log('📨 [InvitationList] Response:', response.data);
+      console.log('  [InvitationList] Response:', response.data);
       
       // Handle different response formats
       let invitationsData = [];
@@ -47,7 +47,7 @@ const InvitationList = () => {
         invitationsData = response.data;
       }
       
-      console.log('📨 [InvitationList] Extracted invitations:', invitationsData);
+      console.log('  [InvitationList] Extracted invitations:', invitationsData);
       setInvitations(Array.isArray(invitationsData) ? invitationsData : []);
       setTotalPages(paginationData.pages || 1);
     } catch (err) {

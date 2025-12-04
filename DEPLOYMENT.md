@@ -407,7 +407,7 @@ cd frontend
 vercel --prod
 ```
 
-## 📊 Monitoring & Maintenance
+##  Monitoring & Maintenance
 
 ### Health Monitoring
 

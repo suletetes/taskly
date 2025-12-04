@@ -38,9 +38,9 @@ const TeamDashboard = ({ teamId }) => {
 
       // Fetch team members
       const membersResponse = await api.get(`/teams/${teamId}/members`);
-      console.log('👥 [TeamDashboard] Full members response:', membersResponse.data);
-      console.log('👥 [TeamDashboard] Response has success?:', membersResponse.data.success);
-      console.log('👥 [TeamDashboard] Response.data.data:', membersResponse.data.data);
+      console.log('  [TeamDashboard] Full members response:', membersResponse.data);
+      console.log('  [TeamDashboard] Response has success?:', membersResponse.data.success);
+      console.log('  [TeamDashboard] Response.data.data:', membersResponse.data.data);
       
       // Handle different response formats
       let membersData = [];
@@ -61,8 +61,8 @@ const TeamDashboard = ({ teamId }) => {
         membersData = membersResponse.data;
       }
       
-      console.log('👥 [TeamDashboard] Extracted members:', membersData);
-      console.log('👥 [TeamDashboard] Setting members state with:', membersData.length, 'items');
+      console.log('  [TeamDashboard] Extracted members:', membersData);
+      console.log('  [TeamDashboard] Setting members state with:', membersData.length, 'items');
       setMembers(membersData);
 
       // Fetch pending invitations
@@ -70,7 +70,7 @@ const TeamDashboard = ({ teamId }) => {
         const invitationsResponse = await api.get(`/teams/${teamId}/invitations`, {
           params: { status: 'pending' }
         });
-        console.log('📨 [TeamDashboard] Invitations response:', invitationsResponse.data);
+        console.log('  [TeamDashboard] Invitations response:', invitationsResponse.data);
         // Handle multiple response formats
         let invitationsData = [];
         if (Array.isArray(invitationsResponse.data)) {
@@ -83,10 +83,10 @@ const TeamDashboard = ({ teamId }) => {
           // Direct object with invitations property
           invitationsData = invitationsResponse.data.invitations;
         }
-        console.log('📨 [TeamDashboard] Extracted invitations:', invitationsData);
+        console.log('  [TeamDashboard] Extracted invitations:', invitationsData);
         setPendingInvitations(Array.isArray(invitationsData) ? invitationsData : []);
       } catch (invErr) {
-        console.log('📨 [TeamDashboard] No invitations endpoint or error:', invErr.message);
+        console.log('  [TeamDashboard] No invitations endpoint or error:', invErr.message);
         setPendingInvitations([]);
       }
     } catch (err) {
@@ -193,7 +193,7 @@ const TeamDashboard = ({ teamId }) => {
           transition={{ delay: 0.5 }}
           className="lg:col-span-2"
         >
-          {console.log('👥 [TeamDashboard] Passing members to TeamMembersList:', members, 'length:', members.length)}
+          {console.log('  [TeamDashboard] Passing members to TeamMembersList:', members, 'length:', members.length)}
           <TeamMembersList members={members} />
         </motion.div>
 

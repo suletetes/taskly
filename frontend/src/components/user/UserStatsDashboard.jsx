@@ -65,7 +65,7 @@ const UserStatsDashboard = ({ userId, user }) => {
           className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          📊 Overview
+           Overview
         </button>
         <button 
           className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
