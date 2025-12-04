@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useParams, useLocation } from 'react-router-dom';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -22,6 +23,13 @@ import TaskFormModal from '../components/task/TaskFormModal';
 const Tasks = () => {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
+  const { projectId } = useParams();
+  const location = useLocation();
+
+  console.log('🔍 [Tasks] ========== COMPONENT RENDER ==========');
+  console.log('🔍 [Tasks] URL params:', { projectId });
+  console.log('🔍 [Tasks] Location:', location.pathname);
+  console.log('🔍 [Tasks] User:', user ? { id: user._id, username: user.username } : 'No user');
 
   // State management
   const [tasks, setTasks] = useState([]);
@@ -34,31 +42,63 @@ const Tasks = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
-  // Load tasks on component mount and when user changes
+  // Load tasks on component mount and when user or projectId changes
   useEffect(() => {
+    console.log('🔄 [Tasks] useEffect triggered - user:', !!user, 'projectId:', projectId);
     if (user) {
       loadTasks();
     }
-  }, [user]);
+  }, [user, projectId]);
 
   const loadTasks = async () => {
-    if (!user) return;
+    console.log('📥 [Tasks] ========== LOADING TASKS ==========');
+    console.log('📥 [Tasks] User check:', !!user);
+    console.log('📥 [Tasks] Project ID:', projectId);
+    
+    if (!user) {
+      console.log('❌ [Tasks] No user found, skipping load');
+      return;
+    }
 
     try {
       setLoading(true);
-      const response = await taskService.getUserTasks(null, {
-        limit: 100, // Load more tasks for better UX
-        sortBy: 'createdAt',
-        sortOrder: 'desc'
-      });
-      const tasksData = response.data.tasks; // Fix: access the tasks array specifically
+      
+      let response;
+      if (projectId) {
+        console.log('📥 [Tasks] Loading tasks for project:', projectId);
+        response = await taskService.getProjectTasks(projectId, {
+          limit: 100,
+          sortBy: 'createdAt',
+          sortOrder: 'desc'
+        });
+        console.log('📥 [Tasks] Project tasks response:', response);
+      } else {
+        console.log('📥 [Tasks] Loading all user tasks');
+        response = await taskService.getUserTasks(null, {
+          limit: 100,
+          sortBy: 'createdAt',
+          sortOrder: 'desc'
+        });
+        console.log('📥 [Tasks] User tasks response:', response);
+      }
+      
+      const tasksData = response.data.tasks || response.data;
+      console.log('📥 [Tasks] Tasks data:', tasksData);
+      console.log('📥 [Tasks] Tasks count:', Array.isArray(tasksData) ? tasksData.length : 'Not an array');
+      
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
-      console.error('Failed to load tasks:', error);
+      console.error('❌ [Tasks] Failed to load tasks:', error);
+      console.error('❌ [Tasks] Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       showError('Failed to load tasks. Please try again.');
-      setTasks([]); // Set empty array instead of mock data
+      setTasks([]);
     } finally {
       setLoading(false);
+      console.log('✅ [Tasks] Loading complete');
     }
   };
 

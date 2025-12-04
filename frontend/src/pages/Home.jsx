@@ -883,7 +883,7 @@ const Home = () => {
 
           <div className="border-t border-secondary-800 mt-12 pt-8 text-center">
             <p className="text-secondary-400">
-              © 2024 Taskly. All rights reserved. Built with ❤️ for productivity.
+              © 2026 Taskly. All rights reserved. Built with for productivity.
             </p>
           </div>
         </div>
