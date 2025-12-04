@@ -87,9 +87,26 @@ const taskService = {
   // Create new task
   async createTask(taskData) {
     try {
+      console.log('🌐 [taskService] ========== CREATE TASK API CALL ==========');
+      console.log('🌐 [taskService] Request data:', taskData);
+      console.log('🌐 [taskService] Endpoint: POST /tasks');
+      
       const response = await apiService.post('/tasks', taskData)
+      
+      console.log('🌐 [taskService] ========== API RESPONSE ==========');
+      console.log('🌐 [taskService] Full response:', response);
+      console.log('🌐 [taskService] Response.data:', response.data);
+      console.log('🌐 [taskService] Response structure:', {
+        hasData: !!response.data,
+        hasTask: !!response.data?.task,
+        hasSuccess: !!response.data?.success,
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        taskKeys: response.data?.task ? Object.keys(response.data.task) : []
+      });
+      
       return response
     } catch (error) {
+      console.error('❌ [taskService] Create task error:', error);
       throw this.handleTaskError(error)
     }
   },

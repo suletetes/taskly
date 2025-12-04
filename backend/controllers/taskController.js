@@ -11,7 +11,17 @@ const createTask = async (req, res) => {
     try {
         // Get userId from params (for /users/:userId/tasks) or from authenticated user (for /tasks)
         const userId = req.params.userId || req.user._id.toString();
-        const { title, due, priority, description, tags, labels } = req.body;
+        const { title, due, priority, description, tags, labels, assignee, projectId, teamId } = req.body;
+
+        console.log('🔧 [createTask] Creating task with data:', {
+            title,
+            due,
+            priority,
+            assignee,
+            projectId,
+            teamId,
+            createdBy: userId
+        });
 
         // Check if the user exists
         const user = await User.findById(userId);
@@ -40,7 +50,7 @@ const createTask = async (req, res) => {
         const dueDate = new Date(due);
 
         // Create a new task and associate it with the user
-        const newTask = new Task({
+        const taskData = {
             title,
             due: dueDate,
             priority,
@@ -48,24 +58,53 @@ const createTask = async (req, res) => {
             tags,
             labels,
             user: userId
-        });
+        };
+
+        // Add optional fields if provided
+        if (assignee) {
+            taskData.assignee = assignee;
+            console.log('🔧 [createTask] Assignee set to:', assignee);
+        }
+        if (projectId) {
+            taskData.project = projectId;
+            console.log('🔧 [createTask] Project set to:', projectId);
+        }
+        if (teamId) {
+            taskData.team = teamId;
+            console.log('🔧 [createTask] Team set to:', teamId);
+        }
+
+        const newTask = new Task(taskData);
 
         await newTask.save();
+        console.log('✅ [createTask] Task saved successfully:', newTask._id);
 
         // Save the task to the user's list of tasks
         user.tasks.push(newTask._id);
         await user.save();
 
+        // Populate references before sending response
+        const populatedTask = await Task.findById(newTask._id)
+            .populate('assignee', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name')
+            .populate('user', 'fullname username email avatar');
+
+        console.log('✅ [createTask] Task populated:', {
+            id: populatedTask._id,
+            assignee: populatedTask.assignee,
+            project: populatedTask.project,
+            team: populatedTask.team
+        });
+
         res.status(201).json({
             success: true,
-            data: {
-                task: newTask
-            },
+            data: populatedTask,
             message: 'Task created successfully'
         });
 
     } catch (error) {
-        console.error('Error creating task:', error);
+        console.error('❌ [createTask] Error creating task:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
