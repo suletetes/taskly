@@ -1,0 +1,168 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main, production]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+      
+      - name: Run linter
+        run: |
+          cd backend
+          npm run lint || true
+      
+      - name: Run tests
+        run: |
+          cd backend
+          npm test
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/taskly-test
+          SESSION_SECRET: test-secret-key
+          FRONTEND_URL: http://localhost:3000
+
+  build:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci --production
+      
+      - name: Create deployment package
+        run: |
+          cd backend
+          tar -czf ../backend-deploy.tar.gz .
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-package
+          path: backend-deploy.tar.gz
+          retention-days: 7
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://api-staging.yourdomain.com
+    
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-package
+      
+      - name: Deploy to staging server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          source: "backend-deploy.tar.gz"
+          target: "/tmp"
+      
+      - name: Execute deployment script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /var/www/taskly-api-staging
+            tar -xzf /tmp/backend-deploy.tar.gz
+            npm install --production
+            pm2 restart taskly-api-staging || pm2 start ecosystem.config.js --env staging
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/production'
+    environment:
+      name: production
+      url: https://api.yourdomain.com
+    
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-package
+      
+      - name: Deploy to production server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "backend-deploy.tar.gz"
+          target: "/tmp"
+      
+      - name: Execute deployment script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd /var/www/taskly-api
+            tar -xzf /tmp/backend-deploy.tar.gz
+            npm install --production
+            pm2 restart taskly-api || pm2 start ecosystem.config.js --env production
+      
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f https://api.yourdomain.com/api/health || exit 1
