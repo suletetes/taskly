@@ -1,402 +1,457 @@
 # Taskly Backend API
 
-Express.js REST API server for Taskly task management platform. Provides authentication, task management, team collaboration, and analytics endpoints.
+Modern task management API built with Node.js, Express, and MongoDB.
 
-## Quick Start
+## Features
 
-### Prerequisites
-- Node.js 16+
-- MongoDB 4.4+
-- npm or yarn
+- **Authentication**: Session-based authentication with secure cookies
+- **Task Management**: Full CRUD operations with advanced filtering
+- **Team Collaboration**: Multi-user teams with role-based permissions
+- **Project Management**: Organize tasks into projects
+- **Real-time Notifications**: In-app notification system
+- **File Uploads**: Avatar uploads with Cloudinary integration
+- **Email Service**: Transactional emails via Resend
+- **Analytics**: Productivity tracking and statistics
 
-### Installation
+## Tech Stack
+
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: express-session with connect-mongo
+- **File Storage**: Cloudinary
+- **Email**: Resend
+- **Validation**: express-validator
+- **Security**: helmet, cors, express-rate-limit
+
+## Prerequisites
+
+- Node.js 18 or higher
+- MongoDB 5.0 or higher
+- Cloudinary account (for file uploads)
+- Resend account (for emails)
+
+## Installation
+
+### 1. Clone and Install Dependencies
 
 ```bash
-# Install dependencies
+cd backend
 npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your configuration
-
-# Seed database with sample data
-npm run seed
-
-# Start development server
-npm run dev
 ```
 
-Server will run on `http://localhost:5000`
-
-## Environment Variables
+### 2. Environment Configuration
 
 Create a `.env` file in the backend directory:
 
 ```env
-# Database
-MONGODB_URI=mongodb://localhost:27017/taskly
-
-# Session
-SESSION_SECRET=your-secret-key-change-in-production
-SESSION_MAX_AGE=604800000
-
-# Server
+# Server Configuration
 NODE_ENV=development
 PORT=5000
 
-# File Upload (Cloudinary)
-CLOUDINARY_NAME=your-cloudinary-name
+# Database
+MONGODB_URI=mongodb://localhost:27017/taskly
+
+# Session Configuration
+SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+SESSION_NAME=taskly.sid
+SESSION_MAX_AGE=604800000
+
+# CORS Configuration
+FRONTEND_URL=http://localhost:3000
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 
-# Email (Resend)
-RESEND_API_KEY=your-resend-key
+# Email Configuration (Resend)
+RESEND_API_KEY=your-resend-api-key
+EMAIL_FROM=noreply@yourdomain.com
 
-# CORS
-CORS_ORIGIN=http://localhost:3000
-CLIENT_URL=http://localhost:3000
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
 
-# Team Settings
-TEAM_MAX_MEMBERS=50
+### 3. Database Setup
+
+Start MongoDB:
+
+```bash
+# macOS (Homebrew)
+brew services start mongodb-community
+
+# Linux (systemd)
+sudo systemctl start mongod
+
+# Windows
+net start MongoDB
+```
+
+### 4. Seed Database (Optional)
+
+```bash
+npm run seed
+```
+
+This creates sample users, teams, projects, and tasks for testing.
+
+## Running the Server
+
+### Development Mode
+
+```bash
+npm run dev
+```
+
+Server runs on `http://localhost:5000` with auto-reload.
+
+### Production Mode
+
+```bash
+npm start
+```
+
+## API Documentation
+
+### Base URL
+
+```
+Development: http://localhost:5000/api
+Production: https://your-domain.com/api
+```
+
+### Authentication
+
+All endpoints except `/auth/register` and `/auth/login` require authentication via session cookies.
+
+#### Register
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "fullname": "John Doe",
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "securepassword123"
+}
+```
+
+#### Login
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "securepassword123"
+}
+```
+
+#### Logout
+
+```http
+POST /api/auth/logout
+```
+
+### Tasks
+
+#### Get All Tasks
+
+```http
+GET /api/tasks?page=1&limit=10&status=in-progress&priority=high
+```
+
+Returns tasks created by or assigned to the authenticated user.
+
+#### Create Task
+
+```http
+POST /api/tasks
+Content-Type: application/json
+
+{
+  "title": "Complete project proposal",
+  "description": "Write and submit the Q4 project proposal",
+  "due": "2025-12-31T23:59:59.000Z",
+  "priority": "high",
+  "tags": ["work", "urgent"],
+  "assignee": "user-id",
+  "project": "project-id"
+}
+```
+
+#### Update Task
+
+```http
+PUT /api/tasks/:taskId
+Content-Type: application/json
+
+{
+  "title": "Updated title",
+  "status": "completed"
+}
+```
+
+#### Delete Task
+
+```http
+DELETE /api/tasks/:taskId
+```
+
+### Projects
+
+#### Get Project Tasks
+
+```http
+GET /api/projects/:projectId/tasks?status=in-progress&priority=high
+```
+
+#### Get Project Statistics
+
+```http
+GET /api/projects/:projectId/stats
+```
+
+### Teams
+
+#### Create Team
+
+```http
+POST /api/teams
+Content-Type: application/json
+
+{
+  "name": "Development Team",
+  "description": "Core development team"
+}
+```
+
+#### Invite User to Team
+
+```http
+POST /api/teams/:teamId/invite
+Content-Type: application/json
+
+{
+  "userId": "user-id",
+  "role": "member"
+}
+```
+
+### File Uploads
+
+#### Upload Avatar
+
+```http
+POST /api/upload/avatar
+Content-Type: multipart/form-data
+
+avatar: [file]
 ```
 
 ## Project Structure
 
 ```
 backend/
-├── config/              # Configuration files
-│   ├── passport.js      # Passport authentication setup
-│   └── resend.js        # Email service configuration
-├── controllers/         # Route controllers
+├── config/           # Configuration files
+│   ├── cloudinary.js
+│   ├── database.js
+│   └── resend.js
+├── controllers/      # Route controllers
 │   ├── authController.js
-│   ├── userController.js
 │   ├── taskController.js
-│   ├── teamController.js
 │   ├── projectController.js
-│   ├── invitationController.js
-│   ├── notificationController.js
-│   └── searchController.js
-├── middleware/          # Express middleware
-│   ├── auth.js          # Authentication middleware
-│   ├── validation.js    # Input validation
-│   ├── security.js      # Security middleware
-│   └── errorHandler.js  # Error handling
-├── models/              # MongoDB schemas
+│   └── userController.js
+├── middleware/       # Custom middleware
+│   ├── auth.js
+│   ├── errorHandler.js
+│   └── validation.js
+├── models/          # Mongoose models
 │   ├── User.js
 │   ├── Task.js
-│   ├── Team.js
 │   ├── Project.js
-│   ├── Invitation.js
-│   └── Notification.js
-├── routes/              # API routes
+│   └── Team.js
+├── routes/          # API routes
 │   ├── auth.js
-│   ├── users.js
 │   ├── tasks.js
-│   ├── teams.js
 │   ├── projects.js
-│   ├── invitations.js
-│   ├── notifications.js
-│   ├── search.js
-│   ├── calendar.js
-│   └── upload.js
-├── utils/               # Utility functions
-│   ├── response.js      # Response formatting
-│   ├── password.js      # Password hashing
-│   ├── permissions.js   # Permission checks
-│   ├── emailTemplates.js
-│   └── dataPopulation.js
-├── seeds/               # Database seed data
-│   ├── seed.js
-│   ├── userSeed.js
-│   └── comprehensiveSeed.js
-├── tests/               # Test files
-│   ├── integration.test.js
-│   ├── email.test.js
-│   └── upload.test.js
-├── server.js            # Express app setup
+│   └── teams.js
+├── utils/           # Utility functions
+│   ├── response.js
+│   └── permissions.js
+├── seeds/           # Database seeders
+├── tests/           # Test files
+├── .env.example     # Environment template
+├── server.js        # Entry point
 └── package.json
-```
-
-## Authentication
-
-Taskly uses session-based authentication with Passport.js:
-
-### Login Flow
-1. User sends credentials to `POST /api/auth/login`
-2. Passport validates credentials against database
-3. Session is created and stored in MongoDB
-4. Session cookie is sent to client
-5. Client includes cookie in subsequent requests
-
-### Protected Routes
-All routes except `/auth/register`, `/auth/login`, and `/auth/logout` require authentication.
-
-Use the `auth` middleware to protect routes:
-```javascript
-router.get('/protected', auth, controller);
-```
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user
-- `GET /api/auth/me` - Get current user profile
-
-### Users
-- `GET /api/users` - Get all users (paginated)
-- `GET /api/users/:id` - Get user profile
-- `PUT /api/users/:id` - Update user profile
-- `DELETE /api/users/:id` - Delete user account
-- `POST /api/users/:id/avatar` - Upload avatar
-- `GET /api/users/:id/stats` - Get user statistics
-
-### Tasks
-- `GET /api/tasks` - Get all tasks (paginated, filtered)
-- `POST /api/tasks` - Create new task
-- `GET /api/tasks/:id` - Get task details
-- `PUT /api/tasks/:id` - Update task
-- `DELETE /api/tasks/:id` - Delete task
-- `PATCH /api/tasks/:id/status` - Update task status
-
-### Teams
-- `GET /api/teams` - Get all user's teams
-- `POST /api/teams` - Create new team
-- `GET /api/teams/:id` - Get team details
-- `PUT /api/teams/:id` - Update team
-- `DELETE /api/teams/:id` - Delete team
-- `GET /api/teams/:id/stats` - Get team statistics
-- `GET /api/teams/:id/members` - Get team members
-- `GET /api/teams/:id/invitations` - Get team invitations
-- `POST /api/teams/:id/members` - Add member to team
-- `DELETE /api/teams/:id/members/:userId` - Remove member from team
-
-### Projects
-- `GET /api/projects` - Get all projects
-- `POST /api/projects` - Create new project
-- `GET /api/projects/:id` - Get project details
-- `PUT /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
-- `GET /api/projects/:id/stats` - Get project statistics
-
-### Invitations
-- `POST /api/teams/:teamId/invitations` - Send team invitation
-- `GET /api/users/invitations` - Get user's invitations
-- `POST /api/invitations/:id/accept` - Accept invitation
-- `POST /api/invitations/:id/deny` - Deny invitation
-- `DELETE /api/invitations/:id` - Cancel invitation
-
-### Notifications
-- `GET /api/notifications` - Get user notifications
-- `PATCH /api/notifications/:id/read` - Mark notification as read
-- `DELETE /api/notifications/:id` - Delete notification
-
-### Search
-- `GET /api/search/users` - Search users
-- `GET /api/teams/:teamId/search-users` - Search team users
-
-## Database Models
-
-### User
-```javascript
-{
-  fullname: String,
-  username: String (unique),
-  email: String (unique),
-  password: String (hashed),
-  avatar: String (URL),
-  bio: String,
-  jobTitle: String,
-  company: String,
-  timezone: String,
-  isAdmin: Boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Task
-```javascript
-{
-  title: String,
-  description: String,
-  due: Date,
-  priority: String (low/medium/high),
-  status: String (in-progress/completed/failed),
-  user: ObjectId (User),
-  project: ObjectId (Project),
-  tags: [String],
-  labels: [String],
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Team
-```javascript
-{
-  name: String,
-  description: String,
-  owner: ObjectId (User),
-  members: [{
-    user: ObjectId (User),
-    role: String (owner/admin/member),
-    joinedAt: Date
-  }],
-  projects: [ObjectId (Project)],
-  inviteCode: String,
-  isPrivate: Boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
 ```
 
 ## Testing
 
-### Run Tests
 ```bash
 # Run all tests
 npm test
 
-# Run specific test file
-npm test -- tests/integration.test.js
+# Run specific test suite
+npm test -- tasks.test.js
 
 # Run with coverage
-npm test -- --coverage
+npm run test:coverage
 ```
 
-### Test Files
-- `tests/integration.test.js` - Integration tests
-- `tests/email.test.js` - Email service tests
-- `tests/upload.test.js` - File upload tests
+## Production Deployment
 
-## Database Seeding
+### 1. Environment Variables
 
-### Seed Sample Data
+Set all required environment variables on your hosting platform:
+
+```env
+NODE_ENV=production
+PORT=5000
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/taskly
+SESSION_SECRET=strong-random-secret-key
+FRONTEND_URL=https://yourdomain.com
+CLOUDINARY_CLOUD_NAME=your-cloud
+CLOUDINARY_API_KEY=your-key
+CLOUDINARY_API_SECRET=your-secret
+RESEND_API_KEY=your-resend-key
+EMAIL_FROM=noreply@yourdomain.com
+```
+
+### 2. Database
+
+Use MongoDB Atlas or a managed MongoDB service:
+
 ```bash
-npm run seed
+# Connection string format
+mongodb+srv://username:password@cluster.mongodb.net/taskly?retryWrites=true&w=majority
 ```
 
-Creates:
-- 5 sample users
-- 3 sample teams
-- 4 sample projects
-- 30+ sample tasks
+### 3. Build and Deploy
 
-### Test Credentials
-```
-Username: johndoe
-Password: password123
-```
-
-## Security Features
-
-- **Password Hashing**: bcryptjs with salt rounds
-- **Session Management**: Secure session storage in MongoDB
-- **CORS**: Configured for frontend origin
-- **Rate Limiting**: Applied to auth endpoints
-- **Input Validation**: Express-validator and Joi
-- **Helmet**: Security headers
-- **Sanitization**: Input sanitization middleware
-
-## Deployment
-
-### Build for Production
 ```bash
-npm run build
+# Install production dependencies
+npm ci --production
+
+# Start server
+npm start
 ```
 
-### Start Production Server
+### 4. Process Management
+
+Use PM2 for production:
+
 ```bash
-NODE_ENV=production npm start
+# Install PM2
+npm install -g pm2
+
+# Start with PM2
+pm2 start ecosystem.config.js
+
+# Monitor
+pm2 monit
+
+# View logs
+pm2 logs
+
+# Restart
+pm2 restart taskly-api
 ```
 
-### Docker
-```bash
-docker build -t taskly-backend .
-docker run -p 5000:5000 taskly-backend
+### 5. Nginx Configuration (Optional)
+
+```nginx
+server {
+    listen 80;
+    server_name api.yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
 ```
 
-## Performance
+## Security Best Practices
 
-- **Database Indexing**: Indexes on frequently queried fields
-- **Pagination**: All list endpoints support pagination
-- **Caching**: Session caching in MongoDB
-- **Lazy Loading**: Related data populated on demand
+1. **Environment Variables**: Never commit `.env` files
+2. **Session Secret**: Use a strong, random secret in production
+3. **CORS**: Configure allowed origins properly
+4. **Rate Limiting**: Adjust limits based on your needs
+5. **HTTPS**: Always use HTTPS in production
+6. **Database**: Use strong passwords and enable authentication
+7. **Updates**: Keep dependencies updated
+
+## Monitoring
+
+### Health Check
+
+```http
+GET /api/health
+```
+
+Returns server status and database connection.
+
+### Logs
+
+Logs are written to:
+- Console (development)
+- PM2 logs (production)
 
 ## Troubleshooting
 
-### MongoDB Connection Error
-```
-Error: connect ECONNREFUSED 127.0.0.1:27017
-```
-- Ensure MongoDB is running
-- Check MONGODB_URI in .env
-- Verify database credentials
+### Database Connection Issues
 
-### Authentication Issues
-```
-Error: Not authenticated
-```
-- Ensure session middleware is configured
-- Check session storage in MongoDB
-- Verify CORS credentials setting
+```bash
+# Check MongoDB is running
+mongosh
 
-### Email Service Error
-```
-Error: Failed to send email
-```
-- Check RESEND_API_KEY in .env
-- Verify email template syntax
-- Check email recipient address
-
-## API Response Format
-
-All responses follow a consistent format:
-
-### Success Response
-```json
-{
-  "success": true,
-  "data": { /* response data */ },
-  "message": "Operation successful"
-}
+# Check connection string
+echo $MONGODB_URI
 ```
 
-### Error Response
-```json
-{
-  "success": false,
-  "error": {
-    "message": "Error description",
-    "code": "ERROR_CODE"
-  }
-}
-```
+### Session Issues
 
-## Recent Fixes
+- Verify `SESSION_SECRET` is set
+- Check MongoDB connection for session store
+- Clear browser cookies
 
-- Fixed undefined variable in invitation acceptance
-- Added team statistics endpoint
-- Fixed session cookie handling for cross-origin requests
-- Improved team member permission checks
-- Enhanced error handling for 403 Forbidden responses
+### File Upload Issues
 
-See [LATEST_FIXES.md](../LATEST_FIXES.md) for details.
+- Verify Cloudinary credentials
+- Check file size limits (default: 5MB)
+- Ensure proper MIME types
 
-## License
+### Email Issues
 
-MIT License - see LICENSE file for details
+- Verify Resend API key
+- Check email domain verification
+- Review Resend dashboard for errors
 
-## Contributing
+## API Rate Limits
 
-1. Create feature branch
-2. Make changes
-3. Run tests
-4. Submit pull request
+- **Default**: 100 requests per 15 minutes per IP
+- **Auth endpoints**: 5 requests per 15 minutes per IP
+- **Upload endpoints**: 10 requests per 15 minutes per user
 
----
+## Support
 
-**Last Updated**: November 24, 2025
-**Version**: 1.0.0
+For issues and questions:
+- Check existing documentation
+- Review error logs
+- Contact development team
+
+
+
+

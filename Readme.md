@@ -1,281 +1,428 @@
-# Taskly - Modern Task Management Platform
+# Taskly - Modern Task Management Application
 
-A full-stack task management application designed for individuals and teams. Taskly provides real-time synchronization, comprehensive analytics, and an intuitive interface for organizing work efficiently.
+A full-stack task management application designed for individuals and teams, featuring real-time synchronization, team collaboration, and comprehensive productivity analytics.
+
+![Taskly](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+## Features
+
+### Core Functionality
+- ✅ **Task Management**: Create, edit, delete, and organize tasks with priorities, due dates, and tags
+- 👥 **Team Collaboration**: Multi-user teams with role-based permissions
+- 📊 **Project Management**: Organize tasks into projects with progress tracking
+- 📅 **Calendar View**: Visualize tasks in calendar format
+- 🔔 **Notifications**: Real-time in-app notifications
+- 📈 **Analytics**: Productivity tracking, completion rates, and statistics
+- 🌓 **Dark Mode**: Full dark mode support
+- 📱 **Responsive Design**: Mobile-first approach, works on all devices
+
+### Technical Features
+- 🔐 **Secure Authentication**: Session-based authentication with secure cookies
+- ☁️ **Cloud Storage**: Cloudinary integration for file uploads
+- 📧 **Email Service**: Transactional emails via Resend
+- 🚀 **Real-time Updates**: Instant synchronization across devices
+- 🎨 **Modern UI**: Clean interface with smooth animations
+- 🔍 **Advanced Search**: Search and filter tasks, users, and teams
+
+## Tech Stack
+
+### Frontend
+- **Framework**: React 18 with Vite
+- **Styling**: Tailwind CSS
+- **Routing**: React Router v6
+- **State Management**: Context API
+- **Animations**: Framer Motion
+- **HTTP Client**: Axios
+- **Icons**: Heroicons
+
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose
+- **Authentication**: express-session
+- **File Storage**: Cloudinary
+- **Email**: Resend
+- **Security**: helmet, cors, rate limiting
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js 16+ and npm
-- MongoDB 4.4+
-- Git
+
+- Node.js 18 or higher
+- MongoDB 5.0 or higher
+- npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/taskly.git
 cd taskly
 ```
 
 2. **Install dependencies**
+
 ```bash
-# Install root dependencies
+# Install backend dependencies
+cd backend
 npm install
 
-# Install backend dependencies
-cd backend && npm install
-
 # Install frontend dependencies
-cd ../frontend && npm install
+cd ../frontend
+npm install
 ```
 
 3. **Configure environment variables**
+
+**Backend** (`backend/.env`):
+```env
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/taskly
+SESSION_SECRET=your-secret-key
+FRONTEND_URL=http://localhost:3000
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+RESEND_API_KEY=your-resend-key
+EMAIL_FROM=noreply@yourdomain.com
+```
+
+**Frontend** (`frontend/.env`):
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+4. **Start MongoDB**
+
 ```bash
-# Backend
-cp backend/.env.example backend/.env
-# Edit backend/.env with your configuration
+# macOS
+brew services start mongodb-community
 
-# Frontend
-cp frontend/.env.example frontend/.env
-# Edit frontend/.env if needed
+# Linux
+sudo systemctl start mongod
+
+# Windows
+net start MongoDB
 ```
 
-4. **Start the application**
-```bash
-# Terminal 1: Start backend
-cd backend
-npm run dev
-
-# Terminal 2: Start frontend
-cd frontend
-npm run dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000/api
-
-## Project Structure
-
-```
-taskly/
-├── backend/              # Express.js API server
-│   ├── config/          # Configuration files
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Express middleware
-│   ├── models/          # MongoDB schemas
-│   ├── routes/          # API routes
-│   ├── utils/           # Utility functions
-│   ├── seeds/           # Database seed data
-│   └── server.js        # Entry point
-├── frontend/            # React + Vite application
-│   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── context/     # Context providers
-│   │   ├── pages/       # Page components
-│   │   ├── services/    # API services
-│   │   └── App.jsx      # Root component
-│   └── vite.config.js   # Vite configuration
-└── Readme.md           # This file
-```
-
-## Key Features
-
-- **Task Management**: Create, edit, delete, and organize tasks with priority levels and due dates
-- **Team Collaboration**: Invite team members, manage permissions, and collaborate in real-time
-- **User Profiles**: Comprehensive user profiles with avatars, bio, and productivity analytics
-- **Real-time Updates**: Session-based authentication with instant synchronization
-- **Analytics & Insights**: Track productivity, completion rates, and team statistics
-- **Responsive Design**: Mobile-first approach with dark/light mode support
-- **Secure Authentication**: Session-based authentication with Passport.js
-
-## Technology Stack
-
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB with Mongoose
-- **Authentication**: Passport.js (session-based)
-- **Validation**: Express-validator, Joi
-- **File Upload**: Cloudinary
-- **Email**: Resend
-
-### Frontend
-- **Framework**: React 18
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **State Management**: React Context API
-- **HTTP Client**: Axios
-- **Animations**: Framer Motion
-- **Icons**: Heroicons
-
-## Documentation
-
-- [Backend README](./backend/README.md) - Backend setup and API documentation
-- [Frontend README](./frontend/README.md) - Frontend setup and component documentation
-
-## Authentication
-
-Taskly uses session-based authentication with Passport.js:
-
-1. User logs in with username/email and password
-2. Session is created and stored in MongoDB
-3. Session cookie is sent with each request
-4. Frontend uses Vite proxy to ensure cookies are sent correctly
-
-### Default Test Credentials
-```
-Username: johndoe
-Password: password123
-```
-
-## Database
-
-### Seeding Data
-To populate the database with sample data:
+5. **Seed the database** (optional)
 
 ```bash
 cd backend
 npm run seed
 ```
 
-This creates:
-- 5 sample users
-- 3 sample teams
-- 4 sample projects
-- 30+ sample tasks
+6. **Start the application**
 
-## Deployment
-
-### Production Build
-
-**Backend:**
 ```bash
+# Terminal 1 - Backend
 cd backend
-npm run build
-npm start
-```
+npm run dev
 
-**Frontend:**
-```bash
+# Terminal 2 - Frontend
 cd frontend
-npm run build
-npm run preview
+npm run dev
 ```
 
-### Environment Variables
+7. **Access the application**
 
-**Backend (.env)**
-```
-MONGODB_URI=mongodb://...
-SESSION_SECRET=your-secret-key
-NODE_ENV=production
-PORT=5000
-CLOUDINARY_NAME=your-cloudinary-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-RESEND_API_KEY=your-resend-key
-```
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000/api
 
-**Frontend (.env)**
+### Default Test Accounts
+
+After seeding, you can login with:
+
 ```
-VITE_API_URL=https://api.yourdomain.com/api
-VITE_APP_NAME=Taskly
+Email: john@example.com
+Password: password123
+
+Email: sarah@example.com
+Password: password123
 ```
 
-## Troubleshooting
+## Project Structure
 
-### 401 Unauthorized Errors
-- Ensure you're logged in
-- Check that session cookies are being sent (browser DevTools → Application → Cookies)
-- Verify CORS settings in backend/server.js
-
-### 403 Forbidden Errors
-- You don't have permission to access this resource
-- Check your team/project role
-- Contact team owner for permission changes
-
-### Database Connection Issues
-- Verify MongoDB is running
-- Check MONGODB_URI in .env
-- Ensure database credentials are correct
-
-### Frontend Not Loading
-- Clear browser cache (Ctrl+Shift+Delete)
-- Restart frontend dev server
-- Check that backend is running on port 5000
+```
+taskly/
+├── backend/                 # Backend API
+│   ├── config/             # Configuration files
+│   ├── controllers/        # Route controllers
+│   ├── middleware/         # Custom middleware
+│   ├── models/            # Mongoose models
+│   ├── routes/            # API routes
+│   ├── utils/             # Utility functions
+│   ├── seeds/             # Database seeders
+│   ├── tests/             # Test files
+│   └── server.js          # Entry point
+│
+├── frontend/               # Frontend application
+│   ├── public/            # Static assets
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── context/       # Context providers
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── pages/         # Page components
+│   │   ├── services/      # API services
+│   │   └── utils/         # Utility functions
+│   └── vite.config.js     # Vite configuration
+│
+├── docker-compose.yml      # Docker configuration
+└── README.md              # This file
+```
 
 ## API Documentation
 
-The API uses RESTful conventions with JSON responses. All protected endpoints require authentication.
+### Authentication
 
-### Base URL
+```http
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
 ```
-http://localhost:5000/api
+
+### Tasks
+
+```http
+GET    /api/tasks
+POST   /api/tasks
+GET    /api/tasks/:id
+PUT    /api/tasks/:id
+DELETE /api/tasks/:id
+PATCH  /api/tasks/:id/complete
 ```
 
-### Authentication Endpoints
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user
-- `POST /auth/logout` - Logout user
-- `GET /auth/me` - Get current user profile
+### Projects
 
-### Team Endpoints
-- `GET /teams` - Get all user's teams
-- `POST /teams` - Create new team
-- `GET /teams/:id` - Get team details
-- `PUT /teams/:id` - Update team
-- `DELETE /teams/:id` - Delete team
-- `GET /teams/:id/stats` - Get team statistics
-- `GET /teams/:id/members` - Get team members
-- `GET /teams/:id/invitations` - Get team invitations
+```http
+GET    /api/projects
+POST   /api/projects
+GET    /api/projects/:id
+PUT    /api/projects/:id
+DELETE /api/projects/:id
+GET    /api/projects/:id/tasks
+GET    /api/projects/:id/stats
+```
 
-### Task Endpoints
-- `GET /tasks` - Get all tasks
-- `POST /tasks` - Create new task
-- `GET /tasks/:id` - Get task details
-- `PUT /tasks/:id` - Update task
-- `DELETE /tasks/:id` - Delete task
+### Teams
 
-See [Backend README](./backend/README.md) for complete API documentation.
+```http
+GET    /api/teams
+POST   /api/teams
+GET    /api/teams/:id
+PUT    /api/teams/:id
+DELETE /api/teams/:id
+POST   /api/teams/:id/invite
+GET    /api/teams/:id/members
+```
+
+For complete API documentation, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+
+## Development
+
+### Running Tests
+
+```bash
+# Backend tests
+cd backend
+npm test
+
+# Frontend tests
+cd frontend
+npm test
+```
+
+### Code Linting
+
+```bash
+# Backend
+cd backend
+npm run lint
+
+# Frontend
+cd frontend
+npm run lint
+```
+
+### Database Management
+
+```bash
+# Seed database
+cd backend
+npm run seed
+
+# Clear database
+npm run db:clear
+
+# Create indexes
+npm run db:indexes
+```
+
+## Production Deployment
+
+### Backend Deployment
+
+See [backend/README.md](./backend/README.md) for detailed backend deployment instructions.
+
+**Quick steps:**
+
+1. Set production environment variables
+2. Use MongoDB Atlas or managed MongoDB
+3. Deploy to your hosting platform (Heroku, AWS, DigitalOcean, etc.)
+4. Use PM2 for process management
+5. Configure Nginx as reverse proxy
+
+### Frontend Deployment
+
+See [frontend/README.md](./frontend/README.md) for detailed frontend deployment instructions.
+
+**Quick steps:**
+
+1. Build the application: `npm run build`
+2. Deploy to static hosting (Vercel, Netlify, etc.)
+3. Or serve with Nginx/Apache
+4. Configure environment variables
+5. Set up SSL certificate
+
+### Docker Deployment
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+## Environment Variables
+
+### Backend Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `NODE_ENV` | Environment | `production` |
+| `PORT` | Server port | `5000` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/taskly` |
+| `SESSION_SECRET` | Session secret key | `random-secret-key` |
+| `FRONTEND_URL` | Frontend URL for CORS | `https://yourdomain.com` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | `your-cloud` |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | `123456789` |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | `secret` |
+| `RESEND_API_KEY` | Resend API key | `re_xxx` |
+| `EMAIL_FROM` | From email address | `noreply@yourdomain.com` |
+
+### Frontend Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `https://api.yourdomain.com/api` |
+
+## Security
+
+- Session-based authentication with secure cookies
+- Password hashing with bcrypt
+- CORS protection
+- Rate limiting on API endpoints
+- Input validation and sanitization
+- XSS protection
+- CSRF protection
+- Secure headers with helmet
+- Environment variable protection
+
+## Performance
+
+- Code splitting and lazy loading
+- Image optimization with Cloudinary
+- Database indexing
+- API response caching
+- Gzip compression
+- CDN for static assets
+- Optimized bundle size
+
+## Browser Support
+
+- Chrome (last 2 versions)
+- Firefox (last 2 versions)
+- Safari (last 2 versions)
+- Edge (last 2 versions)
+- Mobile browsers (iOS Safari, Chrome Mobile)
 
 ## Contributing
 
-1. Create a feature branch (`git checkout -b feature/amazing-feature`)
-2. Commit your changes (`git commit -m 'Add amazing feature'`)
-3. Push to the branch (`git push origin feature/amazing-feature`)
-4. Open a Pull Request
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Troubleshooting
+
+### Common Issues
+
+**Database connection failed**
+- Ensure MongoDB is running
+- Check connection string in `.env`
+- Verify network connectivity
+
+**CORS errors**
+- Check `FRONTEND_URL` in backend `.env`
+- Verify frontend is running on correct port
+- Check CORS configuration in `server.js`
+
+**Session not persisting**
+- Verify `SESSION_SECRET` is set
+- Check MongoDB connection for session store
+- Clear browser cookies
+
+**File upload fails**
+- Verify Cloudinary credentials
+- Check file size limits
+- Ensure proper MIME types
+
+For more troubleshooting, see:
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- React team for the amazing framework
+- MongoDB team for the database
+- Cloudinary for file storage
+- Resend for email service
+- All open-source contributors
 
 ## Support
 
-For issues, questions, or suggestions:
-1. Check existing issues on GitHub
-2. Create a new issue with detailed description
-3. Contact the development team
+For support, email support@yourdomain.com or open an issue on GitHub.
 
 ## Roadmap
 
 - [ ] Mobile app (React Native)
-- [ ] Advanced filtering and search
-- [ ] Custom workflows
-- [ ] Integration with third-party tools
-- [ ] Advanced reporting and analytics
-- [ ] Offline mode support
-- [ ] Real-time collaboration features
+- [ ] Desktop app (Electron)
+- [ ] Advanced analytics dashboard
+- [ ] Integration with third-party tools (Slack, Google Calendar)
+- [ ] AI-powered task suggestions
+- [ ] Voice commands
+- [ ] Offline mode with sync
 
-## Project Stats
+## Authors
 
-- **Frontend**: React + Vite + Tailwind CSS
-- **Backend**: Node.js + Express + MongoDB
-- **Database**: MongoDB
-- **Authentication**: Passport.js (Session-based)
-- **Deployment**: Docker-ready
+- Your Name - Initial work
 
----
+## Links
 
-**Last Updated**: November 24, 2025
-**Version**: 1.0.0
+- [Documentation](./docs)
+- [API Documentation](./API_DOCUMENTATION.md)
+- [Changelog](./CHANGELOG.md)
+- [Contributing Guidelines](./CONTRIBUTING.md)
