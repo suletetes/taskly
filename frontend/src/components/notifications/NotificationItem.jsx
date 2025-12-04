@@ -41,29 +41,47 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete, onClick }) => 
   };
 
   const handleClick = () => {
+    console.log('📬 NotificationItem: Notification clicked', {
+      notificationId: notification._id,
+      type: notification.type,
+      read: notification.read,
+      data: notification.data
+    });
+
     if (!notification.read && onMarkAsRead) {
+      console.log('📬 NotificationItem: Marking as read');
       onMarkAsRead(notification._id);
     }
 
     // Navigate based on notification type and data
     if (notification.data) {
       if (notification.data.invitationId) {
+        console.log('📬 NotificationItem: Navigating to /invitations');
         navigate('/invitations');
       } else if (notification.data.teamId) {
+        console.log(`📬 NotificationItem: Navigating to /teams/${notification.data.teamId}`);
         navigate(`/teams/${notification.data.teamId}`);
       } else if (notification.data.projectId) {
+        console.log(`📬 NotificationItem: Navigating to /projects/${notification.data.projectId}`);
         navigate(`/projects/${notification.data.projectId}`);
       } else if (notification.data.taskId) {
+        console.log('📬 NotificationItem: Navigating to /tasks');
         navigate(`/tasks`);
+      } else {
+        console.log('📬 NotificationItem: No specific navigation data found');
       }
+    } else {
+      console.log('📬 NotificationItem: No notification.data available');
     }
 
     if (onClick) {
+      console.log('📬 NotificationItem: Calling onClick callback');
       onClick(notification);
     }
   };
 
   const handleDelete = (e) => {
+    console.log('📬 NotificationItem: Delete clicked', notification._id);
     e.stopPropagation();
     if (onDelete) {
       onDelete(notification._id);
