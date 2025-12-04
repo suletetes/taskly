@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
   CheckIcon,
@@ -16,7 +16,8 @@ import {
   FolderIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
@@ -26,7 +27,7 @@ import { useProject } from '../../context/ProjectContext';
 import NotificationBell from '../notifications/NotificationBell';
 
 const Navigation = ({ onSearchOpen, onQuickAction }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, toggleTheme, getThemeIcon, getThemeLabel, isDark } = useTheme();
   const { teams, currentTeam } = useTeam();
   const { projects } = useProject();
@@ -36,6 +37,16 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
     projects: false
   });
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
   
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -255,21 +266,33 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
             </div>
             
             {user && (
-              <Link to="/profile" className="flex items-center hover:bg-secondary-50 dark:hover:bg-secondary-800 rounded-lg p-2 transition-colors">
-                <img
-                  className="w-8 h-8 rounded-full"
-                  src={user.avatar || '/img/placeholder-user.png'}
-                  alt={user.fullname}
-                />
-                <div className="ml-3 min-w-0 flex-1">
-                  <p className="text-sm font-medium text-secondary-900 dark:text-secondary-100 truncate">
-                    {user.fullname}
-                  </p>
-                  <p className="text-xs text-secondary-500 dark:text-secondary-400 truncate">
-                    @{user.username}
-                  </p>
-                </div>
-              </Link>
+              <>
+                <Link to="/profile" className="flex items-center hover:bg-secondary-50 dark:hover:bg-secondary-800 rounded-lg p-2 transition-colors mb-2">
+                  <img
+                    className="w-8 h-8 rounded-full"
+                    src={user.avatar || '/img/placeholder-user.png'}
+                    alt={user.fullname}
+                  />
+                  <div className="ml-3 min-w-0 flex-1">
+                    <p className="text-sm font-medium text-secondary-900 dark:text-secondary-100 truncate">
+                      {user.fullname}
+                    </p>
+                    <p className="text-xs text-secondary-500 dark:text-secondary-400 truncate">
+                      @{user.username}
+                    </p>
+                  </div>
+                </Link>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  leftIcon={<ArrowRightOnRectangleIcon className="w-4 h-4" />}
+                  className="w-full justify-center"
+                >
+                  Logout
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -413,7 +436,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                 <div className="pt-4 mt-4 border-t border-secondary-200 dark:border-secondary-700">
                   <Link 
                     to="/profile" 
-                    className="flex items-center px-4 py-3 hover:bg-secondary-50 dark:hover:bg-secondary-800 rounded-lg transition-colors"
+                    className="flex items-center px-4 py-3 hover:bg-secondary-50 dark:hover:bg-secondary-800 rounded-lg transition-colors mb-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <img
@@ -430,6 +453,17 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
                       </p>
                     </div>
                   </Link>
+                  
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center justify-center px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  >
+                    <ArrowRightOnRectangleIcon className="w-5 h-5 mr-2" />
+                    Logout
+                  </button>
                 </div>
               )}
             </nav>
