@@ -74,16 +74,25 @@ const teamAuth = async (req, res, next) => {
 
 // Project authentication middleware
 const projectAuth = async (req, res, next) => {
+  console.log('🔐 [projectAuth] ========== PROJECT AUTH MIDDLEWARE ==========');
+  console.log('🔐 [projectAuth] Request params:', req.params);
+  console.log('🔐 [projectAuth] Request body:', req.body);
+  console.log('🔐 [projectAuth] User:', req.user ? { id: req.user.id, username: req.user.username } : 'No user');
+  
   try {
     const projectId = req.params.id || req.body.projectId;
+    console.log('🔐 [projectAuth] Project ID:', projectId);
     
     if (!projectId) {
+      console.log('❌ [projectAuth] No project ID provided');
       return res.status(400).json({ error: 'Project ID is required' });
     }
 
     const project = await Project.findById(projectId).populate('team');
+    console.log('🔐 [projectAuth] Project found:', project ? { id: project._id, name: project.name } : 'Not found');
     
     if (!project) {
+      console.log('❌ [projectAuth] Project not found');
       return res.status(404).json({ error: 'Project not found' });
     }
 
@@ -91,14 +100,22 @@ const projectAuth = async (req, res, next) => {
     const isProjectMember = project.isMember(req.user.id);
     const isTeamMember = project.team && project.team.isMember(req.user.id);
     
+    console.log('🔐 [projectAuth] Is project member:', isProjectMember);
+    console.log('🔐 [projectAuth] Is team member:', isTeamMember);
+    console.log('🔐 [projectAuth] Project members:', project.members?.map(m => ({ user: m.user, role: m.role })));
+    console.log('🔐 [projectAuth] Team:', project.team ? { id: project.team._id, name: project.team.name } : 'No team');
+    
     if (!isProjectMember && !isTeamMember) {
+      console.log('❌ [projectAuth] Access denied - not a member');
       return res.status(403).json({ error: 'Access denied. You are not a member of this project or its team.' });
     }
 
+    console.log('✅ [projectAuth] Access granted');
     req.project = project;
     next();
   } catch (error) {
-    console.error('Project auth middleware error:', error);
+    console.error('❌ [projectAuth] Middleware error:', error);
+    console.error('❌ [projectAuth] Error stack:', error.stack);
     res.status(500).json({ error: 'Server error during project authentication' });
   }
 };

@@ -435,10 +435,16 @@ router.delete('/:id/members/:userId', auth, projectAuth, async (req, res) => {
 
 // GET /api/projects/:id/tasks - Get project tasks
 router.get('/:id/tasks', auth, projectAuth, async (req, res) => {
+  console.log('🔍 [Backend] ========== GET PROJECT TASKS ==========');
+  console.log('🔍 [Backend] Project ID:', req.params.id);
+  console.log('🔍 [Backend] User:', req.user ? { id: req.user.id, username: req.user.username } : 'No user');
+  console.log('🔍 [Backend] Query params:', req.query);
+  
   try {
     const { status, priority, assignee } = req.query;
     
     let query = { project: req.params.id };
+    console.log('🔍 [Backend] Base query:', query);
     
     if (status) {
       query.status = status;
@@ -452,14 +458,21 @@ router.get('/:id/tasks', auth, projectAuth, async (req, res) => {
       query.assignee = assignee;
     }
 
+    console.log('🔍 [Backend] Final query:', query);
+
     const tasks = await Task.find(query)
       .populate('assignee', 'fullname username email avatar')
       .populate('user', 'fullname username email avatar')
       .sort({ createdAt: -1 });
 
+    console.log('🔍 [Backend] Tasks found:', tasks.length);
+    console.log('🔍 [Backend] Tasks:', tasks.map(t => ({ id: t._id, title: t.title, status: t.status })));
+    console.log('✅ [Backend] Sending response');
+
     res.json(tasks);
   } catch (error) {
-    console.error('Error fetching project tasks:', error);
+    console.error('❌ [Backend] Error fetching project tasks:', error);
+    console.error('❌ [Backend] Error stack:', error.stack);
     res.status(500).json({ error: 'Failed to fetch project tasks' });
   }
 });
