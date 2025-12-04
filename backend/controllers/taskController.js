@@ -233,8 +233,13 @@ const getTasksByUser = async (req, res) => {
         const isAdmin = req.user.role === 'admin';
         const canViewAllTasks = isOwnProfile || isAdmin;
 
-        // Build filter query
-        let filterQuery = { user: userId };
+        // Build filter query - include tasks created by user OR assigned to user
+        let filterQuery = {
+            $or: [
+                { user: userId },      // Tasks created by user
+                { assignee: userId }   // Tasks assigned to user
+            ]
+        };
 
         // For public viewing, only show completed tasks
         if (!canViewAllTasks) {

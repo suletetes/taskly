@@ -330,14 +330,23 @@ class ProjectService {
         ? `${this.baseURL}/${projectId}/tasks?${params.toString()}`
         : `${this.baseURL}/${projectId}/tasks`;
 
+      console.log('📡 [projectService] Fetching from URL:', url);
       const response = await api.get(url);
+      console.log('📡 [projectService] Full response:', response);
+      console.log('📡 [projectService] response.data:', response.data);
+      
+      // The response might be the data directly or wrapped in response.data
+      const tasks = response.data || response;
+      console.log('📡 [projectService] tasks:', tasks);
+      console.log('📡 [projectService] tasks is array:', Array.isArray(tasks));
       
       return {
         success: true,
-        data: response.data,
+        data: tasks,
         message: 'Project tasks fetched successfully'
       };
     } catch (error) {
+      console.error('📡 [projectService] Error:', error);
       return this.handleError(error, 'Failed to fetch project tasks');
     }
   }
