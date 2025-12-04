@@ -15,7 +15,7 @@ const uploadService = {
 
       return response
     } catch (error) {
-      console.error('Avatar upload error:', error)
+      //console.error('Avatar upload error:', error)
       throw error
     }
   },
@@ -26,7 +26,7 @@ const uploadService = {
       const response = await apiService.delete('/upload/avatar')
       return response
     } catch (error) {
-      console.error('Avatar deletion error:', error)
+      //console.error('Avatar deletion error:', error)
       throw error
     }
   },

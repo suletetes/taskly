@@ -50,7 +50,7 @@ const UserSearch = ({ teamId, onUserSelect, onClose }) => {
         setTotalPages(response.data.data.pagination.pages);
       }
     } catch (err) {
-      console.error('Search error:', err);
+      //console.error('Search error:', err);
       setError('Failed to search users');
     } finally {
       setLoading(false);

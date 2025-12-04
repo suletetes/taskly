@@ -269,7 +269,7 @@ const CalendarSearch = ({
       setView('day');
       if (onDateNavigate) onDateNavigate(date);
     } catch (error) {
-      console.error('Invalid date:', dateStr);
+      //console.error('Invalid date:', dateStr);
     }
   };
 

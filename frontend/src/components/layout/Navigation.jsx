@@ -44,7 +44,7 @@ const Navigation = ({ onSearchOpen, onQuickAction }) => {
       await logout();
       navigate('/login', { replace: true });
     } catch (error) {
-      console.error('Logout failed:', error);
+      //console.error('Logout failed:', error);
     }
   };
   

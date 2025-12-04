@@ -45,7 +45,7 @@ const ProductivityAnalytics = ({ userId, user }) => {
       setAnalytics(analyticsData)
       setLastUpdated(new Date())
     } catch (err) {
-      console.error('Error fetching analytics:', err)
+      //console.error('Error fetching analytics:', err)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -135,7 +135,7 @@ const ProductivityAnalytics = ({ userId, user }) => {
     
     // Only refresh if the event is for the current user
     if (data?.user === targetUserId || data?.userId === targetUserId) {
-      console.log(`Analytics event received: ${eventType}`, data)
+      //console.log(`Analytics event received: ${eventType}`, data)
       
       // Debounce rapid updates
       setTimeout(() => {

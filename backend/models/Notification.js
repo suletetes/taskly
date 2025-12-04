@@ -85,7 +85,7 @@ notificationSchema.statics.createNotification = async function(recipientId, type
     await notification.save();
     return notification;
   } catch (error) {
-    console.error('Error creating notification:', error);
+    //console.error('Error creating notification:', error);
     throw error;
   }
 };

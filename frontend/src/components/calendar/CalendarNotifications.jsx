@@ -177,7 +177,7 @@ const CalendarNotifications = ({
 
   const playNotificationSound = () => {
     if (audioRef.current && soundEnabled) {
-      audioRef.current.play().catch(console.error);
+      audioRef.current.play().catch(//console.error);
     }
   };
 

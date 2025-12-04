@@ -49,7 +49,7 @@ const OfflineStatus = ({ className = '' }) => {
       const status = await offlineAPI.getSyncStatus();
       setSyncStatus(status);
     } catch (error) {
-      console.error('Failed to get sync status:', error);
+      //console.error('Failed to get sync status:', error);
     }
   };
   
@@ -62,7 +62,7 @@ const OfflineStatus = ({ className = '' }) => {
       setLastSyncTime(new Date());
       await updateSyncStatus();
     } catch (error) {
-      console.error('Sync failed:', error);
+      //console.error('Sync failed:', error);
     } finally {
       setIsSyncing(false);
     }

@@ -22,7 +22,7 @@ const ProjectProgress = ({ projectId, onArchive }) => {
         setProgress(response.data.data);
       }
     } catch (err) {
-      console.error('Error fetching progress:', err);
+      //console.error('Error fetching progress:', err);
       setError('Failed to load project progress');
     } finally {
       setLoading(false);

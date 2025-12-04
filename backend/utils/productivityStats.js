@@ -63,7 +63,7 @@ const calculateProductivityStats = async (userId) => {
             ongoing: inProgress,
         };
     } catch (error) {
-        console.error("Error calculating productivity stats:", error);
+        //console.error("Error calculating productivity stats:", error);
         throw new Error("Unable to fetch productivity stats.");
     }
 };

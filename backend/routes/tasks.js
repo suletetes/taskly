@@ -69,7 +69,7 @@ router.get('/project/:projectId', authenticateToken, async (req, res) => {
             message: 'Tasks fetched successfully'
         });
     } catch (error) {
-        console.error('Error fetching filtered tasks:', error);
+        //console.error('Error fetching filtered tasks:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to fetch tasks'

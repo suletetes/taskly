@@ -37,7 +37,7 @@ router.get('/', auth, async (req, res) => {
 
     return successResponse(res, teams, 'Teams fetched successfully');
   } catch (error) {
-    console.error('Error fetching teams:', error);
+    //console.error('Error fetching teams:', error);
     return errorResponse(res, 'Failed to fetch teams', 'FETCH_ERROR', 500);
   }
 });
@@ -96,7 +96,7 @@ router.get('/:teamId/members', auth, async (req, res) => {
       memberCount: team.members.length
     }, 'Team members fetched successfully');
   } catch (error) {
-    console.error('Error fetching team members:', error);
+    //console.error('Error fetching team members:', error);
     return errorResponse(res, 'Failed to fetch team members', 'FETCH_ERROR', 500);
   }
 });
@@ -132,7 +132,7 @@ router.get('/:id', auth, teamAuth, async (req, res) => {
 
     return successResponse(res, team, 'Team fetched successfully');
   } catch (error) {
-    console.error('Error fetching team:', error.message);
+    //console.error('Error fetching team:', error.message);
     return errorResponse(res, 'Failed to fetch team', 'FETCH_ERROR', 500);
   }
 });
@@ -196,7 +196,7 @@ router.post('/', auth, validateTeam, async (req, res) => {
 
     return createdResponse(res, team, 'Team created successfully');
   } catch (error) {
-    console.error('Error creating team:', error);
+    //console.error('Error creating team:', error);
     return errorResponse(res, 'Failed to create team', 'CREATE_ERROR', 500);
   }
 });
@@ -233,7 +233,7 @@ router.put('/:id', auth, teamAuth, validateTeam, async (req, res) => {
 
     return successResponse(res, team, 'Team updated successfully');
   } catch (error) {
-    console.error('Error updating team:', error);
+    //console.error('Error updating team:', error);
     return errorResponse(res, 'Failed to update team', 'UPDATE_ERROR', 500);
   }
 });
@@ -258,7 +258,7 @@ router.patch('/:id/archive', auth, teamAuth, async (req, res) => {
 
     return successResponse(res, team, 'Team archived successfully');
   } catch (error) {
-    console.error('Error archiving team:', error);
+    //console.error('Error archiving team:', error);
     return errorResponse(res, 'Failed to archive team', 'ARCHIVE_ERROR', 500);
   }
 });
@@ -283,7 +283,7 @@ router.patch('/:id/unarchive', auth, teamAuth, async (req, res) => {
 
     return successResponse(res, team, 'Team unarchived successfully');
   } catch (error) {
-    console.error('Error unarchiving team:', error);
+    //console.error('Error unarchiving team:', error);
     return errorResponse(res, 'Failed to unarchive team', 'UNARCHIVE_ERROR', 500);
   }
 });
@@ -308,7 +308,7 @@ router.delete('/:id', auth, teamAuth, async (req, res) => {
     await Team.findByIdAndDelete(req.params.id);
     return successResponse(res, null, 'Team deleted successfully');
   } catch (error) {
-    console.error('Error deleting team:', error);
+    //console.error('Error deleting team:', error);
     return errorResponse(res, 'Failed to delete team', 'DELETE_ERROR', 500);
   }
 });
@@ -373,7 +373,7 @@ router.post('/:id/invite', auth, teamAuth, [
 
     return successResponse(res, team, 'Invitation sent successfully');
   } catch (error) {
-    console.error('Error sending invite:', error);
+    //console.error('Error sending invite:', error);
     return errorResponse(res, 'Failed to send invite', 'INVITE_ERROR', 500);
   }
 });
@@ -431,7 +431,7 @@ router.post('/:id/members', auth, teamAuth, [
 
     return successResponse(res, team, 'Member added successfully');
   } catch (error) {
-    console.error('Error adding team member:', error);
+    //console.error('Error adding team member:', error);
     return errorResponse(res, 'Failed to add team member', 'ADD_MEMBER_ERROR', 500);
   }
 });
@@ -488,7 +488,7 @@ router.put('/:id/members/:userId', auth, teamAuth, validateMemberRole, async (re
 
     return successResponse(res, team, 'Member role updated successfully');
   } catch (error) {
-    console.error('Error updating member role:', error);
+    //console.error('Error updating member role:', error);
     return errorResponse(res, 'Failed to update member role', 'UPDATE_ROLE_ERROR', 500);
   }
 });
@@ -546,7 +546,7 @@ router.delete('/:id/members/:userId', auth, teamAuth, async (req, res) => {
 
     return successResponse(res, team, 'Member removed successfully');
   } catch (error) {
-    console.error('Error removing team member:', error);
+    //console.error('Error removing team member:', error);
     return errorResponse(res, 'Failed to remove team member', 'REMOVE_MEMBER_ERROR', 500);
   }
 });
@@ -577,7 +577,7 @@ router.get('/invite/:inviteCode/info', auth, async (req, res) => {
 
     return successResponse(res, teamInfo, 'Team info fetched successfully');
   } catch (error) {
-    console.error('Error fetching team info:', error);
+    //console.error('Error fetching team info:', error);
     return errorResponse(res, 'Failed to fetch team info', 'FETCH_ERROR', 500);
   }
 });
@@ -610,7 +610,7 @@ router.post('/join/:inviteCode', auth, async (req, res) => {
 
     return successResponse(res, team, 'Successfully joined team');
   } catch (error) {
-    console.error('Error joining team:', error);
+    //console.error('Error joining team:', error);
     return errorResponse(res, 'Failed to join team', 'JOIN_TEAM_ERROR', 500);
   }
 });
@@ -653,7 +653,7 @@ router.post('/:id/regenerate-invite', auth, teamAuth, async (req, res) => {
 
     return successResponse(res, { inviteCode: team.inviteCode }, 'Invite code regenerated successfully');
   } catch (error) {
-    console.error('Error regenerating invite code:', error);
+    //console.error('Error regenerating invite code:', error);
     return errorResponse(res, 'Failed to regenerate invite code', 'REGENERATE_ERROR', 500);
   }
 });
@@ -699,7 +699,7 @@ router.get('/:id/stats', auth, teamAuth, async (req, res) => {
 
     return successResponse(res, stats, 'Team statistics fetched successfully');
   } catch (error) {
-    console.error('Error fetching team stats:', error);
+    //console.error('Error fetching team stats:', error);
     return errorResponse(res, 'Failed to fetch team statistics', 'FETCH_ERROR', 500);
   }
 });

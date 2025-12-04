@@ -37,7 +37,7 @@ const jwtAuth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    //console.error('Auth middleware error:', error);
     res.status(401).json({ error: 'Invalid token.' });
   }
 };
@@ -67,7 +67,7 @@ const teamAuth = async (req, res, next) => {
     req.team = team;
     next();
   } catch (error) {
-    console.error('Team auth middleware error:', error);
+    //console.error('Team auth middleware error:', error);
     res.status(500).json({ error: 'Server error during team authentication' });
   }
 };
@@ -98,7 +98,7 @@ const projectAuth = async (req, res, next) => {
     req.project = project;
     next();
   } catch (error) {
-    console.error('Project auth middleware error:', error);
+    //console.error('Project auth middleware error:', error);
     res.status(500).json({ error: 'Server error during project authentication' });
   }
 };
@@ -127,7 +127,7 @@ const requireRole = (roles) => {
       req.userRole = userRole;
       next();
     } catch (error) {
-      console.error('Role authorization error:', error);
+      //console.error('Role authorization error:', error);
       res.status(500).json({ error: 'Server error during role authorization' });
     }
   };
@@ -156,7 +156,7 @@ const requirePermission = (permission) => {
       
       next();
     } catch (error) {
-      console.error('Permission authorization error:', error);
+      //console.error('Permission authorization error:', error);
       res.status(500).json({ error: 'Server error during permission authorization' });
     }
   };
@@ -171,7 +171,7 @@ const adminAuth = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Admin auth middleware error:', error);
+    //console.error('Admin auth middleware error:', error);
     res.status(500).json({ error: 'Server error during admin authentication' });
   }
 };
@@ -270,7 +270,7 @@ const validateOwnershipTransfer = async (req, res, next) => {
     req.resource = resource;
     next();
   } catch (error) {
-    console.error('Ownership transfer validation error:', error);
+    //console.error('Ownership transfer validation error:', error);
     res.status(500).json({ error: 'Server error during ownership transfer validation' });
   }
 };

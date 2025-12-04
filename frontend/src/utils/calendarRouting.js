@@ -291,7 +291,7 @@ export const parseCalendarUrl = (url) => {
       searchQuery: searchParams.get('q') || ''
     };
   } catch (error) {
-    console.error('Failed to parse calendar URL:', error);
+    //console.error('Failed to parse calendar URL:', error);
     return {
       view: DEFAULT_VIEW,
       date: new Date(),

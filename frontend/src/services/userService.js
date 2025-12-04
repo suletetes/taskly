@@ -80,29 +80,29 @@ const userService = {
   // Upload avatar file to Cloudinary
   async uploadAvatarFile(formData) {
     try {
-      console.log('📤 [UserService] uploadAvatarFile called');
-      console.log('📤 [UserService] FormData entries:');
+      //console.log('📤 [UserService] uploadAvatarFile called');
+      //console.log('📤 [UserService] FormData entries:');
       for (let pair of formData.entries()) {
         if (pair[1] instanceof File) {
-          console.log('  -', pair[0], ':', {
+          //console.log('  -', pair[0], ':', {
             name: pair[1].name,
             type: pair[1].type,
             size: pair[1].size,
             sizeInMB: (pair[1].size / (1024 * 1024)).toFixed(2)
           });
         } else {
-          console.log('  -', pair[0], ':', pair[1]);
+          //console.log('  -', pair[0], ':', pair[1]);
         }
       }
       
-      console.log('📤 [UserService] Making POST request to /upload/avatar...');
+      //console.log('📤 [UserService] Making POST request to /upload/avatar...');
       const response = await apiService.post('/upload/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
       
-      console.log('📤 [UserService] Response received:', {
+      //console.log('📤 [UserService] Response received:', {
         success: response.success,
         hasData: !!response.data,
         data: response.data,
@@ -119,12 +119,12 @@ const userService = {
         error: response.error
       };
       
-      console.log('📤 [UserService] Transformed response:', result);
+      //console.log('📤 [UserService] Transformed response:', result);
       return result;
     } catch (error) {
-      console.error('❌ [UserService] Upload error:', error);
-      console.error('❌ [UserService] Error response:', error.response?.data);
-      console.error('❌ [UserService] Error status:', error.response?.status);
+      //console.error('❌ [UserService] Upload error:', error);
+      //console.error('❌ [UserService] Error response:', error.response?.data);
+      //console.error('❌ [UserService] Error status:', error.response?.status);
       throw this.handleUserError(error);
     }
   },

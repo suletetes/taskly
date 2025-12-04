@@ -47,7 +47,7 @@ export const calendarWorkflowIntegration = {
   validateWorkflowTransition(currentStatus, newStatus, workflow = 'STANDARD') {
     const workflowConfig = TASK_WORKFLOWS[workflow];
     if (!workflowConfig) {
-      console.warn(`Unknown workflow: ${workflow}`);
+      ////console.warn(`Unknown workflow: ${workflow}`);
       return true; // Allow transition if workflow is unknown
     }
     

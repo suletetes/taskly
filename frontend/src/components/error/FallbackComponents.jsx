@@ -302,7 +302,7 @@ export const createErrorBoundary = (FallbackComponent = GenericFallback) => {
     }
 
     componentDidCatch(error, errorInfo) {
-      console.error('Error caught by boundary:', error, errorInfo);
+      //console.error('Error caught by boundary:', error, errorInfo);
       
       // Report to error tracking service
       if (window.reportError) {

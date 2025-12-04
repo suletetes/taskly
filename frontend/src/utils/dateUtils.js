@@ -212,7 +212,7 @@ export const dateUtils = {
     try {
       return parseISO(dateString);
     } catch (error) {
-      console.error('Error parsing date:', dateString, error);
+      //console.error('Error parsing date:', dateString, error);
       return null;
     }
   },

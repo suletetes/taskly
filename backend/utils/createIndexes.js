@@ -10,7 +10,7 @@ import Achievement from '../models/Achievement.js';
  */
 export const createIndexes = async () => {
     try {
-        console.log('Creating database indexes...');
+        //console.log('Creating database indexes...');
         
         // User indexes
         await User.collection.createIndex({ username: 1 }, { unique: true });
@@ -68,10 +68,10 @@ export const createIndexes = async () => {
         await Project.collection.createIndex({ owner: 1, archived: 1, status: 1 });
         await Team.collection.createIndex({ 'members.user': 1, archived: 1 });
         
-        console.log('✅ Database indexes created successfully');
+        //console.log('✅ Database indexes created successfully');
         
     } catch (error) {
-        console.error('❌ Error creating database indexes:', error);
+        //console.error('❌ Error creating database indexes:', error);
         throw error;
     }
 };
@@ -81,7 +81,7 @@ export const createIndexes = async () => {
  */
 export const dropIndexes = async () => {
     try {
-        console.log('Dropping custom database indexes...');
+        //console.log('Dropping custom database indexes...');
         
         const collections = [User, Task, Project, Team, Achievement];
         
@@ -92,19 +92,19 @@ export const dropIndexes = async () => {
                 if (index.name !== '_id_') {
                     try {
                         await Model.collection.dropIndex(index.name);
-                        console.log(`Dropped index: ${index.name} from ${Model.collection.name}`);
+                        //console.log(`Dropped index: ${index.name} from ${Model.collection.name}`);
                     } catch (error) {
                         // Index might not exist, continue
-                        console.log(`Index ${index.name} not found in ${Model.collection.name}`);
+                        //console.log(`Index ${index.name} not found in ${Model.collection.name}`);
                     }
                 }
             }
         }
         
-        console.log('✅ Custom indexes dropped successfully');
+        //console.log('✅ Custom indexes dropped successfully');
         
     } catch (error) {
-        console.error('❌ Error dropping indexes:', error);
+        //console.error('❌ Error dropping indexes:', error);
         throw error;
     }
 };
@@ -137,7 +137,7 @@ export const getIndexInfo = async () => {
         return indexInfo;
         
     } catch (error) {
-        console.error('❌ Error getting index information:', error);
+        //console.error('❌ Error getting index information:', error);
         throw error;
     }
 };
@@ -148,7 +148,7 @@ if (process.argv[2] === 'create') {
         .then(() => createIndexes())
         .then(() => process.exit(0))
         .catch(error => {
-            console.error(error);
+            //console.error(error);
             process.exit(1);
         });
 } else if (process.argv[2] === 'drop') {
@@ -156,19 +156,19 @@ if (process.argv[2] === 'create') {
         .then(() => dropIndexes())
         .then(() => process.exit(0))
         .catch(error => {
-            console.error(error);
+            //console.error(error);
             process.exit(1);
         });
 } else if (process.argv[2] === 'info') {
     mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly')
         .then(() => getIndexInfo())
         .then(info => {
-            console.log('Database Index Information:');
-            console.log(JSON.stringify(info, null, 2));
+            //console.log('Database Index Information:');
+            //console.log(JSON.stringify(info, null, 2));
             process.exit(0);
         })
         .catch(error => {
-            console.error(error);
+            //console.error(error);
             process.exit(1);
         });
 }

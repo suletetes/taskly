@@ -186,7 +186,7 @@ const TaskComments = ({
       await onAddComment(taskId, commentData);
       setNewComment('');
     } catch (error) {
-      console.error('Failed to add comment:', error);
+      //console.error('Failed to add comment:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -207,7 +207,7 @@ const TaskComments = ({
       setEditingComment(null);
       setEditText('');
     } catch (error) {
-      console.error('Failed to update comment:', error);
+      //console.error('Failed to update comment:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -218,7 +218,7 @@ const TaskComments = ({
     try {
       await onDeleteComment(commentId);
     } catch (error) {
-      console.error('Failed to delete comment:', error);
+      //console.error('Failed to delete comment:', error);
     }
   };
 

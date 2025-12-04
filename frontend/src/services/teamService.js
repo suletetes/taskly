@@ -69,7 +69,7 @@ class TeamService {
         };
       }
     } catch (error) {
-      console.error('❌ [TeamService] Error:', error.message);
+      //console.error('❌ [TeamService] Error:', error.message);
       return this.handleError(error, 'Failed to fetch team');
     }
   }
@@ -649,7 +649,7 @@ class TeamService {
    * @returns {Object} Formatted error response
    */
   handleError(error, defaultMessage) {
-    console.error('TeamService Error:', error);
+    //console.error('TeamService Error:', error);
 
     let message = defaultMessage;
     let statusCode = 500;

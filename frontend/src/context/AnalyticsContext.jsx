@@ -33,7 +33,7 @@ export const AnalyticsProvider = ({ children }) => {
       try {
         listener(eventType, data)
       } catch (error) {
-        console.error('Error in analytics listener:', error)
+        //console.error('Error in analytics listener:', error)
       }
     })
   }, [analyticsListeners])

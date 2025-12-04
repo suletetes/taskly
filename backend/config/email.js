@@ -18,7 +18,7 @@ const getTransporter = () => {
   if (!transporter) {
     // Check if email credentials are configured
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.warn(' Email credentials not configured. Email functionality will be disabled.');
+      //console.warn(' Email credentials not configured. Email functionality will be disabled.');
       return null;
     }
 
@@ -27,9 +27,9 @@ const getTransporter = () => {
     // Verify connection configuration
     transporter.verify((error, success) => {
       if (error) {
-        console.error(' Email configuration error:', error.message);
+        //console.error(' Email configuration error:', error.message);
       } else {
-        console.log(' Email server is ready to send messages');
+        //console.log(' Email server is ready to send messages');
       }
     });
   }
@@ -42,7 +42,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
   const transporter = getTransporter();
 
   if (!transporter) {
-    console.warn('  Email not sent - transporter not configured');
+    //console.warn('  Email not sent - transporter not configured');
     return { success: false, message: 'Email service not configured' };
   }
 
@@ -56,10 +56,10 @@ const sendEmail = async ({ to, subject, html, text }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(' Email sent:', info.messageId);
+    //console.log(' Email sent:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error(' Error sending email:', error.message);
+    //console.error(' Error sending email:', error.message);
     return { success: false, error: error.message };
   }
 };

@@ -100,7 +100,7 @@ const apiService = {
       const response = await api.get(url, config)
       return response.data
     } catch (error) {
-      console.error('API GET Error:', error.response?.data || error.message)
+      //console.error('API GET Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -113,7 +113,7 @@ const apiService = {
       const response = await api.post(url, data, config)
       return response.data
     } catch (error) {
-      console.error('API POST Error:', error.response?.data || error.message)
+      //console.error('API POST Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -124,7 +124,7 @@ const apiService = {
       const response = await api.put(url, data, config)
       return response.data
     } catch (error) {
-      console.error('API PUT Error:', error.response?.data || error.message)
+      //console.error('API PUT Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -135,7 +135,7 @@ const apiService = {
       const response = await api.patch(url, data, config)
       return response.data
     } catch (error) {
-      console.error('API PATCH Error:', error.response?.data || error.message)
+      //console.error('API PATCH Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -146,7 +146,7 @@ const apiService = {
       const response = await api.delete(url, config)
       return response.data
     } catch (error) {
-      console.error('API DELETE Error:', error.response?.data || error.message)
+      //console.error('API DELETE Error:', error.response?.data || error.message)
       throw error
     }
   }

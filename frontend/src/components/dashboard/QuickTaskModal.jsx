@@ -35,7 +35,7 @@ const QuickTaskModal = ({ isOpen, onClose, onSubmit }) => {
       await onSubmit(formData);
       handleClose();
     } catch (error) {
-      console.error('Error creating task:', error);
+      //console.error('Error creating task:', error);
     } finally {
       setIsSubmitting(false);
     }

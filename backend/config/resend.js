@@ -22,7 +22,7 @@ const getResendClient = () => {
 export const sendEmail = async ({ to, subject, html, text }) => {
   // Check if Resend API key is configured
   if (!process.env.RESEND_API_KEY) {
-    console.warn('   Resend API key not configured. Email functionality disabled.');
+    ////console.warn('   Resend API key not configured. Email functionality disabled.');
     return { 
       success: false, 
       message: 'Email service not configured',
@@ -47,18 +47,18 @@ export const sendEmail = async ({ to, subject, html, text }) => {
       text: text || html.replace(/<[^>]*>/g, ''), // Strip HTML for text version if not provided
     });
 
-    console.log(' Email sent via Resend:', data.id);
+    //console.log(' Email sent via Resend:', data.id);
     return { 
       success: true, 
       id: data.id,
       message: 'Email sent successfully'
     };
   } catch (error) {
-    console.error(' Resend error:', error.message);
+    //console.error(' Resend error:', error.message);
     
     // Log full error in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('Full error:', error);
+      //console.error('Full error:', error);
     }
 
     return { 
@@ -87,7 +87,7 @@ export const sendEmailWithRetry = async (options, maxRetries = 3) => {
       lastError = result;
     } catch (error) {
       lastError = { success: false, error: error.message };
-      console.warn(`Email send attempt ${attempt} failed:`, error.message);
+      //console.warn(`Email send attempt ${attempt} failed:`, error.message);
     }
 
     // Wait before retrying (exponential backoff)
@@ -97,7 +97,7 @@ export const sendEmailWithRetry = async (options, maxRetries = 3) => {
     }
   }
 
-  console.error(`Failed to send email after ${maxRetries} attempts`);
+  //console.error(`Failed to send email after ${maxRetries} attempts`);
   return lastError || { success: false, error: 'Failed to send email' };
 };
 

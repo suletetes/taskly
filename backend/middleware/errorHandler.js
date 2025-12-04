@@ -5,7 +5,7 @@
 
 export const errorHandler = (err, req, res, next) => {
   // Log error with context
-  console.error('Error:', {
+  //console.error('Error:', {
     message: err.message,
     code: err.code,
     status: err.statusCode || 500,

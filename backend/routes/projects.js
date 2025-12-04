@@ -69,7 +69,7 @@ router.get('/', auth, async (req, res) => {
 
     return successResponse(res, projects, 'Projects fetched successfully');
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    //console.error('Error fetching projects:', error);
     return errorResponse(res, 'Failed to fetch projects', 'FETCH_ERROR', 500);
   }
 });
@@ -92,7 +92,7 @@ router.get('/:id', auth, projectAuth, async (req, res) => {
 
     return successResponse(res, project, 'Project fetched successfully');
   } catch (error) {
-    console.error('Error fetching project:', error);
+    //console.error('Error fetching project:', error);
     return errorResponse(res, 'Failed to fetch project', 'FETCH_ERROR', 500);
   }
 });
@@ -152,7 +152,7 @@ router.post('/', auth, validateProject, async (req, res) => {
 
     return createdResponse(res, project, 'Project created successfully');
   } catch (error) {
-    console.error('Error creating project:', error);
+    //console.error('Error creating project:', error);
     return errorResponse(res, 'Failed to create project', 'CREATE_ERROR', 500);
   }
 });
@@ -198,7 +198,7 @@ router.put('/:id', auth, projectAuth, validateProjectUpdate, async (req, res) =>
 
     return successResponse(res, project, 'Project updated successfully');
   } catch (error) {
-    console.error('Error updating project:', error);
+    //console.error('Error updating project:', error);
     return errorResponse(res, 'Failed to update project', 'UPDATE_ERROR', 500);
   }
 });
@@ -224,7 +224,7 @@ router.post('/:id/archive', auth, async (req, res) => {
 
     return successResponse(res, project, 'Project archived successfully');
   } catch (error) {
-    console.error('Error archiving project:', error);
+    //console.error('Error archiving project:', error);
     return errorResponse(res, 'Failed to archive project', 'ARCHIVE_ERROR', 500);
   }
 });
@@ -250,7 +250,7 @@ router.post('/:id/unarchive', auth, async (req, res) => {
 
     return successResponse(res, project, 'Project unarchived successfully');
   } catch (error) {
-    console.error('Error updating project:', error);
+    //console.error('Error updating project:', error);
     return errorResponse(res, 'Failed to update project', 'UPDATE_ERROR', 500);
   }
 });
@@ -284,7 +284,7 @@ router.delete('/:id', auth, projectAuth, async (req, res) => {
     await Project.findByIdAndDelete(req.params.id);
     return successResponse(res, null, 'Project deleted successfully');
   } catch (error) {
-    console.error('Error deleting project:', error);
+    //console.error('Error deleting project:', error);
     return errorResponse(res, 'Failed to delete project', 'DELETE_ERROR', 500);
   }
 });
@@ -333,7 +333,7 @@ router.post('/:id/members', auth, projectAuth, validateProjectMember, async (req
 
     return successResponse(res, project, 'Member added successfully');
   } catch (error) {
-    console.error('Error adding project member:', error);
+    //console.error('Error adding project member:', error);
     return errorResponse(res, 'Failed to add project member', 'ADD_MEMBER_ERROR', 500);
   }
 });
@@ -386,7 +386,7 @@ router.put('/:id/members/:userId', auth, projectAuth, [
 
     return successResponse(res, project, 'Member role updated successfully');
   } catch (error) {
-    console.error('Error updating member role:', error);
+    //console.error('Error updating member role:', error);
     return errorResponse(res, 'Failed to update member role', 'UPDATE_ROLE_ERROR', 500);
   }
 });
@@ -428,7 +428,7 @@ router.delete('/:id/members/:userId', auth, projectAuth, async (req, res) => {
 
     return successResponse(res, project, 'Member removed successfully');
   } catch (error) {
-    console.error('Error removing project member:', error);
+    //console.error('Error removing project member:', error);
     return errorResponse(res, 'Failed to remove project member', 'REMOVE_MEMBER_ERROR', 500);
   }
 });
@@ -459,7 +459,7 @@ router.get('/:id/tasks', auth, projectAuth, async (req, res) => {
 
     res.json(tasks);
   } catch (error) {
-    console.error('Error fetching project tasks:', error);
+    //console.error('Error fetching project tasks:', error);
     res.status(500).json({ error: 'Failed to fetch project tasks' });
   }
 });
@@ -531,7 +531,7 @@ router.get('/:id/stats', auth, projectAuth, async (req, res) => {
 
     return successResponse(res, stats, 'Project statistics fetched successfully');
   } catch (error) {
-    console.error('Error fetching project stats:', error);
+    //console.error('Error fetching project stats:', error);
     return errorResponse(res, 'Failed to fetch project statistics', 'FETCH_ERROR', 500);
   }
 });
@@ -558,7 +558,7 @@ router.post('/:id/archive', auth, projectAuth, async (req, res) => {
 
     res.json(project);
   } catch (error) {
-    console.error('Error archiving project:', error);
+    //console.error('Error archiving project:', error);
     res.status(500).json({ error: 'Failed to archive project' });
   }
 });

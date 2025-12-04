@@ -17,7 +17,7 @@ export const populateTeamData = async (team) => {
     await team.populate('projects');
     return team;
   } catch (error) {
-    console.error('Error populating team data:', error);
+    //console.error('Error populating team data:', error);
     return team; // Return unpopulated team if population fails
   }
 };
@@ -37,7 +37,7 @@ export const populateProjectData = async (project) => {
     await project.populate('tasks');
     return project;
   } catch (error) {
-    console.error('Error populating project data:', error);
+    //console.error('Error populating project data:', error);
     return project; // Return unpopulated project if population fails
   }
 };
@@ -54,7 +54,7 @@ export const populateTeamMembers = async (team) => {
     await team.populate('members.user', 'fullname username email avatar lastActive');
     return team;
   } catch (error) {
-    console.error('Error populating team members:', error);
+    //console.error('Error populating team members:', error);
     return team;
   }
 };
@@ -71,7 +71,7 @@ export const populateProjectMembers = async (project) => {
     await project.populate('members.user', 'fullname username email avatar lastActive');
     return project;
   } catch (error) {
-    console.error('Error populating project members:', error);
+    //console.error('Error populating project members:', error);
     return project;
   }
 };
@@ -213,7 +213,7 @@ export const validateAndRepairTeamData = (team) => {
   
   // Ensure owner exists
   if (!team.owner) {
-    console.warn('Team missing owner:', team._id);
+    //console.warn('Team missing owner:', team._id);
   }
   
   // Ensure required fields
@@ -241,7 +241,7 @@ export const validateAndRepairProjectData = (project) => {
   
   // Ensure owner exists
   if (!project.owner) {
-    console.warn('Project missing owner:', project._id);
+    //console.warn('Project missing owner:', project._id);
   }
   
   // Ensure required fields

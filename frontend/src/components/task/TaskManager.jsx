@@ -84,7 +84,7 @@ const TaskManager = ({
       setEditingTask(null)
       setLastRefresh(new Date())
     } catch (error) {
-      console.error('Task operation failed:', error)
+      //console.error('Task operation failed:', error)
       showError(error.message || 'Operation failed')
     }
   }, [editingTask, updateTask, createTask, targetUserId, showSuccess, showError, onTaskCreated, onTaskUpdated])
@@ -111,7 +111,7 @@ const TaskManager = ({
       setDeletingTask(null)
       setLastRefresh(new Date())
     } catch (error) {
-      console.error('Delete task failed:', error)
+      //console.error('Delete task failed:', error)
       showError(error.message || 'Failed to delete task')
     }
   }, [deleteTask, showSuccess, showError, onTaskDeleted, targetUserId])

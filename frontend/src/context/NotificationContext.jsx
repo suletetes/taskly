@@ -73,7 +73,7 @@ export const NotificationProvider = ({ children }) => {
         setUnreadCount(response.data.data.unreadCount || 0)
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error)
+      //console.error('Error fetching notifications:', error)
     } finally {
       setLoading(false)
     }
@@ -86,7 +86,7 @@ export const NotificationProvider = ({ children }) => {
         setUnreadCount(response.data.data.unreadCount || 0)
       }
     } catch (error) {
-      console.error('Error fetching unread count:', error)
+      //console.error('Error fetching unread count:', error)
     }
   }, [])
 
@@ -100,7 +100,7 @@ export const NotificationProvider = ({ children }) => {
         setUnreadCount(prev => Math.max(0, prev - 1))
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error)
+      //console.error('Error marking notification as read:', error)
     }
   }, [])
 
@@ -112,7 +112,7 @@ export const NotificationProvider = ({ children }) => {
         setUnreadCount(0)
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error)
+      //console.error('Error marking all notifications as read:', error)
     }
   }, [])
 
@@ -127,7 +127,7 @@ export const NotificationProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Error deleting notification:', error)
+      //console.error('Error deleting notification:', error)
     }
   }, [notifications])
 

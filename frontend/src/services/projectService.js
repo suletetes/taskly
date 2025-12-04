@@ -80,7 +80,7 @@ class ProjectService {
         };
       }
     } catch (error) {
-      console.error('❌ [ProjectService] Error:', error.message);
+      //console.error('❌ [ProjectService] Error:', error.message);
       return this.handleError(error, 'Failed to fetch project');
     }
   }
@@ -677,7 +677,7 @@ class ProjectService {
    * @returns {Object} Formatted error response
    */
   handleError(error, defaultMessage) {
-    console.error('ProjectService Error:', error);
+    //console.error('ProjectService Error:', error);
 
     let message = defaultMessage;
     let statusCode = 500;

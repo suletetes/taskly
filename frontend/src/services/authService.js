@@ -37,7 +37,7 @@ const authService = {
       await apiService.post('/auth/logout')
     } catch (error) {
       // Continue with logout even if API call fails
-      console.warn('Logout API call failed:', error.message)
+      //console.warn('Logout API call failed:', error.message)
     } finally {
       // Always clear local storage
       localStorage.removeItem('user')
@@ -99,7 +99,7 @@ const authService = {
       const userStr = localStorage.getItem('user')
       return userStr ? JSON.parse(userStr) : null
     } catch (error) {
-      console.error('Error parsing stored user data:', error)
+      //console.error('Error parsing stored user data:', error)
       this.clearAuthData()
       return null
     }

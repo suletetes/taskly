@@ -151,7 +151,7 @@ const CalendarViewPersistence = () => {
         const parsedFilters = JSON.parse(atob(urlFilters));
         setFilters(parsedFilters);
       } catch (error) {
-        console.warn('Failed to parse URL filters:', error);
+        //console.warn('Failed to parse URL filters:', error);
       }
     }
   }, [setCurrentView, setCurrentDate, setFilters, preferences.saveFilters]);

@@ -73,7 +73,7 @@ const TaskStatusUpdater = ({
 
         showInfo(`Task status updated to ${update.newStatus}: ${update.reason}`)
       } catch (error) {
-        console.error('Failed to update task status:', error)
+        //console.error('Failed to update task status:', error)
         showError(`Failed to update task status: ${error.message}`)
       } finally {
         setUpdatingTasks(prev => {
@@ -124,7 +124,7 @@ const TaskStatusUpdater = ({
 
       showSuccess('Task status updated successfully')
     } catch (error) {
-      console.error('Failed to update task status:', error)
+      //console.error('Failed to update task status:', error)
       showError(`Failed to update task status: ${error.message}`)
     } finally {
       setUpdatingTasks(prev => {

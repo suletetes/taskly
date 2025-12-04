@@ -41,7 +41,7 @@ export const searchUsers = async (req, res) => {
           excludeIds = [...new Set([...excludeIds, ...teamMemberIds])];
         }
       } catch (error) {
-        console.error('Error fetching team members:', error);
+        //console.error('Error fetching team members:', error);
         // Continue with search even if team fetch fails
       }
     }
@@ -81,7 +81,7 @@ export const searchUsers = async (req, res) => {
       }
     }, 'Users found successfully');
   } catch (error) {
-    console.error('Error searching users:', error);
+    //console.error('Error searching users:', error);
     return errorResponse(res, 'Failed to search users', 'SEARCH_ERROR', 500);
   }
 };
@@ -95,29 +95,29 @@ export const searchUsersForTeam = async (req, res) => {
     const { teamId } = req.params;
     const { q, page = 1, limit = 10 } = req.query;
 
-    console.log('  [searchUsersForTeam] Request:', { teamId, q, page, limit, userId: req.user.id });
+    //console.log('  [searchUsersForTeam] Request:', { teamId, q, page, limit, userId: req.user.id });
 
     // Validate team exists
     const team = await Team.findById(teamId);
     if (!team) {
-      console.log('❌ [searchUsersForTeam] Team not found:', teamId);
+      //console.log('❌ [searchUsersForTeam] Team not found:', teamId);
       return notFoundResponse(res, 'Team not found');
     }
 
-    console.log('  [searchUsersForTeam] Team found:', { name: team.name, membersCount: team.members.length });
+    //console.log('  [searchUsersForTeam] Team found:', { name: team.name, membersCount: team.members.length });
 
     // Check if user has permission to search in team
     const userMember = team.members.find(m => m.user.toString() === req.user.id);
     if (!userMember) {
-      console.log('❌ [searchUsersForTeam] User not a member:', req.user.id);
+      //console.log('❌ [searchUsersForTeam] User not a member:', req.user.id);
       return errorResponse(res, 'You are not a member of this team', 'UNAUTHORIZED', 403);
     }
 
-    console.log('✅ [searchUsersForTeam] User is member with role:', userMember.role);
+    //console.log('✅ [searchUsersForTeam] User is member with role:', userMember.role);
 
     // Validate search query
     if (!q || q.trim().length < 2) {
-      console.log('❌ [searchUsersForTeam] Query too short:', q);
+      //console.log('❌ [searchUsersForTeam] Query too short:', q);
       return badRequestResponse(res, 'Search query must be at least 2 characters');
     }
 
@@ -127,8 +127,8 @@ export const searchUsersForTeam = async (req, res) => {
 
     // Get team member IDs
     const teamMemberIds = team.members.map(m => m.user.toString());
-    console.log('  [searchUsersForTeam] Team member IDs:', teamMemberIds);
-    console.log('  [searchUsersForTeam] Excluding IDs:', [...teamMemberIds, req.user.id]);
+    //console.log('  [searchUsersForTeam] Team member IDs:', teamMemberIds);
+    //console.log('  [searchUsersForTeam] Excluding IDs:', [...teamMemberIds, req.user.id]);
 
     // Build search query
     const searchRegex = new RegExp(q.trim(), 'i');
@@ -153,24 +153,24 @@ export const searchUsersForTeam = async (req, res) => {
         { email: searchRegex }
       ]
     }).select('fullname username email').lean();
-    console.log('  [searchUsersForTeam] All users matching search (before exclusion):', allMatchingUsers.length);
-    console.log('  [searchUsersForTeam] Matching users:', allMatchingUsers.map(u => ({ id: u._id.toString(), fullname: u.fullname, username: u.username })));
+    //console.log('  [searchUsersForTeam] All users matching search (before exclusion):', allMatchingUsers.length);
+    //console.log('  [searchUsersForTeam] Matching users:', allMatchingUsers.map(u => ({ id: u._id.toString(), fullname: u.fullname, username: u.username })));
 
     // Execute search
-    console.log('  [searchUsersForTeam] Executing search with query:', searchQuery);
+    //console.log('  [searchUsersForTeam] Executing search with query:', searchQuery);
     const users = await User.find(searchQuery)
       .select('fullname username email avatar bio isOnline lastActive')
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .lean();
 
-    console.log('  [searchUsersForTeam] Found users:', users.length);
-    console.log('  [searchUsersForTeam] Users:', users.map(u => ({ id: u._id, fullname: u.fullname, username: u.username })));
+    //console.log('  [searchUsersForTeam] Found users:', users.length);
+    //console.log('  [searchUsersForTeam] Users:', users.map(u => ({ id: u._id, fullname: u.fullname, username: u.username })));
 
     // Get total count for pagination
     const total = await User.countDocuments(searchQuery);
 
-    console.log('✅ [searchUsersForTeam] Returning response with', users.length, 'users');
+    //console.log('✅ [searchUsersForTeam] Returning response with', users.length, 'users');
     return successResponse(res, {
       users,
       pagination: {
@@ -181,7 +181,7 @@ export const searchUsersForTeam = async (req, res) => {
       }
     }, 'Users found successfully');
   } catch (error) {
-    console.error('❌ [searchUsersForTeam] Error:', error);
+    //console.error('❌ [searchUsersForTeam] Error:', error);
     return errorResponse(res, 'Failed to search users', 'SEARCH_ERROR', 500);
   }
 };
@@ -204,7 +204,7 @@ export const getUserById = async (req, res) => {
 
     return successResponse(res, user, 'User fetched successfully');
   } catch (error) {
-    console.error('Error fetching user:', error);
+    //console.error('Error fetching user:', error);
     return errorResponse(res, 'Failed to fetch user', 'FETCH_ERROR', 500);
   }
 };
@@ -259,7 +259,7 @@ export const globalSearch = async (req, res) => {
 
     return successResponse(res, results, 'Search results found');
   } catch (error) {
-    console.error('Error in global search:', error);
+    //console.error('Error in global search:', error);
     return errorResponse(res, 'Failed to perform search', 'SEARCH_ERROR', 500);
   }
 };

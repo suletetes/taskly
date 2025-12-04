@@ -100,7 +100,7 @@ const DayView = ({
         onTaskDrop(taskId, newDate, originalDate);
       }
     } catch (error) {
-      console.error('Error handling task drop:', error);
+      //console.error('Error handling task drop:', error);
     } finally {
       setDragOverSlot(null);
     }

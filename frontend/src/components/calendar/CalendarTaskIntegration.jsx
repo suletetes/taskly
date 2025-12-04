@@ -99,7 +99,7 @@ const CalendarTaskIntegration = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to synchronize tasks:', error);
+      //console.error('Failed to synchronize tasks:', error);
       showNotification({
         type: 'error',
         message: 'Failed to synchronize calendar with task manager',
@@ -136,7 +136,7 @@ const CalendarTaskIntegration = () => {
       
       return newTask;
     } catch (error) {
-      console.error('Failed to create task from calendar:', error);
+      //console.error('Failed to create task from calendar:', error);
       showNotification({
         type: 'error',
         message: 'Failed to create task',
@@ -170,7 +170,7 @@ const CalendarTaskIntegration = () => {
       
       return updatedTask;
     } catch (error) {
-      console.error('Failed to update task from calendar:', error);
+      //console.error('Failed to update task from calendar:', error);
       showNotification({
         type: 'error',
         message: 'Failed to update task',
@@ -198,7 +198,7 @@ const CalendarTaskIntegration = () => {
         duration: 3000
       });
     } catch (error) {
-      console.error('Failed to delete task from calendar:', error);
+      //console.error('Failed to delete task from calendar:', error);
       showNotification({
         type: 'error',
         message: 'Failed to delete task',
@@ -223,7 +223,7 @@ const CalendarTaskIntegration = () => {
         duration: 3000
       });
     } catch (error) {
-      console.error('Failed to bulk update tasks:', error);
+      //console.error('Failed to bulk update tasks:', error);
       showNotification({
         type: 'error',
         message: 'Failed to update some tasks',
@@ -256,7 +256,7 @@ const CalendarTaskIntegration = () => {
     });
     
     if (inconsistencies.length > 0) {
-      console.warn('Task data inconsistencies detected:', inconsistencies);
+      //console.warn('Task data inconsistencies detected:', inconsistencies);
       // Trigger synchronization to resolve inconsistencies
       synchronizeTasks();
     }
@@ -305,7 +305,7 @@ const CalendarTaskIntegration = () => {
       });
       
     } catch (error) {
-      console.error('Failed to update task status:', error);
+      //console.error('Failed to update task status:', error);
       showNotification({
         type: 'error',
         message: 'Failed to update task status',
@@ -354,7 +354,7 @@ const CalendarTaskIntegration = () => {
       });
       
     } catch (error) {
-      console.error('Failed to update task date:', error);
+      //console.error('Failed to update task date:', error);
       showNotification({
         type: 'error',
         message: 'Failed to update task date',

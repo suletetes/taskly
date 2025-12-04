@@ -60,7 +60,7 @@ export const getProjectProgress = async (req, res) => {
       memberWorkload: memberWorkloadArray
     }, 'Project progress calculated successfully');
   } catch (error) {
-    console.error('Error calculating project progress:', error);
+    //console.error('Error calculating project progress:', error);
     return errorResponse(res, 'Failed to calculate project progress', 'CALCULATION_ERROR', 500);
   }
 };
@@ -100,7 +100,7 @@ export const getProjectDetails = async (req, res) => {
       }
     }, 'Project details fetched successfully');
   } catch (error) {
-    console.error('Error fetching project details:', error);
+    //console.error('Error fetching project details:', error);
     return errorResponse(res, 'Failed to fetch project details', 'FETCH_ERROR', 500);
   }
 };

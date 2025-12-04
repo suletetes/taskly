@@ -66,7 +66,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
   // Load team data when modal opens (only if not already loaded)
   useEffect(() => {
     if (isOpen && teamId && (!currentTeam || currentTeam._id !== teamId)) {
-      console.log('⚙️ [TeamSettings] Fetching team');
+      //console.log('⚙️ [TeamSettings] Fetching team');
       fetchTeam(teamId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

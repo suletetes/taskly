@@ -39,7 +39,7 @@ class OfflineAPI {
       
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      //console.error('API request failed:', error);
       
       // If offline or network error, try to handle gracefully
       if (!navigator.onLine || error.name === 'TypeError') {
@@ -84,7 +84,7 @@ class OfflineAPI {
         timestamp: Date.now()
       });
     } catch (error) {
-      console.error('Failed to cache response:', error);
+      //console.error('Failed to cache response:', error);
     }
   }
   

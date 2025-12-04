@@ -76,7 +76,7 @@ const RichTaskEditor = ({
       await onSubmit(taskData);
       handleClose();
     } catch (error) {
-      console.error('Error saving task:', error);
+      //console.error('Error saving task:', error);
     } finally {
       setIsSubmitting(false);
     }

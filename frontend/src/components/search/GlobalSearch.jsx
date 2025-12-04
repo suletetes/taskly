@@ -66,7 +66,7 @@ const GlobalSearch = ({ onClose, isOpen }) => {
             });
           });
         } catch (err) {
-          console.error('Task search failed:', err);
+          //console.error('Task search failed:', err);
         }
       }
 
@@ -87,7 +87,7 @@ const GlobalSearch = ({ onClose, isOpen }) => {
             });
           });
         } catch (err) {
-          console.error('User search failed:', err);
+          //console.error('User search failed:', err);
         }
       }
 
@@ -108,13 +108,13 @@ const GlobalSearch = ({ onClose, isOpen }) => {
             });
           });
         } catch (err) {
-          console.error('Project search failed:', err);
+          //console.error('Project search failed:', err);
         }
       }
 
       setResults(searchResults);
     } catch (err) {
-      console.error('Search failed:', err);
+      //console.error('Search failed:', err);
       setResults([]);
     } finally {
       setIsLoading(false);
@@ -174,7 +174,7 @@ const GlobalSearch = ({ onClose, isOpen }) => {
     });
     
     // Handle navigation based on result type
-    console.log('Navigate to:', result);
+    //console.log('Navigate to:', result);
     onClose();
   };
   

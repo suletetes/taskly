@@ -87,7 +87,7 @@ const createTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ [createTask] Error creating task:', error);
+        //console.error('❌ [createTask] Error creating task:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
@@ -168,7 +168,7 @@ const getTaskById = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching task:', error);
+        //console.error('Error fetching task:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -301,7 +301,7 @@ const getTasksByUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching user tasks:', error);
+        //console.error('Error fetching user tasks:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -377,7 +377,7 @@ const updateTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error updating task:', error);
+        //console.error('Error updating task:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
@@ -444,7 +444,7 @@ const completeTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error completing task:', error);
+        //console.error('Error completing task:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -499,7 +499,7 @@ const deleteTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error deleting task:', error);
+        //console.error('Error deleting task:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -562,7 +562,7 @@ const getUserProductivityStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching productivity stats:', error);
+        //console.error('Error fetching productivity stats:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -623,7 +623,7 @@ const updateTaskStatus = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error updating task status:', error);
+        //console.error('Error updating task status:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
@@ -718,7 +718,7 @@ const getTaskStatusSummary = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching task status summary:', error);
+        //console.error('Error fetching task status summary:', error);
         res.status(500).json({
             success: false,
             error: {

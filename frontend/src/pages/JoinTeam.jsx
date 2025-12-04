@@ -61,7 +61,7 @@ const JoinTeam = () => {
         navigate(`/teams/${result.teamId}`);
       }, 2000);
     } catch (error) {
-      console.error('Failed to join team:', error);
+      //console.error('Failed to join team:', error);
     } finally {
       setIsJoining(false);
     }

@@ -69,7 +69,7 @@ const InviteModal = ({
       const code = await generateInviteCode(teamId);
       setInviteCode(code);
     } catch (error) {
-      console.error('Failed to generate invite code:', error);
+      //console.error('Failed to generate invite code:', error);
     } finally {
       setIsGeneratingCode(false);
     }
@@ -99,7 +99,7 @@ const InviteModal = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy invite link:', error);
+      //console.error('Failed to copy invite link:', error);
     }
   };
 
@@ -145,7 +145,7 @@ const InviteModal = ({
       setMessage('');
       onClose();
     } catch (error) {
-      console.error('Failed to send invites:', error);
+      //console.error('Failed to send invites:', error);
     }
   };
 

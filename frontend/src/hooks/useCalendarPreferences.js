@@ -112,11 +112,11 @@ export const useCalendarPreferences = () => {
             );
           }
         } catch (error) {
-          console.warn('Failed to load preferences from server:', error);
+          //console.warn('Failed to load preferences from server:', error);
         }
       }
     } catch (error) {
-      console.error('Failed to load preferences:', error);
+      //console.error('Failed to load preferences:', error);
     } finally {
       setIsLoading(false);
     }
@@ -144,11 +144,11 @@ export const useCalendarPreferences = () => {
             body: JSON.stringify(newPreferences)
           });
         } catch (error) {
-          console.warn('Failed to save preferences to server:', error);
+          //console.warn('Failed to save preferences to server:', error);
         }
       }
     } catch (error) {
-      console.error('Failed to save preferences:', error);
+      //console.error('Failed to save preferences:', error);
     } finally {
       setIsSaving(false);
     }

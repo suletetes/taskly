@@ -278,7 +278,7 @@ const EnhancedTaskForm = ({
     try {
       await onSubmit(submitData);
     } catch (error) {
-      console.error('Form submission error:', error);
+      //console.error('Form submission error:', error);
     }
   }, [formData, validateForm, onSubmit]);
 

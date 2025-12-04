@@ -132,7 +132,7 @@ const RoleManager = ({
       setShowConfirmation(false);
       onClose();
     } catch (error) {
-      console.error('Failed to update member role:', error);
+      //console.error('Failed to update member role:', error);
     }
   };
 

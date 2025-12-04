@@ -201,7 +201,7 @@ class CalendarService {
    * @private
    */
   handleError(error, defaultMessage) {
-    console.error('CalendarService Error:', error);
+    //console.error('CalendarService Error:', error);
 
     let message = defaultMessage;
     let statusCode = 500;

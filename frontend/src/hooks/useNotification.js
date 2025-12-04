@@ -6,7 +6,7 @@ import { useCallback } from 'react';
  */
 export const useNotification = () => {
   const showNotification = useCallback(({ type, message, duration = 5000 }) => {
-    // For now, we'll use console.log and alert as a fallback
+    // For now, we'll use //console.log and alert as a fallback
     // In a real app, this would integrate with a toast notification library
     
     const timestamp = new Date().toLocaleTimeString();
@@ -14,19 +14,19 @@ export const useNotification = () => {
     
     switch (type) {
       case 'success':
-        console.log(`✅ ${logMessage}`);
+        //console.log(`✅ ${logMessage}`);
         break;
       case 'error':
-        console.error(`❌ ${logMessage}`);
+        //console.error(`❌ ${logMessage}`);
         // For errors, also show an alert for now
         alert(`Error: ${message}`);
         break;
       case 'warning':
-        console.warn(`  ${logMessage}`);
+        //console.warn(`  ${logMessage}`);
         break;
       case 'info':
       default:
-        console.info(`ℹ️ ${logMessage}`);
+        //console.info(`ℹ️ ${logMessage}`);
         break;
     }
     

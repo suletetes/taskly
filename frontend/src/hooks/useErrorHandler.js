@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 const useErrorHandler = () => {
   const handleError = useCallback((error, options = {}) => {
-    console.error('Error handled by useErrorHandler:', error)
+    //console.error('Error handled by useErrorHandler:', error)
 
     let errorMessage = 'An unexpected error occurred'
 
@@ -56,7 +56,7 @@ const useErrorHandler = () => {
     }
 
     // Just log for now - notification integration can be added later
-    console.error('Processed error:', errorMessage)
+    //console.error('Processed error:', errorMessage)
 
     // Report to monitoring service if available
     if (window.reportError && error instanceof Error) {
@@ -69,7 +69,7 @@ const useErrorHandler = () => {
   }, [])
 
   const handleWarning = useCallback((message, options = {}) => {
-    console.warn('Warning:', message)
+    //console.warn('Warning:', message)
   }, [])
 
   const handleValidationError = useCallback((validationErrors, options = {}) => {
@@ -87,7 +87,7 @@ const useErrorHandler = () => {
       errorMessage = validationErrors
     }
     
-    console.error('Validation error:', errorMessage)
+    //console.error('Validation error:', errorMessage)
   }, [])
 
   return {

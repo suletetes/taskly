@@ -54,7 +54,7 @@ const MobileInviteShare = ({
           url: inviteLink
         });
       } catch (error) {
-        console.log('Share cancelled or failed');
+        //console.log('Share cancelled or failed');
       }
     } else {
       handleCopyLink();

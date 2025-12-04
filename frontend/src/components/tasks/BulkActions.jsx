@@ -31,7 +31,7 @@ const BulkActions = ({
     try {
       await onBulkAction(action, selectedTasks, options);
     } catch (error) {
-      console.error('Bulk action failed:', error);
+      //console.error('Bulk action failed:', error);
     } finally {
       setIsProcessing(false);
     }

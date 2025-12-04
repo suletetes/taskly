@@ -115,7 +115,7 @@ const TaskDashboard = () => {
       const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
       setTasks(response.data.tasks || response.data || [])
     } catch (err) {
-      console.error('Failed to complete task:', err)
+      //console.error('Failed to complete task:', err)
     }
   }
 
@@ -128,7 +128,7 @@ const TaskDashboard = () => {
         const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
         setTasks(response.data.tasks || response.data || [])
       } catch (err) {
-        console.error('Failed to delete task:', err)
+        //console.error('Failed to delete task:', err)
       }
     }
   }

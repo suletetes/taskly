@@ -43,7 +43,7 @@ export const getUserNotifications = async (req, res) => {
       }
     }, 'Notifications fetched successfully');
   } catch (error) {
-    console.error('Error fetching notifications:', error);
+    //console.error('Error fetching notifications:', error);
     return errorResponse(res, 'Failed to fetch notifications', 'FETCH_ERROR', 500);
   }
 };
@@ -61,7 +61,7 @@ export const getUnreadCount = async (req, res) => {
     const unreadCount = await Notification.getUnreadCount(req.user.id);
     return successResponse(res, { unreadCount }, 'Unread count fetched successfully');
   } catch (error) {
-    console.error('Error fetching unread count:', error);
+    //console.error('Error fetching unread count:', error);
     return errorResponse(res, 'Failed to fetch unread count', 'FETCH_ERROR', 500);
   }
 };
@@ -89,7 +89,7 @@ export const markAsRead = async (req, res) => {
 
     return successResponse(res, notification, 'Notification marked as read');
   } catch (error) {
-    console.error('Error marking notification as read:', error);
+    //console.error('Error marking notification as read:', error);
     return errorResponse(res, 'Failed to mark notification as read', 'UPDATE_ERROR', 500);
   }
 };
@@ -103,7 +103,7 @@ export const markAllAsRead = async (req, res) => {
     await Notification.markAllAsRead(req.user.id);
     return successResponse(res, null, 'All notifications marked as read');
   } catch (error) {
-    console.error('Error marking all notifications as read:', error);
+    //console.error('Error marking all notifications as read:', error);
     return errorResponse(res, 'Failed to mark all notifications as read', 'UPDATE_ERROR', 500);
   }
 };
@@ -129,7 +129,7 @@ export const deleteNotification = async (req, res) => {
     await Notification.findByIdAndDelete(notificationId);
     return successResponse(res, null, 'Notification deleted successfully');
   } catch (error) {
-    console.error('Error deleting notification:', error);
+    //console.error('Error deleting notification:', error);
     return errorResponse(res, 'Failed to delete notification', 'DELETE_ERROR', 500);
   }
 };
@@ -143,7 +143,7 @@ export const deleteAllNotifications = async (req, res) => {
     await Notification.deleteMany({ recipient: req.user.id });
     return successResponse(res, null, 'All notifications deleted successfully');
   } catch (error) {
-    console.error('Error deleting all notifications:', error);
+    //console.error('Error deleting all notifications:', error);
     return errorResponse(res, 'Failed to delete all notifications', 'DELETE_ERROR', 500);
   }
 };
@@ -162,7 +162,7 @@ export const createNotification = async (recipientId, type, title, message, data
     );
     return notification;
   } catch (error) {
-    console.error('Error creating notification:', error);
+    //console.error('Error creating notification:', error);
     throw error;
   }
 };

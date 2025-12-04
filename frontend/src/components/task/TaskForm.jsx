@@ -187,66 +187,66 @@ const TaskForm = ({
 
   // Get available team members for assignment
   const availableMembers = React.useMemo(() => {
-    console.log('  [TaskForm] ========== CALCULATING AVAILABLE MEMBERS ==========');
-    console.log('  [TaskForm] Form data:', {
+    //console.log('  [TaskForm] ========== CALCULATING AVAILABLE MEMBERS ==========');
+    //console.log('  [TaskForm] Form data:', {
       projectId: formData.projectId,
       teamId: formData.teamId,
       assignee: formData.assignee
     });
-    console.log('  [TaskForm] Context data:', {
+    //console.log('  [TaskForm] Context data:', {
       projectsCount: projects.length,
       teamsCount: teams.length,
       hasUser: !!user
     });
-    console.log('  [TaskForm] All projects:', projects);
-    console.log('  [TaskForm] All teams:', teams);
-    console.log('  [TaskForm] Current user:', user);
+    //console.log('  [TaskForm] All projects:', projects);
+    //console.log('  [TaskForm] All teams:', teams);
+    //console.log('  [TaskForm] Current user:', user);
     
     let members = []
     
     // If a specific project is selected, use project members
     if (formData.projectId) {
-      console.log('  [TaskForm] Project selected, finding project...');
+      //console.log('  [TaskForm] Project selected, finding project...');
       const project = projects.find(p => p._id === formData.projectId)
-      console.log('  [TaskForm] Found project:', project);
-      console.log('  [TaskForm] Project members:', project?.members);
+      //console.log('  [TaskForm] Found project:', project);
+      //console.log('  [TaskForm] Project members:', project?.members);
       
       if (project?.members) {
         members = project.members.map(m => m.user)
-        console.log('  [TaskForm] Mapped project members:', members);
+        //console.log('  [TaskForm] Mapped project members:', members);
       } else {
-        console.log('❌ [TaskForm] Project has no members or members not populated');
+        //console.log('❌ [TaskForm] Project has no members or members not populated');
       }
     }
     // If a team is selected but no project, use team members
     else if (formData.teamId) {
-      console.log('  [TaskForm] Team selected (no project), finding team...');
+      //console.log('  [TaskForm] Team selected (no project), finding team...');
       const team = teams.find(t => t._id === formData.teamId)
-      console.log('  [TaskForm] Found team:', team);
-      console.log('  [TaskForm] Team members:', team?.members);
+      //console.log('  [TaskForm] Found team:', team);
+      //console.log('  [TaskForm] Team members:', team?.members);
       
       if (team?.members) {
         members = team.members.map(m => m.user)
-        console.log('  [TaskForm] Mapped team members:', members);
+        //console.log('  [TaskForm] Mapped team members:', members);
       } else {
-        console.log('❌ [TaskForm] Team has no members or members not populated');
+        //console.log('❌ [TaskForm] Team has no members or members not populated');
       }
     } else {
-      console.log('  [TaskForm] No team or project selected');
+      //console.log('  [TaskForm] No team or project selected');
     }
     
     // Always include current user as an option
     if (user && !members.find(m => m._id === user._id)) {
-      console.log('  [TaskForm] Adding current user to members list');
+      //console.log('  [TaskForm] Adding current user to members list');
       members.unshift(user)
     } else if (user) {
-      console.log('  [TaskForm] Current user already in members list');
+      //console.log('  [TaskForm] Current user already in members list');
     } else {
-      console.log('❌ [TaskForm] No current user available');
+      //console.log('❌ [TaskForm] No current user available');
     }
     
-    console.log('✅ [TaskForm] Final available members:', members);
-    console.log('  [TaskForm] ========== CALCULATION COMPLETE ==========');
+    //console.log('✅ [TaskForm] Final available members:', members);
+    //console.log('  [TaskForm] ========== CALCULATION COMPLETE ==========');
     return members
   }, [formData.projectId, formData.teamId, projects, teams, user])
 
@@ -320,11 +320,11 @@ const TaskForm = ({
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault()
     
-    console.log('📝 [TaskForm] ========== FORM SUBMISSION ==========');
-    console.log('📝 [TaskForm] Raw form data:', formData);
+    //console.log('📝 [TaskForm] ========== FORM SUBMISSION ==========');
+    //console.log('📝 [TaskForm] Raw form data:', formData);
     
     if (!validateForm()) {
-      console.log('❌ [TaskForm] Form validation failed');
+      //console.log('❌ [TaskForm] Form validation failed');
       return
     }
 
@@ -338,8 +338,8 @@ const TaskForm = ({
       teamId: formData.teamId || null
     }
 
-    console.log('📝 [TaskForm] Prepared submit data:', submitData);
-    console.log('📝 [TaskForm] Assignment details:', {
+    //console.log('📝 [TaskForm] Prepared submit data:', submitData);
+    //console.log('📝 [TaskForm] Assignment details:', {
       assigneeId: submitData.assignee,
       assigneeName: availableMembers.find(m => m._id === submitData.assignee)?.fullname || 'Unassigned',
       projectId: submitData.projectId,
@@ -349,11 +349,11 @@ const TaskForm = ({
     });
 
     try {
-      console.log('📝 [TaskForm] Calling onSubmit...');
+      //console.log('📝 [TaskForm] Calling onSubmit...');
       await onSubmit(submitData)
-      console.log('✅ [TaskForm] onSubmit completed successfully');
+      //console.log('✅ [TaskForm] onSubmit completed successfully');
     } catch (error) {
-      console.error('❌ [TaskForm] Form submission error:', error)
+      //console.error('❌ [TaskForm] Form submission error:', error)
     }
   }, [formData, validateForm, onSubmit, availableMembers, availableProjects, teams])
 

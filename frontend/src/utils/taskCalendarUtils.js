@@ -77,7 +77,7 @@ export const taskCalendarUtils = {
 
       return await taskService.updateTask(task._id || task.id, updatedTask);
     } catch (error) {
-      console.error('Failed to update task date:', error);
+      //console.error('Failed to update task date:', error);
       throw error;
     }
   },
@@ -152,7 +152,7 @@ export const taskCalendarUtils = {
       if (onSuccess) onSuccess(updatedTask);
       return updatedTask;
     } catch (error) {
-      console.error('Task drag failed:', error);
+      //console.error('Task drag failed:', error);
       if (onError) onError(error);
       return null;
     }
@@ -179,7 +179,7 @@ export const taskCalendarUtils = {
 
       return null;
     } catch (error) {
-      console.error('Error getting drop zone date:', error);
+      //console.error('Error getting drop zone date:', error);
       return null;
     }
   },

@@ -28,7 +28,7 @@ const InvitationList = () => {
         }
       });
 
-      console.log('  [InvitationList] Response:', response.data);
+      //console.log('  [InvitationList] Response:', response.data);
       
       // Handle different response formats
       let invitationsData = [];
@@ -47,11 +47,11 @@ const InvitationList = () => {
         invitationsData = response.data;
       }
       
-      console.log('  [InvitationList] Extracted invitations:', invitationsData);
+      //console.log('  [InvitationList] Extracted invitations:', invitationsData);
       setInvitations(Array.isArray(invitationsData) ? invitationsData : []);
       setTotalPages(paginationData.pages || 1);
     } catch (err) {
-      console.error('Error fetching invitations:', err);
+      //console.error('Error fetching invitations:', err);
       // Don't show error if it's just empty - show empty state instead
       if (err.response?.status === 404) {
         setInvitations([]);
@@ -73,7 +73,7 @@ const InvitationList = () => {
         toast.success('Invitation accepted! You have joined the team.');
       }
     } catch (err) {
-      console.error('Error accepting invitation:', err);
+      //console.error('Error accepting invitation:', err);
       const errorMessage = err.response?.data?.error?.message || 'Failed to accept invitation';
       
       // If invitation was already accepted or is no longer pending, refresh the list
@@ -96,7 +96,7 @@ const InvitationList = () => {
         toast.success('Invitation denied');
       }
     } catch (err) {
-      console.error('Error denying invitation:', err);
+      //console.error('Error denying invitation:', err);
       const errorMessage = err.response?.data?.error?.message || 'Failed to deny invitation';
       
       // If invitation was already processed or is no longer pending, refresh the list

@@ -42,9 +42,9 @@ export const formValidationTests = {
         tests.submitButtonState = !submitButton.disabled
       }
 
-      console.log('✅ Login form validation tests completed')
+      //console.log('✅ Login form validation tests completed')
     } catch (error) {
-      console.error('❌ Login form validation tests failed:', error.message)
+      //console.error('❌ Login form validation tests failed:', error.message)
     }
 
     return tests
@@ -113,9 +113,9 @@ export const formValidationTests = {
         tests.confirmPasswordValidation = !!error
       }
 
-      console.log('✅ Signup form validation tests completed')
+      //console.log('✅ Signup form validation tests completed')
     } catch (error) {
-      console.error('❌ Signup form validation tests failed:', error.message)
+      //console.error('❌ Signup form validation tests failed:', error.message)
     }
 
     return tests
@@ -186,9 +186,9 @@ export const formValidationTests = {
       const quickDateButtons = document.querySelectorAll('button[onclick*="quickDate"]')
       tests.quickDateButtons = quickDateButtons.length >= 3 // Today, Tomorrow, Next Week
 
-      console.log('✅ Task form validation tests completed')
+      //console.log('✅ Task form validation tests completed')
     } catch (error) {
-      console.error('❌ Task form validation tests failed:', error.message)
+      //console.error('❌ Task form validation tests failed:', error.message)
     }
 
     return tests
@@ -249,9 +249,9 @@ export const formValidationTests = {
       const avatarThumbs = document.querySelectorAll('.avatar-thumb')
       tests.avatarSelection = avatarThumbs.length >= 10 // Should have multiple avatar options
 
-      console.log('✅ Profile edit form validation tests completed')
+      //console.log('✅ Profile edit form validation tests completed')
     } catch (error) {
-      console.error('❌ Profile edit form validation tests failed:', error.message)
+      //console.error('❌ Profile edit form validation tests failed:', error.message)
     }
 
     return tests
@@ -259,7 +259,7 @@ export const formValidationTests = {
 
   // Run all form validation tests
   runAllFormTests() {
-    console.log('📝 Starting form validation tests...')
+    //console.log('📝 Starting form validation tests...')
     
     const results = {
       loginForm: this.testLoginForm(),
@@ -269,7 +269,7 @@ export const formValidationTests = {
       timestamp: new Date().toISOString()
     }
 
-    console.log('📊 Form validation test results:', results)
+    //console.log('📊 Form validation test results:', results)
     return results
   },
 

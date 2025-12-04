@@ -384,7 +384,7 @@ export const TeamProvider = ({ children }) => {
 
   // Fetch all teams
   const fetchTeams = useCallback(async (options = {}) => {
-    console.log('🏢 [TeamContext] ========== FETCHING TEAMS ==========');
+    //console.e.log('🏢 [TeamContext] ========== FETCHING TEAMS ==========');
     const { showLoading = true, showErrors = true } = options;
     
     if (showLoading) {
@@ -392,24 +392,24 @@ export const TeamProvider = ({ children }) => {
     }
     
     try {
-      console.log('🏢 [TeamContext] Calling teamService.getTeams()...');
+      //console.e.log('🏢 [TeamContext] Calling teamService.getTeams()...');
       const result = await teamService.getTeams();
       
-      console.log('🏢 [TeamContext] Teams fetch result:', {
+      //console.e.log('🏢 [TeamContext] Teams fetch result:', {
         success: result.success,
         dataType: typeof result.data,
         teamsCount: result.data?.length || 0
       });
-      console.log('🏢 [TeamContext] Full result:', result);
-      console.log('🏢 [TeamContext] Teams data:', result.data);
+      //console.e.log('🏢 [TeamContext] Full result:', result);
+      //console.e.log('🏢 [TeamContext] Teams data:', result.data);
       
       if (result.success) {
         const teams = result.data || [];
-        console.log('✅ [TeamContext] Setting teams in state:', teams);
+        //console.e.log('✅ [TeamContext] Setting teams in state:', teams);
         
         // Log each team's member structure
         teams.forEach((team, index) => {
-          console.log(`🏢 [TeamContext] Team ${index + 1}:`, {
+          //console.e.log(`🏢 [TeamContext] Team ${index + 1}:`, {
             id: team._id,
             name: team.name,
             membersCount: team.members?.length || 0,
@@ -418,9 +418,9 @@ export const TeamProvider = ({ children }) => {
           });
           
           if (team.members && team.members.length > 0) {
-            console.log(`🏢 [TeamContext] Team "${team.name}" members:`, team.members);
+            //console.e.log(`🏢 [TeamContext] Team "${team.name}" members:`, team.members);
             team.members.forEach((member, mIndex) => {
-              console.log(`  Member ${mIndex + 1}:`, {
+              //console.e.log(`  Member ${mIndex + 1}:`, {
                 hasUser: !!member.user,
                 userType: typeof member.user,
                 userId: typeof member.user === 'object' ? member.user?._id : member.user,
@@ -435,7 +435,7 @@ export const TeamProvider = ({ children }) => {
           type: ActionTypes.SET_TEAMS,
           payload: { teams, total: teams.length }
         });
-        console.log('🏢 [TeamContext] ========== TEAMS FETCH COMPLETE ==========');
+        //console.e.log('🏢 [TeamContext] ========== TEAMS FETCH COMPLETE ==========');
         return result;
       } else {
         // Set loading to false on error

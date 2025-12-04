@@ -154,7 +154,7 @@ const WebhookManager = ({ className = '' }) => {
       }
     };
     
-    console.log('Testing webhook:', webhook.url, testPayload);
+    //console.log('Testing webhook:', webhook.url, testPayload);
     
     // Add test log entry
     const testLog = {

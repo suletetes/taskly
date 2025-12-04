@@ -8,9 +8,9 @@ const TeamMembersList = ({ members, onRemoveMember }) => {
   // Handle case where members might be undefined or not an array
   const memberList = Array.isArray(members) ? members : [];
   
-  // console.log('   [TeamMembersList] Received members:', members);
-  // console.log('   [TeamMembersList] memberList:', memberList);
-  // console.log('   [TeamMembersList] memberList.length:', memberList.length);
+  // //console.log('   [TeamMembersList] Received members:', members);
+  // //console.log('   [TeamMembersList] memberList:', memberList);
+  // //console.log('   [TeamMembersList] memberList.length:', memberList.length);
 
   return (
     <div className="bg-white dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700 p-6">
@@ -28,7 +28,7 @@ const TeamMembersList = ({ members, onRemoveMember }) => {
             const userUsername = typeof userObj === 'object' ? (userObj.username || 'unknown') : 'unknown';
             const userAvatar = typeof userObj === 'object' ? userObj.avatar : null;
 
-            // console.log('  [TeamMembersList] Rendering member:', { userId, userFullname, userUsername, member });
+            // //console.log('  [TeamMembersList] Rendering member:', { userId, userFullname, userUsername, member });
 
             return (
               <motion.div

@@ -5,7 +5,7 @@ const ErrorContext = createContext()
 export const ErrorProvider = ({ children }) => {
   // Completely self-contained error handlers
   const handleError = useCallback((error, options = {}) => {
-    console.error('Error handled by ErrorProvider:', error)
+    //console.error('Error handled by ErrorProvider:', error)
     
     // Basic error message extraction without any external dependencies
     let errorMessage = 'An unexpected error occurred'
@@ -17,22 +17,22 @@ export const ErrorProvider = ({ children }) => {
       errorMessage = error
     }
     
-    console.error('Processed error message:', errorMessage)
+    //console.error('Processed error message:', errorMessage)
   }, [])
 
   const handleWarning = useCallback((message, options = {}) => {
-    console.warn('Warning handled by ErrorProvider:', message)
+    //console.warn('Warning handled by ErrorProvider:', message)
   }, [])
 
   const handleValidationError = useCallback((validationErrors, options = {}) => {
-    console.error('Validation error handled by ErrorProvider:', validationErrors)
+    //console.error('Validation error handled by ErrorProvider:', validationErrors)
   }, [])
 
   // Set up global error handlers
   useEffect(() => {
     // Global unhandled promise rejection handler
     const handleUnhandledRejection = (event) => {
-      console.error('Unhandled promise rejection:', event.reason)
+      //console.error('Unhandled promise rejection:', event.reason)
       handleError(event.reason, {
         context: 'Unhandled Promise Rejection'
       })
@@ -41,7 +41,7 @@ export const ErrorProvider = ({ children }) => {
 
     // Global JavaScript error handler
     const handleGlobalError = (event) => {
-      console.error('Global JavaScript error:', event.error)
+      //console.error('Global JavaScript error:', event.error)
       handleError(event.error, {
         context: 'Global JavaScript Error',
         filename: event.filename,

@@ -77,7 +77,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
   // Fetch project and teams on mount (only if not already loaded)
   useEffect(() => {
     if (projectId && (!currentProject || currentProject._id !== projectId)) {
-      console.log('⚙️ [ProjectSettings] Fetching project');
+      //console.log('⚙️ [ProjectSettings] Fetching project');
       fetchProject(projectId);
     }
     if (teams.length === 0) {
@@ -109,7 +109,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
       // Don't send teamId in update (it can't be changed)
       await updateProject(projectId, updateData);
     } catch (error) {
-      console.error('Failed to update project:', error);
+      //console.error('Failed to update project:', error);
     }
   };
 
@@ -119,7 +119,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
       setShowDeleteModal(false);
       if (onClose) onClose();
     } catch (error) {
-      console.error('Failed to delete project:', error);
+      //console.error('Failed to delete project:', error);
     }
   };
 
@@ -128,7 +128,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
       await archiveProject(projectId);
       setShowArchiveModal(false);
     } catch (error) {
-      console.error('Failed to archive project:', error);
+      //console.error('Failed to archive project:', error);
     }
   };
 
@@ -142,7 +142,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
       setNewMemberRole('member');
       setShowAddMemberModal(false);
     } catch (error) {
-      console.error('Failed to add member:', error);
+      //console.error('Failed to add member:', error);
     }
   };
 
@@ -150,7 +150,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
     try {
       await removeProjectMember(projectId, memberId);
     } catch (error) {
-      console.error('Failed to remove member:', error);
+      //console.error('Failed to remove member:', error);
     }
   };
 
@@ -158,7 +158,7 @@ const ProjectSettings = ({ projectId, onClose }) => {
     try {
       await updateProjectMemberRole(projectId, memberId, newRole);
     } catch (error) {
-      console.error('Failed to update member role:', error);
+      //console.error('Failed to update member role:', error);
     }
   };
 

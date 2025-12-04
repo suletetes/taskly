@@ -138,18 +138,18 @@ export const getConfig = () => {
 export const logConfiguration = () => {
   const config = getConfig();
   
-  console.log('=== Environment Configuration ===');
-  console.log(`Node Environment: ${config.nodeEnv}`);
-  console.log(`Port: ${config.port}`);
-  console.log(`Database: ${config.mongodbUri.replace(/:[^:]*@/, ':***@')}`);
-  console.log(`Client URL: ${config.clientUrl}`);
-  console.log(`CORS Origin: ${config.corsOrigin}`);
-  console.log(`Cloudinary: ${config.cloudinary.cloudName ? 'Configured' : 'Not configured'}`);
-  console.log(`Resend Email: ${config.resend.apiKey ? 'Configured' : 'Not configured'}`);
-  console.log(`Team Max Members: ${config.team.maxMembers}`);
-  console.log(`Project Max Members: ${config.project.maxMembers}`);
-  console.log(`Rate Limit: ${config.rateLimit.maxRequests} requests per ${config.rateLimit.windowMs}ms`);
-  console.log('==================================');
+  //console.log('=== Environment Configuration ===');
+  //console.log(`Node Environment: ${config.nodeEnv}`);
+  //console.log(`Port: ${config.port}`);
+  //console.log(`Database: ${config.mongodbUri.replace(/:[^:]*@/, ':***@')}`);
+  //console.log(`Client URL: ${config.clientUrl}`);
+  //console.log(`CORS Origin: ${config.corsOrigin}`);
+  //console.log(`Cloudinary: ${config.cloudinary.cloudName ? 'Configured' : 'Not configured'}`);
+  //console.log(`Resend Email: ${config.resend.apiKey ? 'Configured' : 'Not configured'}`);
+  //console.log(`Team Max Members: ${config.team.maxMembers}`);
+  //console.log(`Project Max Members: ${config.project.maxMembers}`);
+  //console.log(`Rate Limit: ${config.rateLimit.maxRequests} requests per ${config.rateLimit.windowMs}ms`);
+  //console.log('==================================');
 };
 
 /**

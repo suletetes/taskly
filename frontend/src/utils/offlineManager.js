@@ -22,7 +22,7 @@ class OfflineManager {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('Service Worker registered:', registration);
+        //console.log('Service Worker registered:', registration);
         
         // Listen for service worker updates
         registration.addEventListener('updatefound', () => {
@@ -35,7 +35,7 @@ class OfflineManager {
           });
         });
       } catch (error) {
-        console.error('Service Worker registration failed:', error);
+        //console.error('Service Worker registration failed:', error);
       }
     }
     
@@ -80,7 +80,7 @@ class OfflineManager {
   
   // Handle online event
   async handleOnline() {
-    console.log('Connection restored');
+    //console.log('Connection restored');
     this.isOnline = true;
     
     // Trigger background sync
@@ -99,7 +99,7 @@ class OfflineManager {
   
   // Handle offline event
   handleOffline() {
-    console.log('Connection lost');
+    //console.log('Connection lost');
     this.isOnline = false;
     this.showNotification('Offline Mode', 'You can continue working offline');
   }
@@ -177,12 +177,12 @@ class OfflineManager {
           await this.processSyncItem(item);
           await this.removeFromSyncQueue(item.id);
         } catch (error) {
-          console.error('Sync failed for item:', item.id, error);
+          //console.error('Sync failed for item:', item.id, error);
           await this.updateSyncItemRetries(item.id);
         }
       }
     } catch (error) {
-      console.error('Sync process failed:', error);
+      //console.error('Sync process failed:', error);
     }
   }
   

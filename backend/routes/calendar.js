@@ -66,7 +66,7 @@ router.get('/events', auth, async (req, res) => {
       message: 'Calendar events fetched successfully'
     });
   } catch (error) {
-    console.error('Error fetching calendar events:', error);
+    ////console.error('Error fetching calendar events:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Failed to fetch calendar events', code: 'FETCH_ERROR' }
@@ -104,7 +104,7 @@ router.get('/tasks/:date', auth, async (req, res) => {
       message: 'Tasks fetched successfully'
     });
   } catch (error) {
-    console.error('Error fetching tasks for date:', error);
+    //console.error('Error fetching tasks for date:', error);
     res.status(400).json({
       success: false,
       error: { message: 'Invalid date format', code: 'INVALID_DATE' }
@@ -154,7 +154,7 @@ router.post('/tasks', auth, [
       message: 'Task created successfully'
     });
   } catch (error) {
-    console.error('Error creating task from calendar:', error);
+    //console.error('Error creating task from calendar:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Failed to create task', code: 'CREATE_ERROR' }
@@ -203,7 +203,7 @@ router.put('/tasks/:id/date', auth, [
       message: 'Task date updated successfully'
     });
   } catch (error) {
-    console.error('Error updating task date:', error);
+    //console.error('Error updating task date:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Failed to update task date', code: 'UPDATE_ERROR' }
@@ -258,7 +258,7 @@ router.get('/recurring', auth, async (req, res) => {
       message: 'Recurring task instances fetched successfully'
     });
   } catch (error) {
-    console.error('Error fetching recurring tasks:', error);
+    //console.error('Error fetching recurring tasks:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Failed to fetch recurring tasks', code: 'FETCH_ERROR' }
@@ -326,7 +326,7 @@ router.get('/summary', auth, async (req, res) => {
       message: 'Calendar summary fetched successfully'
     });
   } catch (error) {
-    console.error('Error fetching calendar summary:', error);
+    //console.error('Error fetching calendar summary:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Failed to fetch calendar summary', code: 'FETCH_ERROR' }

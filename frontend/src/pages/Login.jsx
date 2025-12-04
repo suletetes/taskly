@@ -73,7 +73,7 @@ const Login = () => {
       
       // Navigation is handled by the useEffect above
     } catch (err) {
-      console.error('Login failed:', err);
+      //console.error('Login failed:', err);
       // Error is handled by the AuthContext
     } finally {
       setIsSubmitting(false);

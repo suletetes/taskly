@@ -51,7 +51,7 @@ const MemberCard = ({
         await updateTeamMemberRole(teamId, member.user._id, newRole);
       }
     } catch (error) {
-      console.error('Failed to update member role:', error);
+      //console.error('Failed to update member role:', error);
     } finally {
       setIsUpdating(false);
     }
@@ -68,7 +68,7 @@ const MemberCard = ({
         await removeTeamMember(teamId, member.user._id);
       }
     } catch (error) {
-      console.error('Failed to remove member:', error);
+      //console.error('Failed to remove member:', error);
     } finally {
       setIsUpdating(false);
     }

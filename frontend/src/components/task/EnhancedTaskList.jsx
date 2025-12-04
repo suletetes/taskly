@@ -186,7 +186,7 @@ const EnhancedTaskList = ({
       await updateTaskStatus(taskId, newStatus);
       refreshTasks();
     } catch (error) {
-      console.error('Failed to update task status:', error);
+      //console.error('Failed to update task status:', error);
     }
   }, [updateTaskStatus, refreshTasks]);
 

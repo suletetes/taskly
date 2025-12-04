@@ -324,7 +324,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authService.logout()
     } catch (error) {
-      console.warn('Logout API call failed:', error.message)
+      //console.warn('Logout API call failed:', error.message)
     } finally {
       dispatch({ type: AUTH_ACTIONS.LOGOUT })
     }
@@ -366,7 +366,7 @@ export const AuthProvider = ({ children }) => {
         
         return currentUser
       } catch (error) {
-        console.error('Failed to refresh user data:', error)
+        //console.error('Failed to refresh user data:', error)
         // If refresh fails due to invalid session, logout
         if (error.status === 401) {
           logout()
@@ -437,7 +437,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Failed to refresh user teams and projects:', error)
+      //console.error('Failed to refresh user teams and projects:', error)
     }
   }
 

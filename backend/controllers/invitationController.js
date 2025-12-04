@@ -78,7 +78,7 @@ export const sendInvitation = async (req, res) => {
         }
       );
     } catch (notificationError) {
-      console.error('Error creating notification:', notificationError);
+      //console.error('Error creating notification:', notificationError);
       // Continue even if notification fails
     }
 
@@ -88,7 +88,7 @@ export const sendInvitation = async (req, res) => {
 
     return createdResponse(res, invitation, 'Invitation sent successfully');
   } catch (error) {
-    console.error('Error sending invitation:', error);
+    //console.error('Error sending invitation:', error);
     return errorResponse(res, 'Failed to send invitation', 'SEND_INVITATION_ERROR', 500);
   }
 };
@@ -132,7 +132,7 @@ export const getUserInvitations = async (req, res) => {
       }
     }, 'Invitations fetched successfully');
   } catch (error) {
-    console.error('Error fetching invitations:', error);
+    //console.error('Error fetching invitations:', error);
     return errorResponse(res, 'Failed to fetch invitations', 'FETCH_ERROR', 500);
   }
 };
@@ -158,7 +158,7 @@ export const getTeamInvitations = async (req, res) => {
       return memberId === req.user.id;
     });
     if (!userMember) {
-      console.error(`User ${req.user.id} not found in team ${teamId}. Team members:`, team.members.map(m => typeof m.user === 'object' ? m.user._id.toString() : m.user.toString()));
+      //console.error(`User ${req.user.id} not found in team ${teamId}. Team members:`, team.members.map(m => typeof m.user === 'object' ? m.user._id.toString() : m.user.toString()));
       return forbiddenResponse(res, 'You are not a member of this team');
     }
     
@@ -199,7 +199,7 @@ export const getTeamInvitations = async (req, res) => {
       }
     }, 'Team invitations fetched successfully');
   } catch (error) {
-    console.error('Error fetching team invitations:', error);
+    //console.error('Error fetching team invitations:', error);
     return errorResponse(res, 'Failed to fetch team invitations', 'FETCH_ERROR', 500);
   }
 };
@@ -278,7 +278,7 @@ export const acceptInvitation = async (req, res) => {
         }
       );
     } catch (notificationError) {
-      console.error('Error creating notification:', notificationError);
+      //console.error('Error creating notification:', notificationError);
       // Continue even if notification fails
     }
 
@@ -291,7 +291,7 @@ export const acceptInvitation = async (req, res) => {
       invitation
     }, 'Invitation accepted successfully');
   } catch (error) {
-    console.error('Error accepting invitation:', error);
+    //console.error('Error accepting invitation:', error);
     return errorResponse(res, 'Failed to accept invitation', 'ACCEPT_ERROR', 500);
   }
 };
@@ -330,7 +330,7 @@ export const denyInvitation = async (req, res) => {
 
     return successResponse(res, invitation, 'Invitation denied successfully');
   } catch (error) {
-    console.error('Error denying invitation:', error);
+    //console.error('Error denying invitation:', error);
     return errorResponse(res, 'Failed to deny invitation', 'DENY_ERROR', 500);
   }
 };
@@ -382,7 +382,7 @@ export const cancelInvitation = async (req, res) => {
 
     return successResponse(res, invitation, 'Invitation cancelled successfully');
   } catch (error) {
-    console.error('Error cancelling invitation:', error);
+    //console.error('Error cancelling invitation:', error);
     return errorResponse(res, 'Failed to cancel invitation', 'CANCEL_ERROR', 500);
   }
 };
@@ -414,7 +414,7 @@ export const getInvitation = async (req, res) => {
 
     return successResponse(res, invitation, 'Invitation fetched successfully');
   } catch (error) {
-    console.error('Error fetching invitation:', error);
+    //console.error('Error fetching invitation:', error);
     return errorResponse(res, 'Failed to fetch invitation', 'FETCH_ERROR', 500);
   }
 };

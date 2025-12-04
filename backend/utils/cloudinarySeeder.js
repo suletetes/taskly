@@ -26,6 +26,6 @@ export const getAvatarUrl = (index) => {
 
 // Initialize avatars (simplified - no local upload needed)
 export const initializeAvatars = async () => {
-  console.log('✅ Using high-quality Unsplash avatar URLs for seeding');
+  //console.log('✅ Using high-quality Unsplash avatar URLs for seeding');
   return avatarUrls;
 };

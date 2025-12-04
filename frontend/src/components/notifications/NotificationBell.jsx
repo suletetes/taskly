@@ -19,7 +19,7 @@ const NotificationBell = () => {
   }, [fetchUnreadCount]);
 
   const handleBellClick = () => {
-    console.log('🔔 NotificationBell: Bell clicked - navigating to settings');
+    //console.log('🔔 NotificationBell: Bell clicked - navigating to settings');
     navigate('/settings?tab=notifications');
   };
 
