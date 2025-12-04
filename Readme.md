@@ -8,22 +8,22 @@ A full-stack task management application designed for individuals and teams, fea
 ## Features
 
 ### Core Functionality
-- ✅ **Task Management**: Create, edit, delete, and organize tasks with priorities, due dates, and tags
-- 👥 **Team Collaboration**: Multi-user teams with role-based permissions
-- 📊 **Project Management**: Organize tasks into projects with progress tracking
-- 📅 **Calendar View**: Visualize tasks in calendar format
-- 🔔 **Notifications**: Real-time in-app notifications
-- 📈 **Analytics**: Productivity tracking, completion rates, and statistics
-- 🌓 **Dark Mode**: Full dark mode support
-- 📱 **Responsive Design**: Mobile-first approach, works on all devices
+-  **Task Management**: Create, edit, delete, and organize tasks with priorities, due dates, and tags
+-  **Team Collaboration**: Multi-user teams with role-based permissions
+-  **Project Management**: Organize tasks into projects with progress tracking
+-  **Calendar View**: Visualize tasks in calendar format
+-  **Notifications**: Real-time in-app notifications
+-  **Analytics**: Productivity tracking, completion rates, and statistics
+-  **Dark Mode**: Full dark mode support
+-  **Responsive Design**: Mobile-first approach, works on all devices
 
 ### Technical Features
-- 🔐 **Secure Authentication**: Session-based authentication with secure cookies
-- ☁️ **Cloud Storage**: Cloudinary integration for file uploads
-- 📧 **Email Service**: Transactional emails via Resend
-- 🚀 **Real-time Updates**: Instant synchronization across devices
-- 🎨 **Modern UI**: Clean interface with smooth animations
-- 🔍 **Advanced Search**: Search and filter tasks, users, and teams
+-  **Secure Authentication**: Session-based authentication with secure cookies
+-  **Cloud Storage**: Cloudinary integration for file uploads
+-  **Email Service**: Transactional emails via Resend
+-  **Real-time Updates**: Instant synchronization across devices
+-  **Modern UI**: Clean interface with smooth animations
+-  **Advanced Search**: Search and filter tasks, users, and teams
 
 ## Tech Stack
 
@@ -418,11 +418,8 @@ For support, email support@yourdomain.com or open an issue on GitHub.
 
 ## Authors
 
-- Your Name - Initial work
+- Your Name - Suleiman Abdulkadir
 
 ## Links
 
-- [Documentation](./docs)
-- [API Documentation](./API_DOCUMENTATION.md)
-- [Changelog](./CHANGELOG.md)
-- [Contributing Guidelines](./CONTRIBUTING.md)
+- [API Documentation](./API_DOCUMENTATION.md))
