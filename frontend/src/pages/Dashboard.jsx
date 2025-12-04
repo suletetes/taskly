@@ -135,7 +135,7 @@ const Dashboard = () => {
         setUpcomingTasks(formattedUpcomingTasks);
 
       } catch (err) {
-        //console.error('Failed to fetch dashboard data:', err);
+        console.error('Failed to fetch dashboard data:', err);
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);

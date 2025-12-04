@@ -57,17 +57,18 @@ export const testCloudinaryConnection = async () => {
 
 // Validate configuration before proceeding
 const configValidation = validateCloudinaryConfig();
-
+/*
 if (!configValidation.success) {
-  //console.warn('  [Cloudinary] Configuration Warning:', configValidation.error);
-  //console.warn('   Image upload functionality will not be available until Cloudinary is configured.');
-  //console.warn('   The server will continue to run, but avatar uploads will fail.');
+  console.warn('  [Cloudinary] Configuration Warning:', configValidation.error);
+  console.warn('   Image upload functionality will not be available until Cloudinary is configured.');
+  console.warn('   The server will continue to run, but avatar uploads will fail.');
 } else {
-  //console.log(' [Cloudinary] Configuring with:', {
+  console.log(' [Cloudinary] Configuring with:', {
     cloud_name: '✓ Set',
     api_key: '✓ Set',
     api_secret: '✓ Set'
   });
+*/
 
   // Configure Cloudinary
   cloudinary.config({
@@ -77,18 +78,20 @@ if (!configValidation.success) {
   });
 
   // Test connection on startup (async, don't block)
+  /*
   testCloudinaryConnection().then(result => {
     if (result.success) {
-      //console.log(' [Cloudinary] Connection test successful');
+      console.log(' [Cloudinary] Connection test successful');
     } else {
-      //console.error(' [Cloudinary] Connection test failed:', result.error);
-      //console.error('   Details:', result.details);
-      //console.error('   Please verify your Cloudinary credentials are correct');
+      console.error(' [Cloudinary] Connection test failed:', result.error);
+      console.error('   Details:', result.details);
+      console.error('   Please verify your Cloudinary credentials are correct');
     }
   }).catch(error => {
-    //console.error(' [Cloudinary] Connection test error:', error.message);
+    console.error(' [Cloudinary] Connection test error:', error.message);
   });
 }
+  */
 
 // Configure Cloudinary storage for multer (only if configured)
 let storage;
@@ -116,7 +119,7 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
-    //console.log(' [Multer] File filter check:', {
+    console.log(' [Multer] File filter check:', {
       fieldname: file.fieldname,
       originalname: file.originalname,
       mimetype: file.mimetype,
@@ -125,10 +128,10 @@ const upload = multer({
     
     // Check file type
     if (file.mimetype.startsWith('image/')) {
-      //console.log(' [Multer] File type accepted:', file.mimetype);
+      console.log(' [Multer] File type accepted:', file.mimetype);
       cb(null, true);
     } else {
-      //console.log(' [Multer] File type rejected:', file.mimetype);
+      console.log(' [Multer] File type rejected:', file.mimetype);
       cb(new Error('Only image files are allowed!'), false);
     }
   }
@@ -140,7 +143,7 @@ const deleteImage = async (publicId) => {
     const result = await cloudinary.uploader.destroy(publicId);
     return result;
   } catch (error) {
-    //console.error('Error deleting image from Cloudinary:', error);
+    console.error('Error deleting image from Cloudinary:', error);
     throw error;
   }
 };
@@ -158,7 +161,7 @@ const uploadImage = async (filePath, options = {}) => {
     });
     return result;
   } catch (error) {
-    //console.error('Error uploading image to Cloudinary:', error);
+    console.error('Error uploading image to Cloudinary:', error);
     throw error;
   }
 };

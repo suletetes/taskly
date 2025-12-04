@@ -27,6 +27,7 @@ const Home = () => {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Define testimonials array first
   const testimonials = [
@@ -310,7 +311,10 @@ const Home = () => {
                       Start Free Trial
                       <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
-                    <button className="group inline-flex items-center px-8 py-4 border-2 border-secondary-300 dark:border-secondary-600 text-secondary-700 dark:text-secondary-300 font-semibold rounded-xl hover:border-primary-600 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300">
+                    <button 
+                      onClick={() => setShowVideoModal(true)}
+                      className="group inline-flex items-center px-8 py-4 border-2 border-secondary-300 dark:border-secondary-600 text-secondary-700 dark:text-secondary-300 font-semibold rounded-xl hover:border-primary-600 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300"
+                    >
                       <PlayIcon className="w-5 h-5 mr-2" />
                       Watch Demo
                     </button>
@@ -787,7 +791,10 @@ const Home = () => {
                   Start Free Trial
                   <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <button className="inline-flex items-center px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:border-white hover:bg-white/10 transition-all duration-300">
+                <button 
+                  onClick={() => setShowVideoModal(true)}
+                  className="inline-flex items-center px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:border-white hover:bg-white/10 transition-all duration-300"
+                >
                   <PlayIcon className="w-5 h-5 mr-2" />
                   Watch Demo
                 </button>
@@ -888,6 +895,40 @@ const Home = () => {
           </div>
         </div>
       </footer>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setShowVideoModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="relative w-full max-w-5xl mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="absolute -top-12 right-0 text-white hover:text-primary-400 transition-colors"
+            >
+              <XMarkIcon className="w-8 h-8" />
+            </button>
+            <div className="bg-secondary-900 rounded-2xl overflow-hidden shadow-2xl">
+              <video
+                controls
+                autoPlay
+                className="w-full h-auto"
+                poster="/img/home.png"
+              >
+                <source src="/TasklyVideoShowcase.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

@@ -32,7 +32,6 @@ const FindUsers = () => {
   
   // Initial load - fetch all users
   useEffect(() => {
-    //console.log('  [FindUsers] Component mounted, fetching initial users');
     fetchUsers(1, '');
   }, []);
   
@@ -62,12 +61,6 @@ const FindUsers = () => {
   
   const fetchUsers = async (page, query) => {
     try {
-      //console.log('  [FindUsers] Fetching users with params:', {
-        page,
-        query,
-        selectedTeam: selectedTeam?.name || 'none'
-      });
-      
       setLoading(true);
       setError(null);
       
@@ -78,16 +71,7 @@ const FindUsers = () => {
         teamId: selectedTeam?._id || undefined
       };
       
-      //console.log('  [FindUsers] API request params:', params);
-      
       const response = await api.get('/users/discover', { params });
-      
-      //console.log('  [FindUsers] API response:', {
-        success: response.success,
-        userCount: response.data?.users?.length || 0,
-        totalPages: response.data?.pagination?.pages || 0,
-        currentPage: response.data?.pagination?.page || 0
-      });
       
       if (response.success) {
         setUsers(response.data.users);
@@ -101,19 +85,11 @@ const FindUsers = () => {
           }
         });
         setInvitationStatuses(statuses);
-        
-        //console.log('  [FindUsers] State updated:', {
-          usersCount: response.data.users.length,
-          totalPages: response.data.pagination.pages,
-          invitationStatuses: Object.keys(statuses).length
-        });
       } else {
-        //console.error('  [FindUsers] API returned success: false');
         setError('Failed to load users');
       }
     } catch (err) {
-      //console.error('  [FindUsers] Error fetching users:', err);
-      //console.error('  [FindUsers] Error response:', err.response?.data);
+      console.error('Error fetching users:', err);
       setError(err.response?.data?.error?.message || 'Failed to load users');
     } finally {
       setLoading(false);
@@ -158,7 +134,7 @@ const FindUsers = () => {
         fetchUsers(currentPage, searchQuery);
       }
     } catch (err) {
-      //console.error('Error sending invitation:', err);
+      console.error('Error sending invitation:', err);
       
       // Extract error message
       const errorMessage = err.response?.data?.error?.message || err.message || 'Failed to send invitation';

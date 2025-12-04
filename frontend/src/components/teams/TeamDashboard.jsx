@@ -193,7 +193,7 @@ const TeamDashboard = ({ teamId }) => {
           transition={{ delay: 0.5 }}
           className="lg:col-span-2"
         >
-          {//console.log('  [TeamDashboard] Passing members to TeamMembersList:', members, 'length:', members.length)}
+
           <TeamMembersList members={members} />
         </motion.div>
 

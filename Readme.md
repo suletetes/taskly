@@ -2,11 +2,11 @@
 
 A full-stack task management application designed for individuals and teams, featuring real-time synchronization, team collaboration, and comprehensive productivity analytics.
 
-## 🎥 Demo
+## Demo
 
-https://github.com/user-attachments/assets/TasklyVideoShowcase.mp4
+[Watch Taskly Demo Video](./TasklyVideoShowcase.mp4)
 
-> **Note**: Watch the full demo to see Taskly's features in action!
+> **Note**: Click the link above to download and watch the full demo showcasing Taskly's features in action!
 
 ## Features
 

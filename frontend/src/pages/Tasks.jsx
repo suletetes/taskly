@@ -26,11 +26,6 @@ const Tasks = () => {
   const { projectId } = useParams();
   const location = useLocation();
 
-  // //console.log('  [Tasks] ========== COMPONENT RENDER ==========');
-  // //console.log('  [Tasks] URL params:', { projectId });
-  // //console.log('  [Tasks] Location:', location.pathname);
-  // //console.log('  [Tasks] User:', user ? { id: user._id, username: user.username } : 'No user');
-
   // State management
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,19 +39,13 @@ const Tasks = () => {
 
   // Load tasks on component mount and when user or projectId changes
   useEffect(() => {
-    // //console.log('🔄 [Tasks] useEffect triggered - user:', !!user, 'projectId:', projectId);
     if (user) {
       loadTasks();
     }
   }, [user, projectId]);
 
   const loadTasks = async () => {
-    // //console.log('  [Tasks] ========== LOADING TASKS ==========');
-    // //console.log('  [Tasks] User check:', !!user);
-    // //console.log('  [Tasks] Project ID:', projectId);
-    
     if (!user) {
-      // //console.log('❌ [Tasks] No user found, skipping load');
       return;
     }
 
@@ -65,44 +54,31 @@ const Tasks = () => {
       
       let response;
       if (projectId) {
-        // //console.log('  [Tasks] Loading tasks for project:', projectId);
         response = await taskService.getProjectTasks(projectId, {
           limit: 100,
           sortBy: 'createdAt',
           sortOrder: 'desc'
         });
-        // //console.log('  [Tasks] Project tasks response:', response);
       } else {
-        // //console.log('  [Tasks] Loading all user tasks');
         response = await taskService.getUserTasks(null, {
           limit: 100,
           sortBy: 'createdAt',
           sortOrder: 'desc'
         });
-        // //console.log('  [Tasks] User tasks response:', response);
       }
       
       // apiService.get() returns response.data directly
       // For project tasks: backend sends array directly, so response is the array
       // For user tasks: backend sends {tasks: [...], ...}, so response.tasks is the array
       const tasksData = Array.isArray(response) ? response : (response.tasks || response.data || []);
-      // //console.log('  [Tasks] Tasks data:', tasksData);
-      // //console.log('  [Tasks] Tasks count:', Array.isArray(tasksData) ? tasksData.length : 'Not an array');
-      // //console.log('  [Tasks] First task sample:', tasksData[0]);
       
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
-      //console.error('❌ [Tasks] Failed to load tasks:', error);
-      //console.error('❌ [Tasks] Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      console.error('Failed to load tasks:', error);
       showError('Failed to load tasks. Please try again.');
       setTasks([]);
     } finally {
       setLoading(false);
-      // //console.log('✅ [Tasks] Loading complete');
     }
   };
 
@@ -139,32 +115,26 @@ const Tasks = () => {
         ));
       } else {
         // Create new task - user ID is extracted from auth token by backend
-        //console.log('📋 [Tasks] Creating new task');
         const response = await taskService.createTask(taskData);
-        //console.log('📋 [Tasks] ========== CREATE RESPONSE ==========');
-        //console.log('📋 [Tasks] Full response:', response);
-        //console.log('📋 [Tasks] Response.data:', response.data);
-        //console.log('📋 [Tasks] Response.data.task:', response.data?.task);
-        
+
         // Handle both response formats: { data: task } or { data: { task: task } }
         const newTask = response.data.task || response.data;
-        //console.log('📋 [Tasks] New task extracted:', newTask);
-        //console.log('📋 [Tasks] Task details:', {
-          id: newTask._id,
-          title: newTask.title,
-          priority: newTask.priority,
-          status: newTask.status,
-          assignee: newTask.assignee,
-          project: newTask.project,
-          team: newTask.team,
-          tags: newTask.tags,
-          due: newTask.due
-        });
+        // console.log('📋 [Tasks] Task details:', {
+        //   id: newTask._id,
+        //   title: newTask.title,
+        //   priority: newTask.priority,
+        //   status: newTask.status,
+        //   assignee: newTask.assignee,
+        //   project: newTask.project,
+        //   team: newTask.team,
+        //   tags: newTask.tags,
+        //   due: newTask.due
+        // });
         
         showSuccess('Task created successfully!');
         setTasks(prev => {
           const updated = [newTask, ...(Array.isArray(prev) ? prev : [])];
-          //console.log('📋 [Tasks] Updated tasks list:', {
+          console.log('📋 [Tasks] Updated tasks list:', {
             previousCount: prev.length,
             newCount: updated.length,
             newTaskId: newTask._id
@@ -175,10 +145,10 @@ const Tasks = () => {
 
       setShowTaskModal(false);
       setEditingTask(null);
-      //console.log('✅ [Tasks] Task submission completed successfully');
+
     } catch (error) {
-      //console.error('❌ [Tasks] Failed to save task:', error);
-      //console.error('❌ [Tasks] Error details:', {
+
+      console.error('❌ [Tasks] Error details:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status
@@ -214,7 +184,7 @@ const Tasks = () => {
       showSuccess('Task deleted successfully!');
       setTasks(prev => (Array.isArray(prev) ? prev : []).filter(t => t._id !== task._id));
     } catch (error) {
-      //console.error('Failed to delete task:', error);
+
       showError('Failed to delete task. Please try again.');
     }
   };
@@ -228,7 +198,7 @@ const Tasks = () => {
         t._id === task._id ? { ...t, status: newStatus } : t
       ));
     } catch (error) {
-      //console.error('Failed to update task status:', error);
+
       showError('Failed to update task status. Please try again.');
     }
   };
