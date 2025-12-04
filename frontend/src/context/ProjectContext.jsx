@@ -763,28 +763,20 @@ export const ProjectProvider = ({ children }) => {
     setLoading('tasks', true);
     
     try {
-      console.log('🔍 [ProjectContext] Fetching tasks for project:', projectId);
       const result = await projectService.getProjectTasks(projectId, filters);
-      console.log('🔍 [ProjectContext] API result:', result);
-      console.log('🔍 [ProjectContext] result.data:', result.data);
-      console.log('🔍 [ProjectContext] result.data type:', typeof result.data);
-      console.log('🔍 [ProjectContext] result.data is array:', Array.isArray(result.data));
       
       if (result.success) {
         const tasks = Array.isArray(result.data) ? result.data : [];
-        console.log('🔍 [ProjectContext] Setting tasks:', tasks.length, 'tasks');
         dispatch({
           type: ActionTypes.SET_PROJECT_TASKS,
           payload: { tasks, total: tasks.length }
         });
         return result;
       } else {
-        console.error('🔍 [ProjectContext] Error:', result.message);
         setError('tasks', result.message);
         return result;
       }
     } catch (error) {
-      console.error('🔍 [ProjectContext] Exception:', error);
       const errorMessage = 'Failed to fetch project tasks';
       setError('tasks', errorMessage);
       return { success: false, message: errorMessage };

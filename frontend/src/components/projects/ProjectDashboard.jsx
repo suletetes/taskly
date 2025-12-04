@@ -29,20 +29,12 @@ const ProjectDashboard = ({ projectId }) => {
 
   useEffect(() => {
     if (projectId && (!currentProject || currentProject._id !== projectId)) {
-      console.log('🎯 [ProjectDashboard] Fetching data for project:', projectId);
       fetchProject(projectId);
       fetchProjectStats(projectId);
       fetchProjectTasks(projectId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
-
-  useEffect(() => {
-    console.log('🎯 [ProjectDashboard] projectTasks updated:', projectTasks);
-    console.log('🎯 [ProjectDashboard] projectTasks type:', typeof projectTasks);
-    console.log('🎯 [ProjectDashboard] projectTasks is array:', Array.isArray(projectTasks));
-    console.log('🎯 [ProjectDashboard] projectTasks length:', projectTasks?.length);
-  }, [projectTasks]);
 
   const handleTeamClick = () => {
     if (currentProject?.team?._id) {
