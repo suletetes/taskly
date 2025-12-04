@@ -628,6 +628,86 @@ export const TeamProvider = ({ children }) => {
     }
   }, [setLoading, setError, showNotification]);
 
+  // Archive team
+  const archiveTeam = useCallback(async (teamId) => {
+    setLoading('operations', true);
+    
+    try {
+      const result = await teamService.archiveTeam(teamId);
+      
+      if (result.success) {
+        dispatch({
+          type: ActionTypes.UPDATE_TEAM,
+          payload: { team: result.data }
+        });
+        
+        showNotification({
+          type: 'success',
+          message: result.message
+        });
+        
+        return result;
+      } else {
+        setError('operations', result.message);
+        showNotification({
+          type: 'error',
+          message: result.message
+        });
+        return result;
+      }
+    } catch (error) {
+      const errorMessage = 'Failed to archive team';
+      setError('operations', errorMessage);
+      showNotification({
+        type: 'error',
+        message: errorMessage
+      });
+      return { success: false, message: errorMessage };
+    } finally {
+      setLoading('operations', false);
+    }
+  }, [setLoading, setError, showNotification]);
+
+  // Unarchive team
+  const unarchiveTeam = useCallback(async (teamId) => {
+    setLoading('operations', true);
+    
+    try {
+      const result = await teamService.unarchiveTeam(teamId);
+      
+      if (result.success) {
+        dispatch({
+          type: ActionTypes.UPDATE_TEAM,
+          payload: { team: result.data }
+        });
+        
+        showNotification({
+          type: 'success',
+          message: result.message
+        });
+        
+        return result;
+      } else {
+        setError('operations', result.message);
+        showNotification({
+          type: 'error',
+          message: result.message
+        });
+        return result;
+      }
+    } catch (error) {
+      const errorMessage = 'Failed to unarchive team';
+      setError('operations', errorMessage);
+      showNotification({
+        type: 'error',
+        message: errorMessage
+      });
+      return { success: false, message: errorMessage };
+    } finally {
+      setLoading('operations', false);
+    }
+  }, [setLoading, setError, showNotification]);
+
   // Add team member
   const addTeamMember = useCallback(async (teamId, userId, role = 'member') => {
     setLoading('operations', true);
@@ -1107,6 +1187,8 @@ export const TeamProvider = ({ children }) => {
     createTeam,
     updateTeam,
     deleteTeam,
+    archiveTeam,
+    unarchiveTeam,
     addTeamMember,
     updateTeamMemberRole,
     removeTeamMember,

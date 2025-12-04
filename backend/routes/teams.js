@@ -238,6 +238,56 @@ router.put('/:id', auth, teamAuth, validateTeam, async (req, res) => {
   }
 });
 
+// PATCH /api/teams/:id/archive - Archive team
+router.patch('/:id/archive', auth, teamAuth, async (req, res) => {
+  try {
+    const team = await Team.findById(req.params.id);
+    if (!team) {
+      return notFoundResponse(res, 'Team not found');
+    }
+
+    // Only owner or admin can archive team
+    const userRole = team.getUserRole(req.user.id);
+    if (userRole !== 'owner' && userRole !== 'admin') {
+      return forbiddenResponse(res, 'Only team owner or admin can archive team');
+    }
+
+    team.archived = true;
+    team.archivedAt = new Date();
+    await team.save();
+
+    return successResponse(res, team, 'Team archived successfully');
+  } catch (error) {
+    console.error('Error archiving team:', error);
+    return errorResponse(res, 'Failed to archive team', 'ARCHIVE_ERROR', 500);
+  }
+});
+
+// PATCH /api/teams/:id/unarchive - Unarchive team
+router.patch('/:id/unarchive', auth, teamAuth, async (req, res) => {
+  try {
+    const team = await Team.findById(req.params.id);
+    if (!team) {
+      return notFoundResponse(res, 'Team not found');
+    }
+
+    // Only owner or admin can unarchive team
+    const userRole = team.getUserRole(req.user.id);
+    if (userRole !== 'owner' && userRole !== 'admin') {
+      return forbiddenResponse(res, 'Only team owner or admin can unarchive team');
+    }
+
+    team.archived = false;
+    team.archivedAt = null;
+    await team.save();
+
+    return successResponse(res, team, 'Team unarchived successfully');
+  } catch (error) {
+    console.error('Error unarchiving team:', error);
+    return errorResponse(res, 'Failed to unarchive team', 'UNARCHIVE_ERROR', 500);
+  }
+});
+
 // DELETE /api/teams/:id - Delete team
 router.delete('/:id', auth, teamAuth, async (req, res) => {
   try {

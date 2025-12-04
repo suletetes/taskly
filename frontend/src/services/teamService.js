@@ -181,6 +181,50 @@ class TeamService {
   }
 
   /**
+   * Archive a team
+   * @param {string} teamId - Team ID
+   * @returns {Promise<Object>} Archive result
+   */
+  async archiveTeam(teamId) {
+    try {
+      if (!teamId) {
+        throw new Error('Team ID is required');
+      }
+
+      const response = await api.patch(`${this.baseURL}/${teamId}/archive`);
+      return {
+        success: true,
+        data: response.data || response,
+        message: 'Team archived successfully'
+      };
+    } catch (error) {
+      return this.handleError(error, 'Failed to archive team');
+    }
+  }
+
+  /**
+   * Unarchive a team
+   * @param {string} teamId - Team ID
+   * @returns {Promise<Object>} Unarchive result
+   */
+  async unarchiveTeam(teamId) {
+    try {
+      if (!teamId) {
+        throw new Error('Team ID is required');
+      }
+
+      const response = await api.patch(`${this.baseURL}/${teamId}/unarchive`);
+      return {
+        success: true,
+        data: response.data || response,
+        message: 'Team unarchived successfully'
+      };
+    } catch (error) {
+      return this.handleError(error, 'Failed to unarchive team');
+    }
+  }
+
+  /**
    * Add a member to a team
    * @param {string} teamId - Team ID
    * @param {string} userId - User ID to add

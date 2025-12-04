@@ -30,6 +30,8 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
     fetchTeam,
     updateTeam,
     deleteTeam,
+    archiveTeam,
+    unarchiveTeam,
     addTeamMember,
     updateTeamMemberRole,
     removeTeamMember,
@@ -51,6 +53,7 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState(null);
 
   const tabs = [
@@ -167,6 +170,24 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
       }
     } catch (error) {
       toast.error('Failed to delete team');
+    }
+  };
+
+  // Handle team archive/unarchive
+  const handleArchiveTeam = async () => {
+    try {
+      const result = currentTeam.archived 
+        ? await unarchiveTeam(teamId)
+        : await archiveTeam(teamId);
+      
+      if (result.success) {
+        toast.success(currentTeam.archived ? 'Team unarchived successfully' : 'Team archived successfully');
+        setShowArchiveConfirm(false);
+        // Refresh team data
+        await fetchTeam(teamId);
+      }
+    } catch (error) {
+      toast.error(currentTeam.archived ? 'Failed to unarchive team' : 'Failed to archive team');
     }
   };
 
@@ -546,27 +567,71 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
                       Danger Zone
                     </h3>
                     
-                    {canPerformAction(teamId, 'manage_settings') && currentTeam.owner?._id === user?.id && (
-                      <div className="border border-red-200 dark:border-red-800 rounded-lg p-4">
-                        <div className="flex items-start space-x-3">
-                          <ExclamationTriangleIcon className="w-6 h-6 text-red-600 dark:text-red-400 mt-1" />
-                          <div className="flex-1">
-                            <h4 className="text-lg font-medium text-red-600 dark:text-red-400">
-                              Delete Team
-                            </h4>
-                            <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                              Once you delete a team, there is no going back. This will permanently delete the team, all its projects, and remove all members.
-                            </p>
-                            <button
-                              onClick={() => setShowDeleteConfirm(true)}
-                              className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                              Delete Team
-                            </button>
+                    <div className="space-y-4">
+                      {/* Archive Team */}
+                      {canPerformAction(teamId, 'manage_settings') && (
+                        <div className="border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                          <div className="flex items-start space-x-3">
+                            <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mt-1" />
+                            <div className="flex-1">
+                              <h4 className="text-lg font-medium text-yellow-600 dark:text-yellow-400">
+                                {currentTeam.archived ? 'Unarchive Team' : 'Archive Team'}
+                              </h4>
+                              <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-1">
+                                {currentTeam.archived 
+                                  ? 'Restore this team and make it active again. All members will regain access.'
+                                  : 'Archive this team to hide it from active teams. You can unarchive it later. No data will be lost.'}
+                              </p>
+                              <button
+                                onClick={() => setShowArchiveConfirm(true)}
+                                disabled={loading.operations}
+                                className="mt-3 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {loading.operations ? (
+                                  <>
+                                    <LoadingSpinner size="sm" className="mr-2" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  currentTeam.archived ? 'Unarchive Team' : 'Archive Team'
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+
+                      {/* Delete Team */}
+                      {canPerformAction(teamId, 'manage_settings') && currentTeam.owner?._id === user?.id && (
+                        <div className="border border-red-200 dark:border-red-800 rounded-lg p-4">
+                          <div className="flex items-start space-x-3">
+                            <TrashIcon className="w-6 h-6 text-red-600 dark:text-red-400 mt-1" />
+                            <div className="flex-1">
+                              <h4 className="text-lg font-medium text-red-600 dark:text-red-400">
+                                Delete Team
+                              </h4>
+                              <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                                Once you delete a team, there is no going back. This will permanently delete the team, all its projects, and remove all members.
+                              </p>
+                              <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                disabled={loading.operations}
+                                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {loading.operations ? (
+                                  <>
+                                    <LoadingSpinner size="sm" className="mr-2" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  'Delete Team'
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -596,6 +661,21 @@ const TeamSettings = ({ teamId, isOpen, onClose }) => {
         confirmText="Delete Team"
         confirmVariant="danger"
         requireConfirmation={currentTeam.name}
+      />
+
+      {/* Confirm Team Archive/Unarchive */}
+      <ConfirmDialog
+        isOpen={showArchiveConfirm}
+        onClose={() => setShowArchiveConfirm(false)}
+        onConfirm={handleArchiveTeam}
+        title={currentTeam?.archived ? 'Unarchive Team' : 'Archive Team'}
+        message={
+          currentTeam?.archived
+            ? `Are you sure you want to unarchive "${currentTeam.name}"? This will restore the team and make it active again.`
+            : `Are you sure you want to archive "${currentTeam.name}"? The team will be hidden from active teams but can be restored later.`
+        }
+        confirmText={currentTeam?.archived ? 'Unarchive Team' : 'Archive Team'}
+        confirmVariant={currentTeam?.archived ? 'primary' : 'warning'}
       />
     </>
   );
