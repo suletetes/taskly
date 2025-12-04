@@ -41,12 +41,12 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete, onClick }) => 
   };
 
   const handleClick = () => {
-    //console.log('📬 NotificationItem: Notification clicked', {
-      notificationId: notification._id,
-      type: notification.type,
-      read: notification.read,
-      data: notification.data
-    });
+    // console.log('📬 NotificationItem: Notification clicked', {
+    //   notificationId: notification._id,
+    //   type: notification.type,
+    //   read: notification.read,
+    //   data: notification.data
+    // });
 
     if (!notification.read && onMarkAsRead) {
       //console.log('📬 NotificationItem: Marking as read');
