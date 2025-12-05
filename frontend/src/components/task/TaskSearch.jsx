@@ -35,7 +35,7 @@ const TaskSearch = ({
       try {
         setRecentSearches(JSON.parse(saved))
       } catch (error) {
-        console.error('Failed to load search history:', error)
+        //console.error('Failed to load search history:', error)
       }
     }
   }, [])
@@ -116,7 +116,7 @@ const TaskSearch = ({
         saveSearchToHistory(query, filters)
       }
     } catch (error) {
-      console.error('Search failed:', error)
+      //console.error('Search failed:', error)
       setResults([])
     } finally {
       setLoading(false)

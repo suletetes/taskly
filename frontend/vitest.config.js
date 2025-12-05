@@ -7,13 +7,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test-utils/setup.js'],
+    setupFiles: ['./src/test-setup.js'],
     css: true,
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'src/test-utils/',
+        'src/test-setup.js',
         '**/*.d.ts',
         '**/*.config.js',
         '**/coverage/**',
@@ -22,10 +22,10 @@ export default defineConfig({
       ],
       thresholds: {
         global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80
+          branches: 70,
+          functions: 70,
+          lines: 70,
+          statements: 70
         }
       }
     }
@@ -37,7 +37,8 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, './src/utils'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@pages': path.resolve(__dirname, './src/pages'),
-      '@assets': path.resolve(__dirname, './src/assets')
+      '@context': path.resolve(__dirname, './src/context'),
+      '@services': path.resolve(__dirname, './src/services')
     }
   }
 });

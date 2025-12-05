@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 // Layout Components
@@ -16,6 +16,10 @@ import { NotificationProvider } from './context/NotificationContext';
 import { ErrorProvider } from './context/ErrorContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { AppStateProvider } from './context/AppStateContext';
+import { TeamProvider, useTeam } from './context/TeamContext';
+import { TaskProvider } from './context/TaskContext';
+import { ProjectProvider } from './context/ProjectContext';
+import { CalendarProvider } from './context/CalendarContext';
 
 // Lazy-loaded pages
 const Home = React.lazy(() => import('./pages/Home'));
@@ -27,8 +31,17 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const Calendar = React.lazy(() => import('./pages/Calendar'));
 const Teams = React.lazy(() => import('./pages/Teams'));
+const TeamDashboard = React.lazy(() => import('./pages/TeamDashboard'));
+const TeamSettings = React.lazy(() => import('./pages/TeamSettings'));
+const ProjectDashboard = React.lazy(() => import('./pages/ProjectDashboard'));
+const ProjectSettings = React.lazy(() => import('./pages/ProjectSettings'));
+const JoinTeam = React.lazy(() => import('./pages/JoinTeam'));
+const Invitations = React.lazy(() => import('./pages/Invitations'));
+const FindUsers = React.lazy(() => import('./pages/FindUsers'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
+const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -43,6 +56,39 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return user ? children : <Navigate to="/login" replace />;
+};
+
+// Team Protected Route Component
+const TeamProtectedRoute = ({ children, teamId, requiredRole = null }) => {
+  const { user, loading } = useAuth();
+  const { currentTeam, canPerformAction } = useTeam();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check if user is member of the team
+  if (teamId && currentTeam?._id !== teamId) {
+    const isMember = currentTeam?.members?.some(member => member.user._id === user._id);
+    if (!isMember) {
+      return <Navigate to="/teams" replace />;
+    }
+  }
+
+  // Check required role if specified
+  if (requiredRole && !canPerformAction(teamId, requiredRole)) {
+    return <Navigate to={`/teams/${teamId}`} replace />;
+  }
+
+  return children;
 };
 
 // Main App Layout
@@ -95,24 +141,42 @@ const AppLayout = ({ children }) => {
 
       {/* Toast Notifications */}
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           duration: 4000,
           style: {
-            background: 'var(--color-secondary-800)',
-            color: 'var(--color-secondary-100)',
-            border: '1px solid var(--color-secondary-700)',
+            background: '#1f2937',
+            color: '#f9fafb',
+            border: '1px solid #374151',
+            padding: '16px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
+            borderRadius: '8px',
+            maxWidth: '500px',
           },
           success: {
+            duration: 3000,
+            style: {
+              background: '#059669',
+              color: '#ffffff',
+              border: '1px solid #10b981',
+            },
             iconTheme: {
-              primary: 'var(--color-success-500)',
-              secondary: 'white',
+              primary: '#ffffff',
+              secondary: '#059669',
             },
           },
           error: {
+            duration: 5000,
+            style: {
+              background: '#dc2626',
+              color: '#ffffff',
+              border: '1px solid #ef4444',
+            },
             iconTheme: {
-              primary: 'var(--color-error-500)',
-              secondary: 'white',
+              primary: '#ffffff',
+              secondary: '#dc2626',
             },
           },
         }}
@@ -134,8 +198,12 @@ const App = () => {
             <AuthProvider>
               <AnalyticsProvider>
                 <AppStateProvider>
-                  <Router future={{ v7_startTransition: true }}>
-                    <div className="App">
+                  <TeamProvider>
+                    <TaskProvider>
+                      <ProjectProvider>
+                        <CalendarProvider>
+                          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                            <div className="App">
                       <Routes>
                         {/* Public Routes */}
                         <Route path="/" element={
@@ -151,6 +219,16 @@ const App = () => {
                         <Route path="/signup" element={
                           <Suspense fallback={<LoadingSpinner size="lg" />}>
                             <Signup />
+                          </Suspense>
+                        } />
+                        <Route path="/forgot-password" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <ForgotPassword />
+                          </Suspense>
+                        } />
+                        <Route path="/reset-password/:token" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <ResetPassword />
                           </Suspense>
                         } />
 
@@ -210,7 +288,40 @@ const App = () => {
                             </AppLayout>
                           </ProtectedRoute>
                         } />
+                        <Route path="/calendar/:view" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/calendar/:view/:date" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Calendar />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
 
+                        {/* Invitations Route */}
+                        <Route path="/invitations" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Invitations />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Find Users Route */}
+                        <Route path="/find-users" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <FindUsers />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Team Routes */}
                         <Route path="/teams" element={
                           <ProtectedRoute>
                             <AppLayout>
@@ -219,11 +330,79 @@ const App = () => {
                           </ProtectedRoute>
                         } />
 
+                        <Route path="/teams/:teamId" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <TeamDashboard />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/teams/:teamId/settings" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <TeamSettings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/teams/:teamId/analytics" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Analytics />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Project Routes */}
+                        <Route path="/projects/:projectId" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <ProjectDashboard />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects/:projectId/settings" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <ProjectSettings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects/:projectId/tasks" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Tasks />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        <Route path="/projects/:projectId/analytics" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Analytics />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Public Team Join Route */}
+                        <Route path="/join/:inviteCode" element={
+                          <Suspense fallback={<LoadingSpinner size="lg" />}>
+                            <JoinTeam />
+                          </Suspense>
+                        } />
+
                         {/* Catch all route - redirect to dashboard if logged in, home if not */}
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Routes>
-                    </div>
-                  </Router>
+                        </div>
+                          </Router>
+                        </CalendarProvider>
+                      </ProjectProvider>
+                    </TaskProvider>
+                  </TeamProvider>
                 </AppStateProvider>
               </AnalyticsProvider>
             </AuthProvider>

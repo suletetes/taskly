@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import passport from 'passport';
 import { hashPassword } from '../utils/password.js';
+import { sendEmail } from '../config/resend.js';
+import { welcomeEmail } from '../utils/emailTemplates.js';
 
 /**
  * Register a new user
@@ -42,10 +44,24 @@ const register = async (req, res) => {
 
         await newUser.save();
 
+        // Send welcome email (non-blocking)
+        try {
+            const emailTemplate = welcomeEmail(newUser.fullname, newUser.email);
+            await sendEmail({
+                to: newUser.email,
+                subject: emailTemplate.subject,
+                html: emailTemplate.html
+            });
+            //console.log(' Welcome email sent to:', newUser.email);
+        } catch (emailError) {
+            // Don't fail registration if email fails
+            //console.error('  Failed to send welcome email:', emailError.message);
+        }
+
         // Auto-login after registration
         req.logIn(newUser, (err) => {
             if (err) {
-                console.error('Auto-login error:', err);
+                //console.error('Auto-login error:', err);
                 // Still return success for registration, but without login
                 const userResponse = newUser.toObject();
                 delete userResponse.password;
@@ -73,7 +89,7 @@ const register = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Registration error:', error);
+        //console.error('Registration error:', error);
 
         if (error.code === 11000) {
             // MongoDB duplicate key error
@@ -105,7 +121,7 @@ const register = async (req, res) => {
 const login = (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) {
-            console.error('Login error:', err);
+            //console.error('Login error:', err);
             return res.status(500).json({
                 success: false,
                 error: {
@@ -127,7 +143,7 @@ const login = (req, res, next) => {
 
         req.logIn(user, (err) => {
             if (err) {
-                console.error('Session login error:', err);
+                //console.error('Session login error:', err);
                 return res.status(500).json({
                     success: false,
                     error: {
@@ -160,7 +176,7 @@ const login = (req, res, next) => {
 const logout = (req, res) => {
     req.logout((err) => {
         if (err) {
-            console.error('Logout error:', err);
+            //console.error('Logout error:', err);
             return res.status(500).json({
                 success: false,
                 error: {
@@ -172,7 +188,7 @@ const logout = (req, res) => {
 
         req.session.destroy((err) => {
             if (err) {
-                console.error('Session destroy error:', err);
+                //console.error('Session destroy error:', err);
                 return res.status(500).json({
                     success: false,
                     error: {
@@ -182,7 +198,7 @@ const logout = (req, res) => {
                 });
             }
 
-            res.clearCookie('connect.sid'); // Clear session cookie
+            res.clearCookie('taskly.sid'); // Clear session cookie (matches server.js config)
             res.json({
                 success: true,
                 message: 'Logout successful'
@@ -220,7 +236,7 @@ const getProfile = async (req, res) => {
             message: 'Profile retrieved successfully'
         });
     } catch (error) {
-        console.error('Get profile error:', error);
+        //console.error('Get profile error:', error);
         res.status(500).json({
             success: false,
             error: {

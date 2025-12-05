@@ -27,7 +27,7 @@ const UserCard = ({ user, onUserUpdate, onUserDelete }) => {
         setStats(statsData.data?.stats || {})
       } catch (err) {
         // Don't show error for stats - it's not critical
-        console.warn('Failed to load user stats:', err.message)
+        //console.warn('Failed to load user stats:', err.message)
       } finally {
         setStatsLoading(false)
       }

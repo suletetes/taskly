@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useParams, useLocation } from 'react-router-dom';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -22,6 +23,8 @@ import TaskFormModal from '../components/task/TaskFormModal';
 const Tasks = () => {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
+  const { projectId } = useParams();
+  const location = useLocation();
 
   // State management
   const [tasks, setTasks] = useState([]);
@@ -34,32 +37,90 @@ const Tasks = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
-  // Load tasks on component mount and when user changes
+  // Load tasks on component mount and when user or projectId changes
   useEffect(() => {
     if (user) {
       loadTasks();
     }
-  }, [user]);
+  }, [user, projectId]);
 
   const loadTasks = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('📋 [Tasks] No user found, skipping load');
+      return;
+    }
 
     try {
       setLoading(true);
-      const response = await taskService.getUserTasks(null, {
-        limit: 100, // Load more tasks for better UX
-        sortBy: 'createdAt',
-        sortOrder: 'desc'
-      });
-      const tasksData = response.data.tasks; // Fix: access the tasks array specifically
+      console.log('📋 [Tasks] Loading tasks...', { projectId, userId: user._id });
+      
+      let response;
+      if (projectId) {
+        console.log('📋 [Tasks] Fetching project tasks for:', projectId);
+        response = await taskService.getProjectTasks(projectId, {
+          limit: 100,
+          sortBy: 'createdAt',
+          sortOrder: 'desc'
+        });
+      } else {
+        console.log('📋 [Tasks] Fetching user tasks');
+        response = await taskService.getUserTasks(null, {
+          limit: 100,
+          sortBy: 'createdAt',
+          sortOrder: 'desc'
+        });
+      }
+      
+      console.log('📋 [Tasks] Raw response:', response);
+      console.log('📋 [Tasks] Response type:', typeof response);
+      console.log('📋 [Tasks] Is array?', Array.isArray(response));
+      
+      // Handle different response formats:
+      // 1. If response has 'data' property, extract it first
+      // 2. Then check if it's an array or has 'tasks' property
+      let tasksData;
+      
+      if (response.data) {
+        // Response is {success: true, data: {...}}
+        const dataObj = response.data;
+        tasksData = Array.isArray(dataObj) ? dataObj : (dataObj.tasks || []);
+      } else {
+        // Response is already the data object
+        tasksData = Array.isArray(response) ? response : (response.tasks || []);
+      }
+      
+      console.log('📋 [Tasks] Extracted tasks data:', tasksData);
+      console.log('📋 [Tasks] Tasks count:', Array.isArray(tasksData) ? tasksData.length : 'not an array');
+      
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
-      console.error('Failed to load tasks:', error);
+      console.error('❌ [Tasks] Failed to load tasks:', error);
+      console.error('❌ [Tasks] Error response:', error.response?.data);
       showError('Failed to load tasks. Please try again.');
-      setTasks([]); // Set empty array instead of mock data
+      setTasks([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Permission checks
+  const canEditTask = (task) => {
+    // User can edit if they created the task (they are the owner)
+    return task.user?._id === user._id || task.user === user._id;
+  };
+
+  const canDeleteTask = (task) => {
+    // User can delete if they created the task (they are the owner)
+    return task.user?._id === user._id || task.user === user._id;
+  };
+
+  const canToggleComplete = (task) => {
+    // User can toggle complete if:
+    // 1. They created the task (owner), OR
+    // 2. They are assigned to the task
+    const isOwner = task.user?._id === user._id || task.user === user._id;
+    const isAssignee = task.assignee?._id === user._id || task.assignee === user._id;
+    return isOwner || isAssignee;
   };
 
   // Task operations
@@ -69,6 +130,10 @@ const Tasks = () => {
   };
 
   const handleEditTask = (task) => {
+    if (!canEditTask(task)) {
+      showError('You do not have permission to edit this task');
+      return;
+    }
     setEditingTask(task);
     setShowTaskModal(true);
   };
@@ -76,32 +141,97 @@ const Tasks = () => {
   const handleTaskSubmit = async (taskData) => {
     setSubmitting(true);
 
+    //console.log('📋 [Tasks] ========== TASK SUBMISSION ==========');
+    //console.log('📋 [Tasks] Task data being submitted:', taskData);
+
     try {
       if (editingTask) {
         // Update existing task
+        //console.log('📋 [Tasks] Updating existing task:', editingTask._id);
         const response = await taskService.updateTask(editingTask._id, taskData);
+        //console.log('📋 [Tasks] Update response:', response);
+        
+        const updatedTask = response.data.task || response.data;
+        //console.log('📋 [Tasks] Updated task:', updatedTask);
+        
         showSuccess('Task updated successfully!');
         setTasks(prev => (Array.isArray(prev) ? prev : []).map(task =>
-          task._id === editingTask._id ? response.data : task
+          task._id === editingTask._id ? updatedTask : task
         ));
       } else {
         // Create new task - user ID is extracted from auth token by backend
         const response = await taskService.createTask(taskData);
+
+        // Handle both response formats: { data: task } or { data: { task: task } }
+        const newTask = response.data.task || response.data;
+        // console.log('📋 [Tasks] Task details:', {
+        //   id: newTask._id,
+        //   title: newTask.title,
+        //   priority: newTask.priority,
+        //   status: newTask.status,
+        //   assignee: newTask.assignee,
+        //   project: newTask.project,
+        //   team: newTask.team,
+        //   tags: newTask.tags,
+        //   due: newTask.due
+        // });
+        
         showSuccess('Task created successfully!');
-        setTasks(prev => [response.data, ...(Array.isArray(prev) ? prev : [])]);
+        setTasks(prev => {
+          const updated = [newTask, ...(Array.isArray(prev) ? prev : [])];
+          console.log('📋 [Tasks] Updated tasks list:', {
+            previousCount: prev.length,
+            newCount: updated.length,
+            newTaskId: newTask._id
+          });
+          return updated;
+        });
       }
 
       setShowTaskModal(false);
       setEditingTask(null);
+
     } catch (error) {
-      console.error('Failed to save task:', error);
-      showError('Failed to save task. Please try again.');
+
+      console.error('❌ [Tasks] Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: error
+      });
+      
+      // Extract detailed error message
+      let errorMessage = 'Failed to save task. Please try again.';
+      
+      if (error.response?.data?.error) {
+        const apiError = error.response.data.error;
+        
+        console.error('❌ [Tasks] API Error:', apiError);
+        
+        // If there are validation details, show them
+        if (apiError.details && Array.isArray(apiError.details) && apiError.details.length > 0) {
+          console.error('❌ [Tasks] Validation errors:', apiError.details);
+          errorMessage = apiError.details.map(d => `${d.field}: ${d.message}`).join(', ');
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.error('❌ [Tasks] Final error message:', errorMessage);
+      showError(errorMessage);
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteTask = async (task) => {
+    if (!canDeleteTask(task)) {
+      showError('You do not have permission to delete this task');
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this task?')) return;
 
     try {
@@ -109,12 +239,16 @@ const Tasks = () => {
       showSuccess('Task deleted successfully!');
       setTasks(prev => (Array.isArray(prev) ? prev : []).filter(t => t._id !== task._id));
     } catch (error) {
-      console.error('Failed to delete task:', error);
       showError('Failed to delete task. Please try again.');
     }
   };
 
   const handleToggleComplete = async (task) => {
+    if (!canToggleComplete(task)) {
+      showError('You do not have permission to update this task');
+      return;
+    }
+
     try {
       const newStatus = task.status === 'completed' ? 'in-progress' : 'completed';
       const response = await taskService.updateTaskStatus(task._id, newStatus);
@@ -123,7 +257,6 @@ const Tasks = () => {
         t._id === task._id ? { ...t, status: newStatus } : t
       ));
     } catch (error) {
-      console.error('Failed to update task status:', error);
       showError('Failed to update task status. Please try again.');
     }
   };
@@ -337,13 +470,24 @@ const Tasks = () => {
                         </div>
                       )}
 
+                      {task.assignee && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <svg className="w-4 h-4 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm text-secondary-600 dark:text-secondary-400">
+                            Assigned to: {task.assignee.fullname || task.assignee.username || 'Unknown'}
+                          </span>
+                        </div>
+                      )}
+
                       {task.tags && task.tags.length > 0 && (
                         <div className="flex items-center gap-1 mt-2">
                           <TagIcon className="w-4 h-4 text-secondary-400" />
                           <div className="flex gap-1">
                             {task.tags.map((tag, tagIndex) => (
                               <span
-                                key={`${task._id}-tag-${tagIndex}`}
+                                key={`${task._id}-tag-${tag}-${tagIndex}`}
                                 className="px-2 py-1 text-xs bg-secondary-100 dark:bg-secondary-700 text-secondary-600 dark:text-secondary-400 rounded"
                               >
                                 {tag}
@@ -358,18 +502,29 @@ const Tasks = () => {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditTask(task)}
-                    className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTask(task)}
-                    className="p-2 text-secondary-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
+                  {canEditTask(task) && (
+                    <button
+                      onClick={() => handleEditTask(task)}
+                      className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                      title="Edit task"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                  {canDeleteTask(task) && (
+                    <button
+                      onClick={() => handleDeleteTask(task)}
+                      className="p-2 text-secondary-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Delete task"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                  {!canEditTask(task) && !canDeleteTask(task) && (
+                    <span className="text-xs text-secondary-500 dark:text-secondary-400 italic px-2">
+                      Assigned to you
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>

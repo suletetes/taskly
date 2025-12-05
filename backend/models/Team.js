@@ -1,317 +1,225 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const teamSchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: [true, "Team name is required"],
-            trim: true,
-            maxlength: [100, "Team name cannot exceed 100 characters"],
-        },
-        description: {
-            type: String,
-            trim: true,
-            maxlength: [1000, "Description cannot exceed 1000 characters"],
-            default: "",
-        },
-        avatar: {
-            type: String,
-            default: null,
-        },
-        avatarPublicId: {
-            type: String,
-            default: null,
-        },
-        owner: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-        },
-        
-        // Team members with roles and permissions
-        members: [{
-            user: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-                required: true,
-            },
-            role: {
-                type: String,
-                enum: ['owner', 'admin', 'member', 'viewer'],
-                default: 'member',
-            },
-            joinedAt: {
-                type: Date,
-                default: Date.now,
-            },
-            invitedBy: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-                default: null,
-            },
-            permissions: {
-                type: [String],
-                default: ['read', 'create', 'comment'],
-            },
-            status: {
-                type: String,
-                enum: ['active', 'inactive', 'pending'],
-                default: 'active',
-            },
-        }],
-        
-        // Team settings
-        settings: {
-            visibility: {
-                type: String,
-                enum: ['private', 'public'],
-                default: 'private',
-            },
-            allowInvites: {
-                type: Boolean,
-                default: true,
-            },
-            defaultRole: {
-                type: String,
-                enum: ['member', 'viewer'],
-                default: 'member',
-            },
-            requireApproval: {
-                type: Boolean,
-                default: false,
-            },
-            allowPublicProjects: {
-                type: Boolean,
-                default: false,
-            },
-            maxMembers: {
-                type: Number,
-                default: 50,
-            },
-        },
-        
-        // Team statistics
-        stats: {
-            totalMembers: {
-                type: Number,
-                default: 1, // Owner counts as 1
-            },
-            activeMembers: {
-                type: Number,
-                default: 1,
-            },
-            totalProjects: {
-                type: Number,
-                default: 0,
-            },
-            completedTasks: {
-                type: Number,
-                default: 0,
-            },
-            totalTasks: {
-                type: Number,
-                default: 0,
-            },
-            averageProductivity: {
-                type: Number,
-                default: 0,
-            },
-            lastActivity: {
-                type: Date,
-                default: Date.now,
-            },
-        },
-        
-        // Team categories and tags
-        category: {
-            type: String,
-            default: "general",
-        },
-        tags: {
-            type: [String],
-            default: [],
-        },
-        
-        // Invitation settings
-        inviteCode: {
-            type: String,
-            unique: true,
-            sparse: true,
-        },
-        inviteCodeExpires: {
-            type: Date,
-            default: null,
-        },
-        
-        // Archive information
-        archived: {
-            type: Boolean,
-            default: false,
-        },
-        archivedAt: {
-            type: Date,
-            default: null,
-        },
-        archivedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            default: null,
-        },
-    },
-    { 
-        timestamps: true,
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true }
-    }
-);
+const teamMemberSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  role: {
+    type: String,
+    enum: ['owner', 'admin', 'member'],
+    default: 'member'
+  },
+  joinedAt: {
+    type: Date,
+    default: Date.now
+  },
+  permissions: {
+    canManageMembers: { type: Boolean, default: false },
+    canManageProjects: { type: Boolean, default: false },
+    canManageSettings: { type: Boolean, default: false },
+    canDeleteTeam: { type: Boolean, default: false }
+  }
+});
 
-// Indexes for performance
+const teamSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 100
+  },
+  description: {
+    type: String,
+    maxlength: 500,
+    trim: true
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  members: [teamMemberSchema],
+  projects: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project'
+  }],
+  inviteCode: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  isPrivate: {
+    type: Boolean,
+    default: false
+  },
+  archived: {
+    type: Boolean,
+    default: false
+  },
+  archivedAt: {
+    type: Date,
+    default: null
+  },
+  settings: {
+    allowMemberInvites: { type: Boolean, default: true },
+    requireApprovalForJoin: { type: Boolean, default: false },
+    defaultMemberRole: { type: String, enum: ['member', 'admin'], default: 'member' },
+    maxMembers: { type: Number, default: 50 }
+  },
+  avatar: {
+    type: String,
+    default: null
+  },
+  tags: [{
+    type: String,
+    trim: true
+  }],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true
+});
+
+// Indexes
+// Indexes for query performance
+// Note: inviteCode already has unique index from schema definition
 teamSchema.index({ owner: 1 });
 teamSchema.index({ 'members.user': 1 });
-teamSchema.index({ inviteCode: 1 });
-teamSchema.index({ archived: 1 });
+teamSchema.index({ name: 1, owner: 1 });
 
-// Virtual for completion rate
-teamSchema.virtual('completionRate').get(function () {
-    if (this.stats.totalTasks === 0) return 0;
-    return Math.round((this.stats.completedTasks / this.stats.totalTasks) * 100);
+// Virtual for member count
+teamSchema.virtual('memberCount').get(function() {
+  return this.members.length;
 });
 
-// Pre-save hook to update member count
-teamSchema.pre('save', function (next) {
-    this.stats.totalMembers = this.members.length;
-    this.stats.activeMembers = this.members.filter(m => m.status === 'active').length;
-    next();
+// Virtual for project count
+teamSchema.virtual('projectCount').get(function() {
+  return this.projects ? this.projects.length : 0;
 });
+
+// Method to check if user is member
+teamSchema.methods.isMember = function(userId) {
+  return this.members.some(member => member.user.toString() === userId.toString());
+};
+
+// Method to get user role in team
+teamSchema.methods.getUserRole = function(userId) {
+  const member = this.members.find(member => member.user.toString() === userId.toString());
+  return member ? member.role : null;
+};
+
+// Method to check if user has permission
+teamSchema.methods.hasPermission = function(userId, permission) {
+  const member = this.members.find(member => member.user.toString() === userId.toString());
+  if (!member) return false;
+  
+  // Owner and admin have all permissions
+  if (member.role === 'owner') return true;
+  if (member.role === 'admin') {
+    const adminPermissions = ['canManageMembers', 'canManageProjects', 'canManageSettings'];
+    return adminPermissions.includes(permission);
+  }
+  
+  return member.permissions[permission] || false;
+};
 
 // Method to add member
-teamSchema.methods.addMember = function (userId, role = 'member', invitedBy = null, permissions = ['read', 'create', 'comment']) {
-    const existingMember = this.members.find(m => m.user.toString() === userId.toString());
-    if (existingMember) {
-        throw new Error('User is already a member of this team');
-    }
-    
-    if (this.members.length >= this.settings.maxMembers) {
-        throw new Error('Team has reached maximum member limit');
-    }
-    
-    this.members.push({
-        user: userId,
-        role,
-        invitedBy,
-        permissions,
-        status: this.settings.requireApproval ? 'pending' : 'active',
-    });
-    
-    return this.save();
+teamSchema.methods.addMember = function(userId, role = 'member') {
+  if (this.isMember(userId)) {
+    throw new Error('User is already a member');
+  }
+  
+  if (this.members.length >= this.settings.maxMembers) {
+    throw new Error('Team has reached maximum member limit');
+  }
+  
+  this.members.push({
+    user: userId,
+    role: role,
+    joinedAt: new Date()
+  });
+  
+  return this;
 };
 
 // Method to remove member
-teamSchema.methods.removeMember = function (userId) {
-    if (this.owner.toString() === userId.toString()) {
-        throw new Error('Cannot remove team owner');
-    }
-    
-    this.members = this.members.filter(m => m.user.toString() !== userId.toString());
-    return this.save();
+teamSchema.methods.removeMember = function(userId) {
+  if (this.owner.toString() === userId.toString()) {
+    throw new Error('Cannot remove team owner');
+  }
+  
+  this.members = this.members.filter(member => member.user.toString() !== userId.toString());
+  return this;
 };
 
 // Method to update member role
-teamSchema.methods.updateMemberRole = function (userId, role, permissions) {
-    const member = this.members.find(m => m.user.toString() === userId.toString());
-    if (!member) {
-        throw new Error('User is not a member of this team');
+teamSchema.methods.updateMemberRole = function(userId, newRole) {
+  if (this.owner.toString() === userId.toString() && newRole !== 'owner') {
+    throw new Error('Cannot change owner role');
+  }
+  
+  const member = this.members.find(member => member.user.toString() === userId.toString());
+  if (!member) {
+    throw new Error('Member not found');
+  }
+  
+  member.role = newRole;
+  return this;
+};
+
+// Pre-save middleware to update permissions based on role
+teamSchema.pre('save', function(next) {
+  this.members.forEach(member => {
+    if (member.role === 'owner') {
+      member.permissions = {
+        canManageMembers: true,
+        canManageProjects: true,
+        canManageSettings: true,
+        canDeleteTeam: true
+      };
+    } else if (member.role === 'admin') {
+      member.permissions = {
+        canManageMembers: true,
+        canManageProjects: true,
+        canManageSettings: true,
+        canDeleteTeam: false
+      };
+    } else {
+      member.permissions = {
+        canManageMembers: false,
+        canManageProjects: false,
+        canManageSettings: false,
+        canDeleteTeam: false
+      };
     }
-    
-    member.role = role;
-    if (permissions) {
-        member.permissions = permissions;
-    }
-    
-    return this.save();
-};
-
-// Method to approve pending member
-teamSchema.methods.approveMember = function (userId) {
-    const member = this.members.find(m => m.user.toString() === userId.toString());
-    if (!member) {
-        throw new Error('User is not a member of this team');
-    }
-    
-    member.status = 'active';
-    return this.save();
-};
-
-// Method to generate invite code
-teamSchema.methods.generateInviteCode = function (expiresInDays = 7) {
-    this.inviteCode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    this.inviteCodeExpires = new Date(Date.now() + (expiresInDays * 24 * 60 * 60 * 1000));
-    return this.save();
-};
-
-// Method to revoke invite code
-teamSchema.methods.revokeInviteCode = function () {
-    this.inviteCode = undefined;
-    this.inviteCodeExpires = undefined;
-    return this.save();
-};
-
-// Method to check if user can join via invite code
-teamSchema.methods.canJoinWithCode = function (code) {
-    return this.inviteCode === code && 
-           this.inviteCodeExpires && 
-           this.inviteCodeExpires > new Date() &&
-           this.settings.allowInvites;
-};
-
-// Method to update team statistics
-teamSchema.methods.updateStats = function (totalProjects, completedTasks, totalTasks, avgProductivity) {
-    this.stats.totalProjects = totalProjects || 0;
-    this.stats.completedTasks = completedTasks || 0;
-    this.stats.totalTasks = totalTasks || 0;
-    this.stats.averageProductivity = avgProductivity || 0;
-    this.stats.lastActivity = new Date();
-    
-    return this.save();
-};
-
-// Method to archive team
-teamSchema.methods.archive = function (userId) {
-    this.archived = true;
-    this.archivedAt = new Date();
-    this.archivedBy = userId;
-    return this.save();
-};
-
-// Method to restore team
-teamSchema.methods.restore = function () {
-    this.archived = false;
-    this.archivedAt = null;
-    this.archivedBy = null;
-    return this.save();
-};
+  });
+  
+  this.updatedAt = new Date();
+  next();
+});
 
 // Static method to find teams by user
-teamSchema.statics.findByUser = function (userId) {
-    return this.find({
-        $or: [
-            { owner: userId },
-            { 'members.user': userId, 'members.status': 'active' }
-        ],
-        archived: false
-    }).populate('owner', 'fullname username avatar')
-      .populate('members.user', 'fullname username avatar');
+teamSchema.statics.findByUser = function(userId) {
+  return this.find({
+    $or: [
+      { owner: userId },
+      { 'members.user': userId }
+    ]
+  });
 };
 
-// Static method to find by invite code
-teamSchema.statics.findByInviteCode = function (code) {
-    return this.findOne({
-        inviteCode: code,
-        inviteCodeExpires: { $gt: new Date() },
-        'settings.allowInvites': true,
-        archived: false
-    });
+// Static method to find public teams
+teamSchema.statics.findPublic = function() {
+  return this.find({ isPrivate: false });
 };
 
-const Team = mongoose.model("Team", teamSchema);
+const Team = mongoose.model('Team', teamSchema);
 export default Team;

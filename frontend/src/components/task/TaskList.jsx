@@ -62,7 +62,7 @@ const TaskList = ({
       // Refresh tasks to get updated data
       refreshTasks()
     } catch (error) {
-      console.error('Failed to update task status:', error)
+      //console.error('Failed to update task status:', error)
     }
   }, [updateTaskStatus, refreshTasks, tasks, targetUserId, onTaskCompleted, onTaskUpdated])
 

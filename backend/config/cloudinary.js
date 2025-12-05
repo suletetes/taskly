@@ -1,26 +1,116 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
+import dotenv from 'dotenv';
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Load environment variables first
+dotenv.config();
 
-// Configure Cloudinary storage for multer
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'taskly/avatars', // Folder in Cloudinary
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
-    transformation: [
-      { width: 400, height: 400, crop: 'fill', gravity: 'face' },
-      { quality: 'auto', fetch_format: 'auto' }
-    ],
-  },
-});
+/**
+ * Validate Cloudinary configuration
+ * @returns {Object} Validation result with success flag and error message
+ */
+export const validateCloudinaryConfig = () => {
+  const missingVars = [];
+  
+  if (!process.env.CLOUDINARY_CLOUD_NAME) {
+    missingVars.push('CLOUDINARY_CLOUD_NAME');
+  }
+  if (!process.env.CLOUDINARY_API_KEY) {
+    missingVars.push('CLOUDINARY_API_KEY');
+  }
+  if (!process.env.CLOUDINARY_API_SECRET) {
+    missingVars.push('CLOUDINARY_API_SECRET');
+  }
+
+  if (missingVars.length > 0) {
+    return {
+      success: false,
+      error: `Missing required Cloudinary environment variables: ${missingVars.join(', ')}. Please set them in your .env file.`
+    };
+  }
+
+  return { success: true };
+};
+
+/**
+ * Test Cloudinary connection
+ * @returns {Promise<Object>} Connection test result
+ */
+export const testCloudinaryConnection = async () => {
+  try {
+    // Test connection by fetching account details
+    const result = await cloudinary.api.ping();
+    return {
+      success: true,
+      message: 'Cloudinary connection successful',
+      status: result.status
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Cloudinary connection failed: ${error.message}`,
+      details: error.error?.message || 'Invalid credentials or network error'
+    };
+  }
+};
+
+// Validate configuration before proceeding
+const configValidation = validateCloudinaryConfig();
+/*
+if (!configValidation.success) {
+  console.warn('  [Cloudinary] Configuration Warning:', configValidation.error);
+  console.warn('   Image upload functionality will not be available until Cloudinary is configured.');
+  console.warn('   The server will continue to run, but avatar uploads will fail.');
+} else {
+  console.log(' [Cloudinary] Configuring with:', {
+    cloud_name: '✓ Set',
+    api_key: '✓ Set',
+    api_secret: '✓ Set'
+  });
+*/
+
+  // Configure Cloudinary
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
+  // Test connection on startup (async, don't block)
+  /*
+  testCloudinaryConnection().then(result => {
+    if (result.success) {
+      console.log(' [Cloudinary] Connection test successful');
+    } else {
+      console.error(' [Cloudinary] Connection test failed:', result.error);
+      console.error('   Details:', result.details);
+      console.error('   Please verify your Cloudinary credentials are correct');
+    }
+  }).catch(error => {
+    console.error(' [Cloudinary] Connection test error:', error.message);
+  });
+}
+  */
+
+// Configure Cloudinary storage for multer (only if configured)
+let storage;
+if (configValidation.success) {
+  storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder: 'taskly/avatars', // Folder in Cloudinary
+      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
+      transformation: [
+        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        { quality: 'auto', fetch_format: 'auto' }
+      ],
+    },
+  });
+} else {
+  // Fallback to memory storage if Cloudinary not configured
+  storage = multer.memoryStorage();
+}
 
 // Create multer upload middleware
 const upload = multer({ 
@@ -29,10 +119,19 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
+    console.log(' [Multer] File filter check:', {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+    
     // Check file type
     if (file.mimetype.startsWith('image/')) {
+      console.log(' [Multer] File type accepted:', file.mimetype);
       cb(null, true);
     } else {
+      console.log(' [Multer] File type rejected:', file.mimetype);
       cb(new Error('Only image files are allowed!'), false);
     }
   }

@@ -151,7 +151,7 @@ const Analytics = () => {
         setRecentActivity(activity);
 
       } catch (err) {
-        console.error('Failed to fetch analytics data:', err);
+        //console.error('Failed to fetch analytics data:', err);
         setError('Failed to load analytics data');
       } finally {
         setLoading(false);

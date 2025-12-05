@@ -8,8 +8,19 @@ export const setGlobalErrorHandler = (handler) => {
 }
 
 // Create axios instance with base configuration
+// In development, use relative URLs to leverage Vite proxy
+// In production, use the full API URL from environment
+const getBaseURL = () => {
+  if (import.meta.env.DEV) {
+    // Development: use relative URL to leverage Vite proxy
+    return '/api'
+  }
+  // Production: use full URL from environment
+  return import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -35,8 +46,8 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Handle 401 and 403 errors (unauthorized/forbidden)
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+    // Handle 401 Unauthorized (not authenticated)
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       
       // Clear user data from localStorage
@@ -53,6 +64,13 @@ api.interceptors.response.use(
         window.location.href = '/login'
       }
       
+      return Promise.reject(error)
+    }
+    
+    // Handle 403 Forbidden (authenticated but no permission)
+    // Don't redirect - let the component handle the error
+    if (error.response?.status === 403) {
+      // Just reject the error, don't redirect
       return Promise.reject(error)
     }
 
@@ -82,7 +100,7 @@ const apiService = {
       const response = await api.get(url, config)
       return response.data
     } catch (error) {
-      console.error('API GET Error:', error.response?.data || error.message)
+      //console.error('API GET Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -95,7 +113,7 @@ const apiService = {
       const response = await api.post(url, data, config)
       return response.data
     } catch (error) {
-      console.error('API POST Error:', error.response?.data || error.message)
+      //console.error('API POST Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -106,7 +124,7 @@ const apiService = {
       const response = await api.put(url, data, config)
       return response.data
     } catch (error) {
-      console.error('API PUT Error:', error.response?.data || error.message)
+      //console.error('API PUT Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -117,7 +135,7 @@ const apiService = {
       const response = await api.patch(url, data, config)
       return response.data
     } catch (error) {
-      console.error('API PATCH Error:', error.response?.data || error.message)
+      //console.error('API PATCH Error:', error.response?.data || error.message)
       throw error
     }
   },
@@ -128,7 +146,7 @@ const apiService = {
       const response = await api.delete(url, config)
       return response.data
     } catch (error) {
-      console.error('API DELETE Error:', error.response?.data || error.message)
+      //console.error('API DELETE Error:', error.response?.data || error.message)
       throw error
     }
   }

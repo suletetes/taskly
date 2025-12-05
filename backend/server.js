@@ -5,8 +5,31 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import passport from './config/passport.js';
 import dotenv from 'dotenv';
+import { validateEnvironment, logConfiguration } from './utils/envValidation.js';
 
+// Load .env from project root
 dotenv.config();
+
+// Validate environment variables before starting
+console.log('\n  Validating environment configuration...');
+const envValidation = validateEnvironment();
+
+if (!envValidation.isValid) {
+  console.error('\n Environment validation failed:');
+  envValidation.errors.forEach(error => console.error(`  - ${error}`));
+  console.error('\nPlease set the required environment variables in your .env file and restart the server.\n');
+  process.exit(1);
+}
+
+if (envValidation.warnings.length > 0) {
+  console.warn('\n  Environment warnings:');
+  envValidation.warnings.forEach(warning => console.warn(`  - ${warning}`));
+}
+
+console.log(' Environment validation passed\n');
+
+// Log configuration (safe version)
+logConfiguration();
 
 // Import security middleware
 import {
@@ -39,26 +62,38 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
       process.env.CLIENT_URL,
       process.env.PRODUCTION_CLIENT_URL,
       process.env.CORS_ORIGIN
     ].filter(Boolean);
     
-    // In development, allow localhost
+    // In development, be more permissive
     if (process.env.NODE_ENV !== 'production') {
-      allowedOrigins.push('http://localhost:3000', 'http://127.0.0.1:3000');
+      // Allow all localhost and 127.0.0.1 origins in development
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return callback(null, true);
+      }
     }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
+      // In development, allow anyway but log warning
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`CORS allowing origin in development: ${origin}`);
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
+        callback(new Error('Not allowed by CORS'));
+      }
     }
   },
   credentials: true, // This is crucial for session cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['set-cookie'],
   preflightContinue: false,
   optionsSuccessStatus: 200
 };
@@ -89,7 +124,7 @@ app.use(session({
     touchAfter: 24 * 3600 // lazy session update
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    secure: process.env.NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true', // HTTPS only in production
     httpOnly: true,
     maxAge: parseInt(process.env.SESSION_MAX_AGE) || 1000 * 60 * 60 * 24 * 7, // 7 days
     sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
@@ -105,12 +140,24 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import taskRoutes from './routes/tasks.js';
 import uploadRoutes from './routes/upload.js';
+import teamRoutes from './routes/teams.js';
+import projectRoutes from './routes/projects.js';
+import calendarRoutes from './routes/calendar.js';
+import searchRoutes from './routes/search.js';
+import invitationRoutes from './routes/invitations.js';
+import notificationRoutes from './routes/notifications.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/calendar', calendarRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/invitations', invitationRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => {
   const healthCheck = {

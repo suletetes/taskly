@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Task from "./models/Task.js";
 import User from "./models/User.js";
+import Team from "./models/Team.js";
+import Project from "./models/Project.js";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -17,6 +19,8 @@ const seedDatabase = async () => {
         // Clear existing data
         await Task.deleteMany({});
         await User.deleteMany({});
+        await Team.deleteMany({});
+        await Project.deleteMany({});
         console.log('🧹 Cleared existing data.');
 
         // Create sample users
@@ -170,11 +174,145 @@ const seedDatabase = async () => {
         const createdTasks = await Task.insertMany(tasks);
         console.log(`✅ Created ${createdTasks.length} tasks.`);
 
+        // Helper function to generate invite code
+        const generateInviteCode = () => {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        };
+
+        // Create sample teams
+        const teams = [
+            {
+                name: "Development Team",
+                description: "Core development team working on product features",
+                owner: createdUsers[0]._id,
+                inviteCode: generateInviteCode(),
+                members: [
+                    { user: createdUsers[0]._id, role: 'owner', joinedAt: new Date() },
+                    { user: createdUsers[1]._id, role: 'admin', joinedAt: new Date() },
+                    { user: createdUsers[2]._id, role: 'member', joinedAt: new Date() }
+                ],
+                isPublic: true
+            },
+            {
+                name: "Design Team",
+                description: "UI/UX design and creative team",
+                owner: createdUsers[1]._id,
+                inviteCode: generateInviteCode(),
+                members: [
+                    { user: createdUsers[1]._id, role: 'owner', joinedAt: new Date() },
+                    { user: createdUsers[3]._id, role: 'admin', joinedAt: new Date() },
+                    { user: createdUsers[4]._id, role: 'member', joinedAt: new Date() }
+                ],
+                isPublic: true
+            },
+            {
+                name: "Marketing Team",
+                description: "Marketing and growth team",
+                owner: createdUsers[2]._id,
+                inviteCode: generateInviteCode(),
+                members: [
+                    { user: createdUsers[2]._id, role: 'owner', joinedAt: new Date() },
+                    { user: createdUsers[0]._id, role: 'member', joinedAt: new Date() }
+                ],
+                isPublic: false
+            }
+        ];
+
+        const createdTeams = await Team.insertMany(teams);
+        console.log(`✅ Created ${createdTeams.length} teams.`);
+
+        // Create sample projects
+        const projects = [
+            {
+                name: "Taskly Mobile App",
+                description: "Mobile application for iOS and Android",
+                owner: createdUsers[0]._id,
+                team: createdTeams[0]._id,
+                status: "active",
+                priority: "high",
+                endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
+                members: [
+                    { user: createdUsers[0]._id, role: 'manager', joinedAt: new Date() },
+                    { user: createdUsers[1]._id, role: 'manager', joinedAt: new Date() },
+                    { user: createdUsers[2]._id, role: 'contributor', joinedAt: new Date() }
+                ],
+                milestones: [
+                    {
+                        name: "MVP Release",
+                        description: "First version with core features",
+                        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                        status: "in-progress"
+                    },
+                    {
+                        name: "Beta Testing",
+                        description: "Public beta testing phase",
+                        dueDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+                        status: "pending"
+                    }
+                ]
+            },
+            {
+                name: "Website Redesign",
+                description: "Complete redesign of company website",
+                owner: createdUsers[1]._id,
+                team: createdTeams[1]._id,
+                status: "active",
+                priority: "medium",
+                endDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+                members: [
+                    { user: createdUsers[1]._id, role: 'manager', joinedAt: new Date() },
+                    { user: createdUsers[3]._id, role: 'manager', joinedAt: new Date() },
+                    { user: createdUsers[4]._id, role: 'contributor', joinedAt: new Date() }
+                ],
+                milestones: [
+                    {
+                        name: "Design Mockups",
+                        description: "Complete all design mockups",
+                        dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+                        status: "completed"
+                    }
+                ]
+            },
+            {
+                name: "Marketing Campaign Q1",
+                description: "Q1 marketing campaign planning and execution",
+                owner: createdUsers[2]._id,
+                team: createdTeams[2]._id,
+                status: "planning",
+                priority: "high",
+                endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+                members: [
+                    { user: createdUsers[2]._id, role: 'manager', joinedAt: new Date() },
+                    { user: createdUsers[0]._id, role: 'contributor', joinedAt: new Date() }
+                ],
+                milestones: []
+            },
+            {
+                name: "API Documentation",
+                description: "Comprehensive API documentation for developers",
+                owner: createdUsers[0]._id,
+                team: createdTeams[0]._id,
+                status: "active",
+                priority: "medium",
+                endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                members: [
+                    { user: createdUsers[0]._id, role: 'manager', joinedAt: new Date() },
+                    { user: createdUsers[2]._id, role: 'contributor', joinedAt: new Date() }
+                ],
+                milestones: []
+            }
+        ];
+
+        const createdProjects = await Project.insertMany(projects);
+        console.log(`✅ Created ${createdProjects.length} projects.`);
+
         // Display summary
         console.log('\n🎉 Database seeded successfully!');
         console.log('\n📊 Summary:');
         console.log(`👥 Users: ${createdUsers.length}`);
         console.log(`📋 Tasks: ${createdTasks.length}`);
+        console.log(`👥 Teams: ${createdTeams.length}`);
+        console.log(`📁 Projects: ${createdProjects.length}`);
 
         console.log('\n👤 Sample Users (all passwords: "password123"):');
         createdUsers.forEach(user => {

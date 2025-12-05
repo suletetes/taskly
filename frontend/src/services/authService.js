@@ -37,7 +37,7 @@ const authService = {
       await apiService.post('/auth/logout')
     } catch (error) {
       // Continue with logout even if API call fails
-      console.warn('Logout API call failed:', error.message)
+      //console.warn('Logout API call failed:', error.message)
     } finally {
       // Always clear local storage
       localStorage.removeItem('user')
@@ -99,7 +99,7 @@ const authService = {
       const userStr = localStorage.getItem('user')
       return userStr ? JSON.parse(userStr) : null
     } catch (error) {
-      console.error('Error parsing stored user data:', error)
+      //console.error('Error parsing stored user data:', error)
       this.clearAuthData()
       return null
     }
@@ -133,6 +133,101 @@ const authService = {
     authError.code = error.response?.data?.error?.code
     
     return authError
+  },
+
+  // Get user's teams
+  async getUserTeams() {
+    try {
+      const response = await apiService.get('/auth/teams')
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Get user's projects
+  async getUserProjects() {
+    try {
+      const response = await apiService.get('/auth/projects')
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Get user's permissions for a specific team
+  async getTeamPermissions(teamId) {
+    try {
+      const response = await apiService.get(`/auth/teams/${teamId}/permissions`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Get user's permissions for a specific project
+  async getProjectPermissions(projectId) {
+    try {
+      const response = await apiService.get(`/auth/projects/${projectId}/permissions`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Update user profile with team/project context
+  async updateUserProfile(userData) {
+    try {
+      const response = await apiService.put('/auth/profile', userData)
+      
+      if (response.success && response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+      }
+      
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Validate team invite code
+  async validateTeamInvite(inviteCode) {
+    try {
+      const response = await apiService.get(`/auth/invites/${inviteCode}/validate`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Join team via invite code
+  async joinTeamByInvite(inviteCode) {
+    try {
+      const response = await apiService.post(`/auth/invites/${inviteCode}/join`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Leave team
+  async leaveTeam(teamId) {
+    try {
+      const response = await apiService.post(`/auth/teams/${teamId}/leave`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
+  // Leave project
+  async leaveProject(projectId) {
+    try {
+      const response = await apiService.post(`/auth/projects/${projectId}/leave`)
+      return response
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
   },
 
   // Refresh token (placeholder for future implementation)

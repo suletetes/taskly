@@ -1,103 +1,78 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 
 const SafeImage = ({ 
   src, 
-  fallbackSrc = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/img/placeholder-user.png`,
   alt, 
-  className = '',
-  width,
-  height,
-  style = {},
+  className = '', 
+  fallback,
+  fallbackSrc, // Accept fallbackSrc prop
+  onError,
+  onLoad,
   ...props 
 }) => {
-  const [imageSrc, setImageSrc] = useState(src)
-  const [hasError, setHasError] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleError = () => {
-    if (!hasError && imageSrc !== fallbackSrc) {
-      console.warn(`Image failed to load: ${imageSrc}, using fallback: ${fallbackSrc}`)
-      setImageSrc(fallbackSrc)
-      setHasError(true)
-    } else {
-      console.error(`Both primary and fallback images failed to load for: ${alt}`)
-      setIsLoading(false)
+  const handleError = (e) => {
+    setHasError(true);
+    setIsLoading(false);
+    if (onError) {
+      onError(e);
     }
-  }
+  };
 
-  const handleLoad = () => {
-    setIsLoading(false)
-  }
+  const handleLoad = (e) => {
+    setIsLoading(false);
+    if (onLoad) {
+      onLoad(e);
+    }
+  };
 
-  // If both images failed, show a placeholder div
-  if (hasError && imageSrc === fallbackSrc && !isLoading) {
+  // If there's an error or no src, show fallback
+  if (hasError || !src) {
+    // If fallbackSrc is provided, show that image
+    if (fallbackSrc) {
+      return (
+        <img
+          src={fallbackSrc}
+          alt={alt}
+          className={className}
+          {...props}
+        />
+      );
+    }
+    
+    // If fallback component is provided, show that
+    if (fallback) {
+      return fallback;
+    }
+    
+    // Default fallback icon
     return (
-      <div
-        className={`image-placeholder ${className}`}
-        style={{
-          width: width || '100%',
-          height: height || '200px',
-          backgroundColor: '#f8f9fa',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '2px dashed #dee2e6',
-          borderRadius: '8px',
-          color: '#6c757d',
-          fontSize: '14px',
-          textAlign: 'center',
-          ...style
-        }}
-        {...props}
-      >
-        <div>
-          <i className="fa fa-image" style={{ fontSize: '24px', marginBottom: '8px', display: 'block' }}></i>
-          Image not available
-        </div>
+      <div className={`flex items-center justify-center bg-gray-200 dark:bg-gray-700 ${className}`}>
+        <PhotoIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
       </div>
-    )
+    );
   }
 
   return (
-    <>
+    <div className="relative">
       {isLoading && (
-        <div
-          className="image-loading"
-          style={{
-            width: width || '100%',
-            height: height || '200px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 1
-          }}
-        >
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+        <div className={`absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 ${className}`}>
+          <div className="w-6 h-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 dark:border-gray-600 dark:border-t-blue-400" />
         </div>
       )}
       <img
-        src={imageSrc}
+        src={src}
         alt={alt}
-        className={className}
-        width={width}
-        height={height}
-        style={{
-          ...style,
-          opacity: isLoading ? 0 : 1,
-          transition: 'opacity 0.3s ease-in-out'
-        }}
+        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
         onError={handleError}
         onLoad={handleLoad}
         {...props}
       />
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default SafeImage
+export default SafeImage;

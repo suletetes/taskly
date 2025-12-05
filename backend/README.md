@@ -1,355 +1,453 @@
 # Taskly Backend API
 
-A robust Node.js/Express backend API for the Taskly task management application with MongoDB, session-based authentication, and comprehensive security features.
+Modern task management API built with Node.js, Express, and MongoDB.
 
-## 🚀 Features
+## Features
 
-- **RESTful API** with Express.js
-- **MongoDB** database with Mongoose ODM
-- **Session-based Authentication** with Passport.js
-- **Image Upload** with Cloudinary integration
-- **Security Middleware** (Helmet, Rate Limiting, CORS)
-- **Data Validation** and sanitization
-- **Comprehensive Error Handling**
-- **Production-ready** with PM2 support
+- **Authentication**: Session-based authentication with secure cookies
+- **Task Management**: Full CRUD operations with advanced filtering
+- **Team Collaboration**: Multi-user teams with role-based permissions
+- **Project Management**: Organize tasks into projects
+- **Real-time Notifications**: In-app notification system
+- **File Uploads**: Avatar uploads with Cloudinary integration
+- **Email Service**: Transactional emails via Resend
+- **Analytics**: Productivity tracking and statistics
 
-## 📋 Prerequisites
+## Tech Stack
 
-- Node.js (v16 or higher)
-- MongoDB (v4.4 or higher)
-- npm or yarn package manager
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: express-session with connect-mongo
+- **File Storage**: Cloudinary
+- **Email**: Resend
+- **Validation**: express-validator
+- **Security**: helmet, cors, express-rate-limit
 
-## 🛠️ Installation
+## Prerequisites
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd taskly/backend
-   ```
+- Node.js 18 or higher
+- MongoDB 5.0 or higher
+- Cloudinary account (for file uploads)
+- Resend account (for emails)
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+## Installation
 
-3. **Environment Configuration**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update the `.env` file with your configuration:
-   ```env
-   NODE_ENV=development
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/taskly
-   JWT_SECRET=your-super-secret-jwt-key
-   CLIENT_URL=http://localhost:3000
-   CLOUDINARY_CLOUD_NAME=your-cloud-name
-   CLOUDINARY_API_KEY=your-api-key
-   CLOUDINARY_API_SECRET=your-api-secret
-   ```
+### 1. Clone and Install Dependencies
 
-4. **Start MongoDB**
-   ```bash
-   # Using MongoDB service
-   sudo systemctl start mongod
-   
-   # Or using Docker
-   docker run -d -p 27017:27017 --name mongodb mongo:latest
-   ```
+```bash
+cd backend
+npm install
+```
 
-5. **Seed the database (optional)**
-   ```bash
-   npm run seed
-   ```
+### 2. Environment Configuration
 
-## 🚀 Running the Application
+Create a `.env` file in the backend directory:
+
+```env
+# Server Configuration
+NODE_ENV=development
+PORT=5000
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/taskly
+
+# Session Configuration
+SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+SESSION_NAME=taskly.sid
+SESSION_MAX_AGE=604800000
+
+# CORS Configuration
+FRONTEND_URL=http://localhost:3000
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Email Configuration (Resend)
+RESEND_API_KEY=your-resend-api-key
+EMAIL_FROM=noreply@yourdomain.com
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+### 3. Database Setup
+
+Start MongoDB:
+
+```bash
+# macOS (Homebrew)
+brew services start mongodb-community
+
+# Linux (systemd)
+sudo systemctl start mongod
+
+# Windows
+net start MongoDB
+```
+
+### 4. Seed Database (Optional)
+
+```bash
+npm run seed
+```
+
+This creates sample users, teams, projects, and tasks for testing.
+
+## Running the Server
 
 ### Development Mode
+
 ```bash
 npm run dev
 ```
-The server will start on `http://localhost:5000` with hot reloading.
+
+Server runs on `http://localhost:5000` with auto-reload.
 
 ### Production Mode
+
 ```bash
-npm run prod
+npm start
 ```
 
-### Using PM2 (Recommended for Production)
-```bash
-# Install PM2 globally
-npm install -g pm2
-
-# Start the application
-npm run pm2:start
-
-# View logs
-npm run pm2:logs
-
-# Restart the application
-npm run pm2:restart
-
-# Stop the application
-npm run pm2:stop
-```
-
-## 📚 API Documentation
+## API Documentation
 
 ### Base URL
-- Development: `http://localhost:5000/api`
-- Production: `https://your-api-domain.com/api`
 
-### Authentication Endpoints
+```
+Development: http://localhost:5000/api
+Production: https://your-domain.com/api
+```
 
-#### POST `/auth/login`
-Authenticate user and create session.
+### Authentication
 
-**Request Body:**
-```json
+All endpoints except `/auth/register` and `/auth/login` require authentication via session cookies.
+
+#### Register
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
 {
-  "username": "string",
-  "password": "string"
+  "fullname": "John Doe",
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "securepassword123"
 }
 ```
 
-**Response:**
-```json
+#### Login
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
 {
-  "success": true,
-  "data": {
-    "user": {
-      "_id": "string",
-      "username": "string",
-      "fullname": "string",
-      "email": "string",
-      "avatar": "string",
-      "stats": {
-        "completed": 0,
-        "ongoing": 0,
-        "failed": 0,
-        "completionRate": 0,
-        "streak": 0,
-        "avgTime": "0 hrs"
-      }
+  "email": "john@example.com",
+  "password": "securepassword123"
+}
+```
+
+#### Logout
+
+```http
+POST /api/auth/logout
+```
+
+### Tasks
+
+#### Get All Tasks
+
+```http
+GET /api/tasks?page=1&limit=10&status=in-progress&priority=high
+```
+
+Returns tasks created by or assigned to the authenticated user.
+
+#### Create Task
+
+```http
+POST /api/tasks
+Content-Type: application/json
+
+{
+  "title": "Complete project proposal",
+  "description": "Write and submit the Q4 project proposal",
+  "due": "2025-12-31T23:59:59.000Z",
+  "priority": "high",
+  "tags": ["work", "urgent"],
+  "assignee": "user-id",
+  "project": "project-id"
+}
+```
+
+#### Update Task
+
+```http
+PUT /api/tasks/:taskId
+Content-Type: application/json
+
+{
+  "title": "Updated title",
+  "status": "completed"
+}
+```
+
+#### Delete Task
+
+```http
+DELETE /api/tasks/:taskId
+```
+
+### Projects
+
+#### Get Project Tasks
+
+```http
+GET /api/projects/:projectId/tasks?status=in-progress&priority=high
+```
+
+#### Get Project Statistics
+
+```http
+GET /api/projects/:projectId/stats
+```
+
+### Teams
+
+#### Create Team
+
+```http
+POST /api/teams
+Content-Type: application/json
+
+{
+  "name": "Development Team",
+  "description": "Core development team"
+}
+```
+
+#### Invite User to Team
+
+```http
+POST /api/teams/:teamId/invite
+Content-Type: application/json
+
+{
+  "userId": "user-id",
+  "role": "member"
+}
+```
+
+### File Uploads
+
+#### Upload Avatar
+
+```http
+POST /api/upload/avatar
+Content-Type: multipart/form-data
+
+avatar: [file]
+```
+
+## Project Structure
+
+```
+backend/
+├── config/           # Configuration files
+│   ├── cloudinary.js
+│   ├── database.js
+│   └── resend.js
+├── controllers/      # Route controllers
+│   ├── authController.js
+│   ├── taskController.js
+│   ├── projectController.js
+│   └── userController.js
+├── middleware/       # Custom middleware
+│   ├── auth.js
+│   ├── errorHandler.js
+│   └── validation.js
+├── models/          # Mongoose models
+│   ├── User.js
+│   ├── Task.js
+│   ├── Project.js
+│   └── Team.js
+├── routes/          # API routes
+│   ├── auth.js
+│   ├── tasks.js
+│   ├── projects.js
+│   └── teams.js
+├── utils/           # Utility functions
+│   ├── response.js
+│   └── permissions.js
+├── seeds/           # Database seeders
+├── tests/           # Test files
+├── .env.example     # Environment template
+├── server.js        # Entry point
+└── package.json
+```
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test suite
+npm test -- tasks.test.js
+
+# Run with coverage
+npm run test:coverage
+```
+
+## Production Deployment
+
+### 1. Environment Variables
+
+Set all required environment variables on your hosting platform:
+
+```env
+NODE_ENV=production
+PORT=5000
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/taskly
+SESSION_SECRET=strong-random-secret-key
+FRONTEND_URL=https://yourdomain.com
+CLOUDINARY_CLOUD_NAME=your-cloud
+CLOUDINARY_API_KEY=your-key
+CLOUDINARY_API_SECRET=your-secret
+RESEND_API_KEY=your-resend-key
+EMAIL_FROM=noreply@yourdomain.com
+```
+
+### 2. Database
+
+Use MongoDB Atlas or a managed MongoDB service:
+
+```bash
+# Connection string format
+mongodb+srv://username:password@cluster.mongodb.net/taskly?retryWrites=true&w=majority
+```
+
+### 3. Build and Deploy
+
+```bash
+# Install production dependencies
+npm ci --production
+
+# Start server
+npm start
+```
+
+### 4. Process Management
+
+Use PM2 for production:
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start with PM2
+pm2 start ecosystem.config.js
+
+# Monitor
+pm2 monit
+
+# View logs
+pm2 logs
+
+# Restart
+pm2 restart taskly-api
+```
+
+### 5. Nginx Configuration (Optional)
+
+```nginx
+server {
+    listen 80;
+    server_name api.yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
-  },
-  "message": "Login successful"
 }
 ```
 
-#### POST `/auth/signup`
-Register a new user account.
+## Security Best Practices
 
-#### GET `/auth/me`
-Get current authenticated user profile.
+1. **Environment Variables**: Never commit `.env` files
+2. **Session Secret**: Use a strong, random secret in production
+3. **CORS**: Configure allowed origins properly
+4. **Rate Limiting**: Adjust limits based on your needs
+5. **HTTPS**: Always use HTTPS in production
+6. **Database**: Use strong passwords and enable authentication
+7. **Updates**: Keep dependencies updated
 
-#### POST `/auth/logout`
-Logout user and destroy session.
-
-### User Endpoints
-
-#### GET `/users`
-Get paginated list of users (authenticated).
-
-#### GET `/users/public`
-Get paginated list of users (public access).
-
-#### GET `/users/:userId`
-Get user profile by ID.
-
-#### GET `/users/:userId/tasks`
-Get user's tasks with filtering and pagination.
-
-#### GET `/users/:userId/stats`
-Get user's productivity statistics.
-
-### Task Endpoints
-
-#### GET `/tasks`
-Get authenticated user's tasks.
-
-#### POST `/tasks`
-Create a new task.
-
-**Request Body:**
-```json
-{
-  "title": "string",
-  "description": "string",
-  "due": "2024-12-31",
-  "priority": "low|medium|high",
-  "tags": ["string"]
-}
-```
-
-#### GET `/tasks/:taskId`
-Get task by ID.
-
-#### PUT `/tasks/:taskId`
-Update task by ID.
-
-#### DELETE `/tasks/:taskId`
-Delete task by ID.
-
-#### PATCH `/tasks/:taskId/status`
-Update task status.
-
-### Upload Endpoints
-
-#### POST `/upload/avatar`
-Upload user avatar image to Cloudinary.
-
-**Request:** Multipart form data with `avatar` file field.
-
-#### DELETE `/upload/avatar`
-Delete user avatar image.
+## Monitoring
 
 ### Health Check
 
-#### GET `/health`
-Get API health status.
-
-## 🗄️ Database Schema
-
-### User Model
-```javascript
-{
-  fullname: String,
-  username: String (unique),
-  email: String (unique),
-  password: String (hashed),
-  avatar: String,
-  avatarPublicId: String,
-  stats: {
-    completed: Number,
-    failed: Number,
-    ongoing: Number,
-    completionRate: Number,
-    streak: Number,
-    avgTime: String
-  },
-  created_at: Date,
-  updated_at: Date
-}
+```http
+GET /api/health
 ```
 
-### Task Model
-```javascript
-{
-  title: String,
-  description: String,
-  due: Date,
-  priority: String (low|medium|high),
-  status: String (in-progress|completed|failed),
-  tags: [String],
-  labels: [String],
-  user: ObjectId (ref: User),
-  createdAt: Date,
-  updatedAt: Date
-}
-```
+Returns server status and database connection.
 
-## 🔒 Security Features
+### Logs
 
-- **Helmet.js** - Security headers
-- **Rate Limiting** - Prevent abuse
-- **CORS** - Cross-origin resource sharing
-- **Data Sanitization** - MongoDB injection prevention
-- **Session Security** - HttpOnly, Secure cookies
-- **Password Hashing** - bcrypt with salt rounds
-- **Input Validation** - Comprehensive request validation
+Logs are written to:
+- Console (development)
+- PM2 logs (production)
 
-## 🧪 Testing
+## Troubleshooting
+
+### Database Connection Issues
 
 ```bash
-# Run tests
-npm test
+# Check MongoDB is running
+mongosh
 
-# Run tests with coverage
-npm run test:coverage
-
-# Run linting
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
+# Check connection string
+echo $MONGODB_URI
 ```
 
-## 📦 Production Deployment
+### Session Issues
 
-### Environment Setup
-1. Copy `.env.production` and update with production values
-2. Set `NODE_ENV=production`
-3. Configure MongoDB connection string
-4. Set up Cloudinary credentials
-5. Configure CORS origins
+- Verify `SESSION_SECRET` is set
+- Check MongoDB connection for session store
+- Clear browser cookies
 
-### Docker Deployment
-```dockerfile
-# Dockerfile example
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 5000
-CMD ["npm", "start"]
-```
+### File Upload Issues
 
-### PM2 Deployment
-```bash
-# Production deployment with PM2
-NODE_ENV=production pm2 start ecosystem.config.js
-```
+- Verify Cloudinary credentials
+- Check file size limits (default: 5MB)
+- Ensure proper MIME types
 
-## 📊 Monitoring
+### Email Issues
 
-- **Health Check**: `/api/health`
-- **PM2 Monitoring**: `pm2 monit`
-- **Logs**: `pm2 logs taskly-backend`
-- **Performance**: Built-in Express performance monitoring
+- Verify Resend API key
+- Check email domain verification
+- Review Resend dashboard for errors
 
-## 🔧 Configuration
+## API Rate Limits
 
-### Environment Variables
+- **Default**: 100 requests per 15 minutes per IP
+- **Auth endpoints**: 5 requests per 15 minutes per IP
+- **Upload endpoints**: 10 requests per 15 minutes per user
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `NODE_ENV` | Environment mode | development | No |
-| `PORT` | Server port | 5000 | No |
-| `MONGODB_URI` | MongoDB connection string | - | Yes |
-| `JWT_SECRET` | JWT signing secret | - | Yes |
-| `CLIENT_URL` | Frontend URL | - | Yes |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | - | No |
-| `CLOUDINARY_API_KEY` | Cloudinary API key | - | No |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | - | No |
+## Support
 
-## 🤝 Contributing
+For issues and questions:
+- Check existing documentation
+- Review error logs
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Run linting and tests
-6. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Check the API documentation
-- Review the logs for error details
-
-## 🔄 Changelog
-
-### v1.0.0
-- Initial release
-- Complete task management API
-- Session-based authentication
-- Cloudinary image upload
-- Production-ready configuration

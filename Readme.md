@@ -1,418 +1,403 @@
-# 🚀 Taskly - Professional Task Management Application
+# Taskly - Modern Task Management Application
 
-A modern, full-stack task management application built with React and Node.js, featuring real-time updates, beautiful UI, and comprehensive user management.
+A full-stack task management application designed for individuals and teams, featuring real-time synchronization, team collaboration, and comprehensive productivity analytics.
 
-![Taskly Banner](./showCaseImages/home%201.png)
+## Demo
 
-## 📋 Table of Contents
+[Watch Taskly Demo Video](./frontend/public/TasklyVideoShowcase.mp4)
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+> **Note**: Click the link above to download and watch the full demo showcasing Taskly's features in action!
 
-## 🎯 Overview
+## Features
 
-Taskly is a comprehensive task management solution designed for individuals and teams who need a reliable, intuitive platform to organize their work. Built with modern web technologies, it offers a seamless experience across all devices with real-time synchronization and advanced productivity features.
+### Core Functionality
+-  **Task Management**: Create, edit, delete, and organize tasks with priorities, due dates, and tags
+-  **Team Collaboration**: Multi-user teams with role-based permissions
+-  **Project Management**: Organize tasks into projects with progress tracking
+-  **Calendar View**: Visualize tasks in calendar format
+-  **Notifications**: Real-time in-app notifications
+-  **Analytics**: Productivity tracking, completion rates, and statistics
+-  **Dark Mode**: Full dark mode support
+-  **Responsive Design**: Mobile-first approach, works on all devices
 
-### 🌟 Key Highlights
+### Technical Features
+-  **Secure Authentication**: Session-based authentication with secure cookies
+-  **Cloud Storage**: Cloudinary integration for file uploads
+-  **Email Service**: Transactional emails via Resend
+-  **Real-time Updates**: Instant synchronization across devices
+-  **Modern UI**: Clean interface with smooth animations
+-  **Advanced Search**: Search and filter tasks, users, and teams
 
-- **Modern Architecture**: React frontend with Node.js/Express backend
-- **Real-time Updates**: Instant synchronization across devices
-- **Secure Authentication**: Session-based auth with comprehensive security
-- **Cloud Storage**: Cloudinary integration for image management
-- **Production Ready**: Comprehensive deployment configurations
-- **Mobile Responsive**: Perfect experience on all screen sizes
-
-## ✨ Features
-
-### 🎨 User Interface
-- **Modern Design**: Clean, intuitive interface with gradient themes and animations
-- **Responsive Layout**: Optimized for desktop, tablet, and mobile
-- **Dark/Light Mode**: Automatic theme adaptation with system preference detection
-- **Accessibility**: WCAG 2.1 compliant with keyboard navigation
-- **Smooth Animations**: Framer Motion powered micro-interactions
-- **Professional UI**: Modern card-based layouts with shadows and gradients
-
-### 📝 Task Management
-- **Smart Task Creation**: Quick add with intelligent defaults
-- **Priority Levels**: Visual priority indicators (Low, Medium, High)
-- **Due Date Management**: Calendar integration with reminders
-- **Tag System**: Organize tasks with custom tags
-- **Status Tracking**: In Progress, Completed, Failed states
-- **Bulk Operations**: Select and manage multiple tasks
-
-### 👤 User Management
-- **Complete Profile System**: Avatar selection, personal information, and bio
-- **Password Management**: Secure password change with validation
-- **Productivity Analytics**: Real-time completion rates, streaks, and insights
-- **Interactive Dashboard**: Beautiful charts and statistics
-- **Public Profiles**: Share achievements and progress
-- **User Directory**: Discover and connect with other users
-
-### 🔒 Security & Performance
-- **Session-based Authentication**: Secure login with automatic refresh
-- **Data Encryption**: All sensitive data encrypted in transit and at rest
-- **Rate Limiting**: Protection against abuse and attacks
-- **Performance Monitoring**: Real-time performance tracking
-- **Error Handling**: Comprehensive error boundaries and logging
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React 18** - Modern UI library with hooks
-- **React Router** - Client-side routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Animation library
-- **Heroicons** - Beautiful SVG icons
-- **Axios** - HTTP client for API communication
-- **Vite** - Fast build tool and dev server
+- **Framework**: React 18 with Vite
+- **Styling**: Tailwind CSS
+- **Routing**: React Router v6
+- **State Management**: Context API
+- **Animations**: Framer Motion
+- **HTTP Client**: Axios
+- **Icons**: Heroicons
 
 ### Backend
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **Passport.js** - Authentication middleware
-- **Cloudinary** - Image upload and management
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose
+- **Authentication**: express-session
+- **File Storage**: Cloudinary
+- **Email**: Resend
+- **Security**: helmet, cors, rate limiting
 
-### Security & DevOps
-- **Helmet.js** - Security headers
-- **bcrypt** - Password hashing
-- **express-rate-limit** - Rate limiting
-- **PM2** - Process management
-- **Docker** - Containerization support
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- MongoDB (v4.4 or higher)
-- npm or yarn package manager
 
-### 1. Clone the Repository
+- Node.js 18 or higher
+- MongoDB 5.0 or higher
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+
 ```bash
-git clone https://github.com/suletetes/taskly.git
+git clone https://github.com/yourusername/taskly.git
 cd taskly
 ```
 
-### 2. Backend Setup
+2. **Install dependencies**
+
 ```bash
+# Install backend dependencies
 cd backend
 npm install
 
-# Copy environment file
-cp .env.example .env
-
-# Update .env with your configuration
-# Start MongoDB service
-sudo systemctl start mongod
-
-# Seed the database (optional)
-npm run seed
-
-# Start the backend server
-npm run dev
-```
-
-### 3. Frontend Setup
-```bash
+# Install frontend dependencies
 cd ../frontend
 npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Start the frontend development server
-npm run dev
 ```
 
-### 4. Access the Application
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000/api
-- API Health Check: http://localhost:5000/api/health
+3. **Configure environment variables**
 
-### 5. Default Login Credentials
-```
-Username: mikejohnson
-Password: password123
-
-Username: janesmith
-Password: password123
-```
-
-## 📁 Project Structure
-
-```
-taskly/
-├── backend/                 # Node.js/Express API
-│   ├── config/             # Configuration files
-│   ├── controllers/        # Route controllers
-│   ├── middleware/         # Custom middleware
-│   ├── models/             # MongoDB models
-│   ├── routes/             # API routes
-│   ├── seeds/              # Database seeders
-│   ├── utils/              # Utility functions
-│   ├── .env.example        # Environment template
-│   ├── ecosystem.config.js # PM2 configuration
-│   └── server.js           # Main server file
-├── frontend/               # React application
-│   ├── public/             # Static assets
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── context/        # React Context
-│   │   ├── hooks/          # Custom hooks
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API services
-│   │   ├── styles/         # CSS files
-│   │   └── utils/          # Utility functions
-│   ├── .env.example        # Environment template
-│   └── vite.config.js      # Vite configuration
-├── docs/                   # Documentation
-├── tests/                  # Test files
-└── README.md               # This file
-```
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/login` | User login | No |
-| POST | `/api/auth/signup` | User registration | No |
-| GET | `/api/auth/me` | Get current user | Yes |
-| POST | `/api/auth/logout` | User logout | Yes |
-
-### User Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/users` | Get all users | Yes |
-| GET | `/api/users/public` | Get public users | No |
-| GET | `/api/users/:id` | Get user by ID | No |
-| GET | `/api/users/:id/tasks` | Get user tasks | Yes |
-| GET | `/api/users/:id/stats` | Get user statistics | Yes |
-
-### Task Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/tasks` | Get user tasks | Yes |
-| POST | `/api/tasks` | Create new task | Yes |
-| GET | `/api/tasks/:id` | Get task by ID | Yes |
-| PUT | `/api/tasks/:id` | Update task | Yes |
-| DELETE | `/api/tasks/:id` | Delete task | Yes |
-| PATCH | `/api/tasks/:id/status` | Update task status | Yes |
-
-### Upload Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/upload/avatar` | Upload avatar | Yes |
-| DELETE | `/api/upload/avatar` | Delete avatar | Yes |
-
-For detailed API documentation, see [Backend README](./backend/README.md).
-
-## 🚀 Deployment
-
-### Production Environment Setup
-
-#### Backend Deployment
-
-1. **Environment Configuration**
-   ```bash
-   cp backend/.env.production backend/.env
-   # Update with production values
-   ```
-
-2. **Using PM2 (Recommended)**
-   ```bash
-   cd backend
-   npm install -g pm2
-   npm run pm2:start
-   ```
-
-3. **Using Docker**
-   ```bash
-   cd backend
-   docker build -t taskly-backend .
-   docker run -p 5000:5000 taskly-backend
-   ```
-
-#### Frontend Deployment
-
-1. **Build for Production**
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
-2. **Deploy to Netlify**
-   ```bash
-   # Build command: npm run build
-   # Publish directory: dist
-   ```
-
-3. **Deploy to Vercel**
-   ```bash
-   # Build command: npm run build
-   # Output directory: dist
-   ```
-
-4. **Deploy to AWS S3**
-   ```bash
-   aws s3 sync dist/ s3://your-bucket-name --delete
-   ```
-
-### Environment Variables
-
-#### Backend (.env)
+**Backend** (`backend/.env`):
 ```env
-NODE_ENV=production
+NODE_ENV=development
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/taskly_production
-JWT_SECRET=your-super-secure-secret
-CLIENT_URL=https://your-domain.com
+MONGODB_URI=mongodb://localhost:27017/taskly
+SESSION_SECRET=your-secret-key
+FRONTEND_URL=http://localhost:3000
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
+RESEND_API_KEY=your-resend-key
+EMAIL_FROM=noreply@yourdomain.com
 ```
 
-#### Frontend (.env)
+**Frontend** (`frontend/.env`):
 ```env
-VITE_API_URL=https://your-api-domain.com/api
-VITE_APP_NAME=Taskly
-VITE_ENABLE_ANALYTICS=true
+VITE_API_URL=http://localhost:5000/api
 ```
 
-## 🧪 Testing
+4. **Start MongoDB**
 
-### Backend Testing
+```bash
+# macOS
+brew services start mongodb-community
+
+# Linux
+sudo systemctl start mongod
+
+# Windows
+net start MongoDB
+```
+
+5. **Seed the database** (optional)
+
 ```bash
 cd backend
-npm test                    # Run unit tests
-npm run test:coverage       # Run with coverage
-npm run lint               # Run ESLint
+npm run seed
 ```
 
-### Frontend Testing
+6. **Start the application**
+
 ```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
 cd frontend
-npm test                    # Run unit tests
-npm run test:e2e           # Run E2E tests
-npm run lint               # Run ESLint
+npm run dev
 ```
 
-### Integration Testing
+7. **Access the application**
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000/api
+
+### Default Test Accounts
+
+After seeding, you can login with:
+
+```
+Email: john@example.com
+Password: password123
+
+Email: sarah@example.com
+Password: password123
+```
+
+## Project Structure
+
+```
+taskly/
+├── backend/                 # Backend API
+│   ├── config/             # Configuration files
+│   ├── controllers/        # Route controllers
+│   ├── middleware/         # Custom middleware
+│   ├── models/            # Mongoose models
+│   ├── routes/            # API routes
+│   ├── utils/             # Utility functions
+│   ├── seeds/             # Database seeders
+│   ├── tests/             # Test files
+│   └── server.js          # Entry point
+│
+├── frontend/               # Frontend application
+│   ├── public/            # Static assets
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── context/       # Context providers
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── pages/         # Page components
+│   │   ├── services/      # API services
+│   │   └── utils/         # Utility functions
+│   └── vite.config.js     # Vite configuration
+│
+├── docker-compose.yml      # Docker configuration
+└── README.md              # This file
+```
+
+## API Documentation
+
+### Authentication
+
+```http
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
+```
+
+### Tasks
+
+```http
+GET    /api/tasks
+POST   /api/tasks
+GET    /api/tasks/:id
+PUT    /api/tasks/:id
+DELETE /api/tasks/:id
+PATCH  /api/tasks/:id/complete
+```
+
+### Projects
+
+```http
+GET    /api/projects
+POST   /api/projects
+GET    /api/projects/:id
+PUT    /api/projects/:id
+DELETE /api/projects/:id
+GET    /api/projects/:id/tasks
+GET    /api/projects/:id/stats
+```
+
+### Teams
+
+```http
+GET    /api/teams
+POST   /api/teams
+GET    /api/teams/:id
+PUT    /api/teams/:id
+DELETE /api/teams/:id
+POST   /api/teams/:id/invite
+GET    /api/teams/:id/members
+```
+
+For complete API documentation, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+
+## Development
+
+### Running Tests
+
 ```bash
-# Run full integration tests
-npm run test:integration
+# Backend tests
+cd backend
+npm test
+
+# Frontend tests
+cd frontend
+npm test
 ```
 
-## 📊 Performance Metrics
+### Code Linting
 
-- **Lighthouse Score**: 95+ (Performance, Accessibility, Best Practices, SEO)
-- **First Contentful Paint**: < 1.5s
-- **Time to Interactive**: < 3s
-- **Bundle Size**: < 500KB (gzipped)
-- **API Response Time**: < 200ms average
+```bash
+# Backend
+cd backend
+npm run lint
 
-## 🔒 Security Features
+# Frontend
+cd frontend
+npm run lint
+```
 
-- **Authentication**: Session-based with secure cookies
-- **Authorization**: Role-based access control
-- **Data Validation**: Comprehensive input validation
-- **Rate Limiting**: Protection against abuse
-- **CORS**: Configured for production domains
-- **Helmet.js**: Security headers
-- **Data Sanitization**: MongoDB injection prevention
-- **HTTPS**: Enforced in production
+### Database Management
 
-## 🤝 Contributing
+```bash
+# Seed database
+cd backend
+npm run seed
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+# Clear database
+npm run db:clear
 
-### Development Workflow
+# Create indexes
+npm run db:indexes
+```
+
+## Production Deployment
+
+### Backend Deployment
+
+See [backend/README.md](./backend/README.md) for detailed backend deployment instructions.
+
+**Quick steps:**
+
+1. Set production environment variables
+2. Use MongoDB Atlas or managed MongoDB
+3. Deploy to your hosting platform (Heroku, AWS, DigitalOcean, etc.)
+4. Use PM2 for process management
+5. Configure Nginx as reverse proxy
+
+### Frontend Deployment
+
+See [frontend/README.md](./frontend/README.md) for detailed frontend deployment instructions.
+
+**Quick steps:**
+
+1. Build the application: `npm run build`
+2. Deploy to static hosting (Vercel, Netlify, etc.)
+3. Or serve with Nginx/Apache
+4. Configure environment variables
+5. Set up SSL certificate
+
+### Docker Deployment
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+## Environment Variables
+
+### Backend Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `NODE_ENV` | Environment | `production` |
+| `PORT` | Server port | `5000` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/taskly` |
+| `SESSION_SECRET` | Session secret key | `random-secret-key` |
+| `FRONTEND_URL` | Frontend URL for CORS | `https://yourdomain.com` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | `your-cloud` |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | `123456789` |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | `secret` |
+| `RESEND_API_KEY` | Resend API key | `re_xxx` |
+| `EMAIL_FROM` | From email address | `noreply@yourdomain.com` |
+
+### Frontend Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `https://api.yourdomain.com/api` |
+
+## Security
+
+- Session-based authentication with secure cookies
+- Password hashing with bcrypt
+- CORS protection
+- Rate limiting on API endpoints
+- Input validation and sanitization
+- XSS protection
+- CSRF protection
+- Secure headers with helmet
+- Environment variable protection
+
+## Performance
+
+- Code splitting and lazy loading
+- Image optimization with Cloudinary
+- Database indexing
+- API response caching
+- Gzip compression
+- CDN for static assets
+- Optimized bundle size
+
+## Browser Support
+
+- Chrome (last 2 versions)
+- Firefox (last 2 versions)
+- Safari (last 2 versions)
+- Edge (last 2 versions)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for new functionality
-5. Run linting and tests
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Code Style
+## Troubleshooting
 
-- Use ESLint and Prettier for formatting
-- Follow React and Node.js best practices
-- Write meaningful commit messages
-- Add JSDoc comments for complex functions
-- Maintain test coverage above 80%
+### Common Issues
 
-## 📄 License
+**Database connection failed**
+- Ensure MongoDB is running
+- Check connection string in `.env`
+- Verify network connectivity
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**CORS errors**
+- Check `FRONTEND_URL` in backend `.env`
+- Verify frontend is running on correct port
+- Check CORS configuration in `server.js`
 
-## 🙏 Acknowledgments
+**Session not persisting**
+- Verify `SESSION_SECRET` is set
+- Check MongoDB connection for session store
+- Clear browser cookies
 
-- React team for the amazing framework
-- Express.js community for the robust backend framework
-- MongoDB team for the flexible database
-- Bootstrap team for the responsive UI components
-- All contributors and beta testers
+**File upload fails**
+- Verify Cloudinary credentials
+- Check file size limits
+- Ensure proper MIME types
 
-## 📞 Support
+For more troubleshooting, see:
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
 
-For support, questions, or feature requests:
 
-- 📧 Email: support@taskly.com
-- 🐛 Issues: [GitHub Issues](https://github.com/suletetes/taskly/issues)
-- 📖 Documentation: [Wiki](https://github.com/suletetes/taskly/wiki)
-- 💬 Discussions: [GitHub Discussions](https://github.com/suletetes/taskly/discussions)
+## Authors
 
-## 🗺️ Roadmap
+- Suleiman Abdulkadir
 
-### v1.1.0 (Coming Soon)
-- [ ] Team collaboration features
-- [ ] Real-time notifications
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app (React Native)
+## Links
 
-### v1.2.0 (Future)
-- [ ] Integration with calendar apps
-- [ ] Email notifications
-- [ ] Advanced reporting
-- [ ] API webhooks
-
----
-
-## 📸 Demo Gallery
-
-| Home |                  Home                  |                 Home                   |
-|:----:|:--------------------------------------:|:--------------------------------------:|
-| ![Home 1](showCaseImages/home%201.png) | ![Home 2](showCaseImages/home%202.png) | ![Home 3](showCaseImages/home%203.png) |
-
-| Signup | Login | Profile |
-|:------:|:-----:|:-------:|
-| ![Signup](showCaseImages/signup.png) | ![Login](showCaseImages/login.png) | ![Profile](showCaseImages/profile.png) |
-
-| All Users | Add Task | Edit User |
-|:---------:|:--------:|:---------:|
-| ![All Users](showCaseImages/all%20users.png) | ![Add Task](showCaseImages/add%20task.png) | ![Edit User](showCaseImages/edit%20user.png) |
-
----
-
-<div align="center">
-  <p>Made with ❤️ by the Taskly Team</p>
-  <p>
-    <a href="#taskly---professional-task-management-application">Back to Top</a>
-  </p>
-</div>
+- [API Documentation](./API_DOCUMENTATION.md)

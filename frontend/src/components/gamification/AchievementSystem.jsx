@@ -407,7 +407,7 @@ const AchievementSystem = ({ userStats, onAchievementUnlocked, className = '' })
                         className="p-1"
                         onClick={() => {
                           // Share achievement functionality
-                          console.log('Share achievement:', achievement.name);
+                          //console.log('Share achievement:', achievement.name);
                         }}
                       >
                         <ShareIcon className="w-4 h-4" />

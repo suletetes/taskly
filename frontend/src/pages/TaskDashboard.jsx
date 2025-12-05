@@ -115,7 +115,7 @@ const TaskDashboard = () => {
       const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
       setTasks(response.data.tasks || response.data || [])
     } catch (err) {
-      console.error('Failed to complete task:', err)
+      //console.error('Failed to complete task:', err)
     }
   }
 
@@ -128,7 +128,7 @@ const TaskDashboard = () => {
         const response = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
         setTasks(response.data.tasks || response.data || [])
       } catch (err) {
-        console.error('Failed to delete task:', err)
+        //console.error('Failed to delete task:', err)
       }
     }
   }
@@ -287,7 +287,7 @@ const TaskDashboard = () => {
                           {/* Task Tags and Priority */}
                           <div className="mb-3">
                             {task.tags && task.tags.length > 0 && task.tags.map((tag, index) => (
-                              <span key={index} className="badge bg-secondary me-1">{tag}</span>
+                              <span key={`${task._id}-tag-${tag}-${index}`} className="badge bg-secondary me-1">{tag}</span>
                             ))}
 
                             {task.priority === 'high' && (

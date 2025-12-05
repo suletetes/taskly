@@ -120,7 +120,7 @@ const Signup = () => {
       
       // Navigation is handled by the useEffect above
     } catch (err) {
-      console.error('Registration failed:', err);
+      //console.error('Registration failed:', err);
       // Error is handled by the AuthContext
     } finally {
       setIsSubmitting(false);

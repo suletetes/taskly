@@ -8,11 +8,11 @@ const STATIC_CACHE_URLS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
+  //console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Caching static assets');
+        //console.log('Caching static assets');
         return cache.addAll(STATIC_CACHE_URLS.filter(url => {
           // Only cache http/https URLs
           try {
@@ -24,7 +24,7 @@ self.addEventListener('install', (event) => {
         }));
       })
       .catch((error) => {
-        console.log('Cache installation failed:', error);
+        //console.log('Cache installation failed:', error);
       })
   );
   self.skipWaiting();
@@ -32,13 +32,13 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...');
+  //console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            //console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -100,13 +100,13 @@ async function cacheFirstStrategy(request) {
           await cache.put(request, networkResponse.clone());
         }
       } catch (cacheError) {
-        console.log('Failed to cache:', request.url, cacheError);
+        //console.log('Failed to cache:', request.url, cacheError);
       }
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('Failed to fetch:', request.url);
+    //console.log('Failed to fetch:', request.url);
     
     // Return a fallback response for images
     if (request.destination === 'image') {
@@ -154,10 +154,10 @@ self.addEventListener('sync', (event) => {
 async function syncOfflineData() {
   try {
     // Sync offline data when connection is restored
-    console.log('Syncing offline data...');
+    //console.log('Syncing offline data...');
     // Implementation would go here
   } catch (error) {
-    console.error('Sync failed:', error);
+    //console.error('Sync failed:', error);
   }
 }
 

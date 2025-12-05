@@ -63,7 +63,7 @@ const sanitizeInput = (req, res, next) => {
 // General rate limiter
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // Increased to 1000 requests per windowMs for normal usage
   message: {
     success: false,
     error: {
@@ -82,7 +82,7 @@ const generalLimiter = rateLimit({
 // Strict rate limiter for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 5 : 50, // More lenient in development
+  max: 50, // Reasonable limit for auth attempts
   message: {
     success: false,
     error: {

@@ -224,7 +224,7 @@ export const visualTests = {
 
   // Run comprehensive visual tests
   runAllVisualTests() {
-    console.log('🎨 Starting visual tests...')
+    //console.log(' Starting visual tests...')
     
     const results = {
       responsive: this.testResponsiveBreakpoints(),
@@ -237,7 +237,7 @@ export const visualTests = {
       timestamp: new Date().toISOString()
     }
 
-    console.log('📊 Visual test results:', results)
+    //console.log(' Visual test results:', results)
     return results
   },
 

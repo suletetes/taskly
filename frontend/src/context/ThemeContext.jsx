@@ -124,7 +124,7 @@ export const ThemeProvider = ({ children }) => {
   // Theme actions
   const setTheme = (theme) => {
     if (!Object.values(THEMES).includes(theme)) {
-      console.warn(`Invalid theme: ${theme}`);
+      //console.warn(`Invalid theme: ${theme}`);
       return;
     }
     

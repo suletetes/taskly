@@ -19,7 +19,7 @@ const Header = () => {
       showSuccess('You have been successfully logged out.')
       navigate('/', { replace: true })
     } catch (error) {
-      console.error('Logout failed:', error)
+      //console.error('Logout failed:', error)
     } finally {
       setIsLoggingOut(false)
     }

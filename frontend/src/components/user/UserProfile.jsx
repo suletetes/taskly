@@ -123,7 +123,7 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
       const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
       setTasks(tasksResponse.data.tasks || tasksResponse.data || [])
     } catch (err) {
-      console.error('Failed to complete task:', err)
+      //console.error('Failed to complete task:', err)
     }
   }
 
@@ -135,7 +135,7 @@ const UserProfile = ({ user: propUser, isOwnProfile = false }) => {
         const tasksResponse = await taskService.getUserTasks(userId, currentPage, tasksPerPage)
         setTasks(tasksResponse.data.tasks || tasksResponse.data || [])
       } catch (err) {
-        console.error('Failed to delete task:', err)
+        //console.error('Failed to delete task:', err)
       }
     }
   }

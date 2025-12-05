@@ -147,7 +147,7 @@ const AdvancedSettings = ({ className = '' }) => {
   
   const handleDeleteAccount = () => {
     // Handle account deletion
-    console.log('Account deletion requested');
+    //console.log('Account deletion requested');
     setShowDeleteConfirm(false);
   };  
 

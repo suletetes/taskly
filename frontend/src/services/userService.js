@@ -77,7 +77,49 @@ const userService = {
     }
   },
 
-  // Upload avatar
+  // Upload avatar file to Cloudinary
+  async uploadAvatarFile(formData) {
+    try {
+      for (let pair of formData.entries()) {
+        if (pair[1] instanceof File) {
+          console.log('  -', pair[0], ':', {
+            name: pair[1].name,
+            type: pair[1].type,
+            size: pair[1].size,
+            sizeInMB: (pair[1].size / (1024 * 1024)).toFixed(2)
+          });
+        } else {
+          console.log('  -', pair[0], ':', pair[1]);
+        }
+      }
+      
+
+      const response = await apiService.post('/upload/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      
+      
+      // Transform response to match expected format
+      const result = {
+        success: response.success,
+        data: {
+          avatarUrl: response.data?.avatar,
+          publicId: response.data?.publicId
+        },
+        error: response.error
+      };
+      
+      //console.log('📤 [UserService] Transformed response:', result);
+      return result;
+    } catch (error) {
+      throw this.handleUserError(error);
+    }
+  },
+
+  // Upload avatar (update avatar URL)
   async uploadAvatar(avatarData) {
     try {
       const response = await apiService.put('/users/profile/avatar', avatarData)
@@ -137,6 +179,36 @@ const userService = {
       })
       
       const response = await apiService.get(`/users?${params}`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Discover users for team invitations
+  async discoverUsers(query, page = 1, limit = 20, teamId = null) {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString()
+      })
+      
+      if (query) params.append('q', query)
+      if (teamId) params.append('teamId', teamId)
+      
+      const response = await apiService.get(`/users/discover?${params}`)
+      return response
+    } catch (error) {
+      throw this.handleUserError(error)
+    }
+  },
+
+  // Check invitation status for a user and team
+  async checkInvitationStatus(userId, teamId) {
+    try {
+      const response = await apiService.get(`/users/${userId}/invitation-status`, {
+        params: { teamId }
+      })
       return response
     } catch (error) {
       throw this.handleUserError(error)

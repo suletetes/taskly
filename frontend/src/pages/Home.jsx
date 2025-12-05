@@ -27,6 +27,7 @@ const Home = () => {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Define testimonials array first
   const testimonials = [
@@ -310,7 +311,10 @@ const Home = () => {
                       Start Free Trial
                       <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
-                    <button className="group inline-flex items-center px-8 py-4 border-2 border-secondary-300 dark:border-secondary-600 text-secondary-700 dark:text-secondary-300 font-semibold rounded-xl hover:border-primary-600 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300">
+                    <button 
+                      onClick={() => setShowVideoModal(true)}
+                      className="group inline-flex items-center px-8 py-4 border-2 border-secondary-300 dark:border-secondary-600 text-secondary-700 dark:text-secondary-300 font-semibold rounded-xl hover:border-primary-600 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300"
+                    >
                       <PlayIcon className="w-5 h-5 mr-2" />
                       Watch Demo
                     </button>
@@ -343,15 +347,16 @@ const Home = () => {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative" 
             >
               <div className="relative z-10">
                 <div className="bg-white dark:bg-secondary-800 rounded-3xl shadow-2xl p-8 border border-secondary-200 dark:border-secondary-700">
+                  {/* Organize Your Productivity */}
                   <SafeImage
                     src="/img/home.png"
                     fallbackSrc="/img/placeholder-user.png"
                     className="w-full h-auto rounded-2xl"
-                    alt="Taskly Dashboard Preview"
+                    alt="Taskly Dashboard Preview - Organize Your Productivity"
                     width="600"
                     height="400"
                   />
@@ -362,7 +367,7 @@ const Home = () => {
               <motion.div
                 animate={{ y: [-10, 10, -10] }}
                 transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -top-6 -right-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-xl"
+                className="absolute -top-6 -right-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-xl z-20"
               >
                 <CheckCircleIcon className="w-8 h-8" />
               </motion.div>
@@ -370,9 +375,75 @@ const Home = () => {
               <motion.div
                 animate={{ y: [10, -10, 10] }}
                 transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-2xl shadow-xl"
+                className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-2xl shadow-xl z-20"
               >
                 <ChartBarIcon className="w-8 h-8" />
+              </motion.div>
+
+              <motion.div
+                animate={{ 
+                  y: [-8, 8, -8],
+                  rotate: [0, 5, 0, -5, 0]
+                }}
+                transition={{ duration: 5, repeat: Infinity }}
+                className="absolute top-1/4 -right-8 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-3 rounded-xl shadow-xl z-20"
+              >
+                <UsersIcon className="w-6 h-6" />
+              </motion.div>
+
+              <motion.div
+                animate={{ 
+                  y: [8, -8, 8],
+                  x: [-5, 5, -5]
+                }}
+                transition={{ duration: 4.5, repeat: Infinity }}
+                className="absolute top-1/2 -left-8 bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-3 rounded-xl shadow-xl z-20"
+              >
+                <BoltIcon className="w-6 h-6" />
+              </motion.div>
+
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 180, 360]
+                }}
+                transition={{ duration: 6, repeat: Infinity }}
+                className="absolute bottom-1/4 -right-6 bg-gradient-to-r from-red-500 to-rose-600 text-white p-3 rounded-xl shadow-xl z-20"
+              >
+                <FireIcon className="w-6 h-6" />
+              </motion.div>
+
+              <motion.div
+                animate={{ 
+                  y: [-6, 6, -6],
+                  opacity: [0.8, 1, 0.8]
+                }}
+                transition={{ duration: 3.5, repeat: Infinity }}
+                className="absolute top-12 -left-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-2.5 rounded-lg shadow-xl z-20"
+              >
+                <ClockIcon className="w-5 h-5" />
+              </motion.div>
+
+              <motion.div
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: [1, 1.15, 1]
+                }}
+                transition={{ duration: 8, repeat: Infinity }}
+                className="absolute bottom-12 right-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-2.5 rounded-lg shadow-xl z-20"
+              >
+                <ShieldCheckIcon className="w-5 h-5" />
+              </motion.div>
+
+              <motion.div
+                animate={{ 
+                  y: [5, -5, 5],
+                  x: [3, -3, 3]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute top-3/4 left-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white p-2.5 rounded-lg shadow-xl z-20"
+              >
+                <DevicePhoneMobileIcon className="w-5 h-5" />
               </motion.div>
             </motion.div>
           </div>
@@ -720,7 +791,10 @@ const Home = () => {
                   Start Free Trial
                   <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <button className="inline-flex items-center px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:border-white hover:bg-white/10 transition-all duration-300">
+                <button 
+                  onClick={() => setShowVideoModal(true)}
+                  className="inline-flex items-center px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:border-white hover:bg-white/10 transition-all duration-300"
+                >
                   <PlayIcon className="w-5 h-5 mr-2" />
                   Watch Demo
                 </button>
@@ -816,11 +890,45 @@ const Home = () => {
 
           <div className="border-t border-secondary-800 mt-12 pt-8 text-center">
             <p className="text-secondary-400">
-              © 2024 Taskly. All rights reserved. Built with ❤️ for productivity.
+              © 2026 Taskly. All rights reserved. Built with for productivity.
             </p>
           </div>
         </div>
       </footer>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setShowVideoModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="relative w-full max-w-5xl mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="absolute -top-12 right-0 text-white hover:text-primary-400 transition-colors"
+            >
+              <XMarkIcon className="w-8 h-8" />
+            </button>
+            <div className="bg-secondary-900 rounded-2xl overflow-hidden shadow-2xl">
+              <video
+                controls
+                autoPlay
+                className="w-full h-auto"
+                poster="/img/home.png"
+              >
+                <source src="/TasklyVideoShowcase.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

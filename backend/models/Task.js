@@ -51,6 +51,11 @@ const taskSchema = new mongoose.Schema(
             ref: "Project",
             default: null,
         },
+        team: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Team",
+            default: null,
+        },
         assignee: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -240,6 +245,19 @@ const taskSchema = new mongoose.Schema(
     },
     { timestamps: true } // Auto-handling createdAt and updatedAt fields
 );
+
+// Virtual for overdue status
+taskSchema.virtual('isOverdue').get(function() {
+    if (this.status === 'completed') return false;
+    return new Date() > new Date(this.due);
+});
+
+// Virtual for progress (based on subtasks)
+taskSchema.virtual('progress').get(function() {
+    if (this.subtasks.length === 0) return 0;
+    const completed = this.subtasks.filter(st => st.completed).length;
+    return Math.round((completed / this.subtasks.length) * 100);
+});
 
 // Pre-save hook for dynamic status update and analytics
 taskSchema.pre("save", function (next) {

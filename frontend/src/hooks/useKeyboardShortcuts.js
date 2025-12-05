@@ -250,7 +250,7 @@ export const useKeyboardShortcuts = (options = {}) => {
         break;
       
       default:
-        console.warn(`Unknown shortcut action: ${action}`);
+        //console.warn(`Unknown shortcut action: ${action}`);
     }
   }, [appState, showSuccess, showInfo, onShortcut]);
 

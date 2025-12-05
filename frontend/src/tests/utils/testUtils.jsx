@@ -140,9 +140,9 @@ export const mockConsole = () => {
   const originalConsole = { ...console }
   
   beforeEach(() => {
-    console.log = jest.fn()
-    console.warn = jest.fn()
-    console.error = jest.fn()
+    //console.log = jest.fn()
+    //console.warn = jest.fn()
+    //console.error = jest.fn()
   })
 
   afterEach(() => {

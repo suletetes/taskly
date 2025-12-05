@@ -112,7 +112,7 @@ const CalendarIntegration = ({ onEventCreate, onEventUpdate, className = '' }) =
       
       setConnectedCalendars(prev => [...prev, newCalendar]);
     } catch (error) {
-      console.error('Failed to connect calendar:', error);
+      //console.error('Failed to connect calendar:', error);
     } finally {
       setIsConnecting(false);
     }

@@ -77,10 +77,11 @@ const registerSchema = Joi.object({
   avatar: Joi.string()
     .uri()
     .optional()
+    .allow('', null)
     .messages({
       'string.uri': 'Avatar must be a valid URL'
     })
-});
+}).unknown(false);
 
 const loginSchema = Joi.object({
   username: Joi.string()
@@ -194,6 +195,7 @@ const updateProfileSchema = Joi.object({
     .min(2)
     .max(50)
     .optional()
+    .allow('')
     .messages({
       'string.min': 'Full name must be at least 2 characters long',
       'string.max': 'Full name cannot exceed 50 characters'
@@ -218,13 +220,51 @@ const updateProfileSchema = Joi.object({
       'string.email': 'Please provide a valid email address'
     }),
 
-  avatar: Joi.string()
-    .uri()
+  avatar: Joi.alternatives()
+    .try(
+      Joi.string().uri(),
+      Joi.string().allow(''),
+      Joi.allow(null)
+    )
     .optional()
     .messages({
-      'string.uri': 'Avatar must be a valid URL'
-    })
-});
+      'alternatives.match': 'Avatar must be a valid URL or empty'
+    }),
+
+  bio: Joi.string()
+    .max(500)
+    .optional()
+    .allow('', null)
+    .messages({
+      'string.max': 'Bio cannot exceed 500 characters'
+    }),
+
+  jobTitle: Joi.string()
+    .max(100)
+    .optional()
+    .allow('', null)
+    .messages({
+      'string.max': 'Job title cannot exceed 100 characters'
+    }),
+
+  company: Joi.string()
+    .max(100)
+    .optional()
+    .allow('', null)
+    .messages({
+      'string.max': 'Company name cannot exceed 100 characters'
+    }),
+
+  timezone: Joi.string()
+    .optional()
+    .allow('', null),
+
+  onboarding: Joi.object({
+    completed: Joi.boolean().optional(),
+    currentStep: Joi.number().optional(),
+    completedSteps: Joi.array().items(Joi.number()).optional()
+  }).optional()
+}).unknown(true); // Allow unknown fields to pass through
 
 // Password change validation schema
 const changePasswordSchema = Joi.object({
@@ -311,6 +351,42 @@ const createTaskSchema = Joi.object({
     .messages({
       'array.max': 'Cannot have more than 10 labels',
       'string.max': 'Each label cannot exceed 50 characters'
+    }),
+
+  assignee: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Assignee must be a valid user ID',
+      'string.length': 'Assignee must be a valid user ID'
+    }),
+
+  projectId: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Project ID must be a valid MongoDB ID',
+      'string.length': 'Project ID must be a valid MongoDB ID'
+    }),
+
+  teamId: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Team ID must be a valid MongoDB ID',
+      'string.length': 'Team ID must be a valid MongoDB ID'
     })
 });
 
@@ -372,6 +448,42 @@ const updateTaskSchema = Joi.object({
     .optional()
     .messages({
       'any.only': 'Status must be one of: in-progress, failed, completed'
+    }),
+
+  assignee: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Assignee must be a valid user ID',
+      'string.length': 'Assignee must be a valid user ID'
+    }),
+
+  projectId: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Project ID must be a valid MongoDB ID',
+      'string.length': 'Project ID must be a valid MongoDB ID'
+    }),
+
+  teamId: Joi.alternatives()
+    .try(
+      Joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/),
+      Joi.string().trim().allow(''),
+      Joi.allow(null)
+    )
+    .optional()
+    .messages({
+      'string.pattern.base': 'Team ID must be a valid MongoDB ID',
+      'string.length': 'Team ID must be a valid MongoDB ID'
     })
 });
 

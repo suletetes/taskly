@@ -57,6 +57,34 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "UTC",
     },
+    jobTitle: {
+        type: String,
+        default: "",
+    },
+    company: {
+        type: String,
+        default: "",
+    },
+    
+    // Onboarding tracking
+    onboarding: {
+        completed: {
+            type: Boolean,
+            default: false,
+        },
+        currentStep: {
+            type: Number,
+            default: 0,
+        },
+        completedSteps: {
+            type: [Number],
+            default: [],
+        },
+        completedAt: {
+            type: Date,
+            default: null,
+        },
+    },
     
     // User preferences
     preferences: {
@@ -188,6 +216,16 @@ const userSchema = new mongoose.Schema({
             default: ['read', 'create'],
         },
     }],
+    
+    // Password reset fields
+    resetPasswordToken: {
+        type: String,
+        default: undefined,
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: undefined,
+    },
 });
 
 // Pre-save hook for unique username validation and updated_at
@@ -276,6 +314,11 @@ userSchema.methods.updateDailyStats = function(date, tasksCompleted = 0, timeSpe
         }
     }
 };
+
+// Indexes for search performance
+// Note: username and email already have unique indexes from schema definition
+userSchema.index({ fullname: 1 });
+userSchema.index({ fullname: 'text', username: 'text', email: 'text' });
 
 const User = mongoose.model("User", userSchema);
 export default User;

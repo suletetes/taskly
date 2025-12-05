@@ -1,43 +1,53 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
+import React, { useEffect } from 'react';
+import { useCalendar } from '../context/CalendarContext';
+import CalendarHeader from '../components/calendar/CalendarHeader';
+import MonthView from '../components/calendar/MonthView';
+import WeekView from '../components/calendar/WeekView';
+import DayView from '../components/calendar/DayView';
+import AgendaView from '../components/calendar/AgendaView';
+import { LoadingSpinner } from '../components/ui/LoadingStates';
 
 const Calendar = () => {
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
-            Calendar
-          </h1>
-          <p className="text-secondary-600 dark:text-secondary-400">
-            View and manage your tasks in calendar format.
-          </p>
-        </div>
-      </div>
+  const { currentView, fetchEvents, loading } = useCalendar();
 
-      {/* Coming Soon Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-secondary-800 rounded-xl p-12 shadow-lg border border-secondary-200 dark:border-secondary-700 text-center"
-      >
-        <CalendarIcon className="w-16 h-16 text-primary-600 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
-          Calendar View Coming Soon
-        </h2>
-        <p className="text-secondary-600 dark:text-secondary-400 max-w-md mx-auto">
-          We're working on an amazing calendar interface to help you visualize your tasks and deadlines. 
-          Stay tuned for this exciting feature!
-        </p>
-        <div className="mt-6 flex items-center justify-center text-sm text-secondary-500 dark:text-secondary-400">
-          <ClockIcon className="w-4 h-4 mr-2" />
-          Expected release: Coming soon
+  // Fetch events on mount
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  const renderView = () => {
+    switch (currentView) {
+      case 'week':
+        return <WeekView />;
+      case 'day':
+        return <DayView />;
+      case 'agenda':
+        return <AgendaView />;
+      case 'month':
+      default:
+        return <MonthView />;
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-secondary-50 dark:bg-secondary-900">
+      <CalendarHeader />
+      
+      {loading.events ? (
+        <div className="flex-1 flex items-center justify-center">
+          <LoadingSpinner size="lg" />
         </div>
-      </motion.div>
+      ) : (
+        <div className="flex-1 overflow-hidden">
+          {renderView()}
+        </div>
+      )}
     </div>
   );
 };
 
-export default Calendar;
+const CalendarWrapper = () => {
+  return <Calendar />;
+};
+
+export default CalendarWrapper;

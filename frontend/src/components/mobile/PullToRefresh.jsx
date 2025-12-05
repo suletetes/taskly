@@ -74,7 +74,7 @@ const PullToRefresh = ({
       try {
         await onRefresh?.();
       } catch (error) {
-        console.error('Refresh failed:', error);
+        //console.error('Refresh failed:', error);
       } finally {
         // Animate back to original position
         await animate(y, 0, { duration: 0.3 });
@@ -191,7 +191,7 @@ export const useRefresh = () => {
     try {
       await refreshFunction?.();
     } catch (error) {
-      console.error('Refresh failed:', error);
+      //console.error('Refresh failed:', error);
     } finally {
       setIsRefreshing(false);
     }

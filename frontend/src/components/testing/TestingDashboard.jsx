@@ -20,7 +20,7 @@ const TestingDashboard = () => {
       const results = await integrationTests.runAllTests(user?.id || user?._id)
       setTestResults(prev => ({ ...prev, integration: results }))
     } catch (error) {
-      console.error('Integration tests failed:', error)
+      //console.error('Integration tests failed:', error)
     } finally {
       setLoading(false)
     }
@@ -32,7 +32,7 @@ const TestingDashboard = () => {
       const results = visualTests.runAllVisualTests()
       setTestResults(prev => ({ ...prev, visual: results }))
     } catch (error) {
-      console.error('Visual tests failed:', error)
+      ////console.error('Visual tests failed:', error)
     } finally {
       setLoading(false)
     }
@@ -44,7 +44,7 @@ const TestingDashboard = () => {
       const results = formValidationTests.runAllFormTests()
       setTestResults(prev => ({ ...prev, forms: results }))
     } catch (error) {
-      console.error('Form tests failed:', error)
+      //console.error('Form tests failed:', error)
     } finally {
       setLoading(false)
     }

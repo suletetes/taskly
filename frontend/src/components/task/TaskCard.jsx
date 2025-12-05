@@ -1,12 +1,25 @@
 import React from 'react'
 import { formatDistanceToNow, format, isPast } from 'date-fns'
+import { 
+  UserIcon, 
+  UsersIcon, 
+  FolderIcon, 
+  ChatBubbleLeftIcon,
+  ArrowRightIcon 
+} from '@heroicons/react/24/outline'
+import Avatar from '../common/Avatar'
+import Badge from '../common/Badge'
+import './TaskCard.css'
 
 const TaskCard = ({ 
   task, 
   onToggleComplete, 
   onEdit, 
   onDelete, 
+  onAssign,
+  onViewComments,
   showUser = false,
+  showCollaboration = true,
   className = '' 
 }) => {
   const {
@@ -19,6 +32,10 @@ const TaskCard = ({
     tags = [],
     labels = [],
     user,
+    assignee,
+    project,
+    team,
+    comments = [],
     createdAt,
     updatedAt
   } = task
@@ -64,8 +81,20 @@ const TaskCard = ({
     }
   }
 
+  const handleAssign = () => {
+    if (onAssign) {
+      onAssign(task)
+    }
+  }
+
+  const handleViewComments = () => {
+    if (onViewComments) {
+      onViewComments(task)
+    }
+  }
+
   return (
-    <div className={`task-card ${getStatusClass(status)} ${className}`}>
+    <div className={`task-card ${getStatusClass(status)} ${assignee ? 'has-assignee' : ''} ${comments.length > 0 ? 'has-comments' : ''} ${className}`}>
       <div className="task-card-header">
         <div className="task-title-section">
           <button
@@ -92,6 +121,29 @@ const TaskCard = ({
         </div>
         
         <div className="task-actions">
+          {showCollaboration && onViewComments && (
+            <button
+              className="task-action-btn comments-btn"
+              onClick={handleViewComments}
+              aria-label="View comments"
+              title={`${comments.length} comment${comments.length !== 1 ? 's' : ''}`}
+            >
+              <ChatBubbleLeftIcon className="w-4 h-4" />
+              {comments.length > 0 && (
+                <span className="comment-count">{comments.length}</span>
+              )}
+            </button>
+          )}
+          {showCollaboration && onAssign && (
+            <button
+              className="task-action-btn assign-btn"
+              onClick={handleAssign}
+              aria-label="Assign task"
+              title="Assign task"
+            >
+              <UserIcon className="w-4 h-4" />
+            </button>
+          )}
           <button
             className="task-action-btn edit-btn"
             onClick={handleEdit}
@@ -127,6 +179,43 @@ const TaskCard = ({
 
       {description && (
         <p className="task-description">{description}</p>
+      )}
+
+      {/* Collaboration Info */}
+      {showCollaboration && (assignee || project || team) && (
+        <div className="task-collaboration">
+          {assignee && (
+            <div className="task-assignee">
+              <div className="flex items-center space-x-2">
+                <Avatar
+                  src={assignee.avatar}
+                  name={assignee.name}
+                  size="xs"
+                />
+                <span className="text-sm text-secondary-700 dark:text-secondary-300">
+                  {assignee.name}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {(project || team) && (
+            <div className="task-context">
+              {project && (
+                <div className="flex items-center space-x-1 text-xs text-secondary-600 dark:text-secondary-400">
+                  <FolderIcon className="w-3 h-3" />
+                  <span>{project.name}</span>
+                </div>
+              )}
+              {team && (
+                <div className="flex items-center space-x-1 text-xs text-secondary-600 dark:text-secondary-400">
+                  <UsersIcon className="w-3 h-3" />
+                  <span>{team.name}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       <div className="task-meta">
@@ -165,12 +254,12 @@ const TaskCard = ({
       {(tags.length > 0 || labels.length > 0) && (
         <div className="task-tags">
           {tags.map((tag, index) => (
-            <span key={`tag-${index}`} className="task-tag">
+            <span key={`tag-${_id}-${tag}-${index}`} className="task-tag">
               #{tag}
             </span>
           ))}
           {labels.map((label, index) => (
-            <span key={`label-${index}`} className="task-label">
+            <span key={`label-${_id}-${label}-${index}`} className="task-label">
               {label}
             </span>
           ))}
@@ -191,6 +280,28 @@ const TaskCard = ({
              status === 'failed' ? 'Failed' : status}
           </span>
         </div>
+        
+        {/* Collaboration Stats */}
+        {showCollaboration && (
+          <div className="task-collaboration-stats">
+            {comments.length > 0 && (
+              <button
+                onClick={handleViewComments}
+                className="flex items-center space-x-1 text-xs text-secondary-600 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-secondary-200"
+              >
+                <ChatBubbleLeftIcon className="w-3 h-3" />
+                <span>{comments.length}</span>
+              </button>
+            )}
+            
+            {assignee && !showUser && (
+              <div className="flex items-center space-x-1 text-xs text-secondary-600 dark:text-secondary-400">
+                <UserIcon className="w-3 h-3" />
+                <span>Assigned</span>
+              </div>
+            )}
+          </div>
+        )}
         
         <div className="task-timestamps">
           <span className="created-at">

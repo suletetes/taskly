@@ -11,7 +11,9 @@ const createTask = async (req, res) => {
     try {
         // Get userId from params (for /users/:userId/tasks) or from authenticated user (for /tasks)
         const userId = req.params.userId || req.user._id.toString();
-        const { title, due, priority, description, tags, labels } = req.body;
+        const { title, due, priority, description, tags, labels, assignee, projectId, teamId } = req.body;
+
+
 
         // Check if the user exists
         const user = await User.findById(userId);
@@ -40,7 +42,7 @@ const createTask = async (req, res) => {
         const dueDate = new Date(due);
 
         // Create a new task and associate it with the user
-        const newTask = new Task({
+        const taskData = {
             title,
             due: dueDate,
             priority,
@@ -48,7 +50,20 @@ const createTask = async (req, res) => {
             tags,
             labels,
             user: userId
-        });
+        };
+
+        // Add optional fields if provided
+        if (assignee) {
+            taskData.assignee = assignee;
+        }
+        if (projectId) {
+            taskData.project = projectId;
+        }
+        if (teamId) {
+            taskData.team = teamId;
+        }
+
+        const newTask = new Task(taskData);
 
         await newTask.save();
 
@@ -56,16 +71,23 @@ const createTask = async (req, res) => {
         user.tasks.push(newTask._id);
         await user.save();
 
+        // Populate references before sending response
+        const populatedTask = await Task.findById(newTask._id)
+            .populate('assignee', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name')
+            .populate('user', 'fullname username email avatar');
+
+
+
         res.status(201).json({
             success: true,
-            data: {
-                task: newTask
-            },
+            data: populatedTask,
             message: 'Task created successfully'
         });
 
     } catch (error) {
-        console.error('Error creating task:', error);
+        //console.error('❌ [createTask] Error creating task:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
@@ -97,7 +119,11 @@ const getTaskById = async (req, res) => {
     try {
         const { taskId } = req.params;
 
-        const task = await Task.findById(taskId).populate('user', 'fullname username email');
+        const task = await Task.findById(taskId)
+            .populate('user', 'fullname username email avatar')
+            .populate('assignee', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name');
         if (!task) {
             return res.status(404).json({
                 success: false,
@@ -142,7 +168,7 @@ const getTaskById = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching task:', error);
+        //console.error('Error fetching task:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -190,8 +216,13 @@ const getTasksByUser = async (req, res) => {
         const isAdmin = req.user.role === 'admin';
         const canViewAllTasks = isOwnProfile || isAdmin;
 
-        // Build filter query
-        let filterQuery = { user: userId };
+        // Build filter query - include tasks created by user OR assigned to user
+        let filterQuery = {
+            $or: [
+                { user: userId },      // Tasks created by user
+                { assignee: userId }   // Tasks assigned to user
+            ]
+        };
 
         // For public viewing, only show completed tasks
         if (!canViewAllTasks) {
@@ -222,6 +253,10 @@ const getTasksByUser = async (req, res) => {
 
         // Fetch paginated tasks
         const rawTasks = await Task.find(filterQuery)
+            .populate('assignee', 'fullname username email avatar')
+            .populate('user', 'fullname username email avatar')
+            .populate('project', 'name description')
+            .populate('team', 'name')
             .skip((page - 1) * perPage)
             .limit(perPage)
             .sort(sortObject);
@@ -240,6 +275,14 @@ const getTasksByUser = async (req, res) => {
                 ...task._doc,
                 dynamicStatus
             };
+        });
+
+        console.log('📋 [Backend] Sending tasks response:', {
+            userId,
+            tasksCount: tasks.length,
+            page,
+            totalTasks,
+            totalPages
         });
 
         res.json({
@@ -266,7 +309,7 @@ const getTasksByUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching user tasks:', error);
+        //console.error('Error fetching user tasks:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -299,8 +342,29 @@ const updateTask = async (req, res) => {
             });
         }
 
-        // Check authorization - users can only update their own tasks or admin can update any
-        if (req.user._id.toString() !== task.user.toString() && req.user.role !== 'admin') {
+        // Check authorization
+        const isOwner = req.user._id.toString() === task.user.toString();
+        const isAssignee = task.assignee && req.user._id.toString() === task.assignee.toString();
+        const isAdmin = req.user.role === 'admin';
+
+        // Assignees can only update status, not other fields
+        if (isAssignee && !isOwner && !isAdmin) {
+            // Check if trying to update fields other than status
+            const allowedFields = ['status'];
+            const updateFields = Object.keys(updates);
+            const hasUnauthorizedFields = updateFields.some(field => !allowedFields.includes(field));
+            
+            if (hasUnauthorizedFields) {
+                return res.status(403).json({
+                    success: false,
+                    error: {
+                        message: 'Assignees can only update task status',
+                        code: 'UNAUTHORIZED'
+                    }
+                });
+            }
+        } else if (!isOwner && !isAdmin) {
+            // Not owner, assignee, or admin - no permission
             return res.status(403).json({
                 success: false,
                 error: {
@@ -342,7 +406,7 @@ const updateTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error updating task:', error);
+        //console.error('Error updating task:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
@@ -409,7 +473,7 @@ const completeTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error completing task:', error);
+        //console.error('Error completing task:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -464,7 +528,7 @@ const deleteTask = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error deleting task:', error);
+        //console.error('Error deleting task:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -527,7 +591,7 @@ const getUserProductivityStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching productivity stats:', error);
+        //console.error('Error fetching productivity stats:', error);
         res.status(500).json({
             success: false,
             error: {
@@ -560,8 +624,15 @@ const updateTaskStatus = async (req, res) => {
             });
         }
 
-        // Check authorization - users can only update their own tasks or admin can update any
-        if (req.user._id.toString() !== task.user.toString() && req.user.role !== 'admin') {
+        // Check authorization - users can update status if they are:
+        // 1. The task owner (creator)
+        // 2. The assignee
+        // 3. An admin
+        const isOwner = req.user._id.toString() === task.user.toString();
+        const isAssignee = task.assignee && req.user._id.toString() === task.assignee.toString();
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAssignee && !isAdmin) {
             return res.status(403).json({
                 success: false,
                 error: {
@@ -588,7 +659,7 @@ const updateTaskStatus = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error updating task status:', error);
+        //console.error('Error updating task status:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({
@@ -683,7 +754,7 @@ const getTaskStatusSummary = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching task status summary:', error);
+        //console.error('Error fetching task status summary:', error);
         res.status(500).json({
             success: false,
             error: {

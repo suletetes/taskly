@@ -29,7 +29,7 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // Log error details
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    //console.error('ErrorBoundary caught an error:', error, errorInfo);
     
     this.setState({
       error,
@@ -55,7 +55,7 @@ class ErrorBoundary extends React.Component {
     // Example: Send to error reporting service
     // errorReportingService.report(errorReport);
     
-    console.error('Error Report:', errorReport);
+    //console.error('Error Report:', errorReport);
   };
 
   handleRetry = () => {
@@ -231,7 +231,7 @@ export class AsyncErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('AsyncErrorBoundary caught an error:', error, errorInfo);
+    //console.error('AsyncErrorBoundary caught an error:', error, errorInfo);
     
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -248,7 +248,7 @@ export class AsyncErrorBoundary extends React.Component {
   }
 
   handleUnhandledRejection = (event) => {
-    console.error('Unhandled promise rejection:', event.reason);
+    //console.error('Unhandled promise rejection:', event.reason);
     
     this.setState({
       hasError: true,
@@ -300,7 +300,7 @@ export const useErrorHandler = () => {
   }, []);
 
   const captureError = React.useCallback((error) => {
-    console.error('Error captured:', error);
+    //console.error('Error captured:', error);
     setError(error);
   }, []);
 

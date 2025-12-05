@@ -1,385 +1,522 @@
 # Taskly Frontend
 
-A modern, responsive React application for task management with a beautiful UI, real-time updates, and comprehensive user experience features.
+Modern, responsive task management application built with React and Vite.
 
-##  Features
+## Features
 
-- **Modern React** with Hooks and Context API
-- **Responsive Design** with Bootstrap 5
-- **Real-time Updates** with optimistic UI
-- **Image Upload** with Cloudinary integration
-- **Progressive Web App** (PWA) ready
-- **Performance Optimized** with lazy loading
-- **Accessibility** compliant (WCAG 2.1)
-- **SEO Optimized** with meta tags
+- **Modern UI**: Clean, intuitive interface with dark mode support
+- **Real-time Updates**: Instant synchronization across devices
+- **Responsive Design**: Mobile-first approach, works on all devices
+- **Rich Task Management**: Create, edit, organize tasks with priorities and tags
+- **Team Collaboration**: Work together with team members on projects
+- **Analytics Dashboard**: Track productivity and completion rates
+- **Calendar View**: Visualize tasks in calendar format
+- **File Uploads**: Avatar and attachment management
+- **Notifications**: Real-time in-app notifications
 
-##  Prerequisites
+## Tech Stack
 
-- Node.js (v16 or higher)
-- npm or yarn package manager
-- Modern web browser
+- **Framework**: React 18
+- **Build Tool**: Vite
+- **Routing**: React Router v6
+- **State Management**: Context API
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **HTTP Client**: Axios
+- **Date Handling**: date-fns
+- **Icons**: Heroicons
 
-##  Installation
+## Prerequisites
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd taskly/frontend
-   ```
+- Node.js 18 or higher
+- npm or yarn
+- Backend API running (see backend/README.md)
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+## Installation
 
-3. **Environment Configuration**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update the `.env` file with your configuration:
-   ```env
-   VITE_API_URL=http://localhost:5000/api
-   VITE_APP_NAME=Taskly
-   VITE_APP_VERSION=1.0.0
-   ```
+### 1. Install Dependencies
 
-## Running the Application
+```bash
+cd frontend
+npm install
+```
 
-### Development Mode
+### 2. Environment Configuration
+
+Create a `.env` file in the frontend directory:
+
+```env
+# API Configuration
+VITE_API_URL=http://localhost:5000/api
+
+# App Configuration
+VITE_APP_NAME=Taskly
+VITE_APP_VERSION=1.0.0
+```
+
+## Development
+
+### Start Development Server
+
 ```bash
 npm run dev
 ```
-The application will start on `http://localhost:3000` with hot reloading.
 
-### Production Build
-```bash
-npm run build
-```
-Builds the app for production to the `dist` folder.
+Application runs on `http://localhost:3000` with hot module replacement.
 
-### Preview Production Build
-```bash
-npm run preview
-```
-Serves the production build locally for testing.
-
-##  Project Structure
-
-```
-frontend/
-├── public/                 # Static assets
-│   ├── img/               # Images and icons
-│   ├── fonts/             # Custom fonts
-│   └── manifest.json      # PWA manifest
-├── src/
-│   ├── components/        # Reusable components
-│   │   ├── common/        # Common UI components
-│   │   ├── task/          # Task-related components
-│   │   └── user/          # User-related components
-│   ├── context/           # React Context providers
-│   ├── hooks/             # Custom React hooks
-│   ├── pages/             # Page components
-│   ├── services/          # API services
-│   ├── styles/            # CSS and styling
-│   ├── utils/             # Utility functions
-│   └── App.jsx            # Main App component
-├── .env                   # Environment variables
-├── vite.config.js         # Vite configuration
-└── package.json           # Dependencies and scripts
-```
-
-##  UI Components
-
-### Core Components
-
-#### Header Navigation
-- Responsive navigation bar
-- User authentication status
-- Mobile-friendly hamburger menu
-
-#### Task Management
-- Task creation and editing forms
-- Priority selection with visual feedback
-- Tag management system
-- Status tracking and updates
-
-#### User Profile
-- Profile information display
-- Avatar upload functionality
-- Productivity statistics
-- Task history and analytics
-
-#### Common Components
-- Loading spinners
-- Error boundaries
-- Safe image loading
-- Document head management
-
-##  Key Features
-
-### Authentication
-- Session-based authentication
-- Automatic token refresh
-- Protected route handling
-- Graceful error handling
-
-### Task Management
-- Create, read, update, delete tasks
-- Priority levels (Low, Medium, High)
-- Due date management
-- Tag system for organization
-- Status tracking (In Progress, Completed, Failed)
-
-### User Experience
-- Responsive design for all devices
-- Optimistic UI updates
-- Real-time feedback
-- Accessibility features
-- Performance optimization
-
-### Image Handling
-- Avatar upload with Cloudinary
-- Image optimization and resizing
-- Fallback image system
-- Lazy loading for performance
-
-##  Pages and Routes
-
-### Public Routes
-- `/` - Home page with app overview
-- `/users` - Public user directory
-- `/users/:userId` - Public user profiles
-- `/login` - User authentication
-- `/signup` - User registration
-
-### Protected Routes
-- `/profile` - User dashboard and profile
-- `/tasks/new` - Create new task
-- `/tasks/:taskId/edit` - Edit existing task
-- `/profile/edit` - Edit user profile
-
-##  Security Features
-
-- **HTTPS Enforcement** in production
-- **Content Security Policy** headers
-- **XSS Protection** with sanitized inputs
-- **CSRF Protection** with session tokens
-- **Secure Cookie Handling**
-- **Input Validation** on all forms
-
-##  Progressive Web App (PWA)
-
-- **Service Worker** for offline functionality
-- **App Manifest** for installation
-- **Caching Strategy** for performance
-- **Push Notifications** ready
-- **Offline Support** for core features
-
-##  Styling and Theming
-
-### CSS Architecture
-- **Bootstrap 5** for responsive grid and components
-- **Custom CSS** for brand-specific styling
-- **CSS Variables** for theming
-- **Responsive Design** with mobile-first approach
-
-### Color Scheme
-- Primary: Modern blue gradient
-- Secondary: Professional grays
-- Success: Green for completed tasks
-- Warning: Yellow for medium priority
-- Danger: Red for high priority and errors
-
-## Testing
+### Available Scripts
 
 ```bash
-# Run unit tests
-npm run test
+# Start development server
+npm run dev
 
-# Run tests with coverage
-npm run test:coverage
-
-# Run end-to-end tests
-npm run test:e2e
-
-# Run linting
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-```
-
-##  Build and Deployment
-
-### Production Build
-```bash
 # Build for production
 npm run build
 
-# The build artifacts will be stored in the `dist/` directory
+# Preview production build
+npm run preview
+
+# Run linter
+npm run lint
+
+# Run tests
+npm test
 ```
 
-### Static Hosting (Recommended)
+## Project Structure
 
-#### Netlify
+```
+frontend/
+├── public/              # Static assets
+├── src/
+│   ├── assets/         # Images, fonts, etc.
+│   ├── components/     # Reusable components
+│   │   ├── common/    # Shared components
+│   │   ├── layout/    # Layout components
+│   │   ├── task/      # Task-related components
+│   │   ├── team/      # Team components
+│   │   └── project/   # Project components
+│   ├── context/        # React Context providers
+│   │   ├── AuthContext.jsx
+│   │   ├── TaskContext.jsx
+│   │   └── ThemeContext.jsx
+│   ├── hooks/          # Custom React hooks
+│   ├── pages/          # Page components
+│   │   ├── Login.jsx
+│   │   ├── Tasks.jsx
+│   │   ├── Projects.jsx
+│   │   └── Teams.jsx
+│   ├── services/       # API services
+│   │   ├── api.js
+│   │   ├── taskService.js
+│   │   └── authService.js
+│   ├── utils/          # Utility functions
+│   ├── App.jsx         # Root component
+│   ├── main.jsx        # Entry point
+│   └── index.css       # Global styles
+├── .env.example        # Environment template
+├── vite.config.js      # Vite configuration
+├── tailwind.config.js  # Tailwind configuration
+└── package.json
+```
+
+## Building for Production
+
+### 1. Configure Environment
+
+Create `.env.production`:
+
+```env
+VITE_API_URL=https://api.yourdomain.com/api
+VITE_APP_NAME=Taskly
+VITE_APP_VERSION=1.0.0
+```
+
+### 2. Build Application
+
 ```bash
-# Build command
 npm run build
-
-# Publish directory
-dist
-
-# Environment variables
-VITE_API_URL=https://your-api-domain.com/api
 ```
+
+This creates an optimized production build in the `dist/` directory.
+
+### 3. Test Production Build Locally
+
+```bash
+npm run preview
+```
+
+Preview runs on `http://localhost:4173`
+
+## Production Deployment
+
+### Option 1: Static Hosting (Vercel, Netlify)
 
 #### Vercel
+
 ```bash
-# Build command
-npm run build
+# Install Vercel CLI
+npm install -g vercel
 
-# Output directory
-dist
+# Deploy
+vercel
 
-# Environment variables
-VITE_API_URL=https://your-api-domain.com/api
+# Deploy to production
+vercel --prod
 ```
 
-#### AWS S3 + CloudFront
-```bash
-# Build and sync to S3
-npm run build
-aws s3 sync dist/ s3://your-bucket-name --delete
-```
+**vercel.json** configuration:
 
-### Docker Deployment
-```dockerfile
-# Multi-stage build
-FROM node:16-alpine as build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-## ⚡ Performance Optimization
-
-### Code Splitting
-- Route-based code splitting
-- Component lazy loading
-- Dynamic imports for heavy components
-
-### Asset Optimization
-- Image compression and optimization
-- Font loading optimization
-- CSS and JS minification
-- Tree shaking for unused code
-
-### Caching Strategy
-- Browser caching for static assets
-- Service worker caching
-- API response caching
-- Image caching with Cloudinary
-
-##  Browser Support
-
-- **Chrome** 90+
-- **Firefox** 88+
-- **Safari** 14+
-- **Edge** 90+
-- **Mobile browsers** (iOS Safari, Chrome Mobile)
-
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `VITE_API_URL` | Backend API URL | http://localhost:5000/api | Yes |
-| `VITE_APP_NAME` | Application name | Taskly | No |
-| `VITE_APP_VERSION` | Application version | 1.0.0 | No |
-| `VITE_ENABLE_ANALYTICS` | Enable analytics | false | No |
-| `VITE_ENABLE_PWA` | Enable PWA features | true | No |
-
-### Vite Configuration
-
-The application uses Vite for fast development and optimized builds:
-
-```javascript
-// vite.config.js
-export default {
-  plugins: [react()],
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['bootstrap']
-        }
-      }
+```json
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  },
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': 'http://localhost:5000'
-    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://api.yourdomain.com/api"
   }
 }
 ```
 
-##  Contributing
+#### Netlify
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for new functionality
-5. Run linting and tests (`npm run lint && npm test`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+```bash
+# Install Netlify CLI
+npm install -g netlify-cli
 
-### Code Style
-- Use ESLint and Prettier for code formatting
-- Follow React best practices
-- Write meaningful commit messages
-- Add JSDoc comments for complex functions
+# Deploy
+netlify deploy
 
-##  License
+# Deploy to production
+netlify deploy --prod
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**netlify.toml** configuration:
 
-##  Support
+```toml
+[build]
+  command = "npm run build"
+  publish = "dist"
 
-For support and questions:
-- Create an issue on GitHub
-- Check the documentation
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  VITE_API_URL = "https://api.yourdomain.com/api"
+```
+
+### Option 2: Docker Deployment
+
+**Dockerfile**:
+
+```dockerfile
+# Build stage
+FROM node:18-alpine as build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+**nginx.conf**:
+
+```nginx
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # SPA routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+}
+```
+
+**Build and run**:
+
+```bash
+# Build image
+docker build -t taskly-frontend .
+
+# Run container
+docker run -p 80:80 taskly-frontend
+```
+
+### Option 3: Traditional Web Server
+
+#### Build
+
+```bash
+npm run build
+```
+
+#### Deploy to Server
+
+```bash
+# Copy dist folder to server
+scp -r dist/* user@server:/var/www/taskly
+
+# Or use rsync
+rsync -avz dist/ user@server:/var/www/taskly/
+```
+
+#### Nginx Configuration
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    root /var/www/taskly;
+    index index.html;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json;
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # SPA routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+}
+```
+
+#### Apache Configuration (.htaccess)
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Gzip compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType application/x-javascript "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+</IfModule>
+```
+
+## Environment Variables
+
+### Development
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Production
+
+```env
+VITE_API_URL=https://api.yourdomain.com/api
+```
+
+**Important**: All environment variables must be prefixed with `VITE_` to be accessible in the application.
+
+## Performance Optimization
+
+### Code Splitting
+
+The application uses React lazy loading for route-based code splitting:
+
+```javascript
+const Tasks = lazy(() => import('./pages/Tasks'));
+const Projects = lazy(() => import('./pages/Projects'));
+```
+
+### Image Optimization
+
+- Use WebP format when possible
+- Implement lazy loading for images
+- Use appropriate image sizes
+
+### Bundle Analysis
+
+```bash
+npm run build -- --mode analyze
+```
+
+## Browser Support
+
+- Chrome (last 2 versions)
+- Firefox (last 2 versions)
+- Safari (last 2 versions)
+- Edge (last 2 versions)
+
+## Troubleshooting
+
+### Build Fails
+
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+### API Connection Issues
+
+- Verify `VITE_API_URL` is correct
+- Check CORS configuration on backend
+- Ensure backend is running
+
+### Routing Issues in Production
+
+- Verify server is configured for SPA routing
+- Check that all requests fallback to `index.html`
+
+### Environment Variables Not Working
+
+- Ensure variables are prefixed with `VITE_`
+- Rebuild after changing environment variables
+- Check `.env` file is in the correct location
+
+## Security Considerations
+
+1. **Environment Variables**: Never commit `.env` files with sensitive data
+2. **API Keys**: Use environment variables for all API keys
+3. **HTTPS**: Always use HTTPS in production
+4. **CSP**: Implement Content Security Policy headers
+5. **XSS Protection**: Sanitize user inputs
+6. **Dependencies**: Keep dependencies updated
+
+## Performance Metrics
+
+Target metrics for production:
+
+- **First Contentful Paint**: < 1.5s
+- **Time to Interactive**: < 3.5s
+- **Lighthouse Score**: > 90
+
+## Monitoring
+
+### Error Tracking
+
+Consider integrating:
+- Sentry for error tracking
+- Google Analytics for usage analytics
+- LogRocket for session replay
+
+### Performance Monitoring
+
+- Use Lighthouse CI for automated performance testing
+- Monitor Core Web Vitals
+- Track bundle size changes
+
+## CI/CD Pipeline Example
+
+**GitHub Actions** (.github/workflows/deploy.yml):
+
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+        
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
+          working-directory: ./frontend
+```
+
+## Support
+
+For issues and questions:
+- Check documentation
 - Review browser console for errors
+- Verify API connectivity
 
-##  Changelog
-
-### v1.0.0
-- Initial release
-- Complete task management interface
-- User authentication and profiles
-- Responsive design
-- PWA features
-- Production-ready build
-
-##  Acknowledgments
-
-- React team for the amazing framework
-- Bootstrap team for the UI components
-- Vite team for the build tool
-- All contributors and testers
