@@ -342,8 +342,29 @@ const updateTask = async (req, res) => {
             });
         }
 
-        // Check authorization - users can only update their own tasks or admin can update any
-        if (req.user._id.toString() !== task.user.toString() && req.user.role !== 'admin') {
+        // Check authorization
+        const isOwner = req.user._id.toString() === task.user.toString();
+        const isAssignee = task.assignee && req.user._id.toString() === task.assignee.toString();
+        const isAdmin = req.user.role === 'admin';
+
+        // Assignees can only update status, not other fields
+        if (isAssignee && !isOwner && !isAdmin) {
+            // Check if trying to update fields other than status
+            const allowedFields = ['status'];
+            const updateFields = Object.keys(updates);
+            const hasUnauthorizedFields = updateFields.some(field => !allowedFields.includes(field));
+            
+            if (hasUnauthorizedFields) {
+                return res.status(403).json({
+                    success: false,
+                    error: {
+                        message: 'Assignees can only update task status',
+                        code: 'UNAUTHORIZED'
+                    }
+                });
+            }
+        } else if (!isOwner && !isAdmin) {
+            // Not owner, assignee, or admin - no permission
             return res.status(403).json({
                 success: false,
                 error: {
@@ -603,8 +624,15 @@ const updateTaskStatus = async (req, res) => {
             });
         }
 
-        // Check authorization - users can only update their own tasks or admin can update any
-        if (req.user._id.toString() !== task.user.toString() && req.user.role !== 'admin') {
+        // Check authorization - users can update status if they are:
+        // 1. The task owner (creator)
+        // 2. The assignee
+        // 3. An admin
+        const isOwner = req.user._id.toString() === task.user.toString();
+        const isAssignee = task.assignee && req.user._id.toString() === task.assignee.toString();
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAssignee && !isAdmin) {
             return res.status(403).json({
                 success: false,
                 error: {

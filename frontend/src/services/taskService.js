@@ -271,6 +271,10 @@ const taskService = {
 
   // Handle task service errors
   handleTaskError(error) {
+    console.error('🔴 [taskService] handleTaskError called with:', error);
+    console.error('🔴 [taskService] error.response:', error.response);
+    console.error('🔴 [taskService] error.response.data:', error.response?.data);
+    
     let message = 'A task service error occurred'
     
     if (error.response?.data?.error?.message) {
@@ -285,6 +289,9 @@ const taskService = {
     const taskError = new Error(message)
     taskError.status = error.response?.status
     taskError.code = error.response?.data?.error?.code
+    taskError.response = error.response // Preserve the full response
+    
+    console.error('🔴 [taskService] Created taskError:', taskError);
     
     return taskError
   }

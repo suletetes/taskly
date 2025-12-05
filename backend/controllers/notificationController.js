@@ -13,8 +13,9 @@ export const getUserNotifications = async (req, res) => {
     const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 20));
 
-    // Build query
-    const query = { recipient: req.user.id };
+    // Build query - use _id from req.user
+    const userId = req.user._id || req.user.id;
+    const query = { recipient: userId };
     if (read !== undefined) {
       query.read = read === 'true';
     }
@@ -30,7 +31,7 @@ export const getUserNotifications = async (req, res) => {
     const total = await Notification.countDocuments(query);
 
     // Get unread count
-    const unreadCount = await Notification.getUnreadCount(req.user.id);
+    const unreadCount = await Notification.getUnreadCount(userId);
 
     return successResponse(res, {
       notifications,
@@ -43,7 +44,7 @@ export const getUserNotifications = async (req, res) => {
       }
     }, 'Notifications fetched successfully');
   } catch (error) {
-    //console.error('Error fetching notifications:', error);
+    console.error('Error fetching notifications:', error);
     return errorResponse(res, 'Failed to fetch notifications', 'FETCH_ERROR', 500);
   }
 };
@@ -54,14 +55,15 @@ export const getUserNotifications = async (req, res) => {
  */
 export const getUnreadCount = async (req, res) => {
   try {
-    if (!req.user || !req.user.id) {
+    const userId = req.user._id || req.user.id;
+    if (!req.user || !userId) {
       return errorResponse(res, 'User not authenticated', 'AUTH_ERROR', 401);
     }
     
-    const unreadCount = await Notification.getUnreadCount(req.user.id);
+    const unreadCount = await Notification.getUnreadCount(userId);
     return successResponse(res, { unreadCount }, 'Unread count fetched successfully');
   } catch (error) {
-    //console.error('Error fetching unread count:', error);
+    console.error('Error fetching unread count:', error);
     return errorResponse(res, 'Failed to fetch unread count', 'FETCH_ERROR', 500);
   }
 };
@@ -73,6 +75,7 @@ export const getUnreadCount = async (req, res) => {
 export const markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
+    const userId = req.user._id || req.user.id;
 
     const notification = await Notification.findById(notificationId);
     if (!notification) {
@@ -80,7 +83,7 @@ export const markAsRead = async (req, res) => {
     }
 
     // Check if user is the recipient
-    if (notification.recipient.toString() !== req.user.id) {
+    if (notification.recipient.toString() !== userId.toString()) {
       return errorResponse(res, 'Unauthorized', 'UNAUTHORIZED', 403);
     }
 
@@ -89,7 +92,7 @@ export const markAsRead = async (req, res) => {
 
     return successResponse(res, notification, 'Notification marked as read');
   } catch (error) {
-    //console.error('Error marking notification as read:', error);
+    console.error('Error marking notification as read:', error);
     return errorResponse(res, 'Failed to mark notification as read', 'UPDATE_ERROR', 500);
   }
 };
@@ -100,10 +103,11 @@ export const markAsRead = async (req, res) => {
  */
 export const markAllAsRead = async (req, res) => {
   try {
-    await Notification.markAllAsRead(req.user.id);
+    const userId = req.user._id || req.user.id;
+    await Notification.markAllAsRead(userId);
     return successResponse(res, null, 'All notifications marked as read');
   } catch (error) {
-    //console.error('Error marking all notifications as read:', error);
+    console.error('Error marking all notifications as read:', error);
     return errorResponse(res, 'Failed to mark all notifications as read', 'UPDATE_ERROR', 500);
   }
 };
@@ -115,6 +119,7 @@ export const markAllAsRead = async (req, res) => {
 export const deleteNotification = async (req, res) => {
   try {
     const { notificationId } = req.params;
+    const userId = req.user._id || req.user.id;
 
     const notification = await Notification.findById(notificationId);
     if (!notification) {
@@ -122,14 +127,14 @@ export const deleteNotification = async (req, res) => {
     }
 
     // Check if user is the recipient
-    if (notification.recipient.toString() !== req.user.id) {
+    if (notification.recipient.toString() !== userId.toString()) {
       return errorResponse(res, 'Unauthorized', 'UNAUTHORIZED', 403);
     }
 
     await Notification.findByIdAndDelete(notificationId);
     return successResponse(res, null, 'Notification deleted successfully');
   } catch (error) {
-    //console.error('Error deleting notification:', error);
+    console.error('Error deleting notification:', error);
     return errorResponse(res, 'Failed to delete notification', 'DELETE_ERROR', 500);
   }
 };
@@ -140,10 +145,11 @@ export const deleteNotification = async (req, res) => {
  */
 export const deleteAllNotifications = async (req, res) => {
   try {
-    await Notification.deleteMany({ recipient: req.user.id });
+    const userId = req.user._id || req.user.id;
+    await Notification.deleteMany({ recipient: userId });
     return successResponse(res, null, 'All notifications deleted successfully');
   } catch (error) {
-    //console.error('Error deleting all notifications:', error);
+    console.error('Error deleting all notifications:', error);
     return errorResponse(res, 'Failed to delete all notifications', 'DELETE_ERROR', 500);
   }
 };

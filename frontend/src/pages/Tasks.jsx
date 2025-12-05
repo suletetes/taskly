@@ -196,7 +196,8 @@ const Tasks = () => {
       console.error('❌ [Tasks] Error details:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
+        fullError: error
       });
       
       // Extract detailed error message
@@ -205,9 +206,12 @@ const Tasks = () => {
       if (error.response?.data?.error) {
         const apiError = error.response.data.error;
         
+        console.error('❌ [Tasks] API Error:', apiError);
+        
         // If there are validation details, show them
         if (apiError.details && Array.isArray(apiError.details) && apiError.details.length > 0) {
-          errorMessage = apiError.details.map(d => d.message).join(', ');
+          console.error('❌ [Tasks] Validation errors:', apiError.details);
+          errorMessage = apiError.details.map(d => `${d.field}: ${d.message}`).join(', ');
         } else if (apiError.message) {
           errorMessage = apiError.message;
         }
@@ -215,6 +219,7 @@ const Tasks = () => {
         errorMessage = error.message;
       }
       
+      console.error('❌ [Tasks] Final error message:', errorMessage);
       showError(errorMessage);
     } finally {
       setSubmitting(false);
