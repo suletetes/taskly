@@ -4,6 +4,8 @@ const taskService = {
   // Get user's tasks with pagination and filtering
   async getUserTasks(userId, options = {}) {
     try {
+      console.log('📋 [taskService] getUserTasks called with:', { userId, options });
+      
       const {
         page = 1,
         limit = 10,
@@ -25,10 +27,19 @@ const taskService = {
       if (priority) params.append('priority', priority)
       if (search) params.append('search', search)
       
+      const endpoint = `/tasks?${params}`;
+      console.log('📋 [taskService] Calling endpoint:', endpoint);
+      
       // Use the simpler /tasks endpoint that gets tasks for current authenticated user
-      const response = await apiService.get(`/tasks?${params}`)
+      const response = await apiService.get(endpoint)
+      
+      console.log('📋 [taskService] Response received:', response);
+      console.log('📋 [taskService] Response.data:', response.data);
+      console.log('📋 [taskService] Response.tasks:', response.tasks);
+      
       return response
     } catch (error) {
+      console.error('❌ [taskService] getUserTasks error:', error);
       throw this.handleTaskError(error)
     }
   },

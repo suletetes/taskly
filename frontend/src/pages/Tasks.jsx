@@ -46,20 +46,24 @@ const Tasks = () => {
 
   const loadTasks = async () => {
     if (!user) {
+      console.log('📋 [Tasks] No user found, skipping load');
       return;
     }
 
     try {
       setLoading(true);
+      console.log('📋 [Tasks] Loading tasks...', { projectId, userId: user._id });
       
       let response;
       if (projectId) {
+        console.log('📋 [Tasks] Fetching project tasks for:', projectId);
         response = await taskService.getProjectTasks(projectId, {
           limit: 100,
           sortBy: 'createdAt',
           sortOrder: 'desc'
         });
       } else {
+        console.log('📋 [Tasks] Fetching user tasks');
         response = await taskService.getUserTasks(null, {
           limit: 100,
           sortBy: 'createdAt',
@@ -67,19 +71,56 @@ const Tasks = () => {
         });
       }
       
-      // apiService.get() returns response.data directly
-      // For project tasks: backend sends array directly, so response is the array
-      // For user tasks: backend sends {tasks: [...], ...}, so response.tasks is the array
-      const tasksData = Array.isArray(response) ? response : (response.tasks || response.data || []);
+      console.log('📋 [Tasks] Raw response:', response);
+      console.log('📋 [Tasks] Response type:', typeof response);
+      console.log('📋 [Tasks] Is array?', Array.isArray(response));
+      
+      // Handle different response formats:
+      // 1. If response has 'data' property, extract it first
+      // 2. Then check if it's an array or has 'tasks' property
+      let tasksData;
+      
+      if (response.data) {
+        // Response is {success: true, data: {...}}
+        const dataObj = response.data;
+        tasksData = Array.isArray(dataObj) ? dataObj : (dataObj.tasks || []);
+      } else {
+        // Response is already the data object
+        tasksData = Array.isArray(response) ? response : (response.tasks || []);
+      }
+      
+      console.log('📋 [Tasks] Extracted tasks data:', tasksData);
+      console.log('📋 [Tasks] Tasks count:', Array.isArray(tasksData) ? tasksData.length : 'not an array');
       
       setTasks(Array.isArray(tasksData) ? tasksData : []);
     } catch (error) {
-      console.error('Failed to load tasks:', error);
+      console.error('❌ [Tasks] Failed to load tasks:', error);
+      console.error('❌ [Tasks] Error response:', error.response?.data);
       showError('Failed to load tasks. Please try again.');
       setTasks([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Permission checks
+  const canEditTask = (task) => {
+    // User can edit if they created the task (they are the owner)
+    return task.user?._id === user._id || task.user === user._id;
+  };
+
+  const canDeleteTask = (task) => {
+    // User can delete if they created the task (they are the owner)
+    return task.user?._id === user._id || task.user === user._id;
+  };
+
+  const canToggleComplete = (task) => {
+    // User can toggle complete if:
+    // 1. They created the task (owner), OR
+    // 2. They are assigned to the task
+    const isOwner = task.user?._id === user._id || task.user === user._id;
+    const isAssignee = task.assignee?._id === user._id || task.assignee === user._id;
+    return isOwner || isAssignee;
   };
 
   // Task operations
@@ -89,6 +130,10 @@ const Tasks = () => {
   };
 
   const handleEditTask = (task) => {
+    if (!canEditTask(task)) {
+      showError('You do not have permission to edit this task');
+      return;
+    }
     setEditingTask(task);
     setShowTaskModal(true);
   };
@@ -177,6 +222,11 @@ const Tasks = () => {
   };
 
   const handleDeleteTask = async (task) => {
+    if (!canDeleteTask(task)) {
+      showError('You do not have permission to delete this task');
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this task?')) return;
 
     try {
@@ -184,12 +234,16 @@ const Tasks = () => {
       showSuccess('Task deleted successfully!');
       setTasks(prev => (Array.isArray(prev) ? prev : []).filter(t => t._id !== task._id));
     } catch (error) {
-
       showError('Failed to delete task. Please try again.');
     }
   };
 
   const handleToggleComplete = async (task) => {
+    if (!canToggleComplete(task)) {
+      showError('You do not have permission to update this task');
+      return;
+    }
+
     try {
       const newStatus = task.status === 'completed' ? 'in-progress' : 'completed';
       const response = await taskService.updateTaskStatus(task._id, newStatus);
@@ -198,7 +252,6 @@ const Tasks = () => {
         t._id === task._id ? { ...t, status: newStatus } : t
       ));
     } catch (error) {
-
       showError('Failed to update task status. Please try again.');
     }
   };
@@ -444,18 +497,29 @@ const Tasks = () => {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditTask(task)}
-                    className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTask(task)}
-                    className="p-2 text-secondary-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
+                  {canEditTask(task) && (
+                    <button
+                      onClick={() => handleEditTask(task)}
+                      className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                      title="Edit task"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                  {canDeleteTask(task) && (
+                    <button
+                      onClick={() => handleDeleteTask(task)}
+                      className="p-2 text-secondary-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Delete task"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                  {!canEditTask(task) && !canDeleteTask(task) && (
+                    <span className="text-xs text-secondary-500 dark:text-secondary-400 italic px-2">
+                      Assigned to you
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>

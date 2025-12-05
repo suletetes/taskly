@@ -277,6 +277,14 @@ const getTasksByUser = async (req, res) => {
             };
         });
 
+        console.log('📋 [Backend] Sending tasks response:', {
+            userId,
+            tasksCount: tasks.length,
+            page,
+            totalTasks,
+            totalPages
+        });
+
         res.json({
             success: true,
             data: {
