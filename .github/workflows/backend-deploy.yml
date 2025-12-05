@@ -96,7 +96,8 @@ jobs:
             .
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+
         with:
           name: backend-package-${{ github.sha }}
           path: backend-deploy.tar.gz

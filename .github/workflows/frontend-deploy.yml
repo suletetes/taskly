@@ -82,7 +82,8 @@ jobs:
           VITE_APP_ENV: ${{ matrix.environment }}
       
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+
         with:
           name: frontend-${{ matrix.environment }}-build
           path: frontend/dist
