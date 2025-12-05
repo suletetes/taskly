@@ -4,7 +4,7 @@ A full-stack task management application designed for individuals and teams, fea
 
 ## Demo
 
-[Watch Taskly Demo Video](./TasklyVideoShowcase.mp4)
+[Watch Taskly Demo Video](./frontend/public/TasklyVideoShowcase.mp4)
 
 > **Note**: Click the link above to download and watch the full demo showcasing Taskly's features in action!
 
