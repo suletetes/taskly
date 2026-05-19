@@ -10,7 +10,7 @@
 # - Monitor error rate for 5 minutes
 # - Promote (100% traffic) or rollback automatically
 #
-# Requirements: 8.1, 8.4, 8.7, 8.8
+# : 8.1, 8.4, 8.7, 8.8
 ###############################################################################
 
 name: Backend Deploy

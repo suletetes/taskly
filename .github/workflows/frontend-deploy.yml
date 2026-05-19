@@ -4,7 +4,7 @@
 # Deploys the React frontend to S3 and invalidates CloudFront cache.
 # Stages: lint → test → build → deploy to S3 → invalidate CloudFront
 #
-# Requirements: 8.1, 8.5, 5.5
+# : 8.1, 8.5, 5.5
 ###############################################################################
 
 name: Frontend Deploy
