@@ -27,7 +27,8 @@ module.exports = {
       ],
       testMatch: [
         '<rootDir>/tests/utils/secrets.test.js',
-        '<rootDir>/tests/services/**/*.test.js'
+        '<rootDir>/tests/services/**/*.test.js',
+        '<rootDir>/tests/unit/**/*.test.js'
       ]
     },
     {

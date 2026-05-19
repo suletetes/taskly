@@ -2,6 +2,7 @@ import Invitation from '../models/Invitation.js';
 import Team from '../models/Team.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import { publishTeamMemberAdded } from '../services/eventService.js';
 import { successResponse, errorResponse, badRequestResponse, notFoundResponse, forbiddenResponse, conflictResponse, createdResponse } from '../utils/response.js';
 
 /**
@@ -263,28 +264,19 @@ export const acceptInvitation = async (req, res) => {
     await team.populate('owner', 'fullname username avatar');
     await team.populate('members.user', 'fullname username avatar');
 
-    // Create in-app notification for team owner
+    // Publish team.member.added event for async notification processing
+    // This replaces synchronous notification creation in the request path
     try {
-      const invitee = await User.findById(req.user.id);
-      await Notification.createNotification(
-        team.owner,
-        'invitation_accepted',
-        `${invitee.fullname} joined ${team.name}`,
-        `${invitee.fullname} accepted your invitation to join ${team.name}`,
-        {
-          invitationId: invitation._id,
-          teamId: team._id,
-          userId: req.user.id
-        }
+      await publishTeamMemberAdded(
+        team._id.toString(),
+        req.user.id,
+        invitation.inviter.toString(),
+        invitation.role
       );
-    } catch (notificationError) {
-      //console.error('Error creating notification:', notificationError);
-      // Continue even if notification fails
+    } catch (eventError) {
+      // Log but don't fail the request — event processing is best-effort
+      console.warn('[acceptInvitation] Failed to publish team.member.added event:', eventError.message);
     }
-
-    // TODO: Send notification email to team owner
-    // const { sendEmail } = await import('../config/resend.js');
-    // Send email to team owner
 
     return successResponse(res, {
       team,

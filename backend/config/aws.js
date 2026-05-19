@@ -12,7 +12,7 @@ import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
  * Clients are instantiated once and reused across warm Lambda invocations
  * to take advantage of connection keep-alive and reduce initialization overhead.
  * 
- * Requirements: 1.2, 11.5, 11.6
+ *  1.2, 11.5, 11.6
  */
 
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';

@@ -13,7 +13,7 @@ import crypto from 'crypto';
  * Clients receive a pre-signed URL and upload directly to S3, reducing
  * server bandwidth and enabling larger file uploads.
  *
- * Requirements: 4.1, 4.2, 4.3, 4.4
+ *  4.1, 4.2, 4.3, 4.4
  */
 
 const router = express.Router();
@@ -89,7 +89,7 @@ function isValidFileType(contentType, allowedTypes) {
  *   - fileKey: S3 object key for the uploaded file
  *   - publicUrl: CloudFront URL where the file will be accessible
  *
- * Requirements: 4.1, 4.2
+ *  4.1, 4.2
  */
 router.post('/avatar/presign', authenticateToken, async (req, res) => {
   try {
@@ -271,7 +271,7 @@ router.post('/avatar/confirm', authenticateToken, async (req, res) => {
  *   - fileSize: File size in bytes (required)
  *   - taskId: Associated task ID (required)
  *
- * Requirements: 4.3
+ *  4.3
  */
 router.post('/attachment/presign', authenticateToken, async (req, res) => {
   try {

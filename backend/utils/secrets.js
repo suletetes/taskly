@@ -8,7 +8,7 @@ const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client
  * - Graceful secret rotation handling (invalidate cache and retry on auth failure)
  * - Local development fallback to environment variables
  * 
- * Requirements: 11.5 (secrets storage with auto-rotation every 90 days)
+ *  11.5 (secrets storage with auto-rotation every 90 days)
  *              11.6 (Lambda retrieves updated secrets without redeployment)
  */
 

@@ -22,7 +22,7 @@ import {
  * - Retry logic with exponential backoff (3 attempts)
  * - Template rendering using existing Taskly email templates
  *
- * Requirements:
+ * 
  * - 6.1: Deliver email within 5 seconds of request
  * - 6.3: Retry with exponential backoff up to 3 attempts on failure
  * - 6.4: Support all existing email templates

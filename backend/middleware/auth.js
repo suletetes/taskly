@@ -13,7 +13,7 @@ import Project from '../models/Project.js';
  * In local development, tokens are validated using the existing jsonwebtoken library
  * with the JWT_SECRET environment variable.
  *
- * Requirements: 3.6, 3.7
+ *  3.6, 3.7
  */
 
 // ─── Cognito JWT Verifier (lazy-initialized) ─────────────────────────────────
@@ -78,7 +78,7 @@ const auth = (req, res, next) => {
  * Extracts user claims (sub, email, custom:userId) from validated Cognito tokens
  * and looks up the corresponding user in the database.
  *
- * Requirements: 3.6, 3.7
+ *  3.6, 3.7
  */
 const authenticateToken = async (req, res, next) => {
   try {

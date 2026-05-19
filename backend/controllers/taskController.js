@@ -1,6 +1,7 @@
 import Task from '../models/Task.js';
 import User from '../models/User.js';
 import { calculateProductivityStats } from '../utils/productivityStats.js';
+import { publishTaskCompleted } from '../services/eventService.js';
 
 /**
  * Create a new task
@@ -463,6 +464,20 @@ const completeTask = async (req, res) => {
 
         // Use the model method to complete the task
         await task.completeTask();
+
+        // Publish task.completed event for async achievement processing
+        // This replaces synchronous achievement checking in the request path
+        try {
+            await publishTaskCompleted(task._id.toString(), task.user.toString(), {
+                title: task.title,
+                priority: task.priority,
+                project: task.project?.toString(),
+                team: task.team?.toString(),
+            });
+        } catch (eventError) {
+            // Log but don't fail the request — event processing is best-effort
+            console.warn('[completeTask] Failed to publish task.completed event:', eventError.message);
+        }
 
         res.json({
             success: true,
