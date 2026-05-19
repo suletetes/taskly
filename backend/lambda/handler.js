@@ -16,7 +16,7 @@ const { getDocumentDBUri, withRotationRetry } = secrets;
  * - Injects Lambda requestId as a correlation ID for structured logging
  * - Handles graceful connection management to avoid connection leaks
  *
- * Requirements:
+ * 
  * - 1.1: API_Gateway routes requests to Lambda within 100ms gateway processing
  * - 1.2: Lambda executes all existing Taskly API routes with functional parity
  * - 1.7: Unhandled exceptions return structured error with correlation ID

@@ -8,7 +8,7 @@ import sharp from 'sharp';
  * Resizes uploaded avatar images to 400x400 pixels and stores
  * the processed version in the avatars/{userId}/processed/ prefix.
  *
- * Requirements: 4.4
+ *  4.4
  *
  * Trigger: S3 Event Notification on prefix avatars/{userId}/original/
  * Timeout: 60s

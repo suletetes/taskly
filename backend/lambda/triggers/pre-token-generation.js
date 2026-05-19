@@ -7,7 +7,7 @@
  * so downstream services (API Gateway authorizer, Lambda handlers) can extract the
  * Taskly userId and roles without an additional database lookup on every request.
  *
- * Requirements:
+ * 
  * - 3.3: WHEN a user authenticates via Google OAuth, THE Cognito_User_Pool SHALL
  *         federate the identity and create or link the corresponding Taskly user record.
  * - 3.6: THE API_Gateway SHALL validate Cognito JWT tokens on all protected endpoints.

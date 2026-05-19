@@ -6,7 +6,7 @@
  * Invoked after a user confirms their email or federates via Google OAuth.
  * Creates a Taskly user record in DocumentDB with fields from the Cognito event.
  *
- * Requirements:
+ * 
  * - 3.3: WHEN a user authenticates via Google OAuth, THE Cognito_User_Pool SHALL
  *         federate the identity and create or link the corresponding Taskly user record.
  * - 3.6: THE API_Gateway SHALL validate Cognito JWT tokens on all protected endpoints.
