@@ -1,0 +1,5 @@
+aws_region   = "us-east-1"
+environment  = "prod"
+project_name = "taskly"
+cost_center  = "engineering"
+owner        = "platform-team"
