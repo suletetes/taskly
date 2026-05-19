@@ -202,8 +202,15 @@ app.use('/api', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Only start server if not in test environment
-if (process.env.NODE_ENV !== 'test') {
+// Conditional startup: Lambda export vs local server listen.
+// In Lambda, AWS_LAMBDA_FUNCTION_NAME is set automatically by the runtime.
+// We export the app for the serverless-express adapter to wrap.
+// In local dev or test, we either listen on a port or just export for tests.
+if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  // Running in AWS Lambda — export app for the handler adapter
+  console.log('Running in Lambda environment, exporting app for handler');
+} else if (process.env.NODE_ENV !== 'test') {
+  // Local development — start the HTTP server
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
