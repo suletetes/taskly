@@ -1,5 +1,5 @@
 # SES Module - Email Service Configuration
-# Requirements: 6.2 (verified domain identity with SPF, DKIM, DMARC)
+#  6.2 (verified domain identity with SPF, DKIM, DMARC)
 #
 # Configures Amazon SES with domain identity verification, DKIM signing,
 # SPF records via custom MAIL FROM domain, and sending authorization policy.

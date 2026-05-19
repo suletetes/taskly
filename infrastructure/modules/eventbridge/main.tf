@@ -5,7 +5,7 @@
 # asynchronous event processing (task completion, team membership,
 # project updates, user activity).
 #
-# Requirements: 7.1, 7.4
+#  7.1, 7.4
 ###############################################################################
 
 # ─── Custom Event Bus ─────────────────────────────────────────────────────────
@@ -108,12 +108,12 @@ resource "aws_cloudwatch_event_target" "task_completed_target" {
   }
 }
 
-# Target: team.member.added → event processor Lambda
+# Target: team.member.added → notification processor Lambda
 resource "aws_cloudwatch_event_target" "team_member_added_target" {
   rule           = aws_cloudwatch_event_rule.team_member_added.name
   event_bus_name = aws_cloudwatch_event_bus.taskly.name
-  target_id      = "event-processor-lambda"
-  arn            = var.event_processor_lambda_arn
+  target_id      = "notification-processor-lambda"
+  arn            = var.notification_processor_lambda_arn != "" ? var.notification_processor_lambda_arn : var.event_processor_lambda_arn
 
   retry_policy {
     maximum_event_age_in_seconds = 3600
@@ -125,12 +125,12 @@ resource "aws_cloudwatch_event_target" "team_member_added_target" {
   }
 }
 
-# Target: project.updated → event processor Lambda
+# Target: project.updated → notification processor Lambda
 resource "aws_cloudwatch_event_target" "project_updated_target" {
   rule           = aws_cloudwatch_event_rule.project_updated.name
   event_bus_name = aws_cloudwatch_event_bus.taskly.name
-  target_id      = "event-processor-lambda"
-  arn            = var.event_processor_lambda_arn
+  target_id      = "notification-processor-lambda"
+  arn            = var.notification_processor_lambda_arn != "" ? var.notification_processor_lambda_arn : var.event_processor_lambda_arn
 
   retry_policy {
     maximum_event_age_in_seconds = 3600
@@ -172,7 +172,7 @@ resource "aws_lambda_permission" "allow_eventbridge_task_completed" {
 resource "aws_lambda_permission" "allow_eventbridge_team_member_added" {
   statement_id  = "AllowEventBridgeTeamMemberAdded"
   action        = "lambda:InvokeFunction"
-  function_name = var.event_processor_lambda_name
+  function_name = var.notification_processor_lambda_name != "" ? var.notification_processor_lambda_name : var.event_processor_lambda_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.team_member_added.arn
 }
@@ -180,7 +180,7 @@ resource "aws_lambda_permission" "allow_eventbridge_team_member_added" {
 resource "aws_lambda_permission" "allow_eventbridge_project_updated" {
   statement_id  = "AllowEventBridgeProjectUpdated"
   action        = "lambda:InvokeFunction"
-  function_name = var.event_processor_lambda_name
+  function_name = var.notification_processor_lambda_name != "" ? var.notification_processor_lambda_name : var.event_processor_lambda_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.project_updated.arn
 }

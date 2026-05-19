@@ -6,7 +6,7 @@
 # - Metric filters for error rate, latency percentiles, cold starts
 # - Log subscription filter to archive logs to S3 after 30 days
 #
-# Requirements: 10.1, 10.2, 10.6
+#  10.1, 10.2, 10.6
 ###############################################################################
 
 # ─── Metric Filters — Error Rate ─────────────────────────────────────────────

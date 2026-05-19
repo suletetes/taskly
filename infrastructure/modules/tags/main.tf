@@ -5,7 +5,7 @@
 # All resources should use the outputs from this module to ensure consistent
 # tagging and naming across environments.
 #
-# Requirements: 9.5 (standard tagging), 9.6 (deletion protection for stateful)
+#  9.5 (standard tagging), 9.6 (deletion protection for stateful)
 ###############################################################################
 
 locals {

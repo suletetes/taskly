@@ -8,7 +8,7 @@
 # - Monthly cost exceeds budget threshold
 # - SES bounce rate > 5%
 #
-# Requirements: 10.3, 10.4, 10.7, 12.3, 6.6
+#  10.3, 10.4, 10.7, 12.3, 6.6
 ###############################################################################
 
 # ─── SNS Topic for Operations Notifications ───────────────────────────────────

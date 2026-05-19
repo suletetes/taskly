@@ -1,5 +1,5 @@
 # S3 Module - File Storage and Frontend Hosting
-# Requirements: 4.2, 4.3, 4.6, 4.7, 4.8, 5.1, 5.7, 11.7, 12.4
+#  4.2, 4.3, 4.6, 4.7, 4.8, 5.1, 5.7, 11.7, 12.4
 #
 # Creates two S3 buckets:
 # 1. Uploads bucket - stores user avatars and task attachments with versioning,
@@ -36,7 +36,7 @@ locals {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket - Core Resource
-# Requirements: 4.2, 4.3, 11.7
+#  4.2, 4.3, 11.7
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket" "uploads" {
@@ -53,7 +53,7 @@ resource "aws_s3_bucket" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket - Versioning
-# Requirements: 4.8 (durability), 13.4 (11 nines durability)
+#  4.8 (durability), 13.4 (11 nines durability)
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_versioning" "uploads" {
@@ -66,7 +66,7 @@ resource "aws_s3_bucket_versioning" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket - Server-Side Encryption (AES-256)
-# Requirements: 11.7
+#  11.7
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "uploads" {
@@ -82,7 +82,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket - Block All Public Access
-# Requirements: 4.8
+#  4.8
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_public_access_block" "uploads" {
@@ -96,7 +96,7 @@ resource "aws_s3_bucket_public_access_block" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket - Lifecycle Rules
-# Requirements: 4.6 (transition to IA after 90 days), 4.7 (multipart cleanup 24h)
+#  4.6 (transition to IA after 90 days), 4.7 (multipart cleanup 24h)
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_lifecycle_configuration" "uploads" {
@@ -132,7 +132,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket - CORS Configuration for Pre-Signed URL Uploads
-# Requirements: 4.1, 4.2, 4.3
+#  4.1, 4.2, 4.3
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_cors_configuration" "uploads" {
@@ -153,7 +153,7 @@ resource "aws_s3_bucket_cors_configuration" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Frontend Bucket - Core Resource
-# Requirements: 5.1, 5.7
+#  5.1, 5.7
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket" "frontend" {
@@ -169,7 +169,7 @@ resource "aws_s3_bucket" "frontend" {
 
 # -----------------------------------------------------------------------------
 # Frontend Bucket - Versioning
-# Requirements: 5.1
+#  5.1
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_versioning" "frontend" {
@@ -182,7 +182,7 @@ resource "aws_s3_bucket_versioning" "frontend" {
 
 # -----------------------------------------------------------------------------
 # Frontend Bucket - Server-Side Encryption (AES-256)
-# Requirements: 11.7
+#  11.7
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
@@ -198,7 +198,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
 
 # -----------------------------------------------------------------------------
 # Frontend Bucket - Block All Public Access
-# Requirements: 5.7 (served exclusively via CloudFront)
+#  5.7 (served exclusively via CloudFront)
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_public_access_block" "frontend" {

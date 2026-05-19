@@ -1,5 +1,5 @@
 # VPC Module - Network Foundation
-# Requirements: 11.3 (private subnet isolation), 2.2 (multi-AZ), 13.3 (AZ failover)
+#  11.3 (private subnet isolation), 2.2 (multi-AZ), 13.3 (AZ failover)
 #
 # Creates a VPC with public and private subnets across 2 Availability Zones.
 # Public subnets host NAT Gateways; private subnets host Lambda functions and DocumentDB.

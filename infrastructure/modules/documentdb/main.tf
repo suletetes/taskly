@@ -1,5 +1,5 @@
 # DocumentDB Module - Main Configuration
-# Requirements: 2.1 (MongoDB-compatible storage), 2.2 (multi-AZ HA), 2.3 (failover <30s),
+# : 2.1 (MongoDB-compatible storage), 2.2 (multi-AZ HA), 2.3 (failover <30s),
 #              2.4 (encryption at rest + in transit), 2.5 (automated backups 7-day retention),
 #              2.8 (private subnet isolation), 12.2 (db.t3.medium for dev/staging)
 #

@@ -6,7 +6,7 @@
 # - IP-based rate limiting: 1000 requests per IP per 5-minute window
 # - CloudWatch metrics for monitoring rule matches
 #
-# Requirements: 11.1, 11.2
+#  11.1, 11.2
 ###############################################################################
 
 # ─── WAF WebACL ───────────────────────────────────────────────────────────────

@@ -6,7 +6,7 @@
 # - Notification batch queue: batched notification processing
 # - Dead-letter queues: failed message retention for inspection
 #
-# Requirements: 7.3, 7.5, 6.3, 6.5
+#  7.3, 7.5, 6.3, 6.5
 ###############################################################################
 
 # ─── Email Queue Dead-Letter Queue ───────────────────────────────────────────

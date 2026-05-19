@@ -1,5 +1,5 @@
 # DocumentDB Module - Variables
-# Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.8, 12.2
+#  2.1, 2.2, 2.3, 2.4, 2.5, 2.8, 12.2
 
 variable "project" {
   description = "Project name used for resource naming"

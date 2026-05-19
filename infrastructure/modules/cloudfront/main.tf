@@ -1,5 +1,5 @@
 # CloudFront Module - CDN Distributions
-# Requirements: 4.5, 4.8, 5.1, 5.2, 5.3, 5.4, 5.6, 12.6
+# : 4.5, 4.8, 5.1, 5.2, 5.3, 5.4, 5.6, 12.6
 #
 # Creates two CloudFront distributions:
 # 1. Frontend Distribution - serves React SPA from S3 with OAC, SPA routing,
@@ -28,7 +28,7 @@ locals {
 
 # =============================================================================
 # FRONTEND DISTRIBUTION
-# Requirements: 5.1, 5.2, 5.3, 5.4, 5.6, 12.6
+# : 5.1, 5.2, 5.3, 5.4, 5.6, 12.6
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
 # -----------------------------------------------------------------------------
 # Cache Policy - Hashed Assets (1 year, immutable)
 # For Vite-built assets with content hashes in filenames.
-# Requirements: 5.6
+# : 5.6
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudfront_cache_policy" "hashed_assets" {
@@ -75,7 +75,7 @@ resource "aws_cloudfront_cache_policy" "hashed_assets" {
 # -----------------------------------------------------------------------------
 # Cache Policy - index.html (no-cache)
 # Ensures users always get the latest SPA entry point.
-# Requirements: 5.6
+# : 5.6
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudfront_cache_policy" "no_cache" {
@@ -137,7 +137,7 @@ resource "aws_cloudfront_response_headers_policy" "frontend_security" {
 
 # -----------------------------------------------------------------------------
 # Frontend CloudFront Distribution
-# Requirements: 5.1, 5.2, 5.3, 5.4, 5.6, 12.6
+# : 5.1, 5.2, 5.3, 5.4, 5.6, 12.6
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudfront_distribution" "frontend" {
@@ -220,7 +220,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
 # =============================================================================
 # UPLOADS DISTRIBUTION
-# Requirements: 4.5, 4.8
+# : 4.5, 4.8
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -238,7 +238,7 @@ resource "aws_cloudfront_origin_access_control" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Cache Policy - Uploads (24 hour TTL)
-# Requirements: 4.5
+# : 4.5
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudfront_cache_policy" "uploads" {
@@ -265,7 +265,7 @@ resource "aws_cloudfront_cache_policy" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Uploads CloudFront Distribution
-# Requirements: 4.5, 4.8
+# : 4.5, 4.8
 # Serves uploaded files (avatars, attachments) with signed URL access control.
 # -----------------------------------------------------------------------------
 
@@ -325,7 +325,7 @@ resource "aws_cloudfront_distribution" "uploads" {
 
 # -----------------------------------------------------------------------------
 # Frontend Bucket Policy - Allow CloudFront OAC to read objects
-# Requirements: 5.1, 5.7
+# : 5.1, 5.7
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_policy" "frontend_cloudfront" {
@@ -354,7 +354,7 @@ resource "aws_s3_bucket_policy" "frontend_cloudfront" {
 
 # -----------------------------------------------------------------------------
 # Uploads Bucket Policy - Allow CloudFront OAC to read objects
-# Requirements: 4.8
+# : 4.8
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_policy" "uploads_cloudfront" {

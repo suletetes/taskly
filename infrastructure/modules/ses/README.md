@@ -67,7 +67,7 @@ To move to production and send to any recipient:
    - **Additional contacts**: Add a team email for bounce/complaint notifications
    - **Preferred AWS Region**: Same region as your infrastructure
 
-3. **Compliance requirements:**
+3. **Compliance **
    - Implement bounce and complaint handling (this module configures CloudWatch event tracking)
    - Maintain bounce rate below 5% and complaint rate below 0.1%
    - Include unsubscribe links in notification digest emails

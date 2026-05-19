@@ -1,5 +1,5 @@
 # IAM Module - Least-Privilege Roles and Policies
-# Requirements: 9.4 (least-privilege IAM), 11.9 (per-function permissions)
+#  9.4 (least-privilege IAM), 11.9 (per-function permissions)
 
 terraform {
   required_providers {

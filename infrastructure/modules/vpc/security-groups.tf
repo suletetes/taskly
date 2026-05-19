@@ -1,5 +1,5 @@
 # VPC Module - Security Groups
-# Requirements: 11.3 (private subnet isolation), 11.4 (Lambda to DocumentDB via VPC), 2.8 (restrict DB access)
+#  11.3 (private subnet isolation), 11.4 (Lambda to DocumentDB via VPC), 2.8 (restrict DB access)
 #
 # Defines security groups for Lambda functions, DocumentDB, and VPC Interface Endpoints.
 # Follows least-privilege: DocumentDB only accepts traffic from Lambda on port 27017.

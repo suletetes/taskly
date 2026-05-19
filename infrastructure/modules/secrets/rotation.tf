@@ -5,7 +5,7 @@
 # following the AWS Secrets Manager rotation protocol (createSecret, setSecret,
 # testSecret, finishSecret steps).
 #
-# Requirements: 11.5 (automatic rotation every 90 days)
+#  11.5 (automatic rotation every 90 days)
 #               11.6 (Lambda retrieves updated secrets without redeployment)
 ###############################################################################
 

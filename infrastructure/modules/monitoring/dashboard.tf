@@ -9,7 +9,7 @@
 # - Email delivery rate and bounce rate
 # - Cost metrics
 #
-# Requirements: 10.5
+#  10.5
 ###############################################################################
 
 resource "aws_cloudwatch_dashboard" "main" {

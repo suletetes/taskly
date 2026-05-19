@@ -1,5 +1,5 @@
 # VPC Module - VPC Endpoints
-# Requirements: 11.3 (private subnet isolation), 11.4 (Lambda to services via VPC)
+#  11.3 (private subnet isolation), 11.4 (Lambda to services via VPC)
 #
 # Creates VPC Endpoints to allow Lambda functions in private subnets to access
 # AWS services without routing through NAT Gateway (reduces cost and latency).

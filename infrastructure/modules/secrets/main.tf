@@ -5,7 +5,7 @@
 # credentials, JWT signing keys, Cognito client secrets, and SES SMTP
 # credentials. Configures automatic rotation for database credentials.
 #
-# Requirements: 11.5 (secrets storage with auto-rotation every 90 days)
+#  11.5 (secrets storage with auto-rotation every 90 days)
 #               11.6 (Lambda retrieves updated secrets without redeployment)
 ###############################################################################
 

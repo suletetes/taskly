@@ -2,7 +2,7 @@
 # Cognito Module - User Pool and App Client
 #
 # Provisions an Amazon Cognito User Pool for Taskly authentication with:
-# - Email and username sign-in (Requirements 3.1, 3.2)
+# - Email and username sign-in ( 3.1, 3.2)
 # - Password policy: minimum 6 characters (Requirement 3.8)
 # - Email verification via SES (Requirement 3.1)
 # - OAuth 2.0 App Client with authorization code and implicit flows

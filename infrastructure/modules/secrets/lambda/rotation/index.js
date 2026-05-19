@@ -7,7 +7,7 @@
  * 3. testSecret    - Verify the new credentials work
  * 4. finishSecret  - Move AWSPENDING to AWSCURRENT
  *
- * Requirements: 11.5 (automatic rotation every 90 days)
+ *  11.5 (automatic rotation every 90 days)
  *               11.6 (Lambda retrieves updated secrets without redeployment)
  */
 

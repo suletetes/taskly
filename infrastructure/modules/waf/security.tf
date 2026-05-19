@@ -5,7 +5,7 @@
 # - Configures security headers via CloudFront response headers policy
 # - Verifies S3 bucket public access is blocked (handled by S3 module)
 #
-# Requirements: 11.7, 11.8
+#  11.7, 11.8
 ###############################################################################
 
 # ─── CloudFront Response Headers Policy ───────────────────────────────────────
