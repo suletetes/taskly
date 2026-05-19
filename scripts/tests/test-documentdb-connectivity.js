@@ -18,7 +18,7 @@
  *
  * In production, credentials are fetched from AWS Secrets Manager via the secrets utility.
  *
- * Validates Requirements:
+ * Validates 
  *   2.1 - DocumentDB stores all Taskly collections with existing Mongoose schema structure
  *   2.7 - DocumentDB supports text search indexes, compound indexes, and aggregation pipelines
  */
