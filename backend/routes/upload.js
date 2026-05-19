@@ -1,165 +1,361 @@
 import express from 'express';
-import { upload, deleteImage } from '../config/cloudinary.js';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { s3Client } from '../config/aws.js';
 import { authenticateToken } from '../middleware/auth.js';
 import User from '../models/User.js';
+import crypto from 'crypto';
+
+/**
+ * File Upload Routes — S3 Pre-signed URL Generation
+ *
+ * Replaces Cloudinary upload logic with S3 pre-signed URL generation.
+ * Clients receive a pre-signed URL and upload directly to S3, reducing
+ * server bandwidth and enabling larger file uploads.
+ *
+ * Requirements: 4.1, 4.2, 4.3, 4.4
+ */
 
 const router = express.Router();
 
+// ─── Configuration ───────────────────────────────────────────────────────────
+
+const UPLOAD_BUCKET = process.env.S3_UPLOAD_BUCKET || 'taskly-uploads';
+const PRESIGNED_URL_EXPIRY = 300; // 5 minutes
+
+// Allowed file types for avatars
+const AVATAR_ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/svg+xml',
+];
+const AVATAR_MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+// Allowed file types for attachments (any file up to 25MB)
+const ATTACHMENT_MAX_SIZE = 25 * 1024 * 1024; // 25MB
+
+// File extension mapping
+const MIME_TO_EXT = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'image/svg+xml': 'svg',
+};
+
+// ─── Helper Functions ────────────────────────────────────────────────────────
+
 /**
- * @route   POST /api/upload/avatar
- * @desc    Upload user avatar to Cloudinary
- * @access  Private
+ * Generates a unique file key for S3 storage.
+ * @param {string} prefix - S3 key prefix (e.g., 'avatars/{userId}')
+ * @param {string} filename - Original filename
+ * @param {string} contentType - MIME type
+ * @returns {string} S3 object key
  */
-router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
+function generateFileKey(prefix, filename, contentType) {
+  const ext = MIME_TO_EXT[contentType] || filename.split('.').pop() || 'bin';
+  const uniqueId = crypto.randomUUID();
+  return `${prefix}/${uniqueId}.${ext}`;
+}
+
+/**
+ * Validates file type against allowed MIME types.
+ * @param {string} contentType - MIME type to validate
+ * @param {string[]} allowedTypes - Array of allowed MIME types
+ * @returns {boolean}
+ */
+function isValidFileType(contentType, allowedTypes) {
+  return allowedTypes.includes(contentType);
+}
+
+// ─── Routes ──────────────────────────────────────────────────────────────────
+
+/**
+ * @route   POST /api/upload/avatar/presign
+ * @desc    Generate a pre-signed URL for avatar upload to S3
+ * @access  Private
+ *
+ * Request body:
+ *   - contentType: MIME type of the file (required)
+ *   - filename: Original filename (required)
+ *   - fileSize: File size in bytes (required)
+ *
+ * Response:
+ *   - uploadUrl: Pre-signed PUT URL for direct S3 upload
+ *   - fileKey: S3 object key for the uploaded file
+ *   - publicUrl: CloudFront URL where the file will be accessible
+ *
+ * Requirements: 4.1, 4.2
+ */
+router.post('/avatar/presign', authenticateToken, async (req, res) => {
   try {
-    
-    console.log('📤 [Upload Avatar] Request headers:',{
-      'content-type': req.headers['content-type'],
-      'content-length': req.headers['content-length']
-    });
-    
-    
-    if (!req.file) {
-    
+    const { contentType, filename, fileSize } = req.body;
+
+    // Validate required fields
+    if (!contentType || !filename || fileSize === undefined) {
       return res.status(400).json({
         success: false,
         error: {
-          message: 'No file uploaded. Please select an image file.',
-          code: 'NO_FILE'
-        }
+          message: 'contentType, filename, and fileSize are required',
+          code: 'VALIDATION_ERROR',
+        },
       });
     }
 
-    console.log('📤 [Upload Avatar] File details:', {
-      fieldname: req.file.fieldname,
-      originalname: req.file.originalname,
-      encoding: req.file.encoding,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      sizeInMB: (req.file.size / (1024 * 1024)).toFixed(2)
+    // Validate file type
+    if (!isValidFileType(contentType, AVATAR_ALLOWED_TYPES)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid file type. Allowed types: jpg, jpeg, png, gif, webp, svg',
+          code: 'INVALID_FILE_TYPE',
+        },
+      });
+    }
+
+    // Validate file size
+    if (fileSize > AVATAR_MAX_SIZE) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'File size exceeds the 5MB limit for avatars',
+          code: 'FILE_TOO_LARGE',
+        },
+      });
+    }
+
+    // Generate S3 key
+    const userId = req.user._id.toString();
+    const fileKey = generateFileKey(`avatars/${userId}/original`, filename, contentType);
+
+    // Generate pre-signed URL
+    const command = new PutObjectCommand({
+      Bucket: UPLOAD_BUCKET,
+      Key: fileKey,
+      ContentType: contentType,
+      ContentLength: fileSize,
+      Metadata: {
+        'uploaded-by': userId,
+        'original-filename': filename,
+        'upload-type': 'avatar',
+      },
     });
 
-
-
-    // Get the uploaded file info from Cloudinary
-    // When using multer-storage-cloudinary, the data is in different properties
-    const secure_url = req.file.path; // Cloudinary URL is in 'path'
-    const public_id = req.file.filename; // Public ID is in 'filename'
-    const format = req.file.format;
-    const width = req.file.width;
-    const height = req.file.height;
-    const bytes = req.file.size;
-    
-    console.log(' [Upload Avatar] Cloudinary upload successful:', {
-      secure_url,
-      public_id,
-      format,
-      dimensions: `${width}x${height}`,
-      bytes,
-      sizeInMB: (bytes / (1024 * 1024)).toFixed(2)
+    const uploadUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: PRESIGNED_URL_EXPIRY,
     });
 
-    // Update user's avatar in database
+    // Construct the public URL (via CloudFront or direct S3)
+    const cdnDomain = process.env.CDN_DOMAIN || `${UPLOAD_BUCKET}.s3.amazonaws.com`;
+    const publicUrl = `https://${cdnDomain}/${fileKey}`;
+
+    console.log('[Upload] Avatar pre-signed URL generated:', {
+      userId,
+      fileKey,
+      contentType,
+      fileSize,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        uploadUrl,
+        fileKey,
+        publicUrl,
+        expiresIn: PRESIGNED_URL_EXPIRY,
+      },
+      message: 'Pre-signed URL generated. Upload file directly to the URL using PUT.',
+    });
+  } catch (error) {
+    console.error('[Upload] Avatar presign error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to generate upload URL',
+        code: 'PRESIGN_ERROR',
+      },
+    });
+  }
+});
+
+/**
+ * @route   POST /api/upload/avatar/confirm
+ * @desc    Confirm avatar upload and update user profile
+ * @access  Private
+ *
+ * Called after the client successfully uploads to S3 using the pre-signed URL.
+ * Updates the user's avatar field in the database.
+ *
+ * Request body:
+ *   - fileKey: S3 object key returned from presign endpoint
+ */
+router.post('/avatar/confirm', authenticateToken, async (req, res) => {
+  try {
+    const { fileKey } = req.body;
+
+    if (!fileKey) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'fileKey is required',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
 
     const user = await User.findById(req.user._id);
     if (!user) {
-      //console.log('❌ [Upload Avatar] User not found in database');
       return res.status(404).json({
         success: false,
         error: {
           message: 'User not found',
-          code: 'USER_NOT_FOUND'
-        }
+          code: 'USER_NOT_FOUND',
+        },
       });
     }
 
-    console.log('📤 [Upload Avatar] User found:', {
-      id: user._id,
-      fullname: user.fullname,
-      currentAvatar: user.avatar ? 'Has avatar' : 'No avatar'
-    });
-
-    // Delete old avatar from Cloudinary if it exists and is a Cloudinary URL
-    if (user.avatar && user.avatar.includes('cloudinary.com')) {
+    // Delete old avatar from S3 if it exists
+    if (user.avatarS3Key) {
       try {
-
-        const oldPublicId = user.avatar.split('/').pop().split('.')[0];
-
-        await deleteImage(`taskly/avatars/${oldPublicId}`);
-
-      } catch (error) {
-        //console.warn('  [Upload Avatar] Could not delete old avatar:', error.message);
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: UPLOAD_BUCKET,
+            Key: user.avatarS3Key,
+          })
+        );
+      } catch (err) {
+        console.warn('[Upload] Could not delete old avatar:', err.message);
       }
     }
 
     // Update user avatar
-    // //console.log('📤 [Upload Avatar] Updating user avatar in database...');
-    user.avatar = secure_url;
-    user.avatarPublicId = public_id;
-    await user.save();
-    // //console.log('✅ [Upload Avatar] User avatar updated in database');
+    const cdnDomain = process.env.CDN_DOMAIN || `${UPLOAD_BUCKET}.s3.amazonaws.com`;
+    const avatarUrl = `https://${cdnDomain}/${fileKey}`;
 
-    const response = {
+    user.avatar = avatarUrl;
+    user.avatarS3Key = fileKey;
+    await user.save();
+
+    res.json({
       success: true,
       data: {
-        avatar: secure_url,
-        publicId: public_id
+        avatar: avatarUrl,
+        fileKey,
       },
-      message: 'Avatar uploaded successfully'
-    };
-
-
-    
-    res.json(response);
-
+      message: 'Avatar uploaded successfully',
+    });
   } catch (error) {
-
-    
-    // Enhanced error handling with specific messages
-    let userMessage = 'Failed to upload avatar. Please try again.';
-    let statusCode = 500;
-    
-    // File size error
-    if (error.code === 'LIMIT_FILE_SIZE' || error.message?.includes('File too large')) {
-      userMessage = 'File size exceeds the 5MB limit. Please choose a smaller image.';
-      statusCode = 400;
-    }
-    // Invalid file type
-    else if (error.message?.includes('Only image files') || error.message?.includes('Invalid image')) {
-      userMessage = 'Invalid file type. Please upload a JPG, PNG, GIF, or WebP image.';
-      statusCode = 400;
-    }
-    // Cloudinary API errors
-    else if (error.http_code) {
-      if (error.http_code === 401 || error.http_code === 403) {
-        userMessage = 'Image upload service authentication failed. Please contact support.';
-        //console.error('❌ [Cloudinary] Authentication error - check credentials');
-      } else if (error.http_code === 413) {
-        userMessage = 'File size exceeds the 5MB limit. Please choose a smaller image.';
-        statusCode = 400;
-      } else if (error.http_code >= 500) {
-        userMessage = 'Image upload service is temporarily unavailable. Please try again later.';
-      }
-    }
-    // Network errors
-    else if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
-      userMessage = 'Network error occurred. Please check your connection and try again.';
-      statusCode = 503;
-    }
-    
-    res.status(statusCode).json({
+    console.error('[Upload] Avatar confirm error:', error);
+    res.status(500).json({
       success: false,
       error: {
-        message: userMessage,
-        code: error.code || 'UPLOAD_ERROR'
-      }
+        message: 'Failed to confirm avatar upload',
+        code: 'CONFIRM_ERROR',
+      },
+    });
+  }
+});
+
+/**
+ * @route   POST /api/upload/attachment/presign
+ * @desc    Generate a pre-signed URL for task attachment upload to S3
+ * @access  Private
+ *
+ * Request body:
+ *   - contentType: MIME type of the file (required)
+ *   - filename: Original filename (required)
+ *   - fileSize: File size in bytes (required)
+ *   - taskId: Associated task ID (required)
+ *
+ * Requirements: 4.3
+ */
+router.post('/attachment/presign', authenticateToken, async (req, res) => {
+  try {
+    const { contentType, filename, fileSize, taskId } = req.body;
+
+    // Validate required fields
+    if (!contentType || !filename || fileSize === undefined || !taskId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'contentType, filename, fileSize, and taskId are required',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
+
+    // Validate file size (25MB max for attachments)
+    if (fileSize > ATTACHMENT_MAX_SIZE) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'File size exceeds the 25MB limit for attachments',
+          code: 'FILE_TOO_LARGE',
+        },
+      });
+    }
+
+    // Generate S3 key
+    const fileKey = generateFileKey(`attachments/${taskId}`, filename, contentType);
+
+    // Generate pre-signed URL
+    const command = new PutObjectCommand({
+      Bucket: UPLOAD_BUCKET,
+      Key: fileKey,
+      ContentType: contentType,
+      ContentLength: fileSize,
+      Metadata: {
+        'uploaded-by': req.user._id.toString(),
+        'original-filename': filename,
+        'upload-type': 'attachment',
+        'task-id': taskId,
+      },
+    });
+
+    const uploadUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: PRESIGNED_URL_EXPIRY,
+    });
+
+    const cdnDomain = process.env.CDN_DOMAIN || `${UPLOAD_BUCKET}.s3.amazonaws.com`;
+    const publicUrl = `https://${cdnDomain}/${fileKey}`;
+
+    console.log('[Upload] Attachment pre-signed URL generated:', {
+      userId: req.user._id.toString(),
+      taskId,
+      fileKey,
+      contentType,
+      fileSize,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        uploadUrl,
+        fileKey,
+        publicUrl,
+        expiresIn: PRESIGNED_URL_EXPIRY,
+      },
+      message: 'Pre-signed URL generated. Upload file directly to the URL using PUT.',
+    });
+  } catch (error) {
+    console.error('[Upload] Attachment presign error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to generate upload URL',
+        code: 'PRESIGN_ERROR',
+      },
     });
   }
 });
 
 /**
  * @route   DELETE /api/upload/avatar
- * @desc    Delete user avatar from Cloudinary
+ * @desc    Delete user avatar from S3
  * @access  Private
  */
 router.delete('/avatar', authenticateToken, async (req, res) => {
@@ -170,38 +366,43 @@ router.delete('/avatar', authenticateToken, async (req, res) => {
         success: false,
         error: {
           message: 'User not found',
-          code: 'USER_NOT_FOUND'
-        }
+          code: 'USER_NOT_FOUND',
+        },
       });
     }
 
-    // Delete avatar from Cloudinary if it exists
-    if (user.avatarPublicId) {
+    // Delete avatar from S3 if it exists
+    if (user.avatarS3Key) {
       try {
-        await deleteImage(user.avatarPublicId);
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: UPLOAD_BUCKET,
+            Key: user.avatarS3Key,
+          })
+        );
       } catch (error) {
-        //console.warn('Could not delete avatar from Cloudinary:', error.message);
+        console.warn('[Upload] Could not delete avatar from S3:', error.message);
       }
     }
 
-    // Reset user avatar to default
+    // Reset user avatar
     user.avatar = null;
+    user.avatarS3Key = null;
     user.avatarPublicId = null;
     await user.save();
 
     res.json({
       success: true,
-      message: 'Avatar deleted successfully'
+      message: 'Avatar deleted successfully',
     });
-
   } catch (error) {
-    //console.error('Avatar deletion error:', error);
+    console.error('[Upload] Avatar deletion error:', error);
     res.status(500).json({
       success: false,
       error: {
         message: 'Failed to delete avatar',
-        code: 'DELETE_ERROR'
-      }
+        code: 'DELETE_ERROR',
+      },
     });
   }
 });
