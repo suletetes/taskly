@@ -11,7 +11,7 @@
  * - Retry logic on simulated SES failures
  * - Direct email sending via SES
  *
- * Requirements: 6.1, 6.3, 6.4
+ *  6.1, 6.3, 6.4
  */
 
 jest.setTimeout(30000);

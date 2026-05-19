@@ -7,7 +7,7 @@
  * - Extract user claims from validated tokens
  * - Handle missing/invalid Authorization headers
  *
- * Requirements: 3.6, 3.7
+ *  3.6, 3.7
  */
 
 import { jest } from '@jest/globals';

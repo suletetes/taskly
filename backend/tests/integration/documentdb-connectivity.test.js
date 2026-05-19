@@ -7,7 +7,7 @@
  * This test is designed to run against a real DocumentDB instance in AWS environments
  * or against a local MongoDB instance for development validation.
  *
- * Requirements:
+ * 
  * - 2.1: DocumentDB stores all Taskly collections with existing Mongoose schema structure
  * - 2.7: DocumentDB supports all existing Mongoose queries including text search,
  *         compound indexes, and aggregation pipelines

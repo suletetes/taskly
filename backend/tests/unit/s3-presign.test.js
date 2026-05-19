@@ -6,7 +6,7 @@
  * - Validate file types and sizes
  * - Generate unique S3 keys
  *
- * Requirements: 4.1, 4.2, 4.3
+ *  4.1, 4.2, 4.3
  */
 
 import { jest } from '@jest/globals';

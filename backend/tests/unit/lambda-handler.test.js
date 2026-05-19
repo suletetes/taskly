@@ -6,7 +6,7 @@
  * - Handle database connection failures gracefully
  * - Inject correlation IDs from Lambda context
  *
- * Requirements: 1.1, 1.7
+ *  1.1, 1.7
  */
 
 import { jest } from '@jest/globals';
