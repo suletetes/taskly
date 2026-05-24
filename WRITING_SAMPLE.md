@@ -4,13 +4,13 @@ So I built a task management app. Yeah, I know, another one. But hear me out.
 
 I kept finding tutorials that show you how to make a todo list with like 50 lines of code and then say "congratulations, you built a full stack app." No you didn't. You built a form that talks to a database. Where's the auth? Where's the part where two people need different permissions? Where's the email that goes out when someone invites you to a team? That's the stuff I wanted to figure out, so I built Taskly to actually deal with all of it.
 
-It's a team task manager. You sign up, make a team, invite people, create projects inside that team, then assign tasks to each other. There's a calendar, some analytics charts, notifications, the whole thing. Not groundbreaking as a product idea but the engineering goes deeper than most tutorial projects.
+It's a team task manager. You sign up, make a team, invite people, create projects inside that team, then assign tasks to each other. There's a calendar, some analytics charts, notifications, the whole thing. Not a novel product idea but the engineering goes deeper than most tutorial projects.
 
 ## The stack
 
-I used React 18 on the frontend with Vite for bundling and Tailwind for styling. React Router v6 handles pages, Framer Motion does animations (probably overkill for a task app but I wanted to learn it), Chart.js for the analytics graphs, and Axios talks to the backend.
+React 18 on the frontend with Vite for bundling and Tailwind for styling. React Router v6 handles pages, Framer Motion does animations (probably overkill for a task app but I wanted to learn it), Chart.js for the analytics graphs, and Axios talks to the backend.
 
-Backend is Express 5 running on Node with MongoDB through Mongoose. Auth is session-based, I used Passport.js for that. Validation goes through Joi. Security stuff: Helmet for headers, express-rate-limit so people can't brute force the login, and express-mongo-sanitize to stop NoSQL injection attempts.
+Backend is Express 5 running on Node with MongoDB through Mongoose. Auth is session based with Passport.js. Validation goes through Joi. Security stuff: Helmet for headers, express-rate-limit so people can't brute force the login, and express-mongo-sanitize to stop NoSQL injection attempts.
 
 Images go to Cloudinary (avatar uploads), emails go through Resend (team invitations), and in production the database lives on MongoDB Atlas. I run the Node process with PM2.
 
@@ -96,7 +96,7 @@ cd backend && npm test
 cd frontend && npm test
 ```
 
-I'm using Jest on the backend with mongodb-memory-server so tests don't need a real database. Frontend tests use Vitest.
+Jest on the backend with mongodb-memory-server so tests don't need a real database. Frontend tests use Vitest.
 
 ---
 
@@ -108,7 +108,7 @@ I'm going to explain the API assuming you've used curl or Postman before. If you
 
 The auth system uses cookies. Not tokens, not API keys. You hit the login endpoint, the server creates a session and sends back a cookie. After that, every request you make includes that cookie automatically (if you're in a browser) or manually (if you're using curl).
 
-I chose sessions over JWT because the app is browser-first and I didn't want to write token refresh logic. The downside is scaling horizontally gets annoying since sessions live in the database. For a team of 20 people it genuinely does not matter though.
+I chose sessions over JWT because the app is browser first and I didn't want to write token refresh logic. The downside is scaling horizontally gets annoying since sessions live in the database. For a team of 20 people it genuinely does not matter though.
 
 ```
 POST /api/auth/login
@@ -239,7 +239,7 @@ Failed requests look like this:
 }
 ```
 
-The codes are self-explanatory: `USER_NOT_FOUND`, `FORBIDDEN`, `VALIDATION_ERROR`, etc. Validation errors also have a `details` array telling you which fields are wrong.
+The codes are self explanatory: `USER_NOT_FOUND`, `FORBIDDEN`, `VALIDATION_ERROR`, etc. Validation errors also have a `details` array telling you which fields are wrong.
 
 Status codes are standard. 400 means you sent bad data, 401 means you're not logged in, 403 means you don't have permission, 404 means it doesn't exist, 429 means you're sending too many requests.
 
@@ -321,26 +321,22 @@ const { data } = await api.post('/tasks', {
 console.log(data.data._id);
 ```
 
-`withCredentials: true` is the thing that trips people up. Without it Axios doesn't send cookies cross-origin and you get 401 on every request after login. I spent an entire evening on this the first time.
+`withCredentials: true` is the thing that trips people up. Without it Axios doesn't send cookies cross origin and you get 401 on every request after login. I spent an entire evening on this the first time.
 
 ---
 
 ## What I'd do differently
 
-Honestly, TypeScript. The project got to a size where I'm passing objects between files and I can't remember what shape they are without opening the model file. That's a sign.
+TypeScript. The project got to a size where I'm passing objects between files and I can't remember what shape they are without opening the model file. That's the sign.
 
-I'd also reconsider sessions if I ever needed more than one server. JWT with short-lived access tokens and a refresh token would scale better, even though the implementation is more annoying on the client side.
+Sessions were fine for this but if I ever needed more than one server I'd switch to JWT with short lived access tokens and a refresh token. More annoying on the client side but it scales without shared state.
 
-Notifications should probably be WebSocket-based instead of polling. Right now the frontend checks for new notifications every 30 seconds which is wasteful.
+Notifications should be WebSocket based instead of polling. Right now the frontend checks for new notifications every 30 seconds which is wasteful.
 
-And I wish I'd written more integration tests early on. I have decent unit test coverage but not enough tests that exercise the full request-response cycle for common workflows.
+And I wish I'd written more integration tests early on. I have decent unit test coverage but not enough tests that exercise the full request response cycle for common workflows.
 
 ## About this
 
-I built this project over a few months while teaching myself backend development. The repo has about 10 route files, 7 Mongoose models, and a full React frontend. I wrote everything in it.
+I built this over a few months while teaching myself backend development. The repo has about 10 route files, 7 Mongoose models, and a full React frontend. I wrote everything in it.
 
 There's a more complete API reference in the repo too (`API_DOCUMENTATION.md`) that documents every single field and response code. This doc is the condensed version, the one I'd send to someone who just wants to start making requests without reading through hundreds of lines of specs.
-
-## License
-
-MIT

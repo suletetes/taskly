@@ -225,3 +225,8 @@ dist
 .idea/copilot.data.migration.edit.xml
 public/img/
 backend/public/img/
+coverletters/cover-letter-canonical-cloud-support.md
+coverletters/cover-letter-canonical-junior-engineer.md
+coverletters/cover-letter-jaeger.md
+coverletters/cover-letter-pipecd.md
+coverletters/cover-letter-volcano.md

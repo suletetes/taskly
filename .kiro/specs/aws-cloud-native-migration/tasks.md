@@ -170,14 +170,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Create image processing Lambda trigger for avatar resizing (400x400)
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-  - [~] 9.5 Write unit tests for Lambda handler and auth middleware
+  - [x] 9.5 Write unit tests for Lambda handler and auth middleware
     - Test API Gateway event translation to Express request
     - Test Cognito JWT validation with valid/expired/malformed tokens
     - Test S3 pre-signed URL generation with correct parameters
     - _Requirements: 1.1, 1.7, 3.6, 3.7_
 
 - [ ] 10. API Gateway configuration
-  - [~] 10.1 Create API Gateway module with HTTP API
+  - [x] 10.1 Create API Gateway module with HTTP API
     - Create `infrastructure/modules/apigateway/`
     - Define HTTP API (not REST API) for lower latency and cost
     - Configure Cognito JWT authorizer for protected routes
@@ -185,14 +185,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Set timeout to 29 seconds, payload format version 2.0
     - _Requirements: 1.1, 1.5, 3.6, 3.7_
 
-  - [~] 10.2 Configure API Gateway routes and stages
+  - [x] 10.2 Configure API Gateway routes and stages
     - Define all API routes matching existing Express routes (auth, users, tasks, projects, teams, invitations, notifications, search, calendar, upload)
     - Configure CORS settings matching current frontend origin
     - Set up stage variables for environment-specific configuration
     - Enable access logging to CloudWatch
     - _Requirements: 1.1, 1.2, 10.1_
 
-  - [~] 10.3 Create Lambda function Terraform resources
+  - [x] 10.3 Create Lambda function Terraform resources
     - Create `infrastructure/modules/lambda/`
     - Define Lambda function resource with ARM64 architecture (Graviton2)
     - Configure VPC attachment (private subnets, Lambda security group)
@@ -239,7 +239,7 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Configure visibility timeout, message retention (14 days for DLQ)
     - _Requirements: 7.3, 7.5, 6.3, 6.5_
 
-  - [~] 12.3 Create event publishing service and async processors
+  - [x] 12.3 Create event publishing service and async processors
     - Create `backend/services/eventService.js` to publish events to EventBridge
     - Create `backend/lambda/processors/achievement-processor.js` for task completion events
     - Create `backend/lambda/processors/notification-processor.js` for notification batching
@@ -247,18 +247,18 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Ensure all processors complete within 60 seconds
     - _Requirements: 7.1, 7.2, 7.5, 7.6_
 
-  - [~] 12.4 Refactor synchronous notification/achievement logic to event-driven
+  - [x] 12.4 Refactor synchronous notification/achievement logic to event-driven
     - Modify task completion handlers to publish events instead of inline processing
     - Modify team membership handlers to publish events for notifications
     - Remove synchronous achievement checking from API request path
     - Wire EventBridge rules to processor Lambda functions in Terraform
     - _Requirements: 7.1, 7.2, 7.4_
 
-- [~] 13. Checkpoint - Validate application layer migration
+- [x] 13. Checkpoint - Validate application layer migration
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. WAF rules and security hardening
-  - [~] 14.1 Create WAF module with managed rule groups
+  - [x] 14.1 Create WAF module with managed rule groups
     - Create `infrastructure/modules/waf/`
     - Attach WAF WebACL to API Gateway
     - Enable AWS Managed Rules: Core Rule Set (CRS), Known Bad Inputs, SQL Injection, XSS
@@ -266,7 +266,7 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Configure IP blocking action for rate limit violations
     - _Requirements: 11.1, 11.2_
 
-  - [~] 14.2 Configure TLS and additional security settings
+  - [x] 14.2 Configure TLS and additional security settings
     - Enforce TLS 1.2 minimum on API Gateway custom domain
     - Configure security headers via CloudFront response headers policy
     - Enable API Gateway access logging with request/response details
@@ -274,14 +274,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - _Requirements: 11.7, 11.8_
 
 - [ ] 15. CloudWatch dashboards and alarms
-  - [~] 15.1 Create CloudWatch module with custom metrics and structured logging
+  - [x] 15.1 Create CloudWatch module with custom metrics and structured logging
     - Create `infrastructure/modules/monitoring/`
     - Configure Lambda function log groups with 30-day retention
     - Create metric filters for: error rate, latency percentiles, cold starts
     - Create log subscription filter to archive logs to S3 after 30 days (90-day retention)
     - _Requirements: 10.1, 10.2, 10.6_
 
-  - [~] 15.2 Create CloudWatch alarms and SNS notifications
+  - [x] 15.2 Create CloudWatch alarms and SNS notifications
     - Define alarm: API error rate > 5% over 5-minute window → SNS notification
     - Define alarm: Lambda cold start > 3 seconds → warning notification
     - Define alarm: DocumentDB failover event → critical notification
@@ -290,14 +290,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Create SNS topic for operations team notifications
     - _Requirements: 10.3, 10.4, 10.7, 12.3, 6.6_
 
-  - [~] 15.3 Create CloudWatch dashboard
+  - [x] 15.3 Create CloudWatch dashboard
     - Define dashboard with widgets: request volume, latency distribution (p50/p95/p99), error breakdown
     - Add database performance metrics (connections, CPU, memory)
     - Add cost metrics and Lambda concurrent execution tracking
     - Add email delivery rate and bounce rate panels
     - _Requirements: 10.5_
 
-  - [~] 15.4 Add structured logging with correlation IDs to Lambda functions
+  - [x] 15.4 Add structured logging with correlation IDs to Lambda functions
     - Create `backend/utils/logger.js` with JSON structured logging
     - Include correlation ID (API Gateway requestId) in all log entries
     - Add request/response logging middleware with latency tracking
@@ -305,7 +305,7 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - _Requirements: 10.1, 10.2, 1.7_
 
 - [ ] 16. CI/CD pipeline (GitHub Actions)
-  - [~] 16.1 Create infrastructure deployment workflow
+  - [x] 16.1 Create infrastructure deployment workflow
     - Create `.github/workflows/infrastructure-deploy.yml`
     - Configure Terraform init, plan, apply stages
     - Run on push to main (paths: `infrastructure/**`)
@@ -314,7 +314,7 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Store plan output as artifact (30-day retention)
     - _Requirements: 8.1, 8.2, 8.6, 8.8_
 
-  - [~] 16.2 Create backend Lambda deployment workflow
+  - [x] 16.2 Create backend Lambda deployment workflow
     - Rewrite `.github/workflows/backend-deploy.yml` for Lambda deployment
     - Stages: lint → test → build → package → deploy
     - Package Lambda function with production dependencies (exclude tests, dev deps)
@@ -323,14 +323,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Automatic rollback if error rate exceeds 1%
     - _Requirements: 8.1, 8.4, 8.7, 8.8_
 
-  - [~] 16.3 Create frontend deployment workflow
+  - [x] 16.3 Create frontend deployment workflow
     - Rewrite `.github/workflows/frontend-deploy.yml` for S3/CloudFront deployment
     - Stages: lint → test → build → deploy to S3 → invalidate CloudFront
     - Sync build output to S3 frontend bucket
     - Create CloudFront invalidation for `/*` on deploy
     - _Requirements: 8.1, 8.5, 5.5_
 
-  - [~] 16.4 Create PR validation workflow
+  - [x] 16.4 Create PR validation workflow
     - Create `.github/workflows/pr-validation.yml`
     - Run lint and test stages for both backend and frontend on PR
     - Run `terraform plan` (no apply) for infrastructure changes
@@ -338,11 +338,11 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Notify team on pipeline failure
     - _Requirements: 8.3, 8.7_
 
-- [~] 17. Checkpoint - Validate CI/CD pipelines
+- [x] 17. Checkpoint - Validate CI/CD pipelines
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 18. Data migration scripts
-  - [~] 18.1 Create MongoDB to DocumentDB migration script
+  - [x] 18.1 Create MongoDB to DocumentDB migration script
     - Create `scripts/migration/migrate-data.js`
     - Implement collection-by-collection data transfer using `mongodump`/`mongorestore` or programmatic approach
     - Validate record counts match between source and destination for each collection
@@ -350,14 +350,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Log any schema incompatibilities and apply documented transformations
     - _Requirements: 14.1, 14.2, 14.3, 14.7_
 
-  - [~] 18.2 Create migration validation and rollback scripts
+  - [x] 18.2 Create migration validation and rollback scripts
     - Create `scripts/migration/validate-migration.js` to verify data integrity post-migration
     - Create `scripts/migration/rollback-migration.js` to restore original MongoDB connection within 15 minutes
     - Implement checksum comparison for critical collections (users, tasks, projects)
     - Ensure read availability from source during migration
     - _Requirements: 14.2, 14.4, 14.5_
 
-  - [~] 18.3 Create migration runbook with maintenance window procedure
+  - [x] 18.3 Create migration runbook with maintenance window procedure
     - Create `scripts/migration/README.md` with step-by-step migration procedure
     - Document pre-migration checklist, execution steps, validation steps, rollback procedure
     - Ensure migration completes within 2-hour maintenance window for up to 10GB
@@ -365,14 +365,14 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - _Requirements: 14.4, 14.5, 14.6_
 
 - [ ] 19. Disaster recovery configuration
-  - [~] 19.1 Configure cross-region backup replication
+  - [x] 19.1 Configure cross-region backup replication
     - Enable DocumentDB continuous backup for 5-minute RPO
     - Configure S3 cross-region replication for critical buckets
     - Document RTO of 30 minutes for cluster recovery
     - Create backup verification script
     - _Requirements: 13.1, 13.2, 13.4, 13.5_
 
-  - [~] 19.2 Configure DNS failover and maintenance page
+  - [x] 19.2 Configure DNS failover and maintenance page
     - Create Route 53 health check for API Gateway endpoint
     - Configure DNS failover to static S3 maintenance page
     - Set failover TTL to 60 seconds
@@ -380,21 +380,21 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - _Requirements: 13.7, 13.6_
 
 - [ ] 20. Final integration and wiring
-  - [~] 20.1 Create environment-specific Terraform variable files
+  - [x] 20.1 Create environment-specific Terraform variable files
     - Create `infrastructure/environments/dev/terraform.tfvars` with minimal resources (single DocumentDB instance, low concurrency)
     - Create `infrastructure/environments/staging/terraform.tfvars` with moderate resources
     - Create `infrastructure/environments/prod/terraform.tfvars` with full HA configuration
     - Wire all module outputs to dependent modules (VPC IDs → Lambda, DocumentDB endpoint → Secrets)
     - _Requirements: 9.2, 12.7_
 
-  - [~] 20.2 Create application configuration wiring
+  - [x] 20.2 Create application configuration wiring
     - Create `backend/config/production.js` that reads all config from Secrets Manager and environment variables
     - Update all service modules to use AWS SDK clients (S3, SES, EventBridge, SQS)
     - Ensure all Lambda functions have correct IAM permissions for their specific operations
     - Verify end-to-end request flow: CloudFront → API Gateway → Lambda → DocumentDB
     - _Requirements: 9.7, 11.9, 1.2_
 
-  - [~] 20.3 Write end-to-end integration tests
+  - [x] 20.3 Write end-to-end integration tests
     - Create `backend/tests/integration/aws-integration.test.js`
     - Test full request flow through API Gateway to Lambda
     - Test file upload flow with pre-signed URLs
@@ -402,7 +402,7 @@ This plan migrates the Taskly application from a monolithic Docker/PM2 deploymen
     - Test event publishing and async processing
     - _Requirements: 1.2, 3.6, 4.1, 7.1_
 
-- [~] 21. Final checkpoint - Ensure all tests pass
+- [x] 21. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
