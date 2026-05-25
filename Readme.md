@@ -30,6 +30,14 @@ A full-stack task management application designed for individuals and teams, fea
 
 ## Tech Stack
 
+### Architecture
+
+The production deployment runs on AWS serverless infrastructure (Lambda, API Gateway, DocumentDB, S3, CloudFront, EventBridge, SES).
+
+![Architecture](docs/01-architecture.png)
+
+![Operations](docs/02-operations.png)
+
 ### Frontend
 - **Framework**: React 18 with Vite
 - **Styling**: Tailwind CSS
