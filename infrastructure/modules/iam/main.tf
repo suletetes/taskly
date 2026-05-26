@@ -119,6 +119,12 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
   policy_arn = aws_iam_policy.lambda_vpc_access.arn
 }
 
+# AWS managed VPC access policy (CreateNetworkInterface permission)
+resource "aws_iam_role_policy_attachment" "lambda_vpc_managed" {
+  role       = aws_iam_role.lambda_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
 # Base policy: Secrets Manager read access (scoped to project secrets)
 resource "aws_iam_policy" "lambda_secrets_read" {
   name        = "${local.name_prefix}-lambda-secrets-read"
@@ -134,6 +140,14 @@ resource "aws_iam_policy" "lambda_secrets_read" {
           "secretsmanager:DescribeSecret"
         ]
         Resource = "arn:aws:secretsmanager:${local.region}:${local.account_id}:secret:${var.project}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ]
+        Resource = "arn:aws:kms:${local.region}:${local.account_id}:key/*"
       }
     ]
   })
