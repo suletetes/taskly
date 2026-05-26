@@ -1,4 +1,4 @@
-const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 
 /**
  * Secrets Manager retrieval utility for Lambda functions.
@@ -160,7 +160,7 @@ function buildDocumentDBUri(secret) {
   const database = dbname || 'taskly';
   const encodedPassword = encodeURIComponent(password);
 
-  return `mongodb://${username}:${encodedPassword}@${host}:${dbPort}/${database}?tls=true&retryWrites=false`;
+  return `mongodb://${username}:${encodedPassword}@${host}:${dbPort}/${database}?tls=true&tlsCAFile=/var/task/global-bundle.pem&retryWrites=false&directConnection=true&authMechanism=SCRAM-SHA-1`;
 }
 
 /**
@@ -264,21 +264,20 @@ function getLocalFallback(secretName) {
   return null;
 }
 
-module.exports = {
+export {
   getSecret,
   getDocumentDBUri,
   invalidateCache,
   invalidateAllCache,
   withRotationRetry,
   setClient,
-  // Exported for testing
-  _internals: {
-    isCacheValid,
-    isAuthError,
-    buildDocumentDBUri,
-    getLocalFallback,
-    fetchSecretFromAWS,
-    secretsCache,
-    CACHE_TTL_MS,
-  },
+};
+
+export default {
+  getSecret,
+  getDocumentDBUri,
+  invalidateCache,
+  invalidateAllCache,
+  withRotationRetry,
+  setClient,
 };

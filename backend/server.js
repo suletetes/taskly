@@ -108,28 +108,40 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/img', express.static('public/img'));
 app.use('/uploads', express.static('public/uploads'));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly')
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+// Database connection — skip in Lambda (handler.js manages DB connection)
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly')
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
+}
 
-// Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false,
-  name: 'taskly.sid', // Custom session name
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly',
-    touchAfter: 24 * 3600 // lazy session update
-  }),
-  cookie: {
-    secure: process.env.NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true', // HTTPS only in production
-    httpOnly: true,
-    maxAge: parseInt(process.env.SESSION_MAX_AGE) || 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
-  }
-}));
+// Session configuration — skip MongoStore in Lambda (stateless JWT auth)
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    name: 'taskly.sid',
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly',
+      touchAfter: 24 * 3600
+    }),
+    cookie: {
+      secure: process.env.NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true',
+      httpOnly: true,
+      maxAge: parseInt(process.env.SESSION_MAX_AGE) || 1000 * 60 * 60 * 24 * 7,
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    }
+  }));
+} else {
+  // In Lambda, use a simple in-memory session (JWT handles auth)
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'lambda-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: true, httpOnly: true }
+  }));
+}
 
 // Passport middleware
 app.use(passport.initialize());
