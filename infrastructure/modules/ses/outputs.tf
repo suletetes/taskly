@@ -53,7 +53,7 @@ output "mail_from_mx_record" {
   value = {
     type     = "MX"
     name     = local.mail_from_domain
-    value    = "10 feedback-smtp.${data.aws_region.current.region}.amazonses.com"
+    value    = "10 feedback-smtp.${data.aws_region.current.name}.amazonses.com"
     priority = 10
   }
 }
@@ -94,7 +94,7 @@ output "all_dns_records" {
     mail_from_mx = {
       type     = "MX"
       name     = local.mail_from_domain
-      value    = "10 feedback-smtp.${data.aws_region.current.region}.amazonses.com"
+      value    = "10 feedback-smtp.${data.aws_region.current.name}.amazonses.com"
       priority = 10
     }
     dmarc = {
