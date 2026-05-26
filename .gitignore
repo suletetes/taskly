@@ -258,3 +258,28 @@ terraform.rc
 .aws/
 *.pem
 *.key
+
+# Lambda deployment artifacts
+backend/lambda-deploy.zip
+backend/lambda-placeholder.zip
+backend/placeholder.js
+response.json
+logs.txt
+
+# Terraform state (managed remotely)
+infrastructure/.terraform/
+infrastructure/.terraform.lock.hcl
+infrastructure/tfplan
+infrastructure/tfplan2
+
+# Architecture diagram source (keep PNGs)
+docs/*.dot
+
+# Global bundle cert (download fresh for deployment)
+global-bundle.pem
+backend/global-bundle.pem
+
+# Note/scratch files
+note.md
+can.txt
+PRODUCTION_READINESS_CHECKLIST.md
