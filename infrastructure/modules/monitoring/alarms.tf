@@ -155,6 +155,8 @@ resource "aws_cloudwatch_metric_alarm" "ses_bounce_rate" {
 # ─── Alarm: Monthly Cost Budget ───────────────────────────────────────────────
 
 resource "aws_budgets_budget" "monthly" {
+  count = length(var.alarm_email_endpoints) > 0 ? 1 : 0
+
   name         = "${var.project_name}-${var.environment}-monthly-budget"
   budget_type  = "COST"
   limit_amount = tostring(var.monthly_budget_amount)

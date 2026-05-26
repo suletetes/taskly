@@ -95,8 +95,8 @@ resource "aws_cloudfront_cache_policy" "no_cache" {
     query_strings_config {
       query_string_behavior = "none"
     }
-    enable_accept_encoding_brotli = true
-    enable_accept_encoding_gzip   = true
+    enable_accept_encoding_brotli = false
+    enable_accept_encoding_gzip   = false
   }
 }
 
