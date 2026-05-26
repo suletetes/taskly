@@ -27,7 +27,7 @@ output "api_gateway_url" {
 
 output "cloudfront_frontend_url" {
   description = "CloudFront distribution URL for the frontend"
-  value       = module.cloudfront.frontend_distribution_domain
+  value       = module.cloudfront.frontend_distribution_domain_name
 }
 
 output "cognito_user_pool_id" {
@@ -37,7 +37,7 @@ output "cognito_user_pool_id" {
 
 output "cognito_client_id" {
   description = "Cognito App Client ID"
-  value       = module.cognito.client_id
+  value       = module.cognito.app_client_id
 }
 
 output "documentdb_endpoint" {

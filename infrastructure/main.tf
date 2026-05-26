@@ -15,9 +15,46 @@ locals {
 module "vpc" {
   source = "./modules/vpc"
 
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
+  project     = var.project_name
+  environment = var.environment
+  vpc_cidr    = var.vpc_cidr
+  tags        = local.common_tags
+}
+
+# ─── Storage ──────────────────────────────────────────────────────────────────
+
+module "s3" {
+  source = "./modules/s3"
+
+  project     = var.project_name
+  environment = var.environment
+  tags        = local.common_tags
+}
+
+# ─── CDN ──────────────────────────────────────────────────────────────────────
+
+module "cloudfront" {
+  source = "./modules/cloudfront"
+
+  project                             = var.project_name
+  environment                         = var.environment
+  frontend_bucket_id                  = module.s3.frontend_bucket_id
+  frontend_bucket_arn                 = module.s3.frontend_bucket_arn
+  frontend_bucket_regional_domain_name = module.s3.frontend_bucket_regional_domain_name
+  uploads_bucket_id                   = module.s3.uploads_bucket_id
+  uploads_bucket_arn                  = module.s3.uploads_bucket_arn
+  uploads_bucket_regional_domain_name = module.s3.uploads_bucket_regional_domain_name
+  tags                                = local.common_tags
+}
+
+# ─── IAM ──────────────────────────────────────────────────────────────────────
+
+module "iam" {
+  source = "./modules/iam"
+
+  project     = var.project_name
+  environment = var.environment
+  tags        = local.common_tags
 }
 
 # ─── Database ─────────────────────────────────────────────────────────────────
@@ -25,11 +62,14 @@ module "vpc" {
 module "documentdb" {
   source = "./modules/documentdb"
 
-  project_name       = var.project_name
+  project            = var.project_name
   environment        = var.environment
-  vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnet_ids
-  lambda_sg_id       = module.vpc.lambda_security_group_id
+  security_group_id  = module.vpc.documentdb_security_group_id
+  master_password    = var.documentdb_master_password
+  instance_class     = var.documentdb_instance_class
+  instance_count     = var.documentdb_instance_count
+  kms_key_arn        = module.secrets.kms_key_arn
   tags               = local.common_tags
 }
 
@@ -38,9 +78,14 @@ module "documentdb" {
 module "secrets" {
   source = "./modules/secrets"
 
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
+  project                    = var.project_name
+  environment                = var.environment
+  documentdb_master_password = var.documentdb_master_password
+  jwt_signing_key            = var.jwt_signing_key
+  vpc_id                     = module.vpc.vpc_id
+  private_subnet_ids         = module.vpc.private_subnet_ids
+  lambda_security_group_id   = module.vpc.lambda_security_group_id
+  tags                       = local.common_tags
 }
 
 # ─── Authentication ───────────────────────────────────────────────────────────
@@ -48,39 +93,31 @@ module "secrets" {
 module "cognito" {
   source = "./modules/cognito"
 
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
+  project     = var.project_name
+  environment = var.environment
+  tags        = local.common_tags
 }
 
-# ─── Storage ──────────────────────────────────────────────────────────────────
+# ─── Email ────────────────────────────────────────────────────────────────────
 
-module "s3" {
-  source = "./modules/s3"
+module "ses" {
+  source = "./modules/ses"
 
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
+  project     = var.project_name
+  environment = var.environment
+  domain      = var.ses_domain
+  tags        = local.common_tags
 }
 
-# ─── CDN ──────────────────────────────────────────────────────────────────────
+# ─── Queues (created before EventBridge since EB needs the DLQ ARN) ───────────
 
-module "cloudfront" {
-  source = "./modules/cloudfront"
+module "sqs" {
+  source = "./modules/sqs"
 
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
-}
-
-# ─── IAM ──────────────────────────────────────────────────────────────────────
-
-module "iam" {
-  source = "./modules/iam"
-
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
+  project_name              = var.project_name
+  environment               = var.environment
+  lambda_execution_role_arn = module.iam.lambda_execution_role_arn
+  tags                      = local.common_tags
 }
 
 # ─── Compute ──────────────────────────────────────────────────────────────────
@@ -94,21 +131,21 @@ module "lambda" {
   private_subnet_ids       = module.vpc.private_subnet_ids
   lambda_security_group_id = module.vpc.lambda_security_group_id
   execution_role_arn       = module.iam.lambda_execution_role_arn
-  documentdb_secret_arn    = module.secrets.documentdb_secret_arn
+  documentdb_secret_arn    = module.secrets.documentdb_credentials_secret_arn
   cognito_user_pool_id     = module.cognito.user_pool_id
-  cognito_client_id        = module.cognito.client_id
+  cognito_client_id        = module.cognito.app_client_id
   s3_upload_bucket         = module.s3.uploads_bucket_id
   event_bus_name           = module.eventbridge.event_bus_name
   email_queue_url          = module.sqs.email_queue_url
   email_queue_arn          = module.sqs.email_queue_arn
   notification_queue_url   = module.sqs.notification_queue_url
-  cdn_domain               = module.cloudfront.uploads_distribution_domain
-  api_handler_s3_bucket    = module.s3.deploy_bucket_id
-  api_handler_s3_key       = "lambda/api-handler.zip"
-  processor_s3_bucket      = module.s3.deploy_bucket_id
-  achievement_processor_s3_key  = "lambda/achievement-processor.zip"
-  notification_processor_s3_key = "lambda/notification-processor.zip"
-  email_processor_s3_key        = "lambda/email-processor.zip"
+  cdn_domain               = module.cloudfront.uploads_distribution_domain_name
+  api_handler_s3_bucket    = module.s3.uploads_bucket_id
+  api_handler_s3_key       = "deploy/api-handler.zip"
+  processor_s3_bucket      = module.s3.uploads_bucket_id
+  achievement_processor_s3_key  = "deploy/achievement-processor.zip"
+  notification_processor_s3_key = "deploy/notification-processor.zip"
+  email_processor_s3_key        = "deploy/email-processor.zip"
   tags                     = local.common_tags
 }
 
@@ -122,19 +159,9 @@ module "apigateway" {
   lambda_function_arn         = module.lambda.api_handler_invoke_arn
   lambda_function_name        = module.lambda.api_handler_function_name
   cognito_user_pool_arn       = module.cognito.user_pool_arn
-  cognito_user_pool_client_id = module.cognito.client_id
+  cognito_user_pool_client_id = module.cognito.app_client_id
   cognito_user_pool_endpoint  = module.cognito.user_pool_endpoint
   tags                        = local.common_tags
-}
-
-# ─── Email ────────────────────────────────────────────────────────────────────
-
-module "ses" {
-  source = "./modules/ses"
-
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = local.common_tags
 }
 
 # ─── Event Bus ────────────────────────────────────────────────────────────────
@@ -152,18 +179,6 @@ module "eventbridge" {
   tags                               = local.common_tags
 }
 
-# ─── Queues ───────────────────────────────────────────────────────────────────
-
-module "sqs" {
-  source = "./modules/sqs"
-
-  project_name            = var.project_name
-  environment             = var.environment
-  event_bus_arn           = module.eventbridge.event_bus_arn
-  lambda_execution_role_arn = module.iam.lambda_execution_role_arn
-  tags                    = local.common_tags
-}
-
 # ─── Security ─────────────────────────────────────────────────────────────────
 
 module "waf" {
@@ -171,7 +186,7 @@ module "waf" {
 
   project_name          = var.project_name
   environment           = var.environment
-  api_gateway_stage_arn = module.apigateway.api_execution_arn
+  api_gateway_stage_arn = module.apigateway.stage_invoke_url != "" ? "arn:aws:apigateway:us-east-1::/apis/${module.apigateway.api_id}/stages/$default" : ""
   tags                  = local.common_tags
 }
 

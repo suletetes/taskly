@@ -31,3 +31,47 @@ variable "owner" {
   type        = string
   default     = "platform-team"
 }
+
+# ─── Networking ───────────────────────────────────────────────────────────────
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+# ─── Database ─────────────────────────────────────────────────────────────────
+
+variable "documentdb_master_password" {
+  description = "Master password for the DocumentDB cluster"
+  type        = string
+  sensitive   = true
+}
+
+variable "documentdb_instance_class" {
+  description = "DocumentDB instance class"
+  type        = string
+  default     = "db.t3.medium"
+}
+
+variable "documentdb_instance_count" {
+  description = "Number of DocumentDB instances"
+  type        = number
+  default     = 1
+}
+
+# ─── Secrets ──────────────────────────────────────────────────────────────────
+
+variable "jwt_signing_key" {
+  description = "JWT signing key for legacy token compatibility"
+  type        = string
+  sensitive   = true
+}
+
+# ─── Email ────────────────────────────────────────────────────────────────────
+
+variable "ses_domain" {
+  description = "Domain name for SES identity verification (e.g., taskly.app)"
+  type        = string
+  default     = "taskly.app"
+}

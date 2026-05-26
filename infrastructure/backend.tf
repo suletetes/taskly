@@ -11,7 +11,7 @@
 
 terraform {
   backend "s3" {
-    bucket         = "taskly-terraform-state"
+    bucket         = "taskly-terraform-state-583168584925"
     key            = "taskly/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "taskly-terraform-locks"
