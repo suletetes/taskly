@@ -121,11 +121,11 @@ jobs:
           echo "**Exit Code:** ${{ steps.plan.outputs.exitcode }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.plan.outputs.exitcode }}" = "0" ]; then
-            echo "✅ No changes detected" >> $GITHUB_STEP_SUMMARY
+            echo " No changes detected" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ steps.plan.outputs.exitcode }}" = "2" ]; then
-            echo "⚠️ Changes detected — apply required" >> $GITHUB_STEP_SUMMARY
+            echo " Changes detected — apply required" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Plan failed" >> $GITHUB_STEP_SUMMARY
+            echo " Plan failed" >> $GITHUB_STEP_SUMMARY
           fi
 
   # ─── Terraform Apply ────────────────────────────────────────────────────────
@@ -185,6 +185,6 @@ jobs:
       - name: Notify team of failure
         run: |
           echo "::error::Infrastructure deployment failed for environment: ${{ needs.setup.outputs.environment }}"
-          echo "## ❌ Infrastructure Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "##  Infrastructure Deployment Failed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
