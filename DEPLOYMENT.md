@@ -1,640 +1,262 @@
-# 🚀 Taskly Deployment Guide
+# Deployment guide
 
-This guide covers various deployment strategies for the Taskly application, from development to production environments.
+Step by step instructions to deploy Taskly to AWS from scratch. Based on actual deployment experience — includes the gotchas.
 
-## 📋 Table of Contents
+## Prerequisites
 
-- [Prerequisites](#prerequisites)
-- [Environment Configuration](#environment-configuration)
-- [Development Deployment](#development-deployment)
-- [Production Deployment](#production-deployment)
-- [Docker Deployment](#docker-deployment)
-- [Cloud Deployment](#cloud-deployment)
-- [Monitoring & Maintenance](#monitoring--maintenance)
+- AWS CLI v2 configured (`aws sts get-caller-identity` should work)
+- Terraform 1.7+ installed
+- Node.js 20+
+- WinRAR or 7-Zip (for creating Lambda deployment packages)
+- Python 3 with boto3 (`pip install boto3`) — needed for S3 cleanup during teardown
 
-## 🔧 Prerequisites
+## Step 1: Create Terraform state backend
 
-### System Requirements
-- **Node.js**: v16 or higher
-- **MongoDB**: v4.4 or higher
-- **npm/yarn**: Latest version
-- **PM2**: For production process management
-- **Docker**: For containerized deployment (optional)
+One-time setup. These resources persist across deploys.
 
-### External Services
-- **Cloudinary Account**: For image upload functionality
-- **MongoDB Atlas**: For cloud database (optional)
-- **Domain & SSL Certificate**: For production deployment
-
-## ⚙️ Environment Configuration
-
-### Backend Environment Variables
-
-Create `.env` file in the `backend` directory:
-
-```env
-# Application Environment
-NODE_ENV=production
-PORT=5000
-
-# Database Configuration
-MONGODB_URI=mongodb://localhost:27017/taskly_production
-# For MongoDB Atlas: mongodb+srv://username:password@cluster.mongodb.net/taskly_production
-
-# Security Configuration
-JWT_SECRET=your-super-secure-jwt-secret-key-change-this-in-production
-SESSION_SECRET=your-super-secure-session-secret-key-change-this-in-production
-
-# Client URLs
-CLIENT_URL=https://your-production-domain.com
-PRODUCTION_CLIENT_URL=https://your-production-domain.com
-CORS_ORIGIN=https://your-production-domain.com
-
-# Cloudinary Configuration (Required)
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# Optional: Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-
-# Performance & Security
-LOG_LEVEL=info
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-MAX_FILE_SIZE=5242880
-SESSION_MAX_AGE=604800000
+```powershell
+aws s3api create-bucket --bucket taskly-terraform-state-YOUR_ACCOUNT_ID --region us-east-1
+aws s3api put-bucket-versioning --bucket taskly-terraform-state-YOUR_ACCOUNT_ID --versioning-configuration Status=Enabled
+aws dynamodb create-table --table-name taskly-terraform-locks --attribute-definitions AttributeName=LockID,AttributeType=S --key-schema AttributeName=LockID,KeyType=HASH --billing-mode PAY_PER_REQUEST --region us-east-1
 ```
 
-### Frontend Environment Variables
+Update `infrastructure/backend.tf` with your bucket name.
 
-Create `.env` file in the `frontend` directory:
+## Step 2: Deploy infrastructure
 
-```env
-# Production Environment
-VITE_NODE_ENV=production
-
-# API Configuration
-VITE_API_URL=https://your-api-domain.com/api
-
-# App Configuration
-VITE_APP_NAME=Taskly
-VITE_APP_VERSION=1.0.0
-VITE_APP_DESCRIPTION=Professional Task Management Application
-
-# Feature Flags
-VITE_ENABLE_ANALYTICS=true
-VITE_ENABLE_ERROR_REPORTING=true
-VITE_ENABLE_PERFORMANCE_MONITORING=true
-
-# Security
-VITE_ENABLE_HTTPS=true
-
-# Performance
-VITE_ENABLE_SERVICE_WORKER=true
-VITE_ENABLE_PWA=true
+```powershell
+cd infrastructure
+terraform init
+terraform apply -var="environment=dev" -var="documentdb_master_password=YOUR_STRONG_PASSWORD" -var="jwt_signing_key=YOUR_RANDOM_STRING" -var="ses_domain=yourdomain.com"
 ```
 
-## 🔨 Development Deployment
+This creates ~190 resources. Takes 10-15 minutes (DocumentDB is slowest).
 
-### Local Development Setup
+If Lambda creation fails with "S3 key does not exist", upload placeholder zips first:
 
-1. **Clone and Install**
-   ```bash
-   git clone https://github.com/suletetes/taskly.git
-   cd taskly
-   npm run install-deps
-   ```
+```powershell
+# Create a tiny placeholder
+echo '{}' > placeholder.js
+Compress-Archive -Path placeholder.js -DestinationPath placeholder.zip -Force
 
-2. **Configure Environment**
-   ```bash
-   # Backend
-   cd backend
-   cp .env.example .env
-   # Update .env with your values
-   
-   # Frontend
-   cd ../frontend
-   cp .env.example .env
-   # Update .env with your values
-   ```
-
-3. **Start Services**
-   ```bash
-   # Start MongoDB
-   sudo systemctl start mongod
-   
-   # Seed database (optional)
-   cd backend && npm run seed
-   
-   # Start development servers
-   cd .. && npm run dev
-   ```
-
-## 🏭 Production Deployment
-
-### Option 1: Traditional Server Deployment
-
-#### 1. Server Preparation
-
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install MongoDB
-wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-sudo apt-get update
-sudo apt-get install -y mongodb-org
-
-# Install PM2
-sudo npm install -g pm2
-
-# Install Nginx
-sudo apt install nginx -y
+# Upload as all 4 Lambda packages
+aws s3 cp placeholder.zip s3://YOUR_UPLOADS_BUCKET/deploy/api-handler.zip
+aws s3 cp placeholder.zip s3://YOUR_UPLOADS_BUCKET/deploy/achievement-processor.zip
+aws s3 cp placeholder.zip s3://YOUR_UPLOADS_BUCKET/deploy/notification-processor.zip
+aws s3 cp placeholder.zip s3://YOUR_UPLOADS_BUCKET/deploy/email-processor.zip
 ```
 
-#### 2. Application Deployment
+Then re-run `terraform apply`.
 
-```bash
-# Clone repository
-git clone https://github.com/suletetes/taskly.git
-cd taskly
+## Step 3: Fix IAM permissions
 
-# Install dependencies
-npm run install-deps
+After first deploy, attach VPC access to the Lambda role:
 
-# Configure environment
-cp backend/.env.production backend/.env
-cp frontend/.env.production frontend/.env
-# Update with production values
-
-# Build frontend
-cd frontend && npm run build
-
-# Start backend with PM2
-cd ../backend
-pm2 start ecosystem.config.js --env production
-
-# Configure PM2 startup
-pm2 startup
-pm2 save
+```powershell
+aws iam attach-role-policy --role-name taskly-dev-lambda-execution --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 ```
 
-#### 3. Nginx Configuration
+Add KMS decrypt permission (get the key ARN from `aws kms list-aliases`):
 
-Create `/etc/nginx/sites-available/taskly`:
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com;
-    
-    # Redirect HTTP to HTTPS
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name your-domain.com www.your-domain.com;
-    
-    # SSL Configuration
-    ssl_certificate /path/to/your/certificate.crt;
-    ssl_certificate_key /path/to/your/private.key;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;
-    
-    # Security Headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "no-referrer-when-downgrade" always;
-    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
-    
-    # Frontend (React App)
-    location / {
-        root /path/to/taskly/frontend/dist;
-        index index.html;
-        try_files $uri $uri/ /index.html;
-        
-        # Cache static assets
-        location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-        }
-    }
-    
-    # Backend API
-    location /api {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
+```powershell
+aws iam put-role-policy --role-name taskly-dev-lambda-execution --policy-name kms-decrypt --policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"kms:Decrypt\",\"kms:DescribeKey\"],\"Resource\":\"YOUR_KMS_KEY_ARN\"}]}"
 ```
 
-Enable the site:
-```bash
-sudo ln -s /etc/nginx/sites-available/taskly /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
+## Step 4: Update DocumentDB secret with endpoint
+
+Terraform creates the secret but leaves the host empty. Fill it in:
+
+```powershell
+# Get the endpoint
+aws docdb describe-db-clusters --query "DBClusters[?contains(DBClusterIdentifier, 'taskly')].Endpoint" --output text
+
+# Update the secret (replace HOST with the endpoint above)
+aws secretsmanager put-secret-value --secret-id "taskly/dev/documentdb-credentials" --secret-string "{\"dbname\":\"taskly\",\"engine\":\"mongo\",\"host\":\"HOST\",\"password\":\"YOUR_PASSWORD\",\"port\":27017,\"username\":\"taskly_admin\"}"
 ```
 
-### Option 2: PM2 Deployment
+## Step 5: Set Lambda environment variables
 
-```bash
-# Install PM2 globally
-npm install -g pm2
+```powershell
+aws lambda update-function-configuration --function-name taskly-dev-api --environment "Variables={NODE_ENV=production,DOCUMENTDB_SECRET_NAME=taskly/dev/documentdb-credentials,COGNITO_USER_POOL_ID=YOUR_POOL_ID,COGNITO_CLIENT_ID=YOUR_CLIENT_ID,S3_UPLOAD_BUCKET=YOUR_UPLOADS_BUCKET,PORT=5000,MONGODB_URI=skip,JWT_SECRET=skip,SESSION_SECRET=skip,CLIENT_URL=YOUR_CLOUDFRONT_URL,CLOUDINARY_CLOUD_NAME=skip,CLOUDINARY_API_KEY=skip,CLOUDINARY_API_SECRET=skip}"
+```
 
-# Start application
+Get the values from `terraform output`.
+
+## Step 6: Deploy backend code
+
+```powershell
 cd backend
-npm run pm2:start
 
-# Monitor application
-pm2 monit
+# Install production dependencies
+npm install --omit=dev
 
-# View logs
-pm2 logs taskly-backend
+# Download the DocumentDB TLS certificate
+# Get it from: https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+# Save as backend/global-bundle.pem
 
-# Restart application
-pm2 restart taskly-backend
+# Create zip (from INSIDE the backend folder, select files at root level)
+# Using WinRAR GUI: select index.mjs, server.js, package.json, schemas.js, global-bundle.pem,
+# lambda/, config/, controllers/, middleware/, models/, routes/, services/, utils/, node_modules/
+# Right-click → Add to archive → ZIP format → OK
 
-# Stop application
-pm2 stop taskly-backend
+# Upload to S3 and deploy
+aws s3 cp lambda-deploy.zip s3://YOUR_UPLOADS_BUCKET/deploy/api-handler.zip
+aws lambda update-function-code --function-name taskly-dev-api --s3-bucket YOUR_UPLOADS_BUCKET --s3-key deploy/api-handler.zip
 ```
 
-## 🐳 Docker Deployment
+**Critical:** The zip must have `index.mjs` and `server.js` at the ROOT level, not inside a subfolder. The Lambda handler is set to `index.handler`.
 
-### Single Container Deployment
+## Step 7: Create API Gateway routes
 
-#### Backend Container
-```bash
-cd backend
-docker build -t taskly-backend .
-docker run -d -p 5000:5000 --name taskly-backend taskly-backend
+If routes are missing (you get "Not Found" on all endpoints):
+
+```powershell
+cd infrastructure
+terraform apply -auto-approve -var="environment=dev" -var="documentdb_master_password=..." -var="jwt_signing_key=..." -var="ses_domain=..." "-target=module.apigateway"
 ```
 
-#### Frontend Container
-```bash
+## Step 8: Verify
+
+```powershell
+curl https://YOUR_API_GATEWAY_URL/api/health
+```
+
+Expected response:
+```json
+{"status":"OK","message":"Taskly API Server is running","timestamp":"...","environment":"production","version":"1.0.0","database":"connected"}
+```
+
+## Step 9: Deploy frontend (optional)
+
+```powershell
 cd frontend
-docker build -t taskly-frontend .
-docker run -d -p 3000:80 --name taskly-frontend taskly-frontend
+npm ci
+$env:VITE_API_URL = "https://YOUR_API_GATEWAY_URL/api"
+npm run build
+aws s3 sync dist/ s3://YOUR_FRONTEND_BUCKET/ --delete
+aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
 ```
-
-### Docker Compose Deployment
-
-1. **Configure Environment**
-   ```bash
-   cp .env.docker .env
-   # Update .env with your values
-   ```
-
-2. **Start Services**
-   ```bash
-   # Build and start all services
-   docker-compose up -d
-   
-   # View logs
-   docker-compose logs -f
-   
-   # Stop services
-   docker-compose down
-   ```
-
-3. **Production with Nginx**
-   ```bash
-   # Start with production profile
-   docker-compose --profile production up -d
-   ```
-
-## ☁️ Cloud Deployment
-
-### AWS Deployment
-
-#### Using AWS EC2
-
-1. **Launch EC2 Instance**
-   - Choose Ubuntu 20.04 LTS
-   - Select appropriate instance type (t3.medium recommended)
-   - Configure security groups (ports 22, 80, 443)
-
-2. **Deploy Application**
-   ```bash
-   # Connect to instance
-   ssh -i your-key.pem ubuntu@your-ec2-ip
-   
-   # Follow traditional server deployment steps
-   ```
-
-#### Using AWS ECS (Docker)
-
-1. **Create ECR Repositories**
-   ```bash
-   aws ecr create-repository --repository-name taskly-backend
-   aws ecr create-repository --repository-name taskly-frontend
-   ```
-
-2. **Build and Push Images**
-   ```bash
-   # Get login token
-   aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin your-account.dkr.ecr.us-east-1.amazonaws.com
-   
-   # Build and push backend
-   cd backend
-   docker build -t taskly-backend .
-   docker tag taskly-backend:latest your-account.dkr.ecr.us-east-1.amazonaws.com/taskly-backend:latest
-   docker push your-account.dkr.ecr.us-east-1.amazonaws.com/taskly-backend:latest
-   
-   # Build and push frontend
-   cd ../frontend
-   docker build -t taskly-frontend .
-   docker tag taskly-frontend:latest your-account.dkr.ecr.us-east-1.amazonaws.com/taskly-frontend:latest
-   docker push your-account.dkr.ecr.us-east-1.amazonaws.com/taskly-frontend:latest
-   ```
-
-### Heroku Deployment
-
-#### Backend Deployment
-```bash
-# Install Heroku CLI
-# Create Heroku app
-heroku create taskly-backend-app
-
-# Set environment variables
-heroku config:set NODE_ENV=production
-heroku config:set MONGODB_URI=your-mongodb-uri
-heroku config:set JWT_SECRET=your-jwt-secret
-# ... other environment variables
-
-# Deploy
-git subtree push --prefix backend heroku main
-```
-
-#### Frontend Deployment (Netlify)
-
-1. **Build Configuration**
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-
-2. **Environment Variables**
-   ```
-   VITE_API_URL=https://your-backend-app.herokuapp.com/api
-   VITE_APP_NAME=Taskly
-   ```
-
-### Vercel Deployment
-
-#### Frontend Deployment
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-cd frontend
-vercel --prod
-```
-
-##  Monitoring & Maintenance
-
-### Health Monitoring
-
-#### Backend Health Check
-```bash
-curl -f http://your-domain.com/api/health
-```
-
-#### PM2 Monitoring
-```bash
-# Real-time monitoring
-pm2 monit
-
-# Process status
-pm2 status
-
-# Application logs
-pm2 logs taskly-backend
-
-# Error logs only
-pm2 logs taskly-backend --err
-
-# Restart application
-pm2 restart taskly-backend
-```
-
-### Log Management
-
-#### Application Logs
-```bash
-# Backend logs
-tail -f backend/logs/combined.log
-
-# PM2 logs
-pm2 logs --lines 100
-
-# Nginx logs
-sudo tail -f /var/log/nginx/access.log
-sudo tail -f /var/log/nginx/error.log
-```
-
-#### Log Rotation
-```bash
-# Configure logrotate for application logs
-sudo nano /etc/logrotate.d/taskly
-
-# Add configuration:
-/path/to/taskly/backend/logs/*.log {
-    daily
-    missingok
-    rotate 52
-    compress
-    delaycompress
-    notifempty
-    create 644 taskly taskly
-}
-```
-
-### Database Maintenance
-
-#### MongoDB Backup
-```bash
-# Create backup
-mongodump --db taskly_production --out /backup/$(date +%Y%m%d)
-
-# Restore backup
-mongorestore --db taskly_production /backup/20231201/taskly_production
-```
-
-#### Automated Backup Script
-```bash
-#!/bin/bash
-# backup-mongodb.sh
-
-BACKUP_DIR="/backup/mongodb"
-DATE=$(date +%Y%m%d_%H%M%S)
-DB_NAME="taskly_production"
-
-# Create backup directory
-mkdir -p $BACKUP_DIR
-
-# Create backup
-mongodump --db $DB_NAME --out $BACKUP_DIR/$DATE
-
-# Compress backup
-tar -czf $BACKUP_DIR/$DATE.tar.gz -C $BACKUP_DIR $DATE
-
-# Remove uncompressed backup
-rm -rf $BACKUP_DIR/$DATE
-
-# Keep only last 7 days of backups
-find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
-
-echo "Backup completed: $BACKUP_DIR/$DATE.tar.gz"
-```
-
-### Security Updates
-
-#### Regular Updates
-```bash
-# Update system packages
-sudo apt update && sudo apt upgrade -y
-
-# Update Node.js dependencies
-cd taskly
-npm audit
-npm audit fix
-
-# Update PM2
-pm2 update
-```
-
-#### SSL Certificate Renewal (Let's Encrypt)
-```bash
-# Install certbot
-sudo apt install certbot python3-certbot-nginx
-
-# Obtain certificate
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
-
-# Auto-renewal (add to crontab)
-0 12 * * * /usr/bin/certbot renew --quiet
-```
-
-### Performance Optimization
-
-#### Database Indexing
-```javascript
-// Connect to MongoDB and create indexes
-db.users.createIndex({ "username": 1 })
-db.users.createIndex({ "email": 1 })
-db.tasks.createIndex({ "user": 1 })
-db.tasks.createIndex({ "status": 1 })
-db.tasks.createIndex({ "due": 1 })
-```
-
-#### Nginx Optimization
-```nginx
-# Add to nginx.conf
-worker_processes auto;
-worker_connections 1024;
-
-# Enable gzip compression
-gzip on;
-gzip_vary on;
-gzip_min_length 1024;
-gzip_comp_level 6;
-gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-# Enable caching
-location ~* \\.(jpg|jpeg|png|gif|ico|css|js)$ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-}
-```
-
-## 🚨 Troubleshooting
-
-### Common Issues
-
-#### Application Won't Start
-```bash
-# Check PM2 status
-pm2 status
-
-# Check logs
-pm2 logs taskly-backend
-
-# Restart application
-pm2 restart taskly-backend
-```
-
-#### Database Connection Issues
-```bash
-# Check MongoDB status
-sudo systemctl status mongod
-
-# Start MongoDB
-sudo systemctl start mongod
-
-# Check connection
-mongo --eval "db.adminCommand('ismaster')"
-```
-
-#### High Memory Usage
-```bash
-# Check memory usage
-free -h
-pm2 monit
-
-# Restart application if needed
-pm2 restart taskly-backend
-```
-
-### Emergency Procedures
-
-#### Application Rollback
-```bash
-# Stop current version
-pm2 stop taskly-backend
-
-# Deploy previous version
-git checkout previous-stable-tag
-npm install
-pm2 start ecosystem.config.js
-```
-
-#### Database Recovery
-```bash
-# Stop application
-pm2 stop taskly-backend
-
-# Restore from backup
-mongorestore --db taskly_production --drop /backup/latest/taskly_production
-
-# Start application
-pm2 start taskly-backend
-```
-
-## 📞 Support
-
-For deployment issues:
-- Check application logs: `pm2 logs`
-- Review system logs: `journalctl -u nginx`
-- Monitor resources: `htop`, `df -h`
-- Contact support with error details
 
 ---
 
-This deployment guide covers most common scenarios. For specific cloud providers or custom setups, refer to their respective documentation.
+## Teardown (stop all charges)
+
+```powershell
+# 1. Empty versioned S3 buckets (regular delete doesn't work with versioning)
+python -c "import boto3; s3=boto3.resource('s3'); s3.Bucket('YOUR_UPLOADS_BUCKET').object_versions.all().delete(); print('done')"
+python -c "import boto3; s3=boto3.resource('s3'); s3.Bucket('YOUR_FRONTEND_BUCKET').object_versions.all().delete(); print('done')"
+
+# 2. Disable DocumentDB deletion protection
+aws docdb modify-db-cluster --db-cluster-identifier taskly-dev-docdb-cluster --no-deletion-protection
+
+# 3. Destroy everything
+cd infrastructure
+terraform destroy -auto-approve -var="environment=dev" -var="documentdb_master_password=..." -var="jwt_signing_key=..." -var="ses_domain=..."
+```
+
+If S3 buckets still won't delete, go to AWS Console → S3 → select bucket → Empty → then Delete.
+
+---
+
+## Troubleshooting
+
+### "Cannot find module 'handler'" or "Cannot find module 'index'"
+
+Your zip structure is wrong. The Lambda handler is `index.handler`, meaning it looks for `/var/task/index.mjs`. Open your zip and verify `index.mjs` is at the root level, not inside a subfolder.
+
+Fix: re-zip from INSIDE the backend folder, selecting files directly (not the folder itself).
+
+### "Service temporarily unavailable" / DATABASE_UNAVAILABLE
+
+Lambda can't connect to DocumentDB. Check in order:
+
+1. **Secret has correct host:** `aws secretsmanager get-secret-value --secret-id "taskly/dev/documentdb-credentials"` — verify `host` field isn't empty
+2. **KMS permission:** Lambda needs `kms:Decrypt` on the secrets KMS key
+3. **TLS certificate:** `global-bundle.pem` must be in the zip at root level
+4. **Auth mechanism:** Connection string must include `&authMechanism=SCRAM-SHA-1` (DocumentDB doesn't support SCRAM-SHA-256)
+5. **Security groups:** Lambda SG must have outbound to DocumentDB SG on port 27017
+
+### "Invalid NODE_ENV: dev"
+
+The environment validation in `server.js` expects `development`, `production`, or `test`. Set `NODE_ENV=production` in Lambda env vars.
+
+### "Missing required environment variable: PORT/MONGODB_URI/etc"
+
+Set all required env vars in Lambda configuration. For Lambda, set dummy values for vars that aren't used (CLOUDINARY, MONGODB_URI) since the validation runs before the Lambda-specific code path.
+
+### "Unsupported mechanism [ -301 ]"
+
+DocumentDB only supports SCRAM-SHA-1. Add `&authMechanism=SCRAM-SHA-1` to the connection string in `utils/secrets.js`.
+
+### "Access to KMS is not allowed"
+
+Lambda role needs KMS decrypt permission. Run:
+```powershell
+aws iam put-role-policy --role-name taskly-dev-lambda-execution --policy-name kms-decrypt --policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"kms:Decrypt\",\"kms:DescribeKey\"],\"Resource\":\"YOUR_KMS_KEY_ARN\"}]}"
+```
+
+### "CreateNetworkInterface on EC2" permission error
+
+Lambda needs VPC access policy:
+```powershell
+aws iam attach-role-policy --role-name taskly-dev-lambda-execution --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+```
+
+### API Gateway returns "Not Found" for all routes
+
+Routes weren't created (usually because Lambda didn't exist during first Terraform apply). Re-apply the API Gateway module:
+```powershell
+terraform apply "-target=module.apigateway" -var="environment=dev" ...
+```
+
+### S3 bucket won't delete (BucketNotEmpty with versioning)
+
+Regular `aws s3 rm --recursive` doesn't delete version markers. Use:
+```powershell
+python -c "import boto3; s3=boto3.resource('s3'); s3.Bucket('BUCKET_NAME').object_versions.all().delete(); print('done')"
+```
+
+Or delete from AWS Console (S3 → bucket → Empty → Delete).
+
+### DocumentDB won't delete (deletion protection)
+
+```powershell
+aws docdb modify-db-cluster --db-cluster-identifier taskly-dev-docdb-cluster --no-deletion-protection
+```
+
+Then re-run terraform destroy.
+
+### Connection timeout (zip too large for direct Lambda upload)
+
+Lambda has a 50MB limit for direct zip upload. Upload to S3 first:
+```powershell
+aws s3 cp lambda-deploy.zip s3://YOUR_BUCKET/deploy/api-handler.zip
+aws lambda update-function-code --function-name taskly-dev-api --s3-bucket YOUR_BUCKET --s3-key deploy/api-handler.zip
+```
+
+### Terraform state lock stuck
+
+If a previous apply crashed:
+```powershell
+terraform force-unlock LOCK_ID
+```
+
+Get the lock ID from the error message.
+
+---
+
+## Cost reference
+
+| Resource | Monthly cost (dev) |
+|----------|-------------------|
+| DocumentDB (1x db.t3.medium) | ~$60 |
+| NAT Gateway | ~$32 |
+| VPC Interface Endpoints (4x) | ~$28 |
+| Lambda + API Gateway | ~$5 |
+| S3 + CloudFront | ~$3 |
+| Everything else | ~$5 |
+| **Total** | **~$130/month** |
+
+To reduce costs: disable VPC Interface Endpoints in dev (`enable_interface_endpoints = false` in VPC module), use a single NAT Gateway (already default).
+
+**Stop charges immediately:** Run terraform destroy (see Teardown section above).
