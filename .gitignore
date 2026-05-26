@@ -209,19 +209,77 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.idea/taskly.iml
-.idea/jsLibraryMappings.xml
-.idea/inspectionProfiles/Project_Default.xml
+
 .gitignore
 .vscode/settings.json
 /views/
-/RUNTIME_FIXES.md
-/COLOR_FIXES_APPLIED.md
-/CONVERSION_COMPLETE.md
-/FIXES_APPLIED.md
-.idea/copilot.data.migration.ask2agent.xml
-.idea/copilot.data.migration.ask.xml
-.idea/copilot.data.migration.agent.xml
-.idea/copilot.data.migration.edit.xml
+.idea/
 public/img/
 backend/public/img/
+coverletters/
+
+# Personal files
+new
+WRITING_SAMPLE.md
+
+### Terraform ###
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data
+# Override files as they are usually used to override resources locally
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock file (include in version control)
+# .terraform.lock.hcl
+
+# Terraform plan files
+*.tfplan
+*.tfplan.json
+
+# Terraform CLI configuration files
+.terraformrc
+terraform.rc
+
+### AWS ###
+.aws/
+*.pem
+*.key
+
+# Lambda deployment artifacts
+backend/lambda-deploy.zip
+backend/lambda-placeholder.zip
+backend/placeholder.js
+response.json
+logs.txt
+
+# Terraform state (managed remotely)
+infrastructure/.terraform/
+infrastructure/.terraform.lock.hcl
+infrastructure/tfplan
+infrastructure/tfplan2
+
+# Architecture diagram source (keep PNGs)
+docs/*.dot
+
+# Global bundle cert (download fresh for deployment)
+global-bundle.pem
+backend/global-bundle.pem
+
+# Note/scratch files
+note.md
+can.txt
+PRODUCTION_READINESS_CHECKLIST.md

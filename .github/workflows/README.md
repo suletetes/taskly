@@ -1,182 +1,89 @@
-# CI/CD Workflows
+# CI/CD workflows
 
-Automated testing and deployment workflows for Taskly.
+Four GitHub Actions workflows that handle testing, building, and deploying Taskly to AWS.
 
-## Current Setup
+## Workflows
 
-###  Active Workflows (No Secrets Required)
+### infrastructure-deploy.yml
 
-These workflows run automatically on every push and pull request:
+Deploys Terraform infrastructure. Runs on push to `main` when files in `infrastructure/` change.
 
-#### 1. Frontend CI/CD (`frontend-deploy.yml`)
-- **Triggers**: Push/PR to `main` or `develop` branches
-- **What it does**:
-  - Lints code
-  - Runs tests
-  - Checks for security vulnerabilities
-  - Builds application for development and production
-  - Creates build artifacts
+- Uses OIDC for AWS auth (no stored credentials)
+- Stages: init → validate → plan → apply
+- Stores plan artifacts for 30 days
+- Manual dispatch available for staging/prod with environment selection
 
-#### 2. Backend CI/CD (`backend-deploy.yml`)
-- **Triggers**: Push/PR to `main` or `develop` branches
-- **What it does**:
-  - Starts MongoDB test database
-  - Lints code
-  - Runs tests
-  - Checks for security vulnerabilities
-  - Creates deployment package
-  - Uploads artifacts
+### backend-deploy.yml
 
-## How to Use
+Deploys the backend Lambda function. Runs on push to `main` when files in `backend/` change.
 
-### 1. Push Code to Trigger CI
+- Stages: lint → test → package → deploy
+- Packages Lambda zip with production deps only (excludes tests, seeds, dev files)
+- Canary deployment: 10% traffic shift → 5 min monitoring → promote or rollback
+- Auto-rollback if error rate exceeds 1%
+
+### frontend-deploy.yml
+
+Deploys the React frontend to S3 + CloudFront. Runs on push to `main` when files in `frontend/` change.
+
+- Stages: lint → test → build → S3 sync → CloudFront invalidation
+- Separate cache strategies: hashed assets get 1-year immutable cache, index.html gets no-cache
+- Waits for CloudFront invalidation to complete
+
+### pr-validation.yml
+
+Runs on pull requests to `main`. Does not deploy anything.
+
+- Backend: lint + unit tests
+- Frontend: lint + tests
+- Infrastructure: terraform validate + plan (no apply)
+- Posts plan output as a PR comment
+- Comments on failure
+
+## Required configuration
+
+### GitHub environment variables
+
+Set these in Settings → Environments → [environment name] → Variables:
+
+| Variable | Description |
+|----------|-------------|
+| `AWS_OIDC_ROLE_ARN` | IAM role ARN for OIDC authentication |
+| `LAMBDA_DEPLOY_BUCKET` | S3 bucket for Lambda deployment packages |
+| `FRONTEND_BUCKET` | S3 bucket for frontend static assets |
+| `CLOUDFRONT_DISTRIBUTION_ID` | CloudFront distribution ID for cache invalidation |
+| `API_GATEWAY_URL` | API Gateway endpoint URL (used in frontend build) |
+
+### Setting up OIDC
+
+The workflows authenticate to AWS using OpenID Connect. No access keys needed.
+
+1. Create an OIDC identity provider in IAM for `token.actions.githubusercontent.com`
+2. Create an IAM role with a trust policy allowing your GitHub repo
+3. Attach policies for the services the workflows need (Lambda, S3, CloudFront, Terraform state)
+4. Set the role ARN as `AWS_OIDC_ROLE_ARN` in your GitHub environment
+
+### Local testing
+
+Run the same checks locally before pushing:
 
 ```bash
-git add .
-git commit -m "Your changes"
-git push origin main
+# Backend
+cd backend && npm run lint && npm test -- --project=unit
+
+# Frontend
+cd frontend && npm run lint && npm test -- --run
+
+# Infrastructure
+cd infrastructure && terraform validate
 ```
 
-### 2. View Workflow Results
+## Deployment order
 
-1. Go to your GitHub repository
-2. Click on "Actions" tab
-3. See the running/completed workflows
-4. Click on any workflow to see detailed logs
+On a fresh environment, deploy in this order:
 
-### 3. Download Build Artifacts
+1. Infrastructure (creates all AWS resources)
+2. Backend (needs Lambda function to exist)
+3. Frontend (needs S3 bucket and CloudFront to exist)
 
-After a successful build:
-1. Go to Actions → Select workflow run
-2. Scroll down to "Artifacts" section
-3. Download the build files
-
-## Adding Deployment (Optional)
-
-When you're ready to deploy, uncomment the deployment jobs in the workflow files and add these secrets:
-
-### GitHub Secrets Required
-
-Go to: Repository → Settings → Secrets and variables → Actions
-
-#### For Vercel Deployment:
-```
-VERCEL_TOKEN - Your Vercel API token
-VERCEL_ORG_ID - Your Vercel organization ID
-VERCEL_PROJECT_ID - Your Vercel project ID
-```
-
-#### For Self-Hosted Deployment:
-```
-STAGING_HOST - Staging server IP/hostname
-STAGING_USER - SSH username
-STAGING_SSH_KEY - Private SSH key
-PROD_HOST - Production server IP/hostname
-PROD_USER - SSH username
-PROD_SSH_KEY - Private SSH key
-```
-
-## Workflow Status Badges
-
-Add these to your README.md to show build status:
-
-```markdown
-![Frontend CI](https://github.com/yourusername/taskly/workflows/Frontend%20CI/CD/badge.svg)
-![Backend CI](https://github.com/yourusername/taskly/workflows/Backend%20CI/CD/badge.svg)
-```
-
-## Local Testing
-
-Test the build process locally before pushing:
-
-### Frontend
-```bash
-cd frontend
-npm ci
-npm run lint
-npm test
-npm run build
-```
-
-### Backend
-```bash
-cd backend
-npm ci
-npm run lint
-npm test
-```
-
-## Troubleshooting
-
-### Workflow Fails on Lint
-
-Fix linting errors:
-```bash
-cd frontend  # or backend
-npm run lint
-```
-
-### Workflow Fails on Tests
-
-Run tests locally to debug:
-```bash
-cd frontend  # or backend
-npm test
-```
-
-### MongoDB Connection Issues (Backend)
-
-The workflow uses MongoDB 5.0 in a Docker container. If tests fail:
-- Check MongoDB connection string in test
-- Verify test environment variables
-
-### Build Artifacts Not Created
-
-- Check if the build step completed successfully
-- Verify the `dist` folder exists after build
-- Check workflow logs for errors
-
-## Customization
-
-### Change Trigger Branches
-
-Edit the workflow file:
-
-```yaml
-on:
-  push:
-    branches: [main, develop, your-branch]
-```
-
-### Add More Environments
-
-Add a new build matrix:
-
-```yaml
-strategy:
-  matrix:
-    environment: [development, staging, production]
-```
-
-### Skip CI for Specific Commits
-
-Add to commit message:
-```bash
-git commit -m "Your message [skip ci]"
-```
-
-## Next Steps
-
-1. Workflows are running automatically
-2. Add deployment when infrastructure is ready
-3. Add environment-specific secrets
-4. Configure custom domains
-5. Setup monitoring and alerts
-
-## Support
-
-For issues with workflows:
-1. Check the Actions tab for error logs
-2. Review this documentation
-3. Check GitHub Actions documentation
-4. Open an issue in the repository
+After initial setup, each workflow runs independently based on which files changed.

@@ -1,10 +1,9 @@
 module.exports = {
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  testMatch: [
-    '<rootDir>/tests/**/*.test.js',
-    '<rootDir>/tests/**/*.spec.js'
-  ],
+  verbose: true,
+  forceExit: true,
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
   collectCoverageFrom: [
     'models/**/*.js',
     'routes/**/*.js',
@@ -16,9 +15,34 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  verbose: true,
-  forceExit: true,
-  clearMocks: true,
-  resetMocks: true,
-  restoreMocks: true
+  projects: [
+    {
+      displayName: 'unit',
+      testEnvironment: 'node',
+      transform: {
+        '^.+\\.js$': 'babel-jest'
+      },
+      transformIgnorePatterns: [
+        'node_modules/(?!(@aws-sdk)/)'
+      ],
+      testMatch: [
+        '<rootDir>/tests/utils/secrets.test.js',
+        '<rootDir>/tests/services/**/*.test.js',
+        '<rootDir>/tests/unit/**/*.test.js'
+      ]
+    },
+    {
+      displayName: 'db',
+      testEnvironment: 'node',
+      setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+      testMatch: [
+        '<rootDir>/tests/**/*.test.js',
+        '<rootDir>/tests/**/*.spec.js'
+      ],
+      testPathIgnorePatterns: [
+        '<rootDir>/tests/utils/secrets.test.js',
+        '<rootDir>/tests/services/'
+      ]
+    }
+  ]
 };
