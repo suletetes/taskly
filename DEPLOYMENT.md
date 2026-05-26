@@ -50,37 +50,23 @@ Then re-run `terraform apply`.
 
 ## Step 3: Fix IAM permissions
 
-After first deploy, attach VPC access to the Lambda role:
+No longer needed — the Terraform IAM module now includes:
+- `AWSLambdaVPCAccessExecutionRole` (managed policy for VPC ENI creation)
+- KMS Decrypt permission (for Secrets Manager decryption)
 
-```powershell
-aws iam attach-role-policy --role-name taskly-dev-lambda-execution --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-```
-
-Add KMS decrypt permission (get the key ARN from `aws kms list-aliases`):
-
-```powershell
-aws iam put-role-policy --role-name taskly-dev-lambda-execution --policy-name kms-decrypt --policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"kms:Decrypt\",\"kms:DescribeKey\"],\"Resource\":\"YOUR_KMS_KEY_ARN\"}]}"
-```
+These are applied automatically during `terraform apply`.
 
 ## Step 4: Update DocumentDB secret with endpoint
 
-Terraform creates the secret but leaves the host empty. Fill it in:
-
-```powershell
-# Get the endpoint
-aws docdb describe-db-clusters --query "DBClusters[?contains(DBClusterIdentifier, 'taskly')].Endpoint" --output text
-
-# Update the secret (replace HOST with the endpoint above)
-aws secretsmanager put-secret-value --secret-id "taskly/dev/documentdb-credentials" --secret-string "{\"dbname\":\"taskly\",\"engine\":\"mongo\",\"host\":\"HOST\",\"password\":\"YOUR_PASSWORD\",\"port\":27017,\"username\":\"taskly_admin\"}"
-```
+No longer needed — Terraform now passes the DocumentDB endpoint directly to the Secrets module, which populates the host field automatically during `terraform apply`.
 
 ## Step 5: Set Lambda environment variables
 
-```powershell
-aws lambda update-function-configuration --function-name taskly-dev-api --environment "Variables={NODE_ENV=production,DOCUMENTDB_SECRET_NAME=taskly/dev/documentdb-credentials,COGNITO_USER_POOL_ID=YOUR_POOL_ID,COGNITO_CLIENT_ID=YOUR_CLIENT_ID,S3_UPLOAD_BUCKET=YOUR_UPLOADS_BUCKET,PORT=5000,MONGODB_URI=skip,JWT_SECRET=skip,SESSION_SECRET=skip,CLIENT_URL=YOUR_CLOUDFRONT_URL,CLOUDINARY_CLOUD_NAME=skip,CLOUDINARY_API_KEY=skip,CLOUDINARY_API_SECRET=skip}"
-```
-
-Get the values from `terraform output`.
+No longer needed — Terraform now sets all required environment variables automatically, including:
+- `NODE_ENV=production` (not `dev`)
+- `PORT`, `MONGODB_URI`, `JWT_SECRET`, etc. (set to `skip` for Lambda compatibility)
+- `DOCUMENTDB_SECRET_NAME` (set to the secret name, not ARN)
+- All AWS service references (SQS URLs, EventBridge bus name, etc.)
 
 ## Step 6: Deploy backend code
 

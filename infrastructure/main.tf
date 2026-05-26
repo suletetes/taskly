@@ -81,6 +81,7 @@ module "secrets" {
   project                    = var.project_name
   environment                = var.environment
   documentdb_master_password = var.documentdb_master_password
+  documentdb_endpoint        = module.documentdb.cluster_endpoint
   jwt_signing_key            = var.jwt_signing_key
   vpc_id                     = module.vpc.vpc_id
   private_subnet_ids         = module.vpc.private_subnet_ids
@@ -131,7 +132,7 @@ module "lambda" {
   private_subnet_ids       = module.vpc.private_subnet_ids
   lambda_security_group_id = module.vpc.lambda_security_group_id
   execution_role_arn       = module.iam.lambda_execution_role_arn
-  documentdb_secret_arn    = module.secrets.documentdb_credentials_secret_arn
+  documentdb_secret_arn    = module.secrets.documentdb_credentials_secret_name
   cognito_user_pool_id     = module.cognito.user_pool_id
   cognito_client_id        = module.cognito.app_client_id
   s3_upload_bucket         = module.s3.uploads_bucket_id

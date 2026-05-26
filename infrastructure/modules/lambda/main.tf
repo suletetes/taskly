@@ -19,7 +19,7 @@ resource "aws_lambda_function" "api_handler" {
   function_name = "${var.project_name}-${var.environment}-api"
   description   = "Taskly API handler - Express app via serverless-express"
   role          = var.execution_role_arn
-  handler       = "lambda/handler.handler"
+  handler       = "index.handler"
   runtime       = "nodejs20.x"
   architectures = ["arm64"] # Graviton2 for better price/performance
   timeout       = var.api_handler_timeout
@@ -35,7 +35,7 @@ resource "aws_lambda_function" "api_handler" {
 
   environment {
     variables = {
-      NODE_ENV                 = var.environment == "prod" ? "production" : var.environment
+      NODE_ENV                 = "production"
       DOCUMENTDB_SECRET_NAME   = var.documentdb_secret_arn
       COGNITO_USER_POOL_ID     = var.cognito_user_pool_id
       COGNITO_CLIENT_ID        = var.cognito_client_id
@@ -44,6 +44,14 @@ resource "aws_lambda_function" "api_handler" {
       CDN_DOMAIN               = var.cdn_domain
       EMAIL_QUEUE_URL          = var.email_queue_url
       NOTIFICATION_QUEUE_URL   = var.notification_queue_url
+      PORT                     = "5000"
+      MONGODB_URI              = "skip"
+      JWT_SECRET               = "skip"
+      SESSION_SECRET           = "skip"
+      CLIENT_URL               = "https://${var.cdn_domain}"
+      CLOUDINARY_CLOUD_NAME    = "skip"
+      CLOUDINARY_API_KEY       = "skip"
+      CLOUDINARY_API_SECRET    = "skip"
     }
   }
 

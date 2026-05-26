@@ -68,13 +68,13 @@ resource "aws_cloudwatch_log_metric_filter" "cold_starts" {
 
 resource "aws_cloudwatch_log_metric_filter" "init_duration" {
   name           = "${var.project_name}-${var.environment}-init-duration"
-  pattern        = "[report_label=\"REPORT\", ..., init_label=\"Init\", init_label2=\"Duration:\", init_duration, init_unit=\"ms\", ...]"
+  pattern        = "{ $.initDuration > 0 }"
   log_group_name = var.api_handler_log_group_name
 
   metric_transformation {
     name      = "InitDuration"
     namespace = "${var.project_name}/${var.environment}"
-    value     = "$init_duration"
+    value     = "$.initDuration"
   }
 }
 
