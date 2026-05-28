@@ -357,21 +357,6 @@ docker-compose down
 - CDN for static assets
 - Optimized bundle size
 
-## Browser Support
-
-- Chrome (last 2 versions)
-- Firefox (last 2 versions)
-- Safari (last 2 versions)
-- Edge (last 2 versions)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## Troubleshooting
 
@@ -401,10 +386,6 @@ For more troubleshooting, see:
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
 
-
-## Authors
-
-- Suleiman Abdulkadir
 
 ## Links
 
