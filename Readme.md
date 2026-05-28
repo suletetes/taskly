@@ -1,215 +1,160 @@
-# Taskly - Modern Task Management Application
+# Taskly
 
-A full-stack task management application designed for individuals and teams, featuring real-time synchronization, team collaboration, and comprehensive productivity analytics.
+A task and project management app for individuals and small teams. Organize work, track progress, collaborate without the bloat.
 
-## Demo
-
-[Watch Taskly Demo Video](./frontend/public/TasklyVideoShowcase.mp4)
-
-> **Note**: Click the link above to download and watch the full demo showcasing Taskly's features in action!
-
-## Features
-
-### Core Functionality
--  **Task Management**: Create, edit, delete, and organize tasks with priorities, due dates, and tags
--  **Team Collaboration**: Multi-user teams with role-based permissions
--  **Project Management**: Organize tasks into projects with progress tracking
--  **Calendar View**: Visualize tasks in calendar format
--  **Notifications**: Real-time in-app notifications
--  **Analytics**: Productivity tracking, completion rates, and statistics
--  **Dark Mode**: Full dark mode support
--  **Responsive Design**: Mobile-first approach, works on all devices
-
-### Technical Features
--  **Secure Authentication**: Session-based authentication with secure cookies
--  **Cloud Storage**: Cloudinary integration for file uploads
--  **Email Service**: Transactional emails via Resend
--  **Real-time Updates**: Instant synchronization across devices
--  **Modern UI**: Clean interface with smooth animations
--  **Advanced Search**: Search and filter tasks, users, and teams
-
-## Tech Stack
-
-### Architecture
-
-The production deployment runs on AWS serverless infrastructure (Lambda, API Gateway, DocumentDB, S3, CloudFront, EventBridge, SES).
+Built with React, Express, MongoDB, and deployed on AWS serverless infrastructure.
 
 ![Architecture](docs/01-architecture.png)
 
-![Operations](docs/02-operations.png)
+## What it does
 
-### Frontend
-- **Framework**: React 18 with Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router v6
-- **State Management**: Context API
-- **Animations**: Framer Motion
-- **HTTP Client**: Axios
-- **Icons**: Heroicons
+- **Tasks** Create, prioritize, assign, set deadlines, track completion
+- **Projects** Group tasks into projects with progress tracking
+- **Teams** Invite members, assign roles, collaborate in shared workspaces
+- **Calendar** Visualize deadlines and plan ahead
+- **Analytics** Productivity stats, completion rates, streaks
+- **Notifications** Stay on top of assignments and deadlines
 
-### Backend
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js
-- **Database**: MongoDB with Mongoose
-- **Authentication**: express-session
-- **File Storage**: Cloudinary
-- **Email**: Resend
-- **Security**: helmet, cors, rate limiting
+## Tech stack
 
-## Quick Start
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite, Tailwind CSS, Framer Motion |
+| Backend | Node.js, Express, Mongoose |
+| Database | MongoDB (DocumentDB in production) |
+| Auth | Session-based (local), Cognito JWT (AWS) |
+| Storage | Cloudinary (images), S3 (production) |
+| Email | Resend (local), SES (production) |
+| Infra | Lambda, API Gateway, CloudFront, VPC, WAF |
+| IaC | Terraform (12 modules) |
+| CI/CD | GitHub Actions with OIDC |
+
+## Architecture
+
+The app runs locally on Express + MongoDB for development. Production uses AWS serverless:
+
+```
+CloudFront → S3 (frontend)
+Route 53 → WAF → API Gateway → Lambda (Express) → DocumentDB
+                                    ├→ S3 (uploads, pre-signed URLs)
+                                    ├→ EventBridge → Lambda processors
+                                    ├→ SQS → Lambda (email via SES)
+                                    └→ Cognito (JWT validation)
+```
+
+Security: VPC with private subnets, security groups, NAT gateway, WAF rate limiting, Secrets Manager with auto-rotation.
+
+![Security](docs/02-security.png)
+
+![Operations](docs/03-operations.png)
+
+## Quick start
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- MongoDB 5.0 or higher
-- npm or yarn
+- Node.js 18+
+- MongoDB running locally
 
-### Installation
-
-1. **Clone the repository**
+### Setup
 
 ```bash
-git clone https://github.com/yourusername/taskly.git
+# Clone
+git clone https://github.com/suletetes/taskly.git
 cd taskly
-```
 
-2. **Install dependencies**
-
-```bash
-# Install backend dependencies
+# Backend
 cd backend
 npm install
+cp .env.example .env   # Edit with your values
 
-# Install frontend dependencies
+# Frontend
 cd ../frontend
 npm install
+cp .env.example .env
 ```
 
-3. **Configure environment variables**
-
-**Backend** (`backend/.env`):
-```env
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/taskly
-SESSION_SECRET=your-secret-key
-FRONTEND_URL=http://localhost:3000
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-RESEND_API_KEY=your-resend-key
-EMAIL_FROM=noreply@yourdomain.com
-```
-
-**Frontend** (`frontend/.env`):
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-4. **Start MongoDB**
+### Run
 
 ```bash
-# macOS
-brew services start mongodb-community
+# Terminal 1
+cd backend && npm run dev
 
-# Linux
-sudo systemctl start mongod
-
-# Windows
-net start MongoDB
+# Terminal 2
+cd frontend && npm run dev
 ```
 
-5. **Seed the database** (optional)
+Open http://localhost:3000
+
+### Seed test data
 
 ```bash
-cd backend
-npm run seed
+cd backend && npm run seed
 ```
 
-6. **Start the application**
+Login with `john@example.com` / `password123`
 
-```bash
-# Terminal 1 - Backend
-cd backend
-npm run dev
-
-# Terminal 2 - Frontend
-cd frontend
-npm run dev
-```
-
-7. **Access the application**
-
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000/api
-
-### Default Test Accounts
-
-After seeding, you can login with:
-
-```
-Email: john@example.com
-Password: password123
-
-Email: sarah@example.com
-Password: password123
-```
-
-## Project Structure
+## Project structure
 
 ```
 taskly/
-├── backend/                 # Backend API
-│   ├── config/             # Configuration files
-│   ├── controllers/        # Route controllers
-│   ├── middleware/         # Custom middleware
-│   ├── models/            # Mongoose models
-│   ├── routes/            # API routes
-│   ├── utils/             # Utility functions
-│   ├── seeds/             # Database seeders
-│   ├── tests/             # Test files
-│   └── server.js          # Entry point
-│
-├── frontend/               # Frontend application
-│   ├── public/            # Static assets
+├── backend/
+│   ├── controllers/        # Route handlers
+│   ├── models/             # Mongoose schemas
+│   ├── routes/             # API routes
+│   ├── middleware/         # Auth, validation, security
+│   ├── config/             # Cloudinary, passport, email
+│   ├── services/           # Email, events (AWS)
+│   ├── lambda/             # Lambda handler + processors
+│   ├── utils/              # Helpers, logger, secrets
+│   └── tests/              # Unit + integration tests
+├── frontend/
 │   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── context/       # Context providers
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── pages/         # Page components
-│   │   ├── services/      # API services
-│   │   └── utils/         # Utility functions
-│   └── vite.config.js     # Vite configuration
-│
-├── docker-compose.yml      # Docker configuration
-└── README.md              # This file
+│   │   ├── components/     # UI components
+│   │   ├── context/        # React context (auth, tasks, teams, projects)
+│   │   ├── pages/          # Route pages
+│   │   ├── services/       # API client layer
+│   │   └── hooks/          # Custom hooks
+│   └── e2e/                # Playwright tests
+├── infrastructure/
+│   ├── main.tf             # Root module
+│   └── modules/            # vpc, lambda, iam, s3, documentdb, waf, ses, etc.
+├── .github/workflows/      # CI/CD pipelines
+└── scripts/
+    ├── migration/          # Data migration tools
+    └── cicd/               # OIDC setup scripts
 ```
 
-## API Documentation
+## API endpoints
 
-### Authentication
-
-```http
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout
-GET  /api/auth/me
+### Auth
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+GET    /api/auth/profile
 ```
 
 ### Tasks
-
-```http
-GET    /api/tasks
-POST   /api/tasks
-GET    /api/tasks/:id
+```
+POST   /api/users/:userId/tasks
+GET    /api/users/:userId/tasks
 PUT    /api/tasks/:id
 DELETE /api/tasks/:id
-PATCH  /api/tasks/:id/complete
+```
+
+### Teams
+```
+GET    /api/teams
+POST   /api/teams
+GET    /api/teams/:id
+PUT    /api/teams/:id
+DELETE /api/teams/:id
+POST   /api/teams/:id/members
+POST   /api/teams/join/:inviteCode
 ```
 
 ### Projects
-
-```http
+```
 GET    /api/projects
 POST   /api/projects
 GET    /api/projects/:id
@@ -219,36 +164,91 @@ GET    /api/projects/:id/tasks
 GET    /api/projects/:id/stats
 ```
 
-### Teams
-
-```http
-GET    /api/teams
-POST   /api/teams
-GET    /api/teams/:id
-PUT    /api/teams/:id
-DELETE /api/teams/:id
-POST   /api/teams/:id/invite
-GET    /api/teams/:id/members
+### Other
+```
+GET    /api/health
+POST   /api/upload/avatar
+GET    /api/calendar
+GET    /api/search
+GET    /api/notifications
 ```
 
-For complete API documentation, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+## Environment variables
+
+### Backend (`backend/.env`)
+
+```env
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/taskly
+SESSION_SECRET=your-secret-key
+CLIENT_URL=http://localhost:3000
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+### Frontend (`frontend/.env`)
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+## Infrastructure (AWS)
+
+The `infrastructure/` directory contains Terraform modules for full AWS deployment:
+
+| Module | Resources |
+|--------|-----------|
+| `vpc` | VPC, subnets (public/private), NAT GW, security groups |
+| `lambda` | API handler, image processor, email processor |
+| `iam` | Lambda execution role, least-privilege policies |
+| `api-gateway` | HTTP API, Lambda integration, CORS |
+| `documentdb` | Cluster, instances, subnet group |
+| `s3` | Frontend bucket, uploads bucket, lifecycle rules |
+| `cloudfront` | CDN distributions for frontend and uploads |
+| `waf` | Rate limiting, IP reputation, SQL injection rules |
+| `ses` | Email sending, domain verification |
+| `secrets` | Secrets Manager with KMS encryption |
+| `monitoring` | CloudWatch alarms, dashboards, SNS alerts |
+| `disaster-recovery` | Cross-region replication, DNS failover |
+
+Deploy:
+```bash
+cd infrastructure
+terraform init
+terraform plan -var="environment=prod" -var="documentdb_master_password=xxx" -var="jwt_signing_key=xxx"
+terraform apply
+```
+
+## CI/CD
+
+Four GitHub Actions workflows:
+
+- **backend-deploy.yml** Lint → Test → Package → Canary deploy to Lambda
+- **frontend-deploy.yml** Build → S3 sync → CloudFront invalidation
+- **infrastructure-deploy.yml** Terraform plan → apply
+- **pr-validation.yml** Lint + test on pull requests
+
+Requires GitHub OIDC setup (see `scripts/cicd/setup-oidc.sh`).
 
 ## Development
 
-### Running Tests
-
 ```bash
-# Backend tests
-cd backend
-npm test
+# Run backend tests
+cd backend && npm test
 
-# Frontend tests
-cd frontend
-npm test
+# Run frontend tests
+cd frontend && npm test
+
+# Lint
+cd backend && npm run lint
+cd frontend && npm run lint
 ```
 
-### Code Linting
+## Author
 
+**Suleiman Abdulkadir** [GitHub](https://github.com/suletetes)
 ```bash
 # Backend
 cd backend
