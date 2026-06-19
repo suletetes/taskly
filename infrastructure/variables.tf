@@ -75,3 +75,17 @@ variable "ses_domain" {
   type        = string
   default     = "taskly.app"
 }
+
+# ─── DNS / Disaster Recovery ──────────────────────────────────────────────────
+
+variable "hosted_zone_id" {
+  description = "Route 53 hosted zone ID for DNS failover"
+  type        = string
+  default     = ""
+}
+
+variable "domain_name" {
+  description = "Domain name for the API (e.g., api.taskly.app)"
+  type        = string
+  default     = "api.taskly.app"
+}

@@ -41,3 +41,8 @@ output "access_log_group_name" {
   description = "Name of the CloudWatch log group for API access logs"
   value       = aws_cloudwatch_log_group.api_access_logs.name
 }
+
+output "stage_arn" {
+  description = "ARN of the default stage for WAF association"
+  value       = aws_apigatewayv2_stage.default.arn
+}

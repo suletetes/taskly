@@ -10,6 +10,11 @@ locals {
   name_prefix = "${var.project_name}-${var.environment}"
 }
 
+provider "aws" {
+  alias  = "dr"
+  region = "us-west-2"
+}
+
 # ─── Networking ───────────────────────────────────────────────────────────────
 
 module "vpc" {
@@ -69,7 +74,7 @@ module "documentdb" {
   master_password    = var.documentdb_master_password
   instance_class     = var.documentdb_instance_class
   instance_count     = var.documentdb_instance_count
-  kms_key_arn        = module.secrets.kms_key_arn
+  kms_key_arn        = null  # Use AWS managed key to avoid circular dependency with secrets module
   tags               = local.common_tags
 }
 
@@ -136,7 +141,7 @@ module "lambda" {
   cognito_user_pool_id     = module.cognito.user_pool_id
   cognito_client_id        = module.cognito.app_client_id
   s3_upload_bucket         = module.s3.uploads_bucket_id
-  event_bus_name           = module.eventbridge.event_bus_name
+  event_bus_name           = "${var.project_name}-${var.environment}-bus"
   email_queue_url          = module.sqs.email_queue_url
   email_queue_arn          = module.sqs.email_queue_arn
   notification_queue_url   = module.sqs.notification_queue_url
@@ -187,7 +192,7 @@ module "waf" {
 
   project_name          = var.project_name
   environment           = var.environment
-  api_gateway_stage_arn = module.apigateway.stage_invoke_url != "" ? "arn:aws:apigateway:us-east-1::/apis/${module.apigateway.api_id}/stages/$default" : ""
+  api_gateway_stage_arn = module.apigateway.stage_arn
   tags                  = local.common_tags
 }
 
@@ -202,4 +207,25 @@ module "monitoring" {
   api_handler_log_group_name = "/aws/lambda/${module.lambda.api_handler_function_name}"
   documentdb_cluster_id      = module.documentdb.cluster_id
   tags                       = local.common_tags
+}
+
+# ─── Disaster Recovery ────────────────────────────────────────────────────────
+
+module "disaster_recovery" {
+  source = "./modules/disaster-recovery"
+
+  providers = {
+    aws    = aws
+    aws.dr = aws.dr
+  }
+
+  project_name           = var.project_name
+  environment            = var.environment
+  documentdb_cluster_arn = module.documentdb.cluster_arn
+  uploads_bucket_arn     = module.s3.uploads_bucket_arn
+  uploads_bucket_id      = module.s3.uploads_bucket_id
+  api_gateway_endpoint   = module.apigateway.api_endpoint
+  hosted_zone_id         = var.hosted_zone_id
+  domain_name            = var.domain_name
+  tags                   = local.common_tags
 }

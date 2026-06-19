@@ -122,8 +122,15 @@ async function authenticateWithCognito(req, res, next, token) {
   try {
     const verifier = getCognitoVerifier();
     if (!verifier) {
-      // Fallback to local JWT if verifier can't be created
-      return await authenticateWithLocalJwt(req, res, next, token);
+      // This is a misconfiguration in production - do NOT silently fall back
+      console.error('[Auth] CRITICAL: Cognito verifier failed to initialize. Check COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID env vars.');
+      return res.status(500).json({
+        success: false,
+        error: {
+          message: 'Authentication service misconfigured',
+          code: 'AUTH_CONFIG_ERROR',
+        },
+      });
     }
 
     const payload = await verifier.verify(token);

@@ -162,16 +162,20 @@ jobs:
           FUNCTION_NAME="${{ env.FUNCTION_NAME_PREFIX }}-prod-api"
           ARTIFACT_NAME="${{ needs.package.outputs.artifact_name }}"
 
-          # Update function code
+          # Update function code (don't publish yet)
           aws lambda update-function-code \
             --function-name "${FUNCTION_NAME}" \
             --s3-bucket "${{ vars.LAMBDA_DEPLOY_BUCKET }}" \
             --s3-key "${ARTIFACT_NAME}" \
-            --publish \
             --output json > update-result.json
 
-          # Extract new version
-          NEW_VERSION=$(jq -r '.Version' update-result.json)
+          # Wait for update to fully propagate
+          aws lambda wait function-updated --function-name "${FUNCTION_NAME}"
+
+          # Now publish a new version from the stable code
+          NEW_VERSION=$(aws lambda publish-version \
+            --function-name "${FUNCTION_NAME}" \
+            --query 'Version' --output text)
           echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "Deployed version: ${NEW_VERSION}"
 

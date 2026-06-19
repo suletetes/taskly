@@ -12,6 +12,15 @@
 # : 13.1, 13.2, 13.4, 13.5
 ###############################################################################
 
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws, aws.dr]
+    }
+  }
+}
+
 # ─── Variables ────────────────────────────────────────────────────────────────
 
 variable "project_name" {
@@ -66,12 +75,6 @@ variable "tags" {
 
 # ─── S3 Cross-Region Replication ──────────────────────────────────────────────
 
-# DR region provider
-provider "aws" {
-  alias  = "dr"
-  region = var.dr_region
-}
-
 # Replication destination bucket in DR region
 resource "aws_s3_bucket" "uploads_replica" {
   provider = aws.dr
@@ -91,6 +94,29 @@ resource "aws_s3_bucket_versioning" "uploads_replica" {
   versioning_configuration {
     status = "Enabled"
   }
+}
+
+# Encryption for replica bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "uploads_replica" {
+  provider = aws.dr
+  bucket   = aws_s3_bucket.uploads_replica.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# Block public access for replica bucket
+resource "aws_s3_bucket_public_access_block" "uploads_replica" {
+  provider = aws.dr
+  bucket   = aws_s3_bucket.uploads_replica.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # IAM role for S3 replication
@@ -156,6 +182,8 @@ resource "aws_s3_bucket_replication_configuration" "uploads" {
   rule {
     id     = "replicate-all"
     status = "Enabled"
+
+    filter {}
 
     destination {
       bucket        = aws_s3_bucket.uploads_replica.arn
