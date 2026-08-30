@@ -50,7 +50,7 @@ jobs:
         working-directory: backend
 
       - name: Run linter
-        run: npm run lint || echo "Lint not configured, skipping"
+        run: npm run lint
         working-directory: backend
 
   # ─── Test ───────────────────────────────────────────────────────────────────
@@ -70,8 +70,10 @@ jobs:
         run: npm ci
         working-directory: backend
 
-      - name: Run unit tests
-        run: npm test -- --project=unit || echo "Tests passed or not configured"
+      # Run BOTH jest projects (unit + db) so the DB-backed session/auth/avatar
+      # tests gate the deploy. Uses mongodb-memory-server; no external services.
+      - name: Run tests
+        run: npm run test:ci
         working-directory: backend
         env:
           NODE_ENV: test

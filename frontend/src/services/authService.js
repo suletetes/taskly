@@ -16,6 +16,21 @@ const authService = {
     }
   },
 
+  // Admin-create a user from the Users page.
+  //
+  // Uses the same POST /auth/register endpoint, but the backend skips the
+  // auto-login (req.logIn) when the caller is already authenticated, so the
+  // admin's session is preserved. Unlike register(), this MUST NOT write the
+  // created user into localStorage — doing so would overwrite the admin's own
+  // cached identity.
+  async adminCreateUser(userData) {
+    try {
+      return await apiService.post('/auth/register', userData)
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
   // User login
   async login(credentials) {
     try {
@@ -135,95 +150,16 @@ const authService = {
     return authError
   },
 
-  // Get user's teams
-  async getUserTeams() {
-    try {
-      const response = await apiService.get('/auth/teams')
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Get user's projects
-  async getUserProjects() {
-    try {
-      const response = await apiService.get('/auth/projects')
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Get user's permissions for a specific team
-  async getTeamPermissions(teamId) {
-    try {
-      const response = await apiService.get(`/auth/teams/${teamId}/permissions`)
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Get user's permissions for a specific project
-  async getProjectPermissions(projectId) {
-    try {
-      const response = await apiService.get(`/auth/projects/${projectId}/permissions`)
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Update user profile with team/project context
+  // Update user profile. The backend only exposes PUT /users/profile
+  // (there is no /auth/profile route), so repoint there.
   async updateUserProfile(userData) {
     try {
-      const response = await apiService.put('/auth/profile', userData)
-      
-      if (response.success && response.data.user) {
+      const response = await apiService.put('/users/profile', userData)
+
+      if (response.success && response.data?.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user))
       }
-      
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
 
-  // Validate team invite code
-  async validateTeamInvite(inviteCode) {
-    try {
-      const response = await apiService.get(`/auth/invites/${inviteCode}/validate`)
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Join team via invite code
-  async joinTeamByInvite(inviteCode) {
-    try {
-      const response = await apiService.post(`/auth/invites/${inviteCode}/join`)
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Leave team
-  async leaveTeam(teamId) {
-    try {
-      const response = await apiService.post(`/auth/teams/${teamId}/leave`)
-      return response
-    } catch (error) {
-      throw this.handleAuthError(error)
-    }
-  },
-
-  // Leave project
-  async leaveProject(projectId) {
-    try {
-      const response = await apiService.post(`/auth/projects/${projectId}/leave`)
       return response
     } catch (error) {
       throw this.handleAuthError(error)

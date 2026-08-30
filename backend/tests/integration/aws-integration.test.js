@@ -16,8 +16,12 @@
 const API_BASE_URL = process.env.API_GATEWAY_URL || 'https://api-dev.taskly.app';
 const TEST_TIMEOUT = 30000; // 30 seconds for cold starts
 
-// Skip if no API URL configured (CI without AWS)
-const describeIfAws = process.env.API_GATEWAY_URL ? describe : describe.skip;
+// Live-infra gate: only run against a deployed AWS environment.
+const RUN_AWS_INTEGRATION = process.env.RUN_AWS_INTEGRATION === 'true';
+
+// Skip unless explicitly enabled AND an API URL is configured.
+const describeIfAws =
+  RUN_AWS_INTEGRATION && process.env.API_GATEWAY_URL ? describe : describe.skip;
 
 describeIfAws('AWS Integration Tests', () => {
   let authToken;

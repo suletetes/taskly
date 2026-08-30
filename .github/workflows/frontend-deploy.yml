@@ -42,8 +42,10 @@ jobs:
         run: npm ci
         working-directory: frontend
 
+      # Frontend lint is tolerant due to a large pre-existing lint backlog
+      # unrelated to current fixes. The build job below is the real gate.
       - name: Run linter
-        run: npm run lint || echo "Lint not configured, skipping"
+        run: npm run lint || echo "Lint reported issues (non-blocking backlog)"
         working-directory: frontend
 
   # ─── Test ───────────────────────────────────────────────────────────────────

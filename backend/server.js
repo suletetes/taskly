@@ -108,15 +108,25 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/img', express.static('public/img'));
 app.use('/uploads', express.static('public/uploads'));
 
-// Database connection — skip in Lambda (handler.js manages DB connection)
-if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+// Database connection — skip in Lambda (handler.js manages DB connection) and
+// in test mode (the test harness manages its own in-memory MongoDB connection).
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.NODE_ENV !== 'test') {
   mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskly')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 }
 
-// Session configuration — skip MongoStore in Lambda (stateless JWT auth)
-if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+// Session configuration — skip MongoStore in Lambda (stateless JWT auth) and in
+// test mode (use the default in-memory store so tests need no external Mongo).
+if (process.env.NODE_ENV === 'test') {
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'test-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    name: 'taskly.sid',
+    cookie: { secure: false, httpOnly: true }
+  }));
+} else if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
   app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
     resave: false,

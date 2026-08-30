@@ -19,6 +19,7 @@ module.exports = {
     {
       displayName: 'unit',
       testEnvironment: 'node',
+      setupFiles: ['<rootDir>/tests/env-setup.js'],
       transform: {
         '^.+\\.js$': 'babel-jest'
       },
@@ -34,6 +35,7 @@ module.exports = {
     {
       displayName: 'db',
       testEnvironment: 'node',
+      setupFiles: ['<rootDir>/tests/env-setup.js'],
       setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
       testMatch: [
         '<rootDir>/tests/**/*.test.js',
@@ -41,7 +43,8 @@ module.exports = {
       ],
       testPathIgnorePatterns: [
         '<rootDir>/tests/utils/secrets.test.js',
-        '<rootDir>/tests/services/'
+        '<rootDir>/tests/services/',
+        '<rootDir>/tests/unit/'
       ]
     }
   ]

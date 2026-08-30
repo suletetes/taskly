@@ -14,11 +14,10 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotification as useNotificationContext } from '../context/NotificationContext';
 import NotificationItem from '../components/notifications/NotificationItem';
-import userService from '../services/userService';
 
 const Settings = () => {
   const [searchParams] = useSearchParams();
-  const { user, updateUser } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { theme, setTheme, THEMES } = useTheme();
   const { showSuccess, showError } = useNotificationContext();
   const { 
@@ -77,15 +76,12 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      // Remove avatar from profile update (avatar is updated separately)
+      // Remove avatar from profile update (avatar is updated separately).
+      // updateProfile persists to PUT /users/profile and updates state from
+      // the server response.
       const { avatar, ...profileData } = profileForm;
-      const response = await userService.updateProfile(profileData);
-      
-      // Update local state immediately
-      if (response.success && response.data?.user) {
-        updateUser(response.data.user);
-      }
-      
+      await updateProfile(profileData);
+
       showSuccess('Profile updated successfully!');
     } catch (error) {
       showError(error.message || 'Failed to update profile');

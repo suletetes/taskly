@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
 import authService from '../services/authService'
+import userService from '../services/userService'
+import teamService from '../services/teamService'
+import projectService from '../services/projectService'
 
 // Initial state
 const initialState = {
@@ -330,13 +333,36 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Update user function
+  // Update user function (local-only optimistic state update)
   const updateUser = (userData) => {
     dispatch({
       type: AUTH_ACTIONS.UPDATE_USER,
       payload: userData
     })
   }
+
+  // Persist profile changes to the backend and update state from the server response
+  const updateProfile = useCallback(async (profileData) => {
+    const response = await userService.updateProfile(profileData)
+
+    // Backend returns { success, data: { user }, message }
+    const updatedUser = response?.data?.user
+    if (response?.success && updatedUser) {
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_USER,
+        payload: updatedUser
+      })
+      // Keep the cached user in sync so a refresh restores the latest data
+      try {
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      } catch (e) {
+        // Ignore storage errors (e.g. private mode)
+      }
+      return updatedUser
+    }
+
+    throw new Error(response?.message || 'Failed to update profile')
+  }, [dispatch])
 
   // Clear error function
   const clearError = useCallback(() => {
@@ -381,10 +407,12 @@ export const AuthProvider = ({ children }) => {
     if (!state.isAuthenticated || !state.user) return
 
     try {
-      // Fetch user's teams and projects
+      // Fetch user's teams and projects from the real backend routes
+      // (GET /teams and GET /projects). These services never throw; they
+      // return { success, data } so a failure cannot break auth bootstrap.
       const [teamsResponse, projectsResponse] = await Promise.all([
-        authService.getUserTeams(),
-        authService.getUserProjects()
+        teamService.getTeams(),
+        projectService.getProjects()
       ])
 
       dispatch({
@@ -570,6 +598,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
+    updateProfile,
     clearError,
     setLoading,
     refreshUser,
