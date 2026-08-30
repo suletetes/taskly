@@ -130,7 +130,10 @@ resource "aws_s3_object" "maintenance_page" {
 # ─── DNS Failover Records ─────────────────────────────────────────────────────
 
 # Primary record — points to API Gateway
+# Only created when a hosted zone is provided (skipped when hosted_zone_id == "")
 resource "aws_route53_record" "api_primary" {
+  count = var.hosted_zone_id != "" ? 1 : 0
+
   zone_id = var.hosted_zone_id
   name    = var.domain_name
   type    = "A"
@@ -150,7 +153,10 @@ resource "aws_route53_record" "api_primary" {
 }
 
 # Secondary record — points to maintenance page
+# Only created when a hosted zone is provided (skipped when hosted_zone_id == "")
 resource "aws_route53_record" "api_secondary" {
+  count = var.hosted_zone_id != "" ? 1 : 0
+
   zone_id = var.hosted_zone_id
   name    = var.domain_name
   type    = "A"

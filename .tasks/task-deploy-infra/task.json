@@ -1,0 +1,7 @@
+{
+  "task_id": "task-deploy-infra",
+  "task_description": "Deploy the Taskly AWS infrastructure (dev environment) to a working state via Terraform. Reconcile the state backend, create the missing lock table, wire required root-module variables through the dev wrapper, make the disaster-recovery Route53 DNS failover conditional (account owns no hosted zone), build and stage the four Lambda deployment zips (resolving the uploads-bucket chicken-and-egg via targeted apply), then full apply and verify (outputs, Lambda active, DocumentDB available, API Gateway /api/health responds, CloudFront exists). Provisions real billable resources (~$130/mo). Report the maximal working subset plus any manual prerequisites (SES domain verification, DNS failover) that require a domain the account does not own.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

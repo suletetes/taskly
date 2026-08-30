@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Apply the full dev stack and verify it. Generate strong secret values (DocumentDB master password + JWT signing key), export as TF_VAR_ env vars (reused from FEAT-002 if already generated), run terraform apply for the dev environment, then verify outputs resolve, Lambda exists and is invokable, API Gateway responds, and DocumentDB is available. Report any resource that cannot apply with exact remediation.",
+  "status": "pending",
+  "steps": [
+    "Generate strong secrets ONCE and persist for the session (do NOT commit): DocumentDB master password must satisfy DocumentDB rules (8-100 chars, printable ASCII, no / @ \" or space). Example generation: `export TF_VAR_documentdb_master_password=$(openssl rand -base64 24 | tr -d '/@\" ' | cut -c1-24)` then append a digit+upper to guarantee complexity; `export TF_VAR_jwt_signing_key=$(openssl rand -hex 32)`. Write these VALUES only into infrastructure/environments/dev/secret.auto.tfvars (which is gitignored) as a convenience AND keep them exported. Record that they are stored gitignored, never committed.",
+    "Ensure FEAT-002 used these exact same secret values for the targeted s3 apply (state consistency). If FEAT-002 used dummy/different values, that's fine for s3 (s3 module doesn't consume secrets), but the full apply must use the final real values.",
+    "Run the full apply: `cd infrastructure/environments/dev && terraform apply -auto-approve` (TF_VARs exported). Expect ~150-190 resources, 10-15 min (DocumentDB slowest). If Lambda creation fails with 'S3 key does not exist', confirm FEAT-002 uploaded the zips to the correct uploads bucket and re-apply.",
+    "If apply fails on any resource, capture the error, fix if it is a code/config issue (e.g. a module input mismatch), and re-apply. For resources that genuinely cannot apply because the account lacks a prerequisite (e.g. a real Route53 hosted zone / registered domain), confirm they are already guarded (DR route53 records were guarded in FEAT-001) and note any remaining ones as blocked with exact user remediation rather than fabricating resources.",
+    "After apply, capture outputs: `terraform output` and individually `terraform output -raw api_gateway_url`, `cognito_user_pool_id`, `cognito_client_id`, `cloudfront_frontend_url`, `s3_uploads_bucket`, `lambda_function_name`.",
+    "Verify Lambda: `aws lambda get-function --function-name taskly-dev-api --region us-east-1 --query 'Configuration.[State,LastUpdateStatus,Runtime,Handler]'`. Confirm State=Active. Optionally `aws lambda invoke` with a synthetic API GW v2 event for /api/health.",
+    "Verify DocumentDB: `aws docdb describe-db-clusters --db-cluster-identifier taskly-dev-docdb-cluster --region us-east-1 --query 'DBClusters[0].Status'` == available.",
+    "Verify API Gateway: `curl -s -o /dev/null -w '%{http_code}' https://<api>/api/health` then `curl -s https://<api>/api/health`. A 200 with database:connected is ideal; a 503 DATABASE_UNAVAILABLE still proves API Gateway->Lambda routing works (DB secret host may need the documentdb endpoint, which main.tf wires via module.secrets documentdb_endpoint — verify the secret's host field is populated: `aws secretsmanager get-secret-value --secret-id taskly/dev/documentdb-credentials --query SecretString --output text | head -c 200`). If host is empty or connectivity fails, document it as a known post-deploy step, not a hard failure of the infra apply.",
+    "Verify CloudFront: `aws cloudfront list-distributions --query \"DistributionList.Items[?contains(Comment,'taskly-dev')||contains(Origins.Items[0].DomainName,'taskly-dev')].[Id,DomainName,Status]\"` (or read from terraform state). Confirm a distribution exists.",
+    "Write a deployment report to .tasks/task-deploy-infra/DEPLOYMENT_REPORT.md summarizing: resources created (count + key ones), all key outputs (api endpoint, cloudfront domain, cognito pool/client ids, uploads bucket, lambda name), what was verified and how (with the actual command output values), estimated monthly cost (~$130 dev per DEPLOYMENT.md), and any manual prerequisites still remaining (e.g. SES domain verification requires DNS records for a domain the account must own; enabling DNS failover requires a Route53 hosted zone -> set hosted_zone_id + domain_name and re-apply)."
+  ],
+  "acceptance_criteria": [
+    "`terraform apply` for dev completes; `terraform output` resolves all documented outputs without error",
+    "aws lambda get-function on taskly-dev-api returns State=Active",
+    "aws docdb describe-db-clusters shows taskly-dev-docdb-cluster status=available",
+    "curl to https://<api>/api/health returns an HTTP response from the Lambda (200 preferred; 503 DATABASE_UNAVAILABLE acceptable as proof of routing, with the DB gap documented)",
+    "A CloudFront distribution for the frontend exists",
+    ".tasks/task-deploy-infra/DEPLOYMENT_REPORT.md exists with resources, outputs, verification evidence, cost, and remaining manual steps",
+    "No real secrets are committed to the repo"
+  ],
+  "verification": [
+    "cd infrastructure/environments/dev && terraform output",
+    "aws lambda get-function --function-name taskly-dev-api --region us-east-1 --query 'Configuration.State'",
+    "aws docdb describe-db-clusters --db-cluster-identifier taskly-dev-docdb-cluster --region us-east-1 --query 'DBClusters[0].Status'",
+    "curl -s -w '\\nHTTP %{http_code}\\n' https://$(cd infrastructure/environments/dev && terraform output -raw api_gateway_url | sed 's#https://##')/api/health"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -1,0 +1,16 @@
+# Terraform state and working files
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Secret-bearing variable files — never commit real secrets
+*.auto.tfvars
+*.auto.tfvars.json
+environments/*/secret.auto.tfvars
+environments/*/secret.auto.tfvars.json
+
+# Terraform plan output
+*.tfplan
