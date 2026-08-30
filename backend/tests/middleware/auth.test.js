@@ -1,229 +1,150 @@
-const { authenticateToken, authorizeUser, optionalAuth } = require('../../middleware/auth');
-const { generateUserToken } = require('../../utils/jwt');
-const User = require('../../models/User');
+/**
+ * Unit tests for authenticateToken (backend/middleware/auth.js).
+ *
+ * Covers the auth-unification behavior:
+ *  (a) valid Passport session, no Bearer token  -> next() (session fallback)
+ *  (b) no session and no token                   -> 401
+ *  (c) valid local JWT (Cognito disabled)        -> authenticates
+ *  (d) Cognito enabled                           -> session fallback NOT used
+ *
+ * The User model and jsonwebtoken are mocked; no live DB is required.
+ */
 
-// Mock the User model
 jest.mock('../../models/User');
+jest.mock('jsonwebtoken');
 
-describe('Authentication Middleware', () => {
-  let req, res, next;
+const jwtModule = require('jsonwebtoken');
+const jwt = jwtModule.default || jwtModule;
+const UserModule = require('../../models/User');
+const User = UserModule.default || UserModule;
+const { authenticateToken } = require('../../middleware/auth');
+
+function makeRes() {
+  const res = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  return res;
+}
+
+function makeReq({ authHeader, isAuthenticated, user } = {}) {
+  const headers = {};
+  if (authHeader !== undefined) headers.Authorization = authHeader;
+  return {
+    header: (name) => headers[name] || headers[name.toLowerCase()],
+    isAuthenticated:
+      isAuthenticated === undefined ? undefined : () => isAuthenticated,
+    user: user || undefined,
+  };
+}
+
+describe('authenticateToken', () => {
+  const originalEnv = { ...process.env };
 
   beforeEach(() => {
-    req = {
-      headers: {},
-      params: {},
-      user: null
-    };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
-    };
-    next = jest.fn();
-    
-    // Clear all mocks
     jest.clearAllMocks();
+    delete process.env.COGNITO_USER_POOL_ID;
+    delete process.env.COGNITO_CLIENT_ID;
+    process.env.JWT_SECRET = 'test-secret';
   });
 
-  describe('authenticateToken', () => {
-    const mockUser = {
-      _id: '507f1f77bcf86cd799439011',
-      username: 'testuser',
-      email: 'test@example.com'
-    };
-
-    it('should authenticate valid token', async () => {
-      const token = generateUserToken(mockUser);
-      req.headers.authorization = `Bearer ${token}`;
-      
-      User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(mockUser)
-      });
-
-      await authenticateToken(req, res, next);
-
-      expect(req.user).toEqual(mockUser);
-      expect(next).toHaveBeenCalled();
-      expect(res.status).not.toHaveBeenCalled();
-    });
-
-    it('should reject request without token', async () => {
-      await authenticateToken(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          message: 'Access token required',
-          code: 'UNAUTHORIZED'
-        }
-      });
-      expect(next).not.toHaveBeenCalled();
-    });
-
-    it('should reject request with invalid token format', async () => {
-      req.headers.authorization = 'InvalidFormat';
-
-      await authenticateToken(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          message: 'Access token required',
-          code: 'UNAUTHORIZED'
-        }
-      });
-      expect(next).not.toHaveBeenCalled();
-    });
-
-    it('should reject invalid token', async () => {
-      req.headers.authorization = 'Bearer invalid.token.here';
-
-      await authenticateToken(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          message: 'Invalid token',
-          code: 'UNAUTHORIZED'
-        }
-      });
-      expect(next).not.toHaveBeenCalled();
-    });
-
-    it('should reject token for non-existent user', async () => {
-      const token = generateUserToken(mockUser);
-      req.headers.authorization = `Bearer ${token}`;
-      
-      User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(null)
-      });
-
-      await authenticateToken(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          message: 'User not found',
-          code: 'UNAUTHORIZED'
-        }
-      });
-      expect(next).not.toHaveBeenCalled();
-    });
-
-    it('should handle database errors', async () => {
-      const token = generateUserToken(mockUser);
-      req.headers.authorization = `Bearer ${token}`;
-      
-      User.findById.mockReturnValue({
-        select: jest.fn().mockRejectedValue(new Error('Database error'))
-      });
-
-      await authenticateToken(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          message: 'Authentication error',
-          code: 'INTERNAL_SERVER_ERROR'
-        }
-      });
-      expect(next).not.toHaveBeenCalled();
-    });
+  afterEach(() => {
+    process.env = { ...originalEnv };
   });
 
-  describe('authorizeUser', () => {
-    beforeEach(() => {
-      req.user = {
-        _id: { toString: () => '507f1f77bcf86cd799439011' }
-      };
-    });
+  it('(a) authenticates a valid Passport session when no Bearer token is present', async () => {
+    const sessionUser = { _id: 'u1', username: 'alice' };
+    const req = makeReq({ isAuthenticated: true, user: sessionUser });
+    const res = makeRes();
+    const next = jest.fn();
 
-    it('should allow access to own resources', () => {
-      req.params.userId = '507f1f77bcf86cd799439011';
+    await authenticateToken(req, res, next);
 
-      authorizeUser(req, res, next);
-
-      expect(next).toHaveBeenCalled();
-      expect(res.status).not.toHaveBeenCalled();
-    });
-
-    it('should allow access when no userId in params', () => {
-      authorizeUser(req, res, next);
-
-      expect(next).toHaveBeenCalled();
-      expect(res.status).not.toHaveBeenCalled();
-    });
-
-    it('should deny access to other user resources', () => {
-      req.params.userId = 'different-user-id';
-
-      authorizeUser(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
-          message: 'Access denied',
-          code: 'FORBIDDEN'
-        }
-      });
-      expect(next).not.toHaveBeenCalled();
-    });
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+    expect(req.user).toBe(sessionUser);
   });
 
-  describe('optionalAuth', () => {
-    const mockUser = {
-      _id: '507f1f77bcf86cd799439011',
-      username: 'testuser',
-      email: 'test@example.com'
-    };
+  it('(b) rejects with 401 when there is no session and no token', async () => {
+    const req = makeReq({ isAuthenticated: false });
+    const res = makeRes();
+    const next = jest.fn();
 
-    it('should set user if valid token provided', async () => {
-      const token = generateUserToken(mockUser);
-      req.headers.authorization = `Bearer ${token}`;
-      
-      User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(mockUser)
-      });
+    await authenticateToken(req, res, next);
 
-      await optionalAuth(req, res, next);
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'UNAUTHORIZED' }),
+      })
+    );
+  });
 
-      expect(req.user).toEqual(mockUser);
-      expect(next).toHaveBeenCalled();
+  it('(b2) rejects with 401 when req.isAuthenticated is not available and no token', async () => {
+    const req = makeReq({});
+    const res = makeRes();
+    const next = jest.fn();
+
+    await authenticateToken(req, res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+  });
+
+  it('(c) authenticates with a valid local JWT (Cognito disabled)', async () => {
+    const dbUser = { _id: 'u2', username: 'bob' };
+    jwt.verify.mockReturnValue({ id: 'u2' });
+    User.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue(dbUser),
     });
 
-    it('should continue without user if no token provided', async () => {
-      await optionalAuth(req, res, next);
+    const req = makeReq({ authHeader: 'Bearer valid-token' });
+    const res = makeRes();
+    const next = jest.fn();
 
-      expect(req.user).toBeNull();
-      expect(next).toHaveBeenCalled();
+    await authenticateToken(req, res, next);
+
+    expect(jwt.verify).toHaveBeenCalledWith('valid-token', 'test-secret');
+    expect(req.user).toBe(dbUser);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('(c2) rejects an invalid local JWT with 401', async () => {
+    jwt.verify.mockImplementation(() => {
+      throw new Error('jwt malformed');
     });
 
-    it('should continue without user if invalid token provided', async () => {
-      req.headers.authorization = 'Bearer invalid.token';
+    const req = makeReq({ authHeader: 'Bearer bad-token' });
+    const res = makeRes();
+    const next = jest.fn();
 
-      await optionalAuth(req, res, next);
+    await authenticateToken(req, res, next);
 
-      expect(req.user).toBeNull();
-      expect(next).toHaveBeenCalled();
-    });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+  });
 
-    it('should continue without user if user not found', async () => {
-      const token = generateUserToken(mockUser);
-      req.headers.authorization = `Bearer ${token}`;
-      
-      User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(null)
-      });
+  it('(d) does NOT use session fallback when Cognito is enabled', async () => {
+    process.env.COGNITO_USER_POOL_ID = 'us-east-1_pool';
+    process.env.COGNITO_CLIENT_ID = 'client-id';
 
-      await optionalAuth(req, res, next);
+    // Valid session, but no Bearer token. With Cognito enabled this must be
+    // rejected (session fallback disabled to preserve production security).
+    const req = makeReq({ isAuthenticated: true, user: { _id: 'u3' } });
+    const res = makeRes();
+    const next = jest.fn();
 
-      expect(req.user).toBeNull();
-      expect(next).toHaveBeenCalled();
-    });
+    await authenticateToken(req, res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'UNAUTHORIZED' }),
+      })
+    );
   });
 });

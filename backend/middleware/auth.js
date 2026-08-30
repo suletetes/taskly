@@ -83,7 +83,24 @@ const auth = (req, res, next) => {
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const hasBearer = !!authHeader && authHeader.startsWith('Bearer ');
+
+    if (!hasBearer) {
+      // ── Passport session fallback ──
+      // The frontend authenticates via session cookies (Passport) and never
+      // sends a Bearer token. When Cognito is NOT enabled and a valid session
+      // exists, honor it so session-based routes work with this middleware.
+      // Session fallback is intentionally disabled when Cognito is enabled to
+      // avoid weakening production security.
+      if (
+        !isCognitoEnabled() &&
+        typeof req.isAuthenticated === 'function' &&
+        req.isAuthenticated() &&
+        req.user
+      ) {
+        return next();
+      }
+
       return res.status(401).json({
         success: false,
         error: {

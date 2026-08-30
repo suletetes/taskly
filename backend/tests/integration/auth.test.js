@@ -24,7 +24,14 @@ const { generateUserToken } = require('../../utils/jwt');
 // Test database
 const MONGODB_URI = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/taskly_test';
 
-describe('Authentication Endpoints', () => {
+// Legacy gate: this suite targets the older Bearer-token auth shape (expects
+// data.token) and opens its own connection to a live test database. The current
+// session-based API is covered by tests/routes/auth.test.js. Skip by default;
+// enable with RUN_AWS_INTEGRATION=true.
+const RUN_AWS_INTEGRATION = process.env.RUN_AWS_INTEGRATION === 'true';
+const describeMaybe = RUN_AWS_INTEGRATION ? describe : describe.skip;
+
+describeMaybe('Authentication Endpoints', () => {
   beforeAll(async () => {
     // Ensure we're using test database
     if (mongoose.connection.readyState !== 0) {

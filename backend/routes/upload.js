@@ -3,6 +3,7 @@ import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client } from '../config/aws.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { upload, validateCloudinaryConfig } from '../config/cloudinary.js';
 import User from '../models/User.js';
 import crypto from 'crypto';
 
@@ -73,6 +74,101 @@ function isValidFileType(contentType, allowedTypes) {
 }
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
+
+/**
+ * @route   POST /api/upload/avatar
+ * @desc    Upload an avatar image directly via Cloudinary (multipart/form-data).
+ *          This is the endpoint the frontend (userService.uploadAvatarFile)
+ *          calls. Field name: 'avatar'.
+ * @access  Private
+ *
+ * Response (success):
+ *   { success: true, data: { avatar, publicId }, message }
+ * Response (Cloudinary not configured):
+ *   503 { success: false, error: { message, code: 'CLOUDINARY_NOT_CONFIGURED' } }
+ */
+router.post('/avatar', authenticateToken, (req, res) => {
+  // Guard: if Cloudinary is not configured, fail fast BEFORE invoking multer.
+  const cloudinaryStatus = validateCloudinaryConfig();
+  if (!cloudinaryStatus.success) {
+    return res.status(503).json({
+      success: false,
+      error: {
+        message: cloudinaryStatus.error || 'Image upload service is not configured',
+        code: 'CLOUDINARY_NOT_CONFIGURED',
+      },
+    });
+  }
+
+  // Invoke multer manually so we can translate its errors into our API shape.
+  upload.single('avatar')(req, res, async (err) => {
+    if (err) {
+      // Multer-specific errors (size limit) or fileFilter rejections.
+      const isTooLarge = err.code === 'LIMIT_FILE_SIZE';
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: isTooLarge
+            ? 'File is too large. Maximum avatar size is 5MB.'
+            : err.message || 'Invalid file upload',
+          code: isTooLarge ? 'FILE_TOO_LARGE' : 'INVALID_FILE',
+        },
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'No avatar file provided. Use the "avatar" form field.',
+          code: 'NO_FILE',
+        },
+      });
+    }
+
+    try {
+      // multer-storage-cloudinary sets:
+      //   req.file.path     = Cloudinary secure_url
+      //   req.file.filename = Cloudinary public_id
+      const avatarUrl = req.file.path;
+      const publicId = req.file.filename;
+
+      // Persist to the user (fetch fresh to avoid stale session document writes).
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            message: 'User not found',
+            code: 'USER_NOT_FOUND',
+          },
+        });
+      }
+
+      user.avatar = avatarUrl;
+      user.avatarPublicId = publicId;
+      await user.save();
+
+      return res.json({
+        success: true,
+        data: {
+          avatar: avatarUrl,
+          publicId,
+        },
+        message: 'Avatar uploaded successfully',
+      });
+    } catch (error) {
+      console.error('[Upload] Cloudinary avatar upload error:', error);
+      return res.status(500).json({
+        success: false,
+        error: {
+          message: 'Failed to save uploaded avatar',
+          code: 'AVATAR_UPLOAD_ERROR',
+        },
+      });
+    }
+  });
+});
 
 /**
  * @route   POST /api/upload/avatar/presign

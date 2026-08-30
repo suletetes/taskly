@@ -34,7 +34,13 @@ const isDocumentDB = DOCUMENTDB_URI.includes('docdb') || DOCUMENTDB_URI.includes
 // Test collection name (isolated from production data)
 const TEST_COLLECTION = 'integration_test_items';
 
-describe('DocumentDB Connectivity Integration Tests', () => {
+// Live-infra gate: this suite opens its own connection to a real DocumentDB /
+// MongoDB instance. Skip by default so the standard suite is green without
+// external services. Enable with RUN_AWS_INTEGRATION=true.
+const RUN_AWS_INTEGRATION = process.env.RUN_AWS_INTEGRATION === 'true';
+const describeMaybe = RUN_AWS_INTEGRATION ? describe : describe.skip;
+
+describeMaybe('DocumentDB Connectivity Integration Tests', () => {
   let connection;
   let TestModel;
 

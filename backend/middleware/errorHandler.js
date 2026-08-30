@@ -5,15 +5,15 @@
 
 export const errorHandler = (err, req, res, next) => {
   // Log error with context
-  //console.error('Error:', {
-    message: err.message,
-    code: err.code,
-    status: err.statusCode || 500,
-    path: req.path,
-    method: req.method,
-    timestamp: new Date().toISOString(),
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
+  // console.error('Error:', {
+  //   message: err.message,
+  //   code: err.code,
+  //   status: err.statusCode || 500,
+  //   path: req.path,
+  //   method: req.method,
+  //   timestamp: new Date().toISOString(),
+  //   ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  // });
 
   // Default error response
   let statusCode = err.statusCode || 500;
