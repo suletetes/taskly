@@ -103,18 +103,46 @@ const WelcomeStep = ({ onNext }) => (
 
 // Profile Step Component
 const ProfileStep = ({ onNext, onPrev }) => {
-  const { user, updateUser } = useAuth();
+  const { user, updateProfile } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || '',
+    fullname: user?.fullname || '',
     jobTitle: user?.jobTitle || '',
     company: user?.company || '',
     timezone: user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
   });
 
-  const handleSubmit = (e) => {
+  // Sync form when user data becomes available (e.g. after auth loads)
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        fullname: user.fullname || prev.fullname,
+        jobTitle: user.jobTitle || prev.jobTitle,
+        company: user.company || prev.company,
+        timezone: user.timezone || prev.timezone
+      }));
+    }
+  }, [user]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateUser(formData);
-    onNext();
+    setSaving(true);
+    setSaveError(null);
+    try {
+      // Persist the profile fields to the backend before advancing
+      await updateProfile({
+        fullname: formData.fullname,
+        jobTitle: formData.jobTitle,
+        company: formData.company,
+        timezone: formData.timezone
+      });
+      onNext();
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -132,14 +160,19 @@ const ProfileStep = ({ onNext, onPrev }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {saveError && (
+          <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-md px-3 py-2">
+            {saveError}
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">
             Full Name
           </label>
           <input
             type="text"
-            value={formData.fullName}
-            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            value={formData.fullname}
+            onChange={(e) => setFormData({ ...formData, fullname: e.target.value })}
             className="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-secondary-700 dark:text-secondary-100"
             placeholder="Enter your full name"
           />
@@ -191,13 +224,13 @@ const ProfileStep = ({ onNext, onPrev }) => {
         </div>
 
         <div className="flex space-x-3 pt-4">
-          <Button type="button" variant="outline" onClick={onPrev} className="flex-1">
+          <Button type="button" variant="outline" onClick={onPrev} className="flex-1" disabled={saving}>
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button type="submit" className="flex-1">
-            Continue
-            <ArrowRightIcon className="w-4 h-4 ml-2" />
+          <Button type="submit" className="flex-1" disabled={saving}>
+            {saving ? 'Saving...' : 'Continue'}
+            {!saving && <ArrowRightIcon className="w-4 h-4 ml-2" />}
           </Button>
         </div>
       </form>
@@ -509,23 +542,58 @@ const CompleteStep = ({ onComplete }) => (
 
 // Main Onboarding Flow Component
 const OnboardingFlow = ({ onComplete }) => {
+  const { user, updateProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isVisible, setIsVisible] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage('hasCompletedOnboarding', false);
 
-  // Don't show onboarding if already completed
-  if (hasCompletedOnboarding) {
+  // Resume from the user's saved onboarding progress once user data loads.
+  useEffect(() => {
+    if (user?.onboarding) {
+      const { currentStep: savedStep, completedSteps: savedCompleted } = user.onboarding;
+      if (typeof savedStep === 'number' && savedStep > 0 && savedStep < ONBOARDING_STEPS.length) {
+        setCurrentStep(savedStep);
+      }
+      if (Array.isArray(savedCompleted) && savedCompleted.length > 0) {
+        setCompletedSteps(new Set(savedCompleted));
+      }
+    }
+  }, [user]);
+
+  // Drive the "already completed" gate from the server-side flag, falling
+  // back to the local flag for offline / pre-migration users.
+  const alreadyCompleted = user?.onboarding?.completed || hasCompletedOnboarding;
+  if (alreadyCompleted) {
     return null;
   }
 
   const currentStepData = ONBOARDING_STEPS[currentStep];
 
-  const handleNext = () => {
-    setCompletedSteps(prev => new Set([...prev, currentStep]));
-    if (currentStep < ONBOARDING_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+  // Persist onboarding progress to user.onboarding on the backend. Never
+  // throws so navigation is not blocked if the save fails.
+  const persistProgress = async (progress) => {
+    try {
+      await updateProfile({ onboarding: progress });
+    } catch (e) {
+      // Progress persistence is best-effort; continue the flow regardless.
     }
+  };
+
+  const handleNext = () => {
+    const nextCompleted = new Set([...completedSteps, currentStep]);
+    setCompletedSteps(nextCompleted);
+
+    const nextStep = currentStep < ONBOARDING_STEPS.length - 1 ? currentStep + 1 : currentStep;
+    if (nextStep !== currentStep) {
+      setCurrentStep(nextStep);
+    }
+
+    persistProgress({
+      currentStep: nextStep,
+      completedSteps: Array.from(nextCompleted),
+      completed: false
+    });
   };
 
   const handlePrev = () => {
@@ -534,23 +602,36 @@ const OnboardingFlow = ({ onComplete }) => {
     }
   };
 
-  const handleComplete = () => {
+  const finishOnboarding = () => {
+    const finalCompleted = new Set([...completedSteps, currentStep]);
     setHasCompletedOnboarding(true);
     setIsVisible(false);
+    persistProgress({
+      currentStep: ONBOARDING_STEPS.length - 1,
+      completedSteps: Array.from(finalCompleted),
+      completed: true
+    });
     if (onComplete) {
       onComplete();
     }
+  };
+
+  const handleComplete = () => {
+    finishOnboarding();
   };
 
   const handleSkip = () => {
-    setHasCompletedOnboarding(true);
-    setIsVisible(false);
-    if (onComplete) {
-      onComplete();
-    }
+    finishOnboarding();
   };
 
   const renderStepContent = () => {
+    // Guard: until user data has loaded, only steps that don't depend on user
+    // data should render their full form. This prevents a blank step (e.g.
+    // "Step 4") when the user object is momentarily null during auth bootstrap.
+    if (!currentStepData) {
+      return <div>Step content not found</div>;
+    }
+
     switch (currentStepData.content) {
       case 'WelcomeStep':
         return <WelcomeStep onNext={handleNext} />;

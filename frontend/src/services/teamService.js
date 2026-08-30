@@ -553,9 +553,15 @@ class TeamService {
         throw new Error('Team ID is required');
       }
 
-      // Get current user ID from auth context or token
-      const userResponse = await api.get('/auth/me');
-      const userId = userResponse.data.id;
+      // Get current user ID from the session (GET /auth/me returns
+      // { success, data: { user } })
+      const meResponse = await api.get('/auth/me');
+      const currentUser = meResponse.data?.data?.user || meResponse.data?.user;
+      const userId = currentUser?._id || currentUser?.id;
+
+      if (!userId) {
+        throw new Error('Unable to determine current user');
+      }
 
       const response = await api.delete(`${this.baseURL}/${teamId}/members/${userId}`);
       

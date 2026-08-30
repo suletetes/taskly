@@ -29,7 +29,7 @@ import DocumentHead from '../components/common/DocumentHead'
 import SafeImage from '../components/common/SafeImage'
 
 const Profile = () => {
-  const { user: currentUser, isAuthenticated, logout, updateUser } = useAuth()
+  const { user: currentUser, isAuthenticated, logout, updateProfile } = useAuth()
   const navigate = useNavigate()
   
   // State management
@@ -140,8 +140,7 @@ const Profile = () => {
     setError(null)
 
     try {
-      await userService.updateProfile(profileForm)
-      await updateUser() // Refresh user data in context
+      await updateProfile(profileForm) // Persist and update context from server
       setIsEditingProfile(false)
       setSuccessMessage('Profile updated successfully!')
       setTimeout(() => setSuccessMessage(''), 3000)
@@ -157,8 +156,7 @@ const Profile = () => {
     setError(null)
 
     try {
-      await userService.updateProfile({ avatar: newAvatar })
-      await updateUser() // Refresh user data in context
+      await updateProfile({ avatar: newAvatar }) // Persist and update context
       setSelectedAvatar(newAvatar)
       setIsChangingAvatar(false)
       setSuccessMessage('Avatar updated successfully!')
@@ -909,29 +907,27 @@ const Profile = () => {
                           // });
                           
                           if (uploadData.success && uploadData.data?.avatarUrl) {
-                            //console.log('✅ [Profile] Upload successful, updating avatar...');
                             const newAvatarUrl = uploadData.data.avatarUrl;
-                            
+
                             // Update local state immediately
                             setSelectedAvatar(newAvatarUrl);
-                            
-                            // Update profile with new avatar URL
-                            await userService.updateProfile({ avatar: newAvatarUrl });
-                            
-                            // Refresh user data from server
-                            await updateUser();
-                            
+
+                            // Persist the new avatar URL and update context from server
+                            await updateProfile({ avatar: newAvatarUrl });
+
                             setIsChangingAvatar(false);
                             setSuccessMessage('Avatar uploaded successfully!');
                             setTimeout(() => setSuccessMessage(''), 3000);
-                            //console.log('✅ [Profile] Avatar updated successfully');
                           } else {
-                            //console.log('❌ [Profile] Upload failed:', uploadData.error?.message || 'Unknown error');
                             throw new Error(uploadData.error?.message || 'Upload failed');
                           }
                         } catch (err) {
-                      
-                          setError(err.message || 'Failed to upload avatar');
+                          // Friendly message when Cloudinary is not configured (503)
+                          if (err.status === 503 || err.code === 'CLOUDINARY_NOT_CONFIGURED') {
+                            setError('Image uploads are not available right now. Please try a preset avatar instead.');
+                          } else {
+                            setError(err.message || 'Failed to upload avatar');
+                          }
                         } finally {
                           setIsSubmitting(false)
                         }
