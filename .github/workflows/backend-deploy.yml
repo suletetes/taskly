@@ -50,7 +50,7 @@ jobs:
         working-directory: backend
 
       - name: Run linter
-        run: npm run lint || echo "Lint not configured, skipping"
+        run: npm run lint
         working-directory: backend
 
   # ─── Test ───────────────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ jobs:
         working-directory: backend
 
       - name: Run unit tests
-        run: npm test -- --project=unit || echo "Tests passed or not configured"
+        run: npm run test:unit
         working-directory: backend
         env:
           NODE_ENV: test

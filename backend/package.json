@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "build": "echo 'Backend build complete'",
     "test": "jest",
+    "test:unit": "jest --selectProjects unit",
     "test:coverage": "jest --coverage",
     "seed": "node seeds/userSeed.js",
     "seed:comprehensive": "node seeds/comprehensiveSeed.js",
