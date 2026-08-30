@@ -24,6 +24,11 @@ output "api_handler_qualified_arn" {
   value       = aws_lambda_function.api_handler.qualified_arn
 }
 
+output "api_handler_log_group_name" {
+  description = "Name of the API handler Lambda CloudWatch log group. Sourced from the log group resource so consumers (e.g. the monitoring module's metric filters) build a proper dependency edge and are not created before the log group exists."
+  value       = aws_cloudwatch_log_group.api_handler.name
+}
+
 # ─── Achievement Processor ────────────────────────────────────────────────────
 
 output "achievement_processor_arn" {

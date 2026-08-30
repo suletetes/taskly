@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "taskly-terraform-state"
+    bucket         = "taskly-terraform-state-583168584925"
     key            = "environments/dev/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "taskly-terraform-locks"

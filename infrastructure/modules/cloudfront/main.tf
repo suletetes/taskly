@@ -141,6 +141,7 @@ resource "aws_cloudfront_response_headers_policy" "frontend_security" {
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudfront_distribution" "frontend" {
+  count               = var.enable_distributions ? 1 : 0
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "${local.name_prefix} frontend distribution"
@@ -270,6 +271,7 @@ resource "aws_cloudfront_cache_policy" "uploads" {
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudfront_distribution" "uploads" {
+  count               = var.enable_distributions ? 1 : 0
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "${local.name_prefix} uploads distribution"
@@ -329,6 +331,7 @@ resource "aws_cloudfront_distribution" "uploads" {
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_policy" "frontend_cloudfront" {
+  count  = var.enable_distributions ? 1 : 0
   bucket = var.frontend_bucket_id
 
   policy = jsonencode({
@@ -344,7 +347,7 @@ resource "aws_s3_bucket_policy" "frontend_cloudfront" {
         Resource = "${var.frontend_bucket_arn}/*"
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.frontend.arn
+            "AWS:SourceArn" = aws_cloudfront_distribution.frontend[0].arn
           }
         }
       }
@@ -358,6 +361,7 @@ resource "aws_s3_bucket_policy" "frontend_cloudfront" {
 # -----------------------------------------------------------------------------
 
 resource "aws_s3_bucket_policy" "uploads_cloudfront" {
+  count  = var.enable_distributions ? 1 : 0
   bucket = var.uploads_bucket_id
 
   policy = jsonencode({
@@ -373,7 +377,7 @@ resource "aws_s3_bucket_policy" "uploads_cloudfront" {
         Resource = "${var.uploads_bucket_arn}/*"
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.uploads.arn
+            "AWS:SourceArn" = aws_cloudfront_distribution.uploads[0].arn
           }
         }
       }

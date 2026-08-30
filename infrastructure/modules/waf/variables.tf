@@ -25,6 +25,20 @@ variable "api_gateway_stage_arn" {
   type        = string
 }
 
+variable "enable_api_gateway_association" {
+  description = <<-EOT
+    Whether to associate the WAF WebACL with the API Gateway stage.
+    WAFv2 regional WebACLs can only be associated with API Gateway v1 (REST) stages,
+    Application Load Balancers, AppSync, Cognito user pools, and App Runner services.
+    They CANNOT be associated with API Gateway v2 (HTTP API) stages. Taskly uses an
+    HTTP API (aws_apigatewayv2_api, protocol_type = "HTTP"), so this defaults to false.
+    The WebACL is still created and can be attached to a compatible resource, or the
+    API can be fronted by CloudFront (which supports the CLOUDFRONT-scope WebACL).
+  EOT
+  type        = bool
+  default     = false
+}
+
 variable "rate_limit" {
   description = "Maximum requests per IP per 5-minute window before rate limiting"
   type        = number

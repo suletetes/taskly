@@ -263,6 +263,7 @@ terraform.rc
 backend/lambda-deploy.zip
 backend/lambda-placeholder.zip
 backend/placeholder.js
+backend/build/
 response.json
 logs.txt
 
