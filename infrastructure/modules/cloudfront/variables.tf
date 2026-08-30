@@ -16,6 +16,21 @@ variable "environment" {
   }
 }
 
+variable "enable_distributions" {
+  description = <<-EOT
+    Whether to create the two CloudFront distributions (frontend + uploads) and
+    their S3 bucket policies. New/unverified AWS accounts return
+    "AccessDenied: Your account must be verified before you can add new
+    CloudFront resources" from the CloudFront API until AWS Support verifies the
+    account. Set this to false to deploy the rest of the stack (API, Lambda,
+    DocumentDB, etc.) without CloudFront; when disabled, cdn_domain falls back to
+    the uploads S3 bucket regional domain name. Re-enable and re-apply once the
+    account is verified. Defaults to true.
+  EOT
+  type        = bool
+  default     = true
+}
+
 # -----------------------------------------------------------------------------
 # Frontend Distribution Variables
 # -----------------------------------------------------------------------------

@@ -179,11 +179,26 @@ resource "aws_s3_bucket_replication_configuration" "uploads" {
   bucket = var.uploads_bucket_id
   role   = aws_iam_role.replication.arn
 
+  # S3 requires versioning to be ENABLED on the destination (replica) bucket
+  # before a replication configuration referencing it can be created. Without
+  # this explicit dependency Terraform may create the replication config before
+  # the versioning resource is applied, yielding:
+  #   "Destination bucket must have versioning enabled."
+  depends_on = [aws_s3_bucket_versioning.uploads_replica]
+
   rule {
     id     = "replicate-all"
     status = "Enabled"
 
     filter {}
+
+    # When a `filter` is present, S3 uses the V2 replication schema which
+    # REQUIRES delete_marker_replication to be specified explicitly, otherwise:
+    #   "DeleteMarkerReplication must be specified for this version of Cross
+    #    Region Replication configuration schema."
+    delete_marker_replication {
+      status = "Enabled"
+    }
 
     destination {
       bucket        = aws_s3_bucket.uploads_replica.arn

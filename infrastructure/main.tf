@@ -43,6 +43,7 @@ module "cloudfront" {
 
   project                             = var.project_name
   environment                         = var.environment
+  enable_distributions                = var.enable_cloudfront
   frontend_bucket_id                  = module.s3.frontend_bucket_id
   frontend_bucket_arn                 = module.s3.frontend_bucket_arn
   frontend_bucket_regional_domain_name = module.s3.frontend_bucket_regional_domain_name
@@ -204,7 +205,7 @@ module "monitoring" {
   project_name               = var.project_name
   environment                = var.environment
   api_handler_function_name  = module.lambda.api_handler_function_name
-  api_handler_log_group_name = "/aws/lambda/${module.lambda.api_handler_function_name}"
+  api_handler_log_group_name = module.lambda.api_handler_log_group_name
   documentdb_cluster_id      = module.documentdb.cluster_id
   tags                       = local.common_tags
 }

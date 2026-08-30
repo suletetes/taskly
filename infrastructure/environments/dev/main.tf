@@ -20,4 +20,7 @@ module "taskly" {
   documentdb_instance_class = var.documentdb_instance_class
   documentdb_instance_count = var.documentdb_instance_count
   vpc_cidr                  = var.vpc_cidr
+
+  # Feature flags
+  enable_cloudfront = var.enable_cloudfront
 }

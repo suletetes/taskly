@@ -137,7 +137,11 @@ resource "aws_wafv2_web_acl" "api" {
 
 # ─── WAF Association with API Gateway ─────────────────────────────────────────
 
+# NOTE: WAFv2 regional WebACLs cannot be associated with API Gateway v2 (HTTP API)
+# stages. Taskly's API Gateway is an HTTP API, so this association is disabled by
+# default (see var.enable_api_gateway_association). The WebACL itself is still created.
 resource "aws_wafv2_web_acl_association" "api_gateway" {
+  count        = var.enable_api_gateway_association ? 1 : 0
   resource_arn = var.api_gateway_stage_arn
   web_acl_arn  = aws_wafv2_web_acl.api.arn
 }

@@ -35,6 +35,12 @@ alarm_email_endpoints  = []
 
 # CloudFront
 cloudfront_price_class = "PriceClass_100"
+# This AWS account is not yet verified for CloudFront (the CloudFront API returns
+# "AccessDenied: Your account must be verified before you can add new CloudFront
+# resources"). Disable distributions so the rest of the stack deploys; the Lambda
+# CDN_DOMAIN falls back to the uploads S3 bucket regional domain. Set to true and
+# re-apply once AWS Support verifies the account for CloudFront.
+enable_cloudfront = false
 
 # CORS
 cors_allowed_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]

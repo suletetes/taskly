@@ -53,6 +53,36 @@ cd "${BACKEND_DIR}"
 echo "==> Installing production dependencies (npm install --omit=dev)"
 npm install --omit=dev
 
+# --- Prune bundle bloat to stay under Lambda's 250MB unzipped limit ----------
+# The full production node_modules is ~310MB unzipped, which exceeds Lambda's
+# hard limit of 262144000 bytes (250 MiB). We prune packages that are either
+# provided by the Node.js 20 Lambda runtime or unused by the four deployed
+# handlers:
+#   - @aws-sdk / @smithy : AWS SDK for JavaScript v3 is bundled in the nodejs20.x
+#                          runtime (client-s3, client-ses, client-sqs,
+#                          client-eventbridge, client-secrets-manager,
+#                          s3-request-presigner, ...). Safe to exclude from the zip.
+#   - @img / sharp       : native image libs imported ONLY by
+#                          lambda/processors/image-processor.js, which is NOT one
+#                          of the four deployed functions. Not loaded by the
+#                          api/achievement/notification/email handlers.
+#   - core-js            : polyfill with no direct import in backend source.
+# This reduces the unzipped bundle to ~238MB.
+PRUNE_MODULES=(
+  "@aws-sdk"
+  "@smithy"
+  "@img"
+  "sharp"
+  "core-js"
+)
+echo "==> Pruning runtime-provided / unused modules to fit the 250MB limit"
+for m in "${PRUNE_MODULES[@]}"; do
+  if [ -e "${BACKEND_DIR}/node_modules/${m}" ]; then
+    echo "    - removing node_modules/${m}"
+    rm -rf "${BACKEND_DIR}/node_modules/${m:?}"
+  fi
+done
+
 # --- Download the DocumentDB TLS certificate bundle --------------------------
 echo "==> Downloading DocumentDB global TLS bundle -> ${PEM_PATH}"
 curl -fsSL "${PEM_URL}" -o "${PEM_PATH}"

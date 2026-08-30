@@ -40,6 +40,21 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "enable_cloudfront" {
+  description = <<-EOT
+    Whether to create the CloudFront distributions (frontend + uploads). Set to
+    false on AWS accounts that have not been verified for CloudFront (the
+    CloudFront API returns "AccessDenied: Your account must be verified before
+    you can add new CloudFront resources" until AWS Support verifies the
+    account). When false, the rest of the stack (API Gateway, Lambda, DocumentDB,
+    etc.) still deploys, and the Lambda CDN_DOMAIN falls back to the uploads S3
+    bucket regional domain name. Re-enable and re-apply once the account is
+    verified. Defaults to true.
+  EOT
+  type        = bool
+  default     = true
+}
+
 # ─── Database ─────────────────────────────────────────────────────────────────
 
 variable "documentdb_master_password" {

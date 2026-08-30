@@ -170,3 +170,9 @@ variable "cors_allowed_origins" {
   type        = list(string)
   default     = ["http://localhost:3000", "http://127.0.0.1:3000"]
 }
+
+variable "enable_cloudfront" {
+  description = "Whether to create CloudFront distributions. Disable on AWS accounts not yet verified for CloudFront; the rest of the stack still deploys."
+  type        = bool
+  default     = true
+}
