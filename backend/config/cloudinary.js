@@ -93,7 +93,15 @@ if (!configValidation.success) {
 }
   */
 
-// Configure Cloudinary storage for multer (only if configured)
+// Configure Cloudinary storage for multer (only if configured).
+//
+// Known limitation: the storage backend (CloudinaryStorage vs memoryStorage) is
+// selected once here at module load, based on the env available at import time.
+// Because dotenv.config() runs at the top of this module and the app loads env
+// before requiring routes, this reflects the real configuration in practice.
+// The upload route additionally re-checks validateCloudinaryConfig() per request
+// and returns 503 CLOUDINARY_NOT_CONFIGURED when unset, so an unconfigured
+// deployment fails fast rather than silently writing to memory storage.
 let storage;
 if (configValidation.success) {
   storage = new CloudinaryStorage({
@@ -119,19 +127,12 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
-    console.log(' [Multer] File filter check:', {
-      fieldname: file.fieldname,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size
-    });
-    
-    // Check file type
-    if (file.mimetype.startsWith('image/')) {
-      console.log(' [Multer] File type accepted:', file.mimetype);
+    // Note: mimetype is client-controlled; Cloudinary re-validates the actual
+    // bytes and enforces allowed_formats on the storage side. We avoid logging
+    // per-request file metadata to stdout.
+    if (file.mimetype && file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      console.log(' [Multer] File type rejected:', file.mimetype);
       cb(new Error('Only image files are allowed!'), false);
     }
   }

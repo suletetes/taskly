@@ -64,8 +64,10 @@ const Users = () => {
     setAddError(null)
     setAddSuccess('')
     try {
-      // Existing endpoint: POST /api/auth/register
-      await authService.register({
+      // Admin-create via POST /api/auth/register. adminCreateUser does NOT
+      // touch localStorage, and the backend skips auto-login for authenticated
+      // callers, so the admin stays logged in as themselves.
+      await authService.adminCreateUser({
         fullname: addForm.fullname,
         username: addForm.username,
         email: addForm.email,

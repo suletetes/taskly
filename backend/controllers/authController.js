@@ -58,7 +58,24 @@ const register = async (req, res) => {
             //console.error('  Failed to send welcome email:', emailError.message);
         }
 
-        // Auto-login after registration
+        // Admin-create path: when the request is already authenticated (an admin
+        // adding a user from the Users page), do NOT call req.logIn — that would
+        // replace the admin's own session with the newly created account. Just
+        // return the created user and leave the caller's session untouched.
+        if (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) {
+            const userResponse = newUser.toObject();
+            delete userResponse.password;
+
+            return res.status(201).json({
+                success: true,
+                data: {
+                    user: userResponse
+                },
+                message: 'User created successfully'
+            });
+        }
+
+        // Auto-login after registration (public self-registration)
         req.logIn(newUser, (err) => {
             if (err) {
                 //console.error('Auto-login error:', err);

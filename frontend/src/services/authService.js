@@ -16,6 +16,21 @@ const authService = {
     }
   },
 
+  // Admin-create a user from the Users page.
+  //
+  // Uses the same POST /auth/register endpoint, but the backend skips the
+  // auto-login (req.logIn) when the caller is already authenticated, so the
+  // admin's session is preserved. Unlike register(), this MUST NOT write the
+  // created user into localStorage — doing so would overwrite the admin's own
+  // cached identity.
+  async adminCreateUser(userData) {
+    try {
+      return await apiService.post('/auth/register', userData)
+    } catch (error) {
+      throw this.handleAuthError(error)
+    }
+  },
+
   // User login
   async login(credentials) {
     try {

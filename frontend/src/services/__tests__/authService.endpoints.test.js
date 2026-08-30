@@ -49,6 +49,19 @@ describe('authService endpoints (FEAT-003)', () => {
     expect(apiService.get).toHaveBeenCalledWith('/auth/me', expect.any(Object))
   })
 
+  it('adminCreateUser posts to /auth/register without overwriting localStorage.user', async () => {
+    // Simulate an admin already cached in localStorage.
+    localStorage.setItem('user', JSON.stringify({ _id: 'admin', username: 'admin' }))
+    apiService.post.mockResolvedValue({ success: true, data: { user: { _id: 'new', username: 'newuser' } } })
+
+    await authService.adminCreateUser({ fullname: 'N', username: 'newuser', email: 'n@b.c', password: 'secret1' })
+
+    expect(apiService.post).toHaveBeenCalledWith('/auth/register', expect.any(Object))
+    // The admin's cached identity must NOT be replaced by the created user.
+    const stored = JSON.parse(localStorage.getItem('user'))
+    expect(stored.username).toBe('admin')
+  })
+
   it('updateUserProfile is repointed to PUT /users/profile (not /auth/profile)', async () => {
     apiService.put.mockResolvedValue({ success: true, data: { user: { _id: '1', fullname: 'New' } } })
 

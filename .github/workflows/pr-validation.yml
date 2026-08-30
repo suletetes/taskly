@@ -47,8 +47,11 @@ jobs:
         run: npm run lint
         working-directory: backend
 
-      - name: Unit tests
-        run: npm run test:unit
+      # Run BOTH jest projects (unit + db). The db project uses
+      # mongodb-memory-server (no external services) and holds the session-auth,
+      # /auth/*, and avatar-upload tests that protect these fixes.
+      - name: Tests
+        run: npm run test:ci
         working-directory: backend
         env:
           NODE_ENV: test
@@ -77,9 +80,18 @@ jobs:
         run: npm run lint || echo "Lint reported issues (non-blocking backlog)"
         working-directory: frontend
 
-      # Frontend has many pre-existing failing unit tests; kept non-blocking.
-      - name: Tests
+      # Frontend has many pre-existing failing unit tests; the full run is kept
+      # non-blocking against that documented baseline.
+      - name: Tests (full, non-blocking baseline)
         run: npm test -- --run || echo "Some frontend tests failing (non-blocking baseline)"
+        working-directory: frontend
+        env:
+          CI: true
+
+      # BLOCKING gate over the suites covering the auth/profile/onboarding fixes.
+      # These pass reliably and must not regress.
+      - name: Tests (changed suites, blocking)
+        run: npx vitest run src/context/__tests__/AuthContext.updateProfile.test.jsx src/services/__tests__/authService.endpoints.test.js
         working-directory: frontend
         env:
           CI: true

@@ -80,6 +80,36 @@ describe('Auth Routes (session-based)', () => {
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
     });
+
+    it('does NOT change the caller session when an authenticated admin creates a user', async () => {
+      // An admin is logged in via a session agent.
+      const { agent, payload: adminPayload } = await registerAndLogin();
+
+      // Sanity: the agent is authenticated as the admin.
+      const before = await agent.get('/api/auth/me');
+      expect(before.status).toBe(200);
+      expect(before.body.data.user.username).toBe(adminPayload.username);
+
+      // The admin creates a new user through the SAME authenticated agent.
+      const newUserPayload = buildUserPayload();
+      const createRes = await agent
+        .post('/api/auth/register')
+        .send(newUserPayload);
+
+      expect(createRes.status).toBe(201);
+      expect(createRes.body.success).toBe(true);
+      expect(createRes.body.data.user.username).toBe(newUserPayload.username);
+
+      // The new user must exist...
+      const created = await User.findOne({ username: newUserPayload.username });
+      expect(created).not.toBeNull();
+
+      // ...but the admin's session must be untouched: /me still returns the admin,
+      // NOT the newly created user. (Reverting the admin-create guard turns this red.)
+      const after = await agent.get('/api/auth/me');
+      expect(after.status).toBe(200);
+      expect(after.body.data.user.username).toBe(adminPayload.username);
+    });
   });
 
   describe('POST /api/auth/login', () => {
