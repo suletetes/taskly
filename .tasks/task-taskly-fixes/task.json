@@ -1,0 +1,7 @@
+{
+  "task_id": "task-taskly-fixes",
+  "task_description": "Fix Taskly's broken functionality end to end for session-based/local usage: unify authentication (session-cookie frontend vs Bearer-only backend routes), persist profile/settings updates, repair the onboarding flow (persist to user.onboarding, fix fullname mapping, resolve empty step 4, add user + view previous onboards), set up Cloudinary image upload and the email service, reconcile frontend service calls against real backend routes, wire the existing Teams/Projects UI to the backend, repair the stale backend test suite and add a backend ESLint config, and fix CI/CD. Scope is fixes to existing functionality, not new complex features. No secrets hardcoded; no Terraform apply.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}
